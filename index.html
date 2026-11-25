@@ -112,7 +112,19 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 .pcnav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
 .pcnav button{font:inherit;font-family:var(--display);font-size:18px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:6px;width:44px;height:36px;cursor:pointer}
 .pcnav button.sel{border-color:var(--amber)}
-.slot{display:flex;gap:12px;justify-content:center}.reel{font-size:56px;background:#fff8ec;border:4px solid var(--amber);border-radius:10px;width:90px;height:104px;display:flex;align-items:center;justify-content:center}
+.slot{display:flex;gap:12px;justify-content:center}.reel{font-size:56px;background:linear-gradient(#d8cbb4,#fff8ec 30%,#fff8ec 70%,#d8cbb4);border:4px solid var(--amber);border-radius:10px;width:90px;height:104px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(0,0,0,.35)}
+.reel.spin{filter:blur(1.5px);transform:translateY(2px)}
+.slotbox{background:linear-gradient(#5a1414,#2a0c0c);border:3px solid var(--amber);border-radius:14px;padding:16px 10px 12px;box-shadow:0 0 0 3px #1a0a06,0 0 24px rgba(242,169,59,.25);display:flex;flex-direction:column;gap:10px;align-items:center}
+.slotmsg{font-family:var(--display);color:var(--fg);text-align:center;min-height:1.4em}.slotmsg.win{color:#ffd14a;text-shadow:0 0 10px rgba(255,209,74,.6)}
+.betrow{align-items:center}.bet{font-size:18px;min-width:150px;text-align:center}.bet b{color:var(--amber);font-size:22px}
+.qm{display:inline-flex;width:18px;height:18px;border-radius:50%;border:1px solid var(--muted);font:500 12px var(--body);align-items:center;justify-content:center;color:var(--muted);cursor:help;position:relative;vertical-align:middle;margin-left:6px}
+.qm .tip{display:none;position:absolute;top:130%;left:50%;transform:translateX(-50%);background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:8px 10px;z-index:5;width:max-content;max-width:min(300px,80vw);color:var(--fg);font:400 13px var(--body);text-align:left;line-height:1.35}
+.qm:hover .tip,.qm:focus .tip,.qm.open .tip{display:block}
+.ptab{border-collapse:collapse;margin-bottom:4px}.ptab td,.ptab th{padding:1px 8px;font-variant-numeric:tabular-nums}.ptab th{color:var(--muted);font-weight:500}.ptab td:nth-child(2){color:var(--amber)}
+.hype{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hype small{color:var(--muted)}.hb{height:12px;background:var(--panel2);border:1px solid var(--line);border-radius:99px;overflow:hidden}.hb i{display:block;height:100%;background:var(--good);transition:width .4s}.hb.mc i{background:var(--bad)}
+.verse{background:var(--panel);border-left:4px solid var(--amber);border-radius:6px;padding:10px 12px;font-size:17px;line-height:1.4}
+.tbar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}.tbar i{display:block;height:100%;width:100%;background:var(--amber)}
+.gops{display:flex;flex-direction:column;gap:8px}.gops .big{text-align:left;font-family:var(--body);font-size:16px;line-height:1.3}
 #pad{display:grid;grid-template-columns:auto 1fr auto;align-items:center;width:100%;max-width:520px;touch-action:none;flex:none}
 .dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px)}
 .pb{font:inherit;font-family:var(--display);background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:8px;font-size:20px;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -753,7 +765,7 @@ const SHOE_C=["#222222","#f4f4f4","#d23a2e","#3b4bd0","#f2c14e"];
 const SKIN_FIELDS=[["hs","Peinado",HAIRS.length,i=>HAIRS[i]],["hc","Color de pelo",HAIR_C.length,i=>HAIR_C[i]],["sc","Piel",SKIN_C.length,i=>SKIN_C[i]],
   ["ts","Ropa",TOPS.length,i=>TOPS[i]],["tc","Color de ropa",TOP_C.length,i=>TOP_C[i]],["tz","Color de detalles",TOP_C.length,i=>TOP_C[i]],
   ["pc","Pantalón",PANT_C.length,i=>PANT_C[i]],["kc","Zapatillas",SHOE_C.length,i=>SHOE_C[i]]];
-const ACC_FIELDS=[["ag","Gafas",3,i=>["Ninguna","De sol","De corazón"][i]],["an","Cuello",2,i=>["Nada","Cadena de oro"][i]],["ac","Espalda",2,i=>["Nada","Capa roja"][i]]];
+const ACC_FIELDS=[["ag","Gafas",3,i=>["Ninguna","De sol","De corazón"][i]],["an","Cuello",3,i=>["Nada","Cadena de oro","Cascos de DJ"][i]],["ac","Espalda",2,i=>["Nada","Capa roja"][i]]];
 function accOk(k,v){if(!ACC_FIELDS.some(f=>f[0]===k))return true;return v===0||!!(S&&S.accU&&S.accU[k+v])}
 function accAny(k){const f=ACC_FIELDS.find(x=>x[0]===k);for(let v=1;v<f[2];v++)if(accOk(k,v))return true;return false}
 function defSkin(){return{hs:0,hc:0,sc:0,ts:0,tc:0,tz:5,pc:0,kc:0,ag:0,an:0,ac:0}}
@@ -793,7 +805,8 @@ function capeDraw(put,dir,bob,back){const R="#c8202a",D="#8e141a",L="#e8484a",G=
 function accDraw(put,dir,acc,bob){if(!acc)return;
   if(acc.ac)capeDraw(put,dir,bob,false);
   if(acc.ag&&dir!=="up"){const col=acc.ag===2?"#e04a9a":"#111111";if(dir==="down"){put(2,3-bob,6,1,col);put(3,3-bob,1,1,acc.ag===2?"#ff9ad0":"#5a6a8a")}else if(dir==="left")put(2,3-bob,3,1,col);else put(5,3-bob,3,1,col)}
-  if(acc.an&&dir!=="up"){put(3,6-bob,4,1,"#f2c14e");put(4,7-bob,2,1,"#f2c14e")}}
+  if(acc.an===1&&dir!=="up"){put(3,6-bob,4,1,"#f2c14e");put(4,7-bob,2,1,"#f2c14e")}
+  else if(acc.an===2){if(dir==="up")put(2,6-bob,6,1,"#222222");else{put(2,6-bob,6,1,"#222222");if(dir!=="right")put(1,6-bob,2,2,"#d23a2e");if(dir!=="left")put(7,6-bob,2,2,"#d23a2e")}}}
 function drawChar(pal,dir,sx,sy,walk,bob,hs,ts,fat,acc){
   ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(sx+8,sy+15,fat?6:5,2,0,0,7);ctx.fill();
   const put=(i,j,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(sx+3+i,sy+1+j,w,h)};
@@ -907,6 +920,7 @@ const NPCS=[
    pre:["La Loli del Taburete: Cariño, este taburete es mío desde 1994. Si quieres pasar, me ganas.","La Loli del Taburete: ¡Paco, ponme otra, que voy a pelear!"],lose:"La Loli del Taburete: Ay, qué arte tienes… Venga, pasa, que te invito a un chupito. De agua no, ¿eh?"}},
  {id:"paco",map:"bar",x:6,y:2,dir:"down",pal:NPC_PAL.paco,hs:2,ts:4,fat:true},
  {id:"abuela",map:"abuela",x:3,y:2,dir:"down",pal:NPC_PAL.abuela,hs:3,idle:true},
+ {id:"mc",map:"descampado",x:4,y:7,dir:"right",pal:{h:"#111111",s:"#8a5a3a",e:"#222",c:"#1a1a1a",z:"#f2c14e",p:"#2a3a6a",k:"#f4f4f4"},hs:4,ts:1,idle:true},
  {id:"madre",map:"chustahouse",x:4,y:2,dir:"down",pal:NPC_PAL.madre,hs:3,ts:2,fat:true,idle:true}
 ];
 function npcAt(x,y){return NPCS.find(n=>n.map===S.map&&n.x===x&&n.y===y)}
@@ -1032,7 +1046,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="19 · capa nueva y nombres del derecho";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="20 · tragaperras nueva y batalla de gallos";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -1393,6 +1407,7 @@ const PASMA_TR={name:"Agentes Pérez y Gómez",short:"La Pasma",pal:NPC_PAL.poli
   lose:"Agente Pérez: ¡Retirada, Gómez! ¡Esto no acaba aquí! ¡La Ley Seca llegará a todo el país!"};
 async function talk(n){
   const id=n.id;
+  if(id==="mc"){await gallos();return}
   if(id==="dealer"){
     if(!S.flags.starter){await intro();return}
     if(S.flags.gym){await say("El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Dicen que los hippies del Huerto también tienen problemas con La Pasma… (Próximamente.)");return}
@@ -1691,25 +1706,95 @@ async function palmasPremio(sc){
   save();
 }
 /* ---- minijuego: la tragaperras de Paco ---- */
+// Tragaperras: cada símbolo sale con distinta probabilidad (w) y paga apuesta × x3 (tres iguales) o × x2 (dos iguales)
+const SLOT=[{s:"🍋",n:"Limón",w:30,x3:5,x2:1},{s:"🥙",n:"Kebab",w:25,x3:8,x2:1},{s:"🍺",n:"Birra",w:20,x3:12,x2:1},{s:"🚬",n:"Piti",w:14,x3:20,x2:1},{s:"🌿",n:"Cogollo",w:8,x3:40,x2:3},{s:"💰",n:"Bote",w:3,x3:100,x2:10}];
+const BETS=[1,5,10,20,50,100];
 function slotMachine(){
   return new Promise(res=>{
-    const SYM=["🍺","🚬","🌿","🥙","🍋","💰"];let spinning=false;const reels=[0,1,2];
-    const render=msg=>{overlay(`<h2>🎰 La tragaperras de Paco</h2><p>${esc(msg)}</p><div class="slot">${reels.map((r,i)=>`<div class="reel" id="rl-${i}">${SYM[r]}</div>`).join("")}</div>
-      <p>Tienes ${S.money} pavos · Cada tirada cuesta 5 pavos</p><div class="btns"><button class="big" type="button" id="sl-go"${S.money<5?" disabled":""}>🎰 Tirar (5 pavos)</button><button class="big alt" type="button" id="sl-x">Salir</button></div>
-      <p class="keys">Tres iguales: 50 pavos · 💰💰💰: 100 pavos y premio sorpresa · Dos iguales: 10 pavos</p>`,{onB:close,focusId:"sl-go"});
-      $("sl-go").onclick=spin;$("sl-x").onclick=close};
-    function spin(){if(spinning||S.money<5)return;spinning=true;S.money-=5;sfx("throw");let n=0;const stops=[12,18,24];const out=[ri(0,5),ri(0,5),ri(0,5)];
-      const iv=setInterval(()=>{n++;for(let i=0;i<3;i++){if(n<stops[i])reels[i]=(reels[i]+1)%6;else reels[i]=out[i];const el=$("rl-"+i);if(el)el.textContent=SYM[reels[i]]}if(n%3===0)sfx("sel");
-        if(n>=stops[2]){clearInterval(iv);spinning=false;payout(out)}},70)}
-    function payout(r){let win=0,msg;
-      if(r[0]===r[1]&&r[1]===r[2]){win=r[0]===5?100:50;msg=r[0]===5?"¡¡JACKPOT!! 💰💰💰 A Paco se le cae el palillo de la boca.":"¡Tres iguales! Paco te mira fatal.";
-        if(r[0]===5&&!S.accU.ag2){S.accU.ag2=true;msg+=" ¡Y te llevas las 😍 Gafas de corazón! (Póntelas en el Mercadillo.)"}sfx("win")}
-      else if(r[0]===r[1]||r[1]===r[2]||r[0]===r[2]){win=10;msg="Dos iguales: te llevas 10 pavos.";sfx("buy")}
-      else{msg=pick(["Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra."]);sfx("weak")}
-      S.money+=win;save();render(msg)}
+    const tw=SLOT.reduce((a,b)=>a+b.w,0);const roll=()=>{let r=rnd()*tw;for(let i=0;i<SLOT.length;i++){r-=SLOT[i].w;if(r<0)return i}return 0};
+    let spinning=false,bi=Math.max(0,BETS.indexOf(S.slotBet||5)),lastWin=0,msg="Elige cuánto apuestas y dale a la palanca. ¡Suerte, chaval!";const reels=[0,1,2];
+    const fmt=p=>{const v=p*100;return(v<1?v.toFixed(2):v.toFixed(1)).replace(".",",")+" %"};
+    const tip=()=>`<table class="ptab"><tr><th></th><th>Premio</th><th>Prob.</th></tr>${SLOT.map(o=>{const p=o.w/tw;return`<tr><td>${o.s}${o.s}${o.s}</td><td>×${o.x3}</td><td>${fmt(p*p*p)}</td></tr><tr><td>${o.s}${o.s} ·</td><td>×${o.x2}</td><td>${fmt(3*p*p*(1-p))}</td></tr>`}).join("")}</table>Premio = tu apuesta × lo que pone. «Dos iguales» vale en cualquier posición. El primer 💰💰💰 trae regalo sorpresa.`;
+    const render=focus=>{const bet=BETS[bi];
+      overlay(`<h2>🎰 La tragaperras de Paco<span class="qm" tabindex="0" role="button" aria-label="Premios y probabilidades">?<span class="tip">${tip()}</span></span></h2>
+      <div class="slotbox"><div class="slot">${reels.map((r,i)=>`<div class="reel" id="rl-${i}">${SLOT[r].s}</div>`).join("")}</div><div class="slotmsg${lastWin?" win":""}" id="sl-msg">${esc(msg)}</div></div>
+      <p>Tienes <b>${S.money}</b> pavos${lastWin?` · Último premio: <b>${lastWin}</b>`:""}</p>
+      <div class="btns betrow"><button class="big alt" type="button" id="sl-m"${bi===0?" disabled":""} aria-label="Bajar apuesta">➖</button><span class="bet">Apuesta: <b>${bet}</b> pavo${bet>1?"s":""}</span><button class="big alt" type="button" id="sl-p"${bi===BETS.length-1?" disabled":""} aria-label="Subir apuesta">➕</button></div>
+      <div class="btns"><button class="big" type="button" id="sl-go"${S.money<bet?" disabled":""}>🎰 Tirar (${bet})</button><button class="big alt" type="button" id="sl-x">Salir</button></div>`,{onB:close,focusId:focus||"sl-go"});
+      $("sl-m").onclick=()=>{if(spinning||bi===0)return;bi--;S.slotBet=BETS[bi];sfx("sel");render("sl-m")};
+      $("sl-p").onclick=()=>{if(spinning||bi===BETS.length-1)return;bi++;S.slotBet=BETS[bi];sfx("sel");render("sl-p")};
+      $("sl-go").onclick=spin;$("sl-x").onclick=close;
+      const q=ov.querySelector(".qm");q.onclick=e=>{e.stopPropagation();q.classList.toggle("open")}};
+    function spin(){const bet=BETS[bi];if(spinning||S.money<bet)return;spinning=true;S.money-=bet;sfx("throw");lastWin=0;
+      let n=0;const stops=[14,21,28];const out=[roll(),roll(),roll()];const m=$("sl-msg");if(m){m.textContent="Girando…";m.classList.remove("win")}
+      const iv=setInterval(()=>{n++;for(let i=0;i<3;i++){const el=$("rl-"+i);if(n<stops[i]){reels[i]=(reels[i]+1)%SLOT.length;if(el)el.classList.add("spin")}else{reels[i]=out[i];if(el)el.classList.remove("spin")}if(el)el.textContent=SLOT[reels[i]].s;if(n===stops[i])sfx("plop")}if(n%3===0)sfx("sel");
+        if(n>=stops[2]){clearInterval(iv);spinning=false;payout(out,bet)}},65)}
+    function payout(r,bet){let win=0;
+      if(r[0]===r[1]&&r[1]===r[2]){const o=SLOT[r[0]];win=bet*o.x3;
+        msg=o.s==="💰"?"¡¡JACKPOT!! 💰💰💰 A Paco se le cae el palillo de la boca.":o.s==="🌿"?"¡Tres cogollos! Huele a Huerto del Hippie.":`¡Tres ${o.n.toLowerCase()}s! Paco te mira fatal.`;
+        if(o.s==="💰"&&!S.accU.ag2){S.accU.ag2=true;msg+=" ¡Y te llevas las 😍 Gafas de corazón! (Póntelas en el Mercadillo.)"}sfx("win")}
+      else{const pi=r[0]===r[1]?r[0]:r[1]===r[2]?r[1]:r[0]===r[2]?r[0]:-1;
+        if(pi>=0){const o=SLOT[pi];win=bet*o.x2;msg=o.x2>1?`Dos ${o.s}: ¡×${o.x2}!`:`Dos ${o.s}: recuperas lo apostado.`;sfx("buy")}
+        else{msg=pick(["Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra.","Nada. La Loli te mira desde el taburete: «Esa máquina está trucada desde el 94»."]);sfx("weak")}}
+      lastWin=win;S.money+=win;if(win)msg+=` +${win} pavos.`;save();render()}
     function close(){if(spinning)return;closeOverlay();res()}
-    render("Mete 5 pavos y tira de la palanca. ¡Suerte, chaval!");
+    render();
   });
+}
+/* ---- 🎤 Batalla de gallos (El Descampado) ---- */
+// Cada ronda: verso de MC Litrona y tres respuestas: [texto, puntos] → 3 = rima buena, 1 = rima floja, 0 = ni rima
+const GALLOS=[
+ {mc:"Llegas al Descampado con tu cara de pringao,\ntu Pedomón es tan flojo que lo vendo rebajao.",o:[["¿Rebajao? Rebajao tu sueldo, que vives con tu madre y aún no has pagao.",3],["Pues mi Pedomón es muy bueno y además es mío, ¿vale?",0],["Tú sí que eres flojo y vas siempre despeinao.",1]]},
+ {mc:"Tu flow huele a Steinburg caliente de nevera rota,\nte tiembla hasta la voz, eres un niño con pelota.",o:[["¿Pelota? La que le haces a Paco pa que te fíe: tu vida entera es una derrota.",3],["Tu voz sí que tiembla, colega, y la mía no se nota.",1],["Oye, que la Steinburg está muy buena, que lo sepas.",0]]},
+ {mc:"Vas de malote, pero te cagas con La Pasma,\nte pide el DNI un donut y te da un ataque de asma.",o:[["¿Asma? La que le da a tu público cuando rapeas: se ahogan de aburrimiento, eres un fantasma.",3],["Yo no tengo asma, tengo fuerza y mucho plasma.",1],["La Pasma son unos chorizos, eso lo sabe todo el mundo.",0]]},
+ {mc:"Mírate las zapatillas, son de Saray, del Mercadillo,\npone Nike con dos K, vas vestido de pardillo.",o:[["¿Pardillo? Tus rimas son como el tabaco de Chen: baratas, sin filtro y te dejan amarillo.",3],["Mis zapatillas molan, tú sí que eres un pardillo.",1],["¿Con dos K? A ver… pues sí, oye. Qué fuerte.",0]]},
+ {mc:"Te crees el rey del barrio y no le has ganao ni a Paco,\nese gordo te tumba solo con el olor del sobaco.",o:[["¿Sobaco? El tuyo, que apestas a litrona y a tabaco: rimas menos que un Pedomón flaco.",3],["A Paco le gano cuando quiera y tú eres un macaco.",1],["Paco es buena gente, déjale en paz, hombre.",0]]},
+ {mc:"Te llamas entrenador y entrenas en el sofá,\ntu Pedomón más fuerte se llama «Mamá».",o:[["¿Mamá? La tuya dice que bajes la basura ya: llora el contenedor y tú aquí con tu bla, bla, bla.",3],["Yo entreno en la calle y tú no, ¡ja!",1],["¿Qué tiene de malo el sofá? Es cómodo.",0]]},
+ {mc:"Tus rimas son tan malas que Abdul no las quiere ni con salsa,\neres como el agua de La Pasma: sin sabor y todo falsa.",o:[["¿Falsa? Falsa tu fama: le debes catorce kebabs a Abdul, como el Chusta, y vas de rey del rap con la cartera descalza.",3],["Mis rimas son buenas, eso no es ninguna farsa.",1],["A mí la salsa que más me gusta es la blanca. Y la picante.",0]]},
+ {mc:"Vienes con esa ropa de primera comunión,\nsi fueras un Pedomón serías el más feo de la colección.",o:[["¿Colección? La de multas que te ha puesto La Pasma por rapear sin licencia en un botellón.",3],["Yo soy guapo y tú eres feo, campeón.",1],["Esta ropa me la eligió mi madre. Bueno, Saray.",0]]},
+ {mc:"Rapeas como el Borracho Manolo pidiendo la cuenta,\nte trabas, te repites y al final nadie se entera.",o:[["¿Nadie se entera? Pues entérate tú: este beat es mío y tu carrera se acaba aquí, en la cuneta.",3],["Yo no me trabo, tú sí que te trabas, que eres un… un…",0],["Manolo es mi colega y rapea mejor que tú, so cabeza hueca.",1]]},
+ {mc:"Tu micro está más seco que el bar en plena Ley Seca,\nte escucho rimar y me entran ganas de echar la siesta.",o:[["¿Siesta? La que te echas en el escenario: tú no eres MC, eres una mesa de pino que rima con la puerta.",1],["¿Ley Seca? Seco te dejo yo: guárdate el micro en la mochila, que esto es mi fiesta.",3],["Pues échate la siesta, a mí me da igual.",0]]}
+];
+function gallosBeat(){
+  if(!AC)return()=>{};if(!MUS.gain){MUS.gain=AC.createGain();MUS.gain.gain.value=.55;MUS.gain.connect(AC.destination)}
+  const st=60/90/2;let t=AC.currentTime+.08,i=0;const bass=[40,40,43,38];
+  const iv=setInterval(()=>{while(t<AC.currentTime+.35){const s=i%16;
+    if(s===0||s===7||s===10)musDrum("k",t);if(s===4||s===12)musDrum("s",t);musDrum("h",t);
+    if(s===0)musNote(bass[Math.floor(i/16)%4],t,st*6,"triangle",.07);if(s===8)musNote(bass[Math.floor(i/16)%4]+12,t,st*2,"sine",.025);
+    t+=st;i++}},60);
+  return()=>clearInterval(iv)}
+function gallosGame(){
+  return new Promise(res=>{
+    MUS.hold=true;setMusic(null);const stop=gallosBeat();
+    const rounds=[...GALLOS].sort(()=>rnd()-.5).slice(0,4);let r=0,me=0,mc=0,timer=null;
+    const bars=()=>`<div class="hype"><div><small>Tú · ${me}</small><div class="hb"><i style="width:${Math.min(100,me/12*100)}%"></i></div></div><div><small>MC Litrona · ${mc}</small><div class="hb mc"><i style="width:${Math.min(100,mc/12*100)}%"></i></div></div></div>`;
+    function round(){const R=rounds[r];const ops=R.o.map(o=>({t:o[0],p:o[1]})).sort(()=>rnd()-.5);
+      mc+=ri(1,2)+(rnd()<.35?1:0);sfx("blip");
+      overlay(`<h2>🎤 Batalla de gallos · Ronda ${r+1}/4</h2>${bars()}<div class="verse"><b>MC Litrona:</b><br>${esc(R.mc).replace(/\n/g,"<br>")}</div><div class="tbar"><i id="gt"></i></div><p>¡Tu turno! Elige tu rima antes de que se acabe el beat.</p><div class="gops">${ops.map((o,i)=>`<button class="big alt" type="button" id="go-${i}">${esc(o.t)}</button>`).join("")}</div>`);
+      ops.forEach((o,i)=>{$("go-"+i).onclick=()=>answer(o.p,o.t)});
+      const T=10000,t0=now();timer=setInterval(()=>{const q=1-(now()-t0)/T;const el=$("gt");if(el)el.style.width=Math.max(0,q*100)+"%";if(q<=0)answer(-1,null)},100)}
+    function answer(p,t){if(!timer)return;clearInterval(timer);timer=null;
+      const pts=Math.max(0,p);me+=pts;
+      const react=p===3?["¡UUUUUUH! El Descampado se viene abajo.","¡TOMAAA! Alguien tira una litrona al aire de la emoción.","El público hace «uuuh» y MC Litrona se queda blanco."]:p===1?["Meh… rima, pero el público se mira entre ellos.","Un chaval del fondo aplaude por pena."]:p===0?["¡Buuuuh! Eso no rima ni con diccionario.","Silencio. Se oye un grillo. Y a Manolo eructando a lo lejos."]:["Te quedas en blanco… ¡se acaba el beat y no dices nada!"];
+      sfx(p===3?"win":p===1?"buy":"weak");
+      overlay(`<h2>🎤 Ronda ${r+1}/4</h2>${bars()}${t?`<div class="verse"><b>Tú:</b><br>${esc(t)}</div>`:""}<p>${esc(pick(react))} (+${pts})</p><div class="btns"><button class="big" type="button" id="gn">${r<3?"Siguiente ronda ▶":"Ver quién gana"}</button></div>`,{focusId:"gn"});
+      $("gn").onclick=()=>{r++;if(r<4)round();else end()}}
+    function end(){stop();MUS.hold=false;closeOverlay();res({me,mc})}
+    round();
+  });
+}
+async function gallos(){
+  const first=!S.flags.gallosWin;
+  await sayAll(["MC Litrona: ¡Eh, tú! Esto es El Descampado y aquí manda el micro.","MC Litrona: Batalla de gallos: cuatro rondas. Yo te suelto un verso y tú contestas con la mejor rima. El público decide.",
+    first?"MC Litrona: Si me ganas, te llevo 100 pavos y mis cascos de DJ. Si pierdes, te quedas sin dignidad, que es gratis.":"MC Litrona: ¿Otra vez tú? Venga: 40 pavos si me ganas."]);
+  const j=await choose("MC Litrona: ¿Te atreves?",[{label:"🎤 ¡Dale al beat!"},{label:"Otro día"}]);
+  if(j!==0){await say("MC Litrona: Ya me parecía. Eres gallina, no gallo.");return}
+  closeDlg();const{me,mc}=await gallosGame();setMusic(wantedMusic());
+  if(me>mc){const prize=first?100:40;S.money+=prize;
+    if(first){S.flags.gallosWin=true;S.accU.an2=true}save();sfx("quest");
+    await sayAll([`¡El público te levanta en brazos! Ganas ${me} a ${mc}.`,"MC Litrona: Vale, vale… Tienes flow, lo reconozco. Pero que no se entere nadie.",`Te llevas ${prize} pavos.`].concat(first?["¡Consigues los 🎧 Cascos de DJ! (Póntelos en el Mercadillo, con Saray.)"]:[]))}
+  else if(me===mc){S.money+=10;save();await sayAll([`¡Empate a ${me}! El público pide réplica, pero se ha acabado la batería del altavoz.`,"MC Litrona: Toma 10 pavos pa pilas. La próxima te reviento."])}
+  else{save();await sayAll([`El público se pone del lado de MC Litrona: ${mc} a ${me}.`,"MC Litrona: Vuelve cuando sepas rimar algo más que «pan» con «pan». ¡Fuera de mi Descampado!"])}
 }
 /* ---- casas del barrio ---- */
 async function abuela(){

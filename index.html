@@ -975,7 +975,8 @@ const PICK_AT={"senda,4,16":"senda1","senda,23,6":"senda2","senda,37,15":"senda3
    {id:"okupa",kind:"chabola",x:21,y:16,w:4,h:3,door:[23,18],wall:"#c8202a",roof:"#5a4a4a",label:"",to:"okupa",tags:["OKUPA","Y","RESISTE"]},
    {id:"huerto",kind:"garden",x:27,y:15,w:7,h:4,door:[30,18],wall:"#5a8a3a",roof:"#2a5a1a",label:"HUERTO DE BOB",glow:"#b8ff8a",to:null}
   ];
-  builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
+  // los tejados (tipi, cabaña, yurta, caravanas…) sobresalen por arriba: esa franja tampoco se pisa
+  builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);if(b.kind)R("H",b.x,b.y-1,b.w,1);g[b.door[1]][b.door[0]]="D"});
   MAPS.comuna={w:W,h:H,g,outdoor:true,rasta:true,signs,builds,lamps,music:"comuna",exits:{"0,12":["senda",54,8,"left"]}};
 })();
 function interior420(id,rows,tx,ty,txt){const H=rows.length,W=rows[0].length,ex={};[...rows[H-1]].forEach((c,i)=>{if(c==="e")ex[i+","+(H-1)]=["comuna",tx,ty,"down"]});
@@ -1172,7 +1173,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="26 · Ganja Life y La Senda nueva";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="27 · tejados sólidos";
 const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}

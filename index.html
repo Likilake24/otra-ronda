@@ -4431,6 +4431,37 @@ function slots(){return new Promise(async res=>{if(!await needFichas(1)){res();r
   function exit(){cancelAnimationFrame(raf);closeOverlay();save();res()}
   render();raf=requestAnimationFrame(loop)})}
 
+/* ===================== EL TRILE (en la calle, con pavos) ===================== */
+function trileGame(){return new Promise(async res=>{
+  await sayAll(["Trilero: ¡Pasen, pasen! ¡Dónde está la bolita, dónde está! ¡El que la ve, gana el doble!","Trilero: Tú tienes cara de listo. A ver si eres tan listo como pareces."]);
+  const BETS=[5,10,20,50];let bi=1,cups=[0,1,2],ball=0,state="bet",raf=0,anim=null,chosen=-1,msg="Apuesta y vigila la bolita.";
+  const X=i=>60+i*100;
+  function render(){overlay(`<div class="csn"><h2>🥤 El trile</h2><p>Tienes <b>${S.money}</b> pavos. ${msg}</p><canvas id="tr-c" width="320" height="160" style="width:100%;max-width:460px;display:block;margin:6px auto;border-radius:10px"></canvas>
+    ${state==="bet"?`<div class="btns" style="justify-content:center">${BETS.map((v,i)=>`<button class="big${i===bi?"":" alt"}" type="button" data-b="${i}">${v}</button>`).join("")}</div><div class="btns"><button class="big" type="button" id="tr-go"${S.money<BETS[bi]?" disabled":""}>🥤 ¡Juega!</button><button class="big alt" type="button" id="tr-x">Irse</button></div>`:
+     state==="pick"?`<div class="btns">${[0,1,2].map(i=>`<button class="big" type="button" data-p="${i}">Vaso ${i+1}</button>`).join("")}</div>`:state==="done"?`<div class="btns"><button class="big" type="button" id="tr-n">Otra</button><button class="big alt" type="button" id="tr-x">Irse</button></div>`:""}</div>`,{onB:()=>{if(state==="bet"||state==="done")exit()}});
+    ov.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{bi=+b.dataset.b;render()});ov.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>pickCup(pos.indexOf(+b.dataset.p)));
+    const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};on("tr-go",start);on("tr-x",exit);on("tr-n",()=>{state="bet";msg="Apuesta y vigila la bolita.";chosen=-1;render()});paint()}
+  // pos[i]: posición (0..2) en la mesa del vaso i
+  let pos=[0,1,2],lift=-1;
+  function paint(){const c=$("tr-c");if(!c)return;const x=c.getContext("2d");let g=x.createLinearGradient(0,0,0,160);g.addColorStop(0,"#2a1a10");g.addColorStop(1,"#120a06");x.fillStyle=g;x.fillRect(0,0,320,160);
+    x.fillStyle="#2a5a3a";x.fillRect(20,90,280,50);x.fillStyle="#6a4a2a";x.fillRect(20,138,280,6);
+    for(let i=0;i<3;i++){let px2=X(pos[i]),py=60;if(anim){const a=anim.from[i],b=anim.to[i],p=anim.p;px2=X(a)+(X(b)-X(a))*p;py=60+Math.sin(p*Math.PI)*(a<b?-14:14)*(a===b?0:1)}
+      const up=(lift===i||state==="done"&&(i===ball||i===chosen))?-34:0;
+      if(i===ball&&(up||state==="show")){x.fillStyle="#f4f0e8";x.beginPath();x.arc(px2,108,7,0,7);x.fill()}
+      x.save();x.translate(px2,py+up);g=x.createLinearGradient(-22,0,22,0);g.addColorStop(0,"#8a1a1a");g.addColorStop(.4,"#e84a3a");g.addColorStop(1,"#6a0a0a");x.fillStyle=g;x.beginPath();x.moveTo(-16,-10);x.lineTo(16,-10);x.lineTo(22,52);x.lineTo(-22,52);x.closePath();x.fill();
+      x.fillStyle="#f4f4f4";x.fillRect(-20,44,40,6);x.fillStyle="rgba(255,255,255,.3)";x.fillRect(-12,-6,4,46);x.restore()}
+    x.fillStyle="#f1c27d";x.beginPath();x.arc(160,20,10,0,7);x.fill()}
+  async function start(){const bet=BETS[bi];if(S.money<bet)return;S.money-=bet;save();state="show";ball=ri(0,2);msg="Mira bien dónde está…";render();lift=ball;paint();await sleep(1100);lift=-1;paint();await sleep(300);
+    state="shuffle";msg="¡Se mueve, se mueve!";render();const n=7+bi*2;
+    for(let k=0;k<n;k++){const a=ri(0,2);let b=ri(0,2);if(a===b)b=(a+1)%3;const from=pos.slice(),to=pos.slice();const ia=pos.indexOf(a),ib=pos.indexOf(b);to[ia]=b;to[ib]=a;
+      const dur=Math.max(170,420-k*25);await new Promise(r=>{const t0=performance.now();const st=nw=>{const p=Math.min(1,(nw-t0)/dur);anim={from,to,p};paint();if(p<1)raf=requestAnimationFrame(st);else{pos=to;anim=null;sfx("blip");r()}};raf=requestAnimationFrame(st)})}
+    state="pick";msg="¿Dónde está la bolita?";render()}
+  async function pickCup(i){chosen=i;state="done";const bet=BETS[bi];
+    // el trilero hace trampa una de cada cuatro veces si aciertas
+    let win=i===ball;if(win&&rnd()<.25){ball=[0,1,2].find(k=>k!==i&&k!==ball);win=false;msg="¡Uy! La bolita no estaba… Juras que la habías visto. El trilero sonríe."}
+    else msg=win?`¡Bien visto! Ganas ${bet*2} pavos.`:"Nada. La bolita estaba en otro vaso.";if(win){S.money+=bet*2;save();sfx("quest")}else sfx("weak");render()}
+  function exit(){cancelAnimationFrame(raf);closeOverlay();res()}
+  render()})}
 /*</B4CASINO>*/
 /*<B4POKER>*/
 /* ===================== PÓKER TEXAS HOLD'EM (con colegas online + NPCs que rellenan la mesa) ===================== */

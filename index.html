@@ -1021,7 +1021,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="16 · tienda y móvil arreglados";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="17 · más Absolut para Saray";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -1850,8 +1850,12 @@ async function wildEncounter(){
   const zb=S.x>=12;const z=zb?ZONES.B:ZONES.A;
   if(zb&&S.q.placa===1&&rnd()<.45){await sayAll(["¡Algo huele a sandía entre el césped!"]);const win=await battle([newMon("elfbar",7)],{special:"lolo"});
     if(win){S.q.placa=2;sfx("quest");save();await sayAll(["El Vapito de Richard se queda sin batería. Lo recoges con cuidado.","Ahora, a devolvérselo a Richard en el Bazar Chen."])}return}
-  await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});
+  // Misión de Saray: mientras te pida el Absolut y no tengas ninguno, sale mucho más (60 % en el césped chungo, 25 % en el resto)
+  const needAbs=S.q.walkie===1&&!ownsSp("absolut");
+  const sp=needAbs&&rnd()<(zb?.6:.25)?"absolut":pick(z.pool);
+  await battle([newMon(sp,ri(z.lv[0],z.lv[1]),true)],{});
 }
+function ownsSp(id){ensureBoxes();return S.team.some(m=>m.sp===id)||S.boxes.some(b=>b.some(m=>m&&m.sp===id))}
 function nameOf(m){if(m===B.p)return mName(m);if(B.special==="lolo")return"Vapito de Richard";return B.trainer?`${mName(m)} de ${B.trainer.short}`:`${mName(m)} salvaje`}
 function eff(m,k){const st=statsOf(m)[k];if(k==="spd")return st*(1-0.3*(m.v?m.v.spd:0));if(k==="atk")return st*(1+0.5*(m.v&&m.v.atk?1:0));return st}
 function resetV(m){m.v={acc:0,spd:0,skip:false,atk:0}}

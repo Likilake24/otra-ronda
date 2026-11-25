@@ -17,6 +17,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px}
 #screen{position:relative;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:#000;font-family:var(--body);font-weight:500;font-variant-numeric:tabular-nums;font-size:var(--fs);flex:none;box-shadow:0 0 40px rgba(242,169,59,.08)}
 #cv{display:block;width:100%;height:100%;image-rendering:pixelated}
+[hidden]{display:none!important}
 #dlg{position:absolute;left:2%;right:2%;bottom:2.5%;background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:.45em .7em .55em;line-height:1.3;min-height:31%;max-height:95%;display:flex;flex-direction:column;z-index:5}
 #dlgText{white-space:pre-wrap;min-height:1.3em}
 #dlgInfo{font-size:.78em;color:var(--muted);line-height:1.25;margin-top:.15em}
@@ -1473,12 +1474,13 @@ async function abdul(){
   await say("Abdul: ¡Hola, amego! Bienvenido al Kebab 24h.");
   while(true){
     const i=await choose("Abdul: ¿Qué te pongo, amego?",[{label:"🥙 Un kebab (curar equipo)"},{label:"🧊 Otra cosilla (La Nevera)"},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
+    if(i<0)return;
     if(i===0){
       const j=await choose("Abdul: ¿Con todo? ¿Salsa blanca y picante?",[{label:"Con todo, Abdul"},{label:"Sin cebolla, porfa"}]);
       if(j<0)continue;
       await say(j===0?"Abdul: ¡Eso es, amego! Con todo, como los valientes.":"Abdul: Sin cebolla… como La Pasma. Bueno, tú mandas.");
       S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["kebab",4,3];save();flash("#ffffff",600);sfx("heal");await sleep(700);
-      await say("Tus Pedomones se comen un kebab y se recuperan del todo. 🥙");await say("Abdul: ¡Que aproveche, amego! Aquí tienes tu casa.");
+      await say("Tus Pedomones se comen un kebab y se recuperan del todo. 🥙");await say("Abdul: ¡Que aproveche, amego! Aquí tienes tu casa.");return;
     }else if(i===1){await say("Abdul: La Nevera del Porrosor está ahí, en la esquina. Puedes dejar y sacar Pedomones. Se mantienen fresquitos.");await pcMenu()}
     else if(i===2){await say(pick(["Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
       "Abdul: Si un Pedomón está KO, un kebab con todo y como nuevo. Es ciencia.","Abdul: El Chusta me debe 14 kebabs. Si lo ves, díselo.","Abdul: Paco y yo somos vecinos desde hace 20 años. Él pone las copas y yo arreglo los estómagos.",
@@ -1594,6 +1596,7 @@ async function yoli(){
   }
   while(true){
     const i=await choose("Saray: ¡Mira, mira, mira! ¡Ropa buena, bonita y barata! ¿Qué te pongo, payo?",[{label:"🛍️ Cambiar de look"},{label:"💬 Charlar"},{label:"👋 Nada, gracias"}],{cols:1});
+    if(i<0)return;
     if(i===0){await skinEditor();pushPresence();await say(pick(["Saray: ¡Ay, que te has puesto guapo y to, payomierda! Ahora pareces de la familia.","Saray: Ese chándal es de marca, ¿eh? De marca… de la que sea.","Saray: ¡Olé! Con ese look en El Descampado te van a pedir hasta el número.","Saray: Te queda mejor que al maniquí. Y el maniquí no tiene cabeza, ojo."]))}
     else if(i===1)await say(pick(["Saray: Mi primo Raúl canta tan bien que Paco le invita a las cañas. A todas.","Saray: ¿Que si regateo? Aquí el precio lo pongo yo, y luego lo bajo porque me caes bien, payomierda.","Saray: El Chusta me debe un chándal. Y a Abdul 14 kebabs. Ese niño debe más que el Estado.","Saray: Chen y yo tenemos un trato: él no vende chándales y yo no vendo Abrebotellas. Respeto.","Saray: Si consigues cositas pa ponerte (gafas, cadenas, capas…), vente que te las pongo yo. ¡Gratis, que eres de la familia!"]));
     else{await say("Saray: ¡Anda con Dios, payomierda! Y vuelve, que mañana me llegan chándales nuevos.");return}

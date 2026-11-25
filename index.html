@@ -314,9 +314,11 @@ function wantedMusic(){if(MUS.hold)return null;if(mode==="battle")return(typeof 
 /* ===================== TIPOS ===================== */
 const TYPES={
   agua:{n:"Agua",c:"#6fa8f0"},fuego:{n:"Fuego",c:"#f07a4a"},planta:{n:"Planta",c:"#6fcf5a"},
-  hielo:{n:"Hielo",c:"#8fd3f4"},electrico:{n:"Eléctrico",c:"#f2d14e"},veneno:{n:"Veneno",c:"#b58ae0"},normal:{n:"Normal",c:"#e8d9c4"}
+  hielo:{n:"Hielo",c:"#8fd3f4"},electrico:{n:"Eléctrico",c:"#f2d14e"},veneno:{n:"Veneno",c:"#b58ae0"},normal:{n:"Normal",c:"#e8d9c4"},
+  psiquico:{n:"Psíquico",c:"#f07ab8"},tierra:{n:"Tierra",c:"#c8955a"}
 };
-const STRONG={agua:["fuego","veneno"],fuego:["planta","hielo"],planta:["agua","electrico"],electrico:["agua","fuego"],hielo:["electrico","veneno"],veneno:["planta","normal"],normal:["hielo"]};
+// 9 tipos: cada uno gana a 2 y pierde contra 2 (tabla cuadrada, sin parejas que se ganen mutuamente)
+const STRONG={agua:["fuego","tierra"],fuego:["planta","hielo"],planta:["agua","electrico"],electrico:["agua","psiquico"],hielo:["veneno","psiquico"],veneno:["planta","normal"],normal:["hielo","tierra"],psiquico:["veneno","normal"],tierra:["electrico","fuego"]};
 function tmult(a,d){if(STRONG[a].includes(d))return 2;if(STRONG[d].includes(a))return .5;return 1}
 const chipH=t=>`<span class="tchip" style="background:${TYPES[t].c}">${TYPES[t].n}</span>`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -535,7 +537,7 @@ const MV={
  brikazo:{n:"Brikazo",t:"normal",p:40,d:"Le estampa el brik en la cabeza."},
  kalimotxazo:{n:"Kalimotxazo",t:"normal",p:55,d:"Le tira un kalimotxo entero por encima."},
  joroba:{n:"Jorobazo",t:"normal",p:45,d:"Embiste con la joroba del camello."},
- olvido:{n:"Amnesia",t:"planta",p:0,eff:"skip",d:"60 % de que al rival se le olvide qué hacía y pierda su turno."},
+ olvido:{n:"Amnesia",t:"psiquico",p:0,eff:"skip",d:"60 % de que al rival se le olvide qué hacía y pierda su turno."},
  cubitazo:{n:"Cubitazo",t:"hielo",p:40,d:"Le tira un puñado de cubitos."},
  chupitohelado:{n:"Chupito Helado",t:"hielo",p:55,d:"Un chupito a -18 °C. Se le congela hasta el alma."},
  calada:{n:"Calada Eléctrica",t:"electrico",p:40,d:"Una calada que da calambre."},
@@ -586,8 +588,17 @@ const MV={
  golpegorila:{n:"Golpe de Gorila",t:"normal",p:85,acc:85,d:"Un puñetazo de gorila hasta arriba de cogollo."},
  zumolimon:{n:"Zumo de Limón",t:"electrico",p:50,d:"Un chorro de limón en el ojo. Escuece que da gusto."},
  acido:{n:"Ácido",t:"veneno",p:50,d:"Algo ácido que nadie sabe de dónde ha salido."},
- chinazo:{n:"Chinazo",t:"planta",p:40,d:"Le tira una china a la cabeza. Pequeña, pero matona."},
- hachazo:{n:"Hachazo",t:"planta",p:70,acc:95,d:"Un golpe con la placa entera. Lo deja planchado."},
+ chinazo:{n:"Chinazo",t:"tierra",p:40,d:"Le tira una china a la cabeza. Pequeña, pero matona."},
+ hachazo:{n:"Hachazo",t:"tierra",p:70,acc:95,d:"Un golpe con la placa entera. Lo deja planchado."},
+ malviaje:{n:"Mal Viaje",t:"psiquico",p:70,d:"Le mete un mal viaje que le revuelve la cabeza durante un buen rato."},
+ tercerojo:{n:"Tercer Ojo",t:"psiquico",p:90,acc:90,d:"Abre el tercer ojo y le suelta de golpe toda la verdad del universo."},
+ lecturatarot:{n:"Lectura de Tarot",t:"psiquico",p:55,eff:"first",d:"Salva ya le había leído el futuro: si ataca primero, hace un 50 % más."},
+ paranoia:{n:"Paranoia",t:"psiquico",p:0,eff:"acc",d:"Le hace creer que le sigue La Pasma. El rival acierta menos."},
+ colocon:{n:"Colocón Mental",t:"psiquico",p:45,d:"Un golpe flojito… pero que se nota en la mirada."},
+ terronazo:{n:"Terronazo",t:"tierra",p:55,d:"Le lanza un terrón del parque. Con piedra dentro, claro."},
+ polvareda:{n:"Polvareda",t:"tierra",p:0,eff:"acc",d:"Levanta una nube de polvo del descampado. El rival acierta menos."},
+ placatectonica:{n:"Placa Tectónica",t:"tierra",p:90,acc:85,d:"Un golpe con una placa del tamaño de un ladrillo. Tiembla el suelo."},
+ rifazo:{n:"Rifazo",t:"tierra",p:70,d:"Tierra del Monte del Rif en toda la cara."},
  barralibre:{n:"Barra Libre",t:"normal",p:100,acc:90,d:"Barra libre para todo el mundo. Nadie sale entero."},
  cirrosis:{n:"Cirrosis",t:"veneno",p:95,acc:85,d:"El ataque que todo el mundo teme. Mejor no preguntar."},
  higadohierro:{n:"Hígado de Hierro",t:"normal",p:0,eff:"heal",d:"Lo aguanta todo: recupera el 40 % de su vida."},
@@ -599,9 +610,9 @@ const MV={
  bongazo:{n:"Bongazo",t:"agua",p:75,acc:90,d:"Le tira el agua del bong. Nadie quiere saber cuándo se cambió por última vez."},
  glaciar:{n:"Glaciar del Rif",t:"hielo",p:85,acc:90,d:"Un bloque de hachís helado que cae como un iceberg."},
  polvopolen:{n:"Polen al Viento",t:"planta",p:0,eff:"acc",d:"Sopla polen a la cara del rival: estornuda y acierta menos."},
- prensado:{n:"Prensado",t:"planta",p:75,acc:95,d:"Lo prensa como una tableta. Queda planito."},
+ prensado:{n:"Prensado",t:"tierra",p:75,acc:95,d:"Lo prensa como una tableta. Queda planito."},
  absentazo:{n:"Absentazo",t:"veneno",p:65,d:"Un chupito verde fosforito de 70 grados."},
- alucinacion:{n:"Alucinación",t:"veneno",p:0,eff:"skip",d:"60 % de que el rival empiece a ver hadas y pierda su próximo turno."},
+ alucinacion:{n:"Alucinación",t:"psiquico",p:0,eff:"skip",d:"60 % de que el rival empiece a ver hadas y pierda su próximo turno."},
  orujazo:{n:"Orujazo",t:"veneno",p:65,d:"El orujo de la abuela. No se puede decir que no."},
  conjuro:{n:"Conjuro de la Queimada",t:"fuego",p:85,acc:90,d:"«Mouchos, coruxas, sapos e bruxas…» Y arde todo."},
  desinfectante:{n:"Desinfectante",t:"veneno",p:80,acc:85,d:"Le echa alcohol de 96 en las heridas. Escuece muchísimo."},
@@ -641,7 +652,8 @@ const MTS=[
  {id:"mt03",mv:"soplete",price:50,types:["fuego"]},{id:"mt04",mv:"canuto",price:50,types:["planta"]},
  {id:"mt05",mv:"pedete",price:35,types:null},{id:"mt06",mv:"nuca",price:35,types:null},
  {id:"mt07",mv:"calambrazo",price:35,types:null},{id:"mt08",mv:"siesta",price:45,types:null},{id:"mt09",mv:"hooligan",price:30,types:null},
- {id:"mt10",mv:"potada",price:0,types:null,reward:true}
+ {id:"mt10",mv:"potada",price:0,types:null,reward:true},
+ {id:"mt11",mv:"tercerojo",price:120,types:["psiquico","veneno","normal"]},{id:"mt12",mv:"placatectonica",price:120,types:["tierra","planta","normal"]}
 ];
 function mtLabel(mt){return mt.id.toUpperCase()+" "+MV[mt.mv].n}
 function canLearn(m,mt){return !mt.types||mt.types.includes(SP[m.sp].t)}
@@ -710,15 +722,15 @@ const SP={
  kushecha:{n:"Kushecha",t:"planta",fam:"huerto",rows:"kushecha",pal:"kush",b:[86,78,90,72],xp:230,learn:[[16,"bajon"],[20,"canuto"]],z:"Evolución",d:"La cosecha entera, con corona incluida. El rey del Huerto."},
  amnesia:{n:"Amnesia",t:"veneno",fam:"huerto",rows:"kushito",pal:"amnesia",b:[46,42,48,46],xp:50,evo:[10,"amnesiahaze"],learn:[[1,"olvido"],[1,"cogollazo"],[3,"resacazo"],[5,"empanada"],[7,"humoverde"],[9,"alucinacion"]],z:"Parque de Pichi",d:"Te hace olvidar lo que ibas a hacer. ¿Qué estaba diciendo?"},
  amnesiahaze:{n:"Amnesia Haze",t:"veneno",fam:"huerto",rows:"ogkush",pal:"amnesia",b:[62,58,62,64],xp:135,evo:[17,"lagunamental"],learn:[[10,"humoverde"],[11,"acido"],[13,"olvido"],[14,"alucinacion"],[16,"bajon"]],z:"Evolución",d:"Morada, con gafas y cara de no saber dónde ha aparcado."},
- lagunamental:{n:"Laguna Mental",t:"veneno",fam:"huerto",rows:"kushecha",pal:"amnesia",b:[80,74,82,86],xp:225,learn:[[17,"olvido"],[18,"dolorcabeza"],[20,"canuto"],[22,"cirrosis"],[24,"bajon"]],z:"Evolución",d:"Ya no se acuerda ni de cómo se llama. Ni tú, después de pelear con ella."},
+ lagunamental:{n:"Laguna Mental",t:"psiquico",fam:"huerto",rows:"kushecha",pal:"amnesia",b:[80,74,82,86],xp:225,learn:[[17,"olvido"],[18,"dolorcabeza"],[19,"malviaje"],[20,"canuto"],[23,"tercerojo"],[24,"bajon"]],z:"Evolución",d:"Ya no se acuerda ni de cómo se llama. Ni tú, después de pelear con ella."},
  critical:{n:"Criticón",t:"fuego",fam:"huerto",rows:"ogkush",pal:"critical",crit:true,b:[54,64,46,58],xp:110,learn:[[1,"colillazo"],[1,"empujon"],[1,"cogollazo"],[6,"humoverde"],[8,"quemazon"],[10,"risafloja"],[14,"canuto"]],z:"Más adelante · Huerto del Hippie",d:"Siempre da golpes críticos y siempre critica a todo el mundo. Insoportable, pero fuerte."},
  viudablanca:{n:"Viuda Blanca",t:"hielo",fam:"huerto",rows:"ogkush",pal:"widow",b:[58,62,56,66],xp:115,learn:[[1,"escarcha"],[1,"olvido"],[7,"congelador"],[11,"granizada"]],z:"Más adelante · Montaña Helada",d:"Blanca como la escarcha. Solo sale de noche y siempre va de luto."},
  pegamentin:{n:"Pegamentín",t:"planta",fam:"huerto",rows:"kushito",pal:"glue",b:[52,56,50,40],xp:55,evo:[14,"gorilon"],learn:[[1,"cogollazo"],[1,"pegamento"],[6,"empujon"],[10,"humoverde"]],z:"Más adelante · Huerto del Hippie",d:"Un cogollo tan pegajoso que se le quedan los dedos dentro."},
  gorilon:{n:"Gorilón Pegamento",t:"normal",fam:"huerto",gen:{k:"gorila",b:"#3f8a36",a:"#f08a2a"},b:[88,96,82,54],xp:220,learn:[[14,"golpegorila"],[17,"pegamento"],[20,"canuto"]],z:"Evolución",d:"Un gorila hecho de cogollo. Te abraza y no te suelta en tres días."},
  limonazo:{n:"Limonazo",t:"electrico",fam:"huerto",rows:"kushito",pal:"limon",b:[48,56,46,64],xp:60,learn:[[1,"zumolimon"],[1,"cogollazo"],[6,"acido"],[10,"chispazo"]],z:"Más adelante · Huerto del Hippie",d:"Ácido, amarillo y con mucha chispa. Te deja la boca como un limón."},
- china:{n:"Chinita",t:"planta",fam:"huerto",gen:{k:"china",b:"#6a4a2a",f:"sleepy"},b:[40,44,48,36],xp:48,evo:[9,"bellota"],learn:[[1,"chinazo"],[1,"empanada"],[5,"risafloja"],[8,"humoverde"]],z:"Más adelante · Monte del Rif",d:"Un trocito de chocolate del bueno. Pequeña, pero te deja sentado en el sofá."},
- bellota:{n:"Bellotón",t:"planta",fam:"huerto",gen:{k:"bellota",b:"#8a5a2b",a:"#5a3a1a",f:"happy"},b:[60,62,68,48],xp:135,evo:[17,"placa"],learn:[[9,"chinazo"],[12,"hachazo"],[15,"bajon"]],z:"Evolución",d:"Con forma de bellota y olor a monte. Viaja escondido en sitios que mejor no preguntes."},
- placa:{n:"Placa Suprema",t:"planta",fam:"huerto",gen:{k:"placa",b:"#6a4a2a",tx:"100 G",tc:"#f2c14e",f:"cool"},b:[84,82,92,58],xp:225,learn:[[17,"hachazo"],[20,"bajon"],[24,"canuto"]],z:"Evolución",d:"Cien gramos de placa con sello del Rif. El Formato Mayorista del Huerto."},
+ china:{n:"Chinita",t:"tierra",fam:"huerto",gen:{k:"china",b:"#6a4a2a",f:"sleepy"},b:[40,44,48,36],xp:48,evo:[9,"bellota"],learn:[[1,"chinazo"],[1,"empanada"],[5,"polvareda"],[8,"terronazo"],[11,"humoverde"]],z:"Más adelante · Monte del Rif",d:"Un trocito de chocolate del bueno. Pequeña, pero te deja sentado en el sofá."},
+ bellota:{n:"Bellotón",t:"tierra",fam:"huerto",gen:{k:"bellota",b:"#8a5a2b",a:"#5a3a1a",f:"happy"},b:[60,62,68,48],xp:135,evo:[17,"placa"],learn:[[9,"chinazo"],[12,"hachazo"],[15,"bajon"]],z:"Evolución",d:"Con forma de bellota y olor a monte. Viaja escondido en sitios que mejor no preguntes."},
+ placa:{n:"Placa Suprema",t:"tierra",fam:"huerto",gen:{k:"placa",b:"#6a4a2a",tx:"100 G",tc:"#f2c14e",f:"cool"},b:[84,82,92,58],xp:225,learn:[[17,"hachazo"],[20,"rifazo"],[22,"bajon"],[24,"placatectonica"]],z:"Evolución",d:"Cien gramos de placa con sello del Rif. El Formato Mayorista del Huerto."},
  goma:{n:"Goma de Neumático",t:"veneno",fam:"huerto",gen:{k:"goma",f:"evil"},b:[62,58,70,30],xp:60,learn:[[1,"resacazo"],[1,"acido"],[6,"tos"],[10,"potada"]],z:"Más adelante · Monte del Rif",d:"Hachís de neumático. Malo, barato y sabe a rueda de camión. Pero aguanta lo que le eches."},
  // ---------- MÁS VAPERS Y CIGARRILLOS ELECTRÓNICOS ----------
  ecig:{n:"Cigarrillo Electrónico",t:"electrico",fam:"estanco",gen:{k:"ecig",b:"#c0c8d0",a:"#5ff0ff",f:"happy"},b:[42,48,44,58],xp:55,evo:[11,"modbox"],learn:[[1,"calada"],[1,"nubesabor"],[6,"sorboelectrico"],[9,"recarga"]],z:"Más adelante · La Ciudad",d:"El boli que echa humo. Su dueño lo usa para dejar de fumar desde 2014."},
@@ -730,12 +742,12 @@ const SP={
  pipa:{n:"Pipa",t:"fuego",fam:"huerto",gen:{k:"pipa",b:"#8a5a2b",f:"sleepy"},b:[46,52,46,44],xp:55,evo:[12,"bongazo"],learn:[[1,"pipazo"],[1,"empanada"],[6,"humoverde"],[9,"risafloja"]],z:"Más adelante · Huerto del Hippie",d:"Una pipa de madera de las del hippie del parque. Se captura con Grinder, que es de la familia."},
  bongazo:{n:"Bongazo",t:"agua",fam:"huerto",gen:{k:"bong",b:"#6fd0c0",a:"#3f9a3a",f:"drunk"},b:[78,72,80,58],xp:170,learn:[[12,"bongazo"],[15,"humoverde"],[18,"bajon"]],z:"Evolución",d:"Una pipa de agua enorme. Hace burbujas y deja al rival mirando al techo."},
  rifglacier:{n:"Rif Glacier",t:"hielo",fam:"huerto",gen:{k:"bellota",b:"#c8b080",a:"#e8f6ff",f:"cool",frost:true},b:[76,80,78,74],xp:200,learn:[[1,"glaciar"],[1,"chinazo"],[1,"empanada"],[12,"escarcha"],[16,"hachazo"]],z:"Más adelante · Monte del Rif",d:"Hachís del Rif de los buenos, rubio y con escarcha. Muy raro de encontrar."},
- polen:{n:"Polen",t:"planta",fam:"huerto",gen:{k:"china",b:"#d8b04a",f:"happy"},b:[42,44,44,50],xp:50,evo:[11,"polenprensado"],learn:[[1,"chinazo"],[1,"polvopolen"],[6,"risafloja"],[9,"humoverde"]],z:"Más adelante · Monte del Rif",d:"Polvillo dorado que se deshace en los dedos. Estornudar cerca de él es un drama."},
- polenprensado:{n:"Polen Prensado",t:"planta",fam:"huerto",gen:{k:"placa",b:"#c8a040",tx:"POLEN",tc:"#6a4a2a",f:"cool"},b:[66,66,70,60],xp:150,learn:[[11,"prensado"],[14,"polvopolen"],[18,"bajon"]],z:"Evolución",d:"Polen prensado en tableta. Huele desde la otra punta del Descampado."},
- cerocero:{n:"Doble Cero",t:"veneno",fam:"huerto",gen:{k:"china",b:"#4a3a1a",f:"cool",gold:true},b:[64,70,62,70],xp:140,learn:[[1,"tos"],[1,"hachazo"],[1,"chinazo"],[8,"bajon"],[10,"acido"],[12,"canuto"]],z:"Más adelante · Monte del Rif",d:"El más puro del Rif. Pequeño, oscuro y con fama de leyenda."},
+ polen:{n:"Polen",t:"tierra",fam:"huerto",gen:{k:"china",b:"#d8b04a",f:"happy"},b:[42,44,44,50],xp:50,evo:[11,"polenprensado"],learn:[[1,"chinazo"],[1,"polvopolen"],[6,"polvareda"],[9,"terronazo"],[12,"humoverde"]],z:"Más adelante · Monte del Rif",d:"Polvillo dorado que se deshace en los dedos. Estornudar cerca de él es un drama."},
+ polenprensado:{n:"Polen Prensado",t:"tierra",fam:"huerto",gen:{k:"placa",b:"#c8a040",tx:"POLEN",tc:"#6a4a2a",f:"cool"},b:[66,66,70,60],xp:150,learn:[[11,"prensado"],[14,"polvopolen"],[18,"bajon"]],z:"Evolución",d:"Polen prensado en tableta. Huele desde la otra punta del Descampado."},
+ cerocero:{n:"Doble Cero",t:"tierra",fam:"huerto",gen:{k:"china",b:"#4a3a1a",f:"cool",gold:true},b:[64,70,62,70],xp:140,learn:[[1,"tos"],[1,"hachazo"],[1,"chinazo"],[8,"bajon"],[10,"acido"],[12,"canuto"]],z:"Más adelante · Monte del Rif",d:"El más puro del Rif. Pequeño, oscuro y con fama de leyenda."},
  // ---------- ALCOHOLES VENENO ----------
- absenta:{n:"Absenta",t:"veneno",fam:"bodega",gen:{k:"botella",b:"#5fd04a",l:"#1a3a1a",tx:"ABSENTA",tc:"#9fff8a",cap:"#1a1a1a",f:"evil"},b:[48,58,44,56],xp:60,evo:[13,"hadaverde"],learn:[[1,"absentazo"],[1,"eructo"],[6,"alucinacion"],[10,"acido"]],z:"Más adelante · La Discoteca",d:"Verde fosforito y 70 grados. Dicen que se ven hadas. Dicen."},
- hadaverde:{n:"El Hada Verde",t:"veneno",fam:"bodega",gen:{k:"hada"},b:[70,82,64,84],xp:180,learn:[[13,"alucinacion"],[16,"absentazo"],[20,"cirrosis"]],z:"Evolución",d:"El hada que ves después de la tercera absenta. Tiene alas y muy mala idea."},
+ absenta:{n:"Absenta",t:"psiquico",fam:"bodega",gen:{k:"botella",b:"#5fd04a",l:"#1a3a1a",tx:"ABSENTA",tc:"#9fff8a",cap:"#1a1a1a",f:"evil"},b:[48,58,44,56],xp:60,evo:[13,"hadaverde"],learn:[[1,"absentazo"],[1,"colocon"],[6,"alucinacion"],[9,"malviaje"],[10,"acido"]],z:"Más adelante · La Discoteca",d:"Verde fosforito y 70 grados. Dicen que se ven hadas. Dicen."},
+ hadaverde:{n:"El Hada Verde",t:"psiquico",fam:"bodega",gen:{k:"hada"},b:[70,82,64,84],xp:180,learn:[[13,"alucinacion"],[15,"malviaje"],[16,"absentazo"],[19,"tercerojo"],[20,"cirrosis"]],z:"Evolución",d:"El hada que ves después de la tercera absenta. Tiene alas y muy mala idea."},
  orujo:{n:"Orujo",t:"veneno",fam:"bodega",gen:{k:"botella",b:"#e8f0f0",l:"#e8f0f0",tx:"ORUJO",tc:"#2a5aa8",cap:"#8a5a2b",f:"angry"},b:[56,60,52,44],xp:65,evo:[13,"queimada"],learn:[[1,"orujazo"],[1,"eructo"],[6,"tos"],[10,"potada"]],z:"Más adelante · Las Bodegas",d:"Aguardiente gallego de la abuela. Te lo ofrecen después de comer y no puedes decir que no."},
  queimada:{n:"Queimada",t:"fuego",fam:"bodega",gen:{k:"cubo",b:"#8a5a2b",tx:"MEIGA",tc:"#f2d14e",f:"evil",fire:true},b:[78,80,74,60],xp:175,learn:[[13,"conjuro"],[16,"orujazo"],[20,"desierto"]],z:"Evolución",d:"Orujo ardiendo en cuenco de barro con su conjuro. Espanta meigas, Pasma y suegras."},
  alcohol96:{n:"Alcohol de 96",t:"veneno",fam:"bodega",gen:{k:"botella",b:"#f4f4f4",l:"#2a8a3a",tx:"96",tc:"#ffffff",cap:"#2a6ad0",f:"evil"},b:[54,72,46,58],xp:70,learn:[[1,"desinfectante"],[1,"acido"],[6,"resacazo"],[10,"potada"],[14,"cirrosis"]],z:"Más adelante · La Ciudad",d:"El de la farmacia. No se bebe. Él no lo sabe."},
@@ -783,7 +795,7 @@ const KEYS_IT={gorra:{n:"📸 Foto del Chusta",d:"Los maderos poniendo el precin
 const SHOP={"🥙 Curas":["agua","caldito","ibu","suero"],"🍾 Capturas":["abre","mechero","grinder","abreoro","zippo","grinder4"],"⚡ Especiales":["redbull","pino"]};
 function statsOf(m){const b=SP[m.sp].b,L=m.lvl;return{hp:Math.floor(b[0]*2*L/100)+L+10,atk:Math.floor(b[1]*2*L/100)+5,def:Math.floor(b[2]*2*L/100)+5,spd:Math.floor(b[3]*2*L/100)+5}}
 function maxhp(m){return statsOf(m).hp}
-function toNext(L){return 12+L*8}
+function toNext(L){return Math.floor(10+L*L*1.3+L*6)}   // cada nivel cuesta más que el anterior
 function lvlTxt(m,long){const f=FAM[SP[m.sp].fam];return m.lvl+(long?f.ul:f.u)}
 function monMoves(m,mv){m.moves=mv.filter(x=>MV[x]).slice(0,4);return m}
 function newMon(sp,lvl,canShiny){const moves=[];SP[sp].learn.forEach(([l,mv])=>{if(l<=lvl&&!moves.includes(mv))moves.push(mv)});const m={sp,lvl,xp:0,moves:moves.slice(-4),hp:0};if(canShiny&&rnd()<SHINY_RATE*(S&&S.luck>0?5:1))m.shiny=true;m.hp=maxhp(m);return m}
@@ -1153,11 +1165,11 @@ const NPCS=[
  {id:"paco",map:"bar",x:6,y:2,dir:"down",pal:NPC_PAL.paco,hs:2,ts:4,fat:true},
  {id:"abuela",map:"abuela",x:3,y:2,dir:"down",pal:NPC_PAL.abuela,hs:3,idle:true},
  // ---- Parte 2: La Senda ----
- {id:"hflor",map:"senda",x:21,y:6,dir:"up",pal:{h:"#e8c860",s:"#f1c27d",e:"#222",c:"#e04a9a",z:"#f2c14e",p:"#6a9ad0",k:"#8a6a4a"},hs:3,acc:{ag:3},trainer:{name:"Hippie Flor",short:"Flor",team:[["china",11],["pegamentin",11]],money:110,
+ {id:"hflor",map:"senda",x:21,y:6,dir:"up",pal:{h:"#e8c860",s:"#f1c27d",e:"#222",c:"#e04a9a",z:"#f2c14e",p:"#6a9ad0",k:"#8a6a4a"},hs:3,acc:{ag:3},trainer:{name:"Hippie Flor",short:"Flor",team:[["pegamentin",11],["kushito",11]],money:110,
    pre:["Hippie Flor: Paz y amor, hermano. Bueno, primero un combate y luego paz y amor.","Hippie Flor: Mis Pedomones son 100 % ecológicos. Cultivados con música de Manu Chao."],lose:"Hippie Flor: Vale, vale… La energía no fluía. Ha sido Mercurio retrógrado, seguro."}},
- {id:"hrasta",map:"senda",x:34,y:4,dir:"down",pal:{h:"#3a2a1a",s:"#8a5a3a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,smoke:true,trainer:{name:"Rastaman Jairo",short:"Jairo",team:[["polen",12],["kushito",12]],money:120,
+ {id:"hrasta",map:"senda",x:34,y:4,dir:"down",pal:{h:"#3a2a1a",s:"#8a5a3a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,smoke:true,trainer:{name:"Rastaman Jairo",short:"Jairo",team:[["ogkush",12],["pegamentin",12]],money:120,
    pre:["Rastaman Jairo: Eh, bredren, ¿pa dónde vas con tanta prisa? Aquí se va despacito.","Rastaman Jairo: Venga, un combatito tranquilo, sin estrés, ¿eh?"],lose:"Rastaman Jairo: Uff… me has dejado más plancha que un sábado a las 6. Respect, bredren."}},
- {id:"hguiri",map:"senda",x:49,y:11,dir:"up",pal:{h:"#f2e0a0",s:"#f8c8a8",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#3a6ad0",k:"#f4f4f4"},hs:0,trainer:{name:"Guiri del Festival",short:"El guiri",team:[["pegamentin",12],["china",12],["polen",13]],money:150,
+ {id:"hguiri",map:"senda",x:49,y:11,dir:"up",pal:{h:"#f2e0a0",s:"#f8c8a8",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#3a6ad0",k:"#f4f4f4"},hs:0,trainer:{name:"Guiri del Festival",short:"El guiri",team:[["pegamentin",12],["kushito",12],["ogkush",13]],money:150,
    pre:["Guiri del Festival: Hola amigou! Yo venir a España por el sol y la… plantas. ¡Mucho bonito!","Guiri del Festival: ¿Combate? ¡Yes! ¡Olé! ¡Sangría!"],lose:"Guiri del Festival: Ouch… Mi Pedomón tener… ¿cómo se dice?… resaca. Tú muy fuerte, amigou."}},
  // ---- Parte 2: Ganja Life ----
  {id:"bob",map:"comuna",x:31,y:19,dir:"down",pal:{h:"#1a1410",s:"#7a4a2a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#3a3a3a",k:"#8a6a4a"},hs:3,idle:true,smoke:true},
@@ -1305,7 +1317,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="32 · personajes HD y hierba variada";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="33 · tipos Psíquico y Tierra, niveles más lentos";
 const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -2760,7 +2772,8 @@ async function throwBall(k){
 }
 async function giveXp(enemy){
   const p=B.p;if(p.hp<=0)return;
-  const g=Math.floor(SP[enemy.sp].xp*enemy.lvl/6*(B.trainer?1.5:1));p.xp+=g;updHud();
+  const f=Math.max(.3,Math.min(1.8,Math.pow((2*enemy.lvl+10)/(enemy.lvl+p.lvl+10),2)));   // menos experiencia si eres de más nivel que el rival
+  const g=Math.max(1,Math.floor(SP[enemy.sp].xp*enemy.lvl/7*(B.trainer?1.5:1)*f));p.xp+=g;updHud();
   await say(`${SP[p.sp].n} gana ${g} puntos de experiencia.`);
   while(p.xp>=toNext(p.lvl)){
     p.xp-=toNext(p.lvl);const oldMax=maxhp(p);p.lvl++;p.hp+=maxhp(p)-oldMax;updHud();sfx("lvl");burst("star",PPOS.x,PPOS.y-24,20);

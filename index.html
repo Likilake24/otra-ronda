@@ -1173,7 +1173,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="27 · tejados sólidos";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="28 · carteles más bajos";
 const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -2724,7 +2724,7 @@ function drawKind(b,ox,oy,t){const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,dx=b.do
     if(!S.flags.fumigonWin){ctx.globalAlpha=.16+Math.sin(t/600)*.05;px(x,y,w,h-5,"#e0f0a0");ctx.globalAlpha=1}return}
 }
 function kindLights(b,ox,oy,t){if(!b.label)return;const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,K=b.kind;
-  const ly=K==="kiosk"?y+37:K==="garden"?y-8:K==="caravan"||K==="van"?y+h-10:K==="tipi"?y+h+9:y-20;
+  const ly=K==="kiosk"?y+37:K==="garden"?y+9:K==="caravan"||K==="van"?y+h-10:K==="tipi"?y+h-18:K==="yurt"?y+17:K==="cabin"?y+9:y+12;
   ctx.font="bold 7px monospace";ctx.textAlign="center";const tw=ctx.measureText(b.label).width+6;
   if(K!=="kiosk"){ctx.fillStyle="rgba(26,16,10,.85)";ctx.fillRect(Math.round(x+w/2-tw/2),ly-7,Math.round(tw),9)}
   ctx.fillStyle=b.glow||"#ffd98a";ctx.globalAlpha=.45;ctx.fillText(b.label,x+w/2+1,ly);ctx.globalAlpha=1;ctx.fillText(b.label,x+w/2,ly-1)}

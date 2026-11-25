@@ -1140,7 +1140,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="23 · el tarotista Salva";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="24 · hablé con Salva";
 const MAPNAME={park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Comuna 420",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -1527,9 +1527,9 @@ async function talk(n){
   if(TALK2[id]){await TALK2[id](n);return}
   if(id==="dealer"){
     if(!S.flags.starter){await intro();return}
-    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Has estado en la Comuna 420? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Comuna 420 tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
+    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Que si el negocio va bien? Va de lujo. ¿Por qué? Porque hablé con Salva.","El Porrosor: ¿Has estado en la Comuna 420? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Comuna 420 tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
     if(S.flags.started&&!S.flags.poli){await sayAll(["El Porrosor: ¿El Bar de Paco precintado? Eso es un montaje de La Pasma como una casa.","El Porrosor: Busca pruebas por el barrio. Abdul, Richard y Saray siempre se enteran de todo.","El Porrosor: Lo tienes apuntado en el Menú, en Misiones. Yo no te he dicho nada, ¿eh?"]);return}
-    await say(pick(["El Porrosor: Abrebotellas para las bebidas, Mechero para el tabaco y Grinder para lo verde. No me hagas repetírtelo.","El Porrosor: ¿Has visto al Chusta? Me debe 20 pavos. Y una disculpa.","El Porrosor: Hay un sitio al oeste, El Descampado. Ahí se juntan los chavales a pegarse… con Pedomones.","El Porrosor: La Abuela Remedios vive al lado del kebab. Si la ayudas, te da cosas buenas. Y caldito."]));return}
+    await say(pick(["El Porrosor: Yo antes vendía semillas y me iba fatal. Hablé con Salva y ahora soy el Porrosor. Todo va bien.","El Porrosor: Abrebotellas para las bebidas, Mechero para el tabaco y Grinder para lo verde. No me hagas repetírtelo.","El Porrosor: ¿Has visto al Chusta? Me debe 20 pavos. Y una disculpa.","El Porrosor: Hay un sitio al oeste, El Descampado. Ahí se juntan los chavales a pegarse… con Pedomones.","El Porrosor: La Abuela Remedios vive al lado del kebab. Si la ayudas, te da cosas buenas. Y caldito."]));return}
   if(id==="chusta"){
     if(!S.flags.chusta){await chustaEvent();return}
     if(S.q.gorra===1){
@@ -1538,7 +1538,7 @@ async function talk(n){
       if(win){S.keys.gorra=true;S.q.gorra=2;sfx("quest");save();await sayAll(["¡Consigues la 📸 Foto del Chusta!","El Chusta: ¿Los kebabs de Abdul? Dile que el lunes. ¿Qué lunes? Uno."])}
       return}
     if(S.q.basura===1){S.q.basura=2;sfx("quest");save();await sayAll(["El Chusta: ¿Que mi madre dice qué? Uff… Vale, vale, bajo la basura.","El Chusta: Pero no se lo digas a nadie, bro, que tengo una reputación en este barrio."]);return}
-    await say(pick(["El Chusta: Ahora no, bro, que estoy liándome uno.","El Chusta: ¿Sabes que Chen nunca cierra? Ni en Navidad. Ese tío es un héroe. Ni yo me llamo Chusta, por cierto. Me llamo Jonathan.","El Chusta: Un día de estos le pago a Abdul. Un día de estos.","El Chusta: Mi madre vive enfrente del Bazar. Si la ves, no le digas que me has visto."]));return}
+    await say(pick(["El Chusta: Bro, me va todo de lujo. ¿Sabes por qué? Hablé con Salva.","El Chusta: Ahora no, bro, que estoy liándome uno.","El Chusta: ¿Sabes que Chen nunca cierra? Ni en Navidad. Ese tío es un héroe. Ni yo me llamo Chusta, por cierto. Me llamo Jonathan.","El Chusta: Un día de estos le pago a Abdul. Un día de estos.","El Chusta: Mi madre vive enfrente del Bazar. Si la ves, no le digas que me has visto."]));return}
   if(id==="poli"||id==="poli2"){
     if(!S.flags.starter){await say("Agente Pérez: Circule, chaval.");return}
     if(S.keys.gorra&&S.keys.placa&&S.keys.walkie){
@@ -1571,7 +1571,7 @@ async function trainerBattle(n){
   if(win){S.beaten[n.id]=true;save()}
 }
 async function pacoEvent(){
-  if(S.flags.gym){await say(pick(["Paco: Que cierro a las tres, chaval. ¿Te pongo algo?","Paco: Desde que echaste a La Pasma, la caja va como un tiro. Te debo una caña. O doce.","Paco: Los hippies del Huerto dicen que La Pasma les está fumigando las plantas. Esa gente no para."]));return}
+  if(S.flags.gym){await say(pick(["Paco: La caja va como un tiro desde que hablé con Salva. Ese hombre es un genio. Y no paga las cañas, pero es un genio.","Paco: Que cierro a las tres, chaval. ¿Te pongo algo?","Paco: Desde que echaste a La Pasma, la caja va como un tiro. Te debo una caña. O doce.","Paco: Los hippies del Huerto dicen que La Pasma les está fumigando las plantas. Esa gente no para."]));return}
   await sayAll(["Paco: ¡Hombre! Tú eres el chaval que ha echado a La Pasma de mi puerta. Te debo una caña.",
     "Paco: Pero aquí las cosas se hacen como siempre: si quieres mi chapa, tienes que ganarme. Llevo treinta años sirviendo veneno… digo, copas.",
     "Paco: ¡Prepárate, que esta ronda la pago yo… con tu derrota!"]);
@@ -1640,7 +1640,7 @@ async function abdul(){
       S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["kebab",4,3];save();flash("#ffffff",600);sfx("heal");await sleep(700);
       await say("Tus Pedomones se comen un kebab y se recuperan del todo. 🥙");await say("Abdul: ¡Que aproveche, amego! Aquí tienes tu casa.");return;
     }else if(i===1){await say("Abdul: La Nevera del Porrosor está ahí, en la esquina. Puedes dejar y sacar Pedomones. Se mantienen fresquitos.");await pcMenu()}
-    else if(i===2){await say(pick(["Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
+    else if(i===2){await say(pick(["Abdul: Desde que hablé con Salva, amego, el kebab gira solo. Todo va bien. Bien, bien.","Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
       "Abdul: Si un Pedomón está KO, un kebab con todo y como nuevo. Es ciencia.","Abdul: El Chusta me debe 14 kebabs. Si lo ves, díselo.","Abdul: Paco y yo somos vecinos desde hace 20 años. Él pone las copas y yo arreglo los estómagos.",
       "Abdul: ¿Sabes qué le gana a la resaca? Mi salsa picante. Y si no, el agua con limón de Chen.","Abdul: El Porrosor dice que vende Pedomones. Yo vendo kebabs. Los dos sabemos quién gana más."]))}
     else{await say("Abdul: ¡Vuelve cuando quieras, amego!");return}
@@ -1701,7 +1701,7 @@ async function shop(){
   while(true){
     const cats=Object.keys(SHOP);
     const c=await choose(`Chen: ¿Qué necesitas? Tienes ${S.money} pavos.`,[...cats.map(k=>({label:k})),{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
-    if(c===cats.length){await say(pick(["Chen: El Comisario Paco compra aquí 40 Bezoyas a la semana. Y me debe tres meses.","Chen: Richard y yo llevamos 10 años compartiendo mostrador. Él pone la elegancia; yo, los precios.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga siempre en monedas de 5 céntimos. Contadas en el mostrador. Una a una."]));continue}
+    if(c===cats.length){await say(pick(["Chen: Ventas suben, suben, suben. ¿Secreto? Hablé con Salva. Muy buen consejo. Muy barato.","Chen: El Comisario Paco compra aquí 40 Bezoyas a la semana. Y me debe tres meses.","Chen: Richard y yo llevamos 10 años compartiendo mostrador. Él pone la elegancia; yo, los precios.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga siempre en monedas de 5 céntimos. Contadas en el mostrador. Una a una."]));continue}
     if(c<0||c===cats.length+1){await say("Chen: ¡Gracias! Vuelve cuando quieras, que aquí siempre está abierto.");return}
     const ks=SHOP[cats[c]];
     while(true){
@@ -1755,8 +1755,8 @@ async function yoli(){
   while(true){
     const i=await choose("Saray: ¡Mira, mira, mira! ¡Ropa buena, bonita y barata! ¿Qué te pongo, payo?",[{label:"🛍️ Cambiar de look"},{label:"💬 Charlar"},{label:"👋 Nada, gracias"}],{cols:1});
     if(i<0)return;
-    if(i===0){await skinEditor();pushPresence();await say(pick(["Saray: ¡Ay, que te has puesto guapo y to, payomierda! Ahora pareces de la familia.","Saray: Ese chándal es de marca, ¿eh? De marca… de la que sea.","Saray: ¡Olé! Con ese look en El Descampado te van a pedir hasta el número.","Saray: Te queda mejor que al maniquí. Y el maniquí no tiene cabeza, ojo."]))}
-    else if(i===1)await say(pick(["Saray: Mi primo Raúl canta tan bien que Paco le invita a las cañas. A todas.","Saray: ¿Que si regateo? Aquí el precio lo pongo yo, y luego lo bajo porque me caes bien, payomierda.","Saray: El Chusta me debe un chándal. Y a Abdul 14 kebabs. Ese niño debe más que el Estado.","Saray: Chen y yo tenemos un trato: él no vende chándales y yo no vendo Abrebotellas. Respeto.","Saray: Si consigues cositas pa ponerte (gafas, cadenas, capas…), vente que te las pongo yo. ¡Gratis, que eres de la familia!"]));
+    if(i===0){await skinEditor();pushPresence();await say(pick(["Saray: ¡Ay, qué guapo! Ya me lo dijo Salva, que hoy vendía un look. Hablé con Salva, payo, y mira.","Saray: ¡Ay, que te has puesto guapo y to, payomierda! Ahora pareces de la familia.","Saray: Ese chándal es de marca, ¿eh? De marca… de la que sea.","Saray: ¡Olé! Con ese look en El Descampado te van a pedir hasta el número.","Saray: Te queda mejor que al maniquí. Y el maniquí no tiene cabeza, ojo."]))}
+    else if(i===1)await say(pick(["Saray: ¡Ay, payo! Que me va todo de maravilla. ¿Sabes por qué? Porque hablé con Salva. Ese hombre ve el futuro, el pasado y lo que llevas en el bolsillo.","Saray: Mi primo Raúl canta tan bien que Paco le invita a las cañas. A todas.","Saray: ¿Que si regateo? Aquí el precio lo pongo yo, y luego lo bajo porque me caes bien, payomierda.","Saray: El Chusta me debe un chándal. Y a Abdul 14 kebabs. Ese niño debe más que el Estado.","Saray: Chen y yo tenemos un trato: él no vende chándales y yo no vendo Abrebotellas. Respeto.","Saray: Si consigues cositas pa ponerte (gafas, cadenas, capas…), vente que te las pongo yo. ¡Gratis, que eres de la familia!"]));
     else{await say("Saray: ¡Anda con Dios, payomierda! Y vuelve, que mañana me llegan chándales nuevos.");return}
   }
 }
@@ -1788,7 +1788,7 @@ async function raul(){
         await say(`Raúl el Gitano: ¡Gracias, primo, que Dios te lo pague! Toma, pa ti: ${ITEMS[it].n}. Me lo encontré… en mi bolsillo.`)}
       else await say(pick(["Raúl el Gitano: ¡Olé! Con aplausos no se come, pero se canta mejor.","Raúl el Gitano: Aplaudes como un payo, primo, pero te lo perdono.","Raúl el Gitano: ¡Eso, eso! La próxima la cantamos a dúo."]));
     }else if(i===1){closeDlg();const sc=await palmas();await palmasPremio(sc)}
-    else if(i===2){await say(pick(["Raúl el Gitano: Yo empecé cantando en las bodas. Ahora canto en el mercadillo. El año que viene, en El Descampado. Y luego, el mundo.",
+    else if(i===2){await say(pick(["Raúl el Gitano: Antes desafinaba, primo. Hablé con Salva y ahora todo me sale bien. Hasta el fa sostenido.","Raúl el Gitano: Yo empecé cantando en las bodas. Ahora canto en el mercadillo. El año que viene, en El Descampado. Y luego, el mundo.",
       "Raúl el Gitano: Mi prima Saray te vende la ropa y yo te canto mientras te la pruebas. Servicio completo, primo.",
       "Raúl el Gitano: Cuando La Pasma precintó el bar de Paco, le canté una rumba al precinto. No se despegó, pero se puso triste.",
       "Raúl el Gitano: Si tu Pedomón está triste, tráemelo, que le canto una rumba y se le pasa to.",
@@ -1863,7 +1863,7 @@ function slotMachine(){
         if(o.s==="💰"&&!S.accU.ag2){S.accU.ag2=true;msg+=" ¡Y te llevas las 😍 Gafas de corazón! (Póntelas en el Mercadillo.)"}sfx("win")}
       else{const pi=r[0]===r[1]?r[0]:r[1]===r[2]?r[1]:r[0]===r[2]?r[0]:-1;
         if(pi>=0){const o=SLOT[pi];win=bet*o.x2;msg=o.x2>1?`Dos ${o.s}: ¡×${o.x2}!`:`Dos ${o.s}: recuperas lo apostado.`;sfx("buy")}
-        else{msg=pick(["Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra.","Nada. La Loli te mira desde el taburete: «Esa máquina está trucada desde el 94»."]);sfx("weak")}}
+        else{msg=pick(["Nada. El Borracho Manolo grita desde la barra: «¡Tienes que hablar con Salva antes de jugar, chaval!»","Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra.","Nada. La Loli te mira desde el taburete: «Esa máquina está trucada desde el 94»."]);sfx("weak")}}
       lastWin=win;S.money+=win;if(win)msg+=` +${win} pavos.`;save();render()}
     function close(){if(spinning)return;closeOverlay();res()}
     render();
@@ -1881,6 +1881,7 @@ async function chustaTalk(){const f=S.fol;f.talkAt=now();f.emo=pick(["🤙","�
   const L=[];
   if(S.map==="senda")L.push("El Chusta: Bro, los hippies de aquí llevan todo hierba. Con un Pedomón de Fuego o de Veneno te los meriendas.","El Chusta: ¿Has visto esas palmeras? Aquí no hay palmeras, bro. Algo raro le han echado al agua.","El Chusta: Atrapa algún Pedomón de por aquí, que dicen que a Bob le mola la gente que cuida a los bichos.");
   if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: El Salva me echó las cartas una vez y me dijo que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
+  L.push("El Chusta: Bro, tú tranquilo, que esto va a salir bien. Hablé con Salva.","El Chusta: ¿Que por qué estoy tan feliz? Hablé con Salva, bro. No te digo más.");
   L.push("El Chusta: ¿Sabes que Abdul me ha bloqueado en WhatsApp? Por 14 kebabs, bro. CATORCE.","El Chusta: Mi madre dice que si no vuelvo antes de las 12 me cambia la cerradura. Otra vez.","El Chusta: Tú tranquilo, que yo te cubro la espalda. Desde atrás. Bastante atrás.");
   sfx("blip");await say(pick(L))}
 async function bobTalk(){
@@ -1890,14 +1891,15 @@ async function bobTalk(){
   await say(`Bob Marley: ¿Cómo va eso, my friend?\n${p1?"✅":"⬜"} 🌱 Atrapar un Pedomón en La Senda\n${p2?"✅":"⬜"} 🌀 Ganar a Snoop Dogg en el Concurso de Liar\n${p3?"✅":"⬜"} 🚔 Parar el cañón fumigador de La Pasma`);
   if(p1&&!p2)await say("Bob Marley: Snoop está de gira, pero dicen que vuelve muy pronto. Y el del cañón… ese aparece cuando le da la gana. (Próximamente.)");
   else if(!p1)await say("Bob Marley: Empieza por lo fácil, man. Ve a La Senda, pisa el césped y atrapa algo. Con cariño.");
-  else await say(pick(["Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
+  else await say(pick(["Bob Marley: Everything's gonna be alright, man. Hablé con Salva.","Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
 async function marujaTalk(){
   const hoy=new Date().toDateString();
   await say("Salva el Tarotista: Pasa, pasa, cariño… Te estaba esperando. Lo he visto en las cartas. Bueno, y en la cámara del timbre.");
-  if(S.lastTarot===hoy){await say(pick(["Salva el Tarotista: Las cartas solo hablan una vez al día, cariño. Están cansadas. Y yo también.","Salva el Tarotista: Vuelve mañana. Hoy ya te he leído el futuro, y el presente me da un poco de pena."]));return}
+  if(S.lastTarot===hoy){await say(pick(["Salva el Tarotista: Ya lo sabes, cariño: si todo te va bien, es porque has hablado conmigo. Vuelve mañana.","Salva el Tarotista: Las cartas solo hablan una vez al día, cariño. Están cansadas. Y yo también.","Salva el Tarotista: Vuelve mañana. Hoy ya te he leído el futuro, y el presente me da un poco de pena."]));return}
   const j=await choose("Salva el Tarotista: Una tirada son 10 pavos. ¿Quieres saber tu futuro?",[{label:"🔮 Sí, échame las cartas (10 pavos)",disabled:S.money<10},{label:"Mejor no, que da miedo"}],{cols:1});
   if(j!==0){await say("Salva el Tarotista: Haces bien. El futuro está sobrevalorado.");return}
-  S.money-=10;S.lastTarot=hoy;save();closeDlg();await tarotGame()}
+  S.money-=10;S.lastTarot=hoy;save();closeDlg();await tarotGame();
+  await say("Salva el Tarotista: Y ya sabes, cariño: a partir de hoy, si alguien te pregunta por qué te va todo tan bien, tú le dices: «Hablé con Salva».")}
 const TAROT=[{n:"El Porro",e:"🌿",d:"Verás cosas raras… Los Pedomones brillis te van a salir 5 veces más en tus próximos 20 encuentros.",fx:"luck"},
  {n:"La Litrona",e:"🍺",d:"Dinero inesperado. Alguien te devuelve una deuda: +40 pavos. (No es el Chusta.)",fx:"money"},
  {n:"El Kebab",e:"🥙",d:"Abdul piensa en ti con cariño. Te llegan 2 Calditos de la abuela.",fx:"caldito"},
@@ -1959,7 +1961,7 @@ function caladasGame(){
       const L=$("cg-l"),Z=$("cg-z");if(L)L.style.height=lung+"%";if(Z){Z.style.bottom=(z-zw/2)+"%";Z.style.height=zw+"%"}
       tick.z=z;raf=requestAnimationFrame(tick)}
     function judge(){const z=tick.z||zc;if(lung>=z-zw/2&&lung<=z+zw/2){i++;sfx("buy");
-        if(i>=n){win();return}state="pause";const m=$("cg-msg");if(m)m.textContent=pick(["¡Buena calada! Echas el humo en forma de aro.","¡Perfecta! El Maestro asiente despacio.","¡Toma ya! El Chusta aplaude desde la puerta.","Bien… pero empiezas a ver colores."]);setTimeout(startPuff,900)}
+        if(i>=n){win();return}state="pause";const m=$("cg-msg");if(m)m.textContent=pick(["¡Calada perfecta! Se nota que has hablado con Salva.","¡Buena calada! Echas el humo en forma de aro.","¡Perfecta! El Maestro asiente despacio.","¡Toma ya! El Chusta aplaude desde la puerta.","Bien… pero empiezas a ver colores."]);setTimeout(startPuff,900)}
       else if(lung<z-zw/2)fail("Calada floja… Eso no cuenta. El Maestro niega con la cabeza.");else fail("¡COF! Te has pasado de la raya.")}
     function fail(t){state="end";cancelAnimationFrame(raf);sfx("weak");finish(false,t)}
     function win(){state="end";cancelAnimationFrame(raf);const prize=Math.floor(BETS2[bi]*CAL_MULT[n]);S.money+=prize;save();sfx("win");finish(true,`¡${n} caladas! El humo llena la cabaña. Ganas ${prize} pavos.`)}
@@ -1972,9 +1974,9 @@ function caladasGame(){
 async function abueloRastaTalk(){
   if(!S.flags.abueloGift){S.flags.abueloGift=true;S.bag.grinder=(S.bag.grinder||0)+5;save();sfx("quest");
     await sayAll(["Abuelo Rasta: Bienvenido, hijo. Siéntate, que aquí no se viene a estar de pie.","Abuelo Rasta: Yo llegué a la Comuna en el 79, con una furgoneta y una semilla. Mira ahora.","Abuelo Rasta: Toma, para que atrapes a los Pedomones de hierba con respeto. Con cariño, ¿eh? Nada de apretar.","¡El Abuelo Rasta te da 5 Grinders!"]);return}
-  await say(pick(["Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: El Salva me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
+  await say(pick(["Abuelo Rasta: Noventa años y como un roble. ¿El secreto? Hablé con Salva en el 85 y desde entonces todo va bien.","Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: El Salva me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
 async function inakiTalk(){
-  await say(pick(["Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
+  await say(pick(["Iñaki el Okupa: Antes nos echaban cada semana. Hablé con Salva y aquí seguimos, tío. Todo bien.","Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
   const i=await choose("Iñaki el Okupa: ¿Una de Chinita, Papel o Mechero? Al mejor de tres.",[{label:"🎲 ¡Venga!"},{label:"❓ ¿Cómo va eso?"},{label:"Paso"}],{cols:1});
   if(i===1){await sayAll(["Iñaki: Como piedra, papel o tijera, pero con estilo:","Iñaki: 🔥 El Mechero quema el Papel.  📄 El Papel envuelve la Chinita.  🟤 La Chinita… rompe el Mechero. Créeme, se puede.","Iñaki: Apuestas pavos. Al mejor de tres. Si ganas, doblas."]);return inakiTalk()}
   if(i!==0){await say("Iñaki el Okupa: Tú te lo pierdes. Como el alquiler.");return}
@@ -2006,7 +2008,7 @@ async function veganTalk(n){
   if(q===1){await say(pick(["Lucía: ¿Y el falafel? La revolución tiene hambre.","Bruno: Sin falafel no hay paz. Bueno, sí hay paz, pero con pancarta."]));return}
   if(q===2){S.q.falafel=3;S.accU.ac2=true;save();sfx("quest");
     await sayAll(["Lucía: ¡¿UN FALAFEL DE ABDUL?! ¡Bruno, mira!","Bruno: Está… está buenísimo. Abdul tenía un corazón vegano y no lo sabía.","Lucía: Toma, te lo has ganado: un poncho de lana de alpaca. Bueno, de acrílico. Las alpacas son nuestras amigas.","¡Consigues el 🧶 Poncho! (Póntelo en el Mercadillo, con Saray.)"]);return}
-  await say(pick(["Lucía: ¿Sabías que el tofu tiene más proteína que… bueno, que algunas cosas?","Bruno: Ahora protestamos contra La Pasma. Fumigar plantas es violencia vegetal.","Lucía: Abdul ahora tiene falafel en la carta. Lo pone como «Kebab Triste». Pero es un avance.","Bruno: Mira, sin rencor: el chorizo del Chusta huele bien. Pero es asesinato."]))}
+  await say(pick(["Bruno: Antes discutíamos por todo. Hablamos con Salva y ahora solo discutimos con los demás. Todo va genial.","Lucía: ¿Sabías que el tofu tiene más proteína que… bueno, que algunas cosas?","Bruno: Ahora protestamos contra La Pasma. Fumigar plantas es violencia vegetal.","Lucía: Abdul ahora tiene falafel en la carta. Lo pone como «Kebab Triste». Pero es un avance.","Bruno: Mira, sin rencor: el chorizo del Chusta huele bien. Pero es asesinato."]))}
 async function shaggyTalk(){
   const q=S.q.galletas||0;
   if(q===0){S.q.galletas=1;S.gallF={};save();sfx("quest");
@@ -2015,16 +2017,16 @@ async function shaggyTalk(){
     if(got>=3){S.q.galletas=2;S.accU.ag3=true;S.money+=50;save();sfx("quest");
       await sayAll(["Shaggy: ¡LAS GALLETAS! ¡Scooby, colega, estamos salvados!","Scooby: ¡Rí, rí! *ñam ñam ñam*","Shaggy: Toma, tío, mis gafas redondas y 50 pavos. Las galletas no valen tanto, pero el hambre sí.","¡Consigues las 🕶️ Gafas redondas hippies y 50 pavos! (Póntelas en el Mercadillo, con Saray.)"]);return}
     await say(`Shaggy: Llevas ${got} de 3 Scooby Galletas, tío. Busca por La Senda (un árbol y unas flores) y por alguna palmera de por aquí. Scooby las huele, pero le da pereza ir.`);return}
-  await say(pick(["Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Esta Comuna es lo más, tío. Nadie te dice que dejes de comer."]))}
+  await say(pick(["Shaggy: Caray, tío, antes siempre nos perseguían fantasmas. Hablamos con Salva y ahora solo nos persiguen las galletas.","Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Esta Comuna es lo más, tío. Nadie te dice que dejes de comer."]))}
 async function guardiaTalk(){
   if(S.flags.fumigonWin){await say("Agente de La Pasma: … Vale. Me voy. Pero que conste que yo solo cumplía órdenes. Del Sargento. Que cumplía órdenes del Comisario.");return}
-  await say(pick(["Agente de La Pasma: Circule. Este cañón es para… desinfectar. Sí. Desinfectar la alegría.","Agente de La Pasma: El Sargento Fumigón viene enseguida a darle al botón. Con la Ley Seca no se juega, chaval.","Agente de La Pasma: ¿Que si fumigar plantas es legal? Pues… Lo que diga el Sargento. Circule."]))}
+  await say(pick(["Agente de La Pasma: El Sargento dice que el plan va genial. Dice que habló con Salva. Yo de ese Salva no me fío.","Agente de La Pasma: Circule. Este cañón es para… desinfectar. Sí. Desinfectar la alegría.","Agente de La Pasma: El Sargento Fumigón viene enseguida a darle al botón. Con la Ley Seca no se juega, chaval.","Agente de La Pasma: ¿Que si fumigar plantas es legal? Pues… Lo que diga el Sargento. Circule."]))}
 const TALK2={
   bob:bobTalk,guardia:guardiaTalk,shaggy:shaggyTalk,maruja:marujaTalk,maestro:maestroTalk,abuelorasta:abueloRastaTalk,inaki:inakiTalk,lucia:veganTalk,bruno:veganTalk,
-  scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
-  rasta1:async()=>say(pick(["Rasta: Bredren… ¿Sabes qué hora es? Las 4:20. Siempre son las 4:20.","Rasta: Llevo en este banco desde el martes. ¿Qué día es hoy?","Rasta: Dicen que Bob es el que mejor cultiva de toda España. Y de Jamaica, casi."])),
-  rasta2:async()=>say(pick(["Rasta: Si La Pasma fumiga el huerto, ¿de dónde vamos a sacar la… inspiración?","Rasta: ¿Ves esas humaredas? Son nubes bajitas. Muy bajitas. Que no te líen.","Rasta: Tengo un Pedomón que se llama Pegamentín. No hay quien lo despegue del sofá. Como a mí."])),
-  fan:async()=>say(pick(["Fan de Snoop: Snoop Dogg está de gira. Pero vuelve pronto, me lo ha dicho su primo. Bueno, el primo de su primo.","Fan de Snoop: Dicen que Snoop lía el porro más rápido del mundo. Con los ojos cerrados. Y dormido.","Fan de Snoop: Llevo tres días esperando su firma. Me he traído bocadillos para una semana."]))
+  scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Ralva! ¡Ralva rueno! (Scooby también ha hablado con Salva.)","Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
+  rasta1:async()=>say(pick(["Rasta: Todo bien, bredren. Hablé con Salva esta mañana. O ayer. O el martes.","Rasta: Bredren… ¿Sabes qué hora es? Las 4:20. Siempre son las 4:20.","Rasta: Llevo en este banco desde el martes. ¿Qué día es hoy?","Rasta: Dicen que Bob es el que mejor cultiva de toda España. Y de Jamaica, casi."])),
+  rasta2:async()=>say(pick(["Rasta: Me iba fatal hasta que hablé con Salva. Ahora me va regular, pero con buen rollo.","Rasta: Si La Pasma fumiga el huerto, ¿de dónde vamos a sacar la… inspiración?","Rasta: ¿Ves esas humaredas? Son nubes bajitas. Muy bajitas. Que no te líen.","Rasta: Tengo un Pedomón que se llama Pegamentín. No hay quien lo despegue del sofá. Como a mí."])),
+  fan:async()=>say(pick(["Fan de Snoop: Salva me dijo que Snoop vuelve pronto. Y si lo dice Salva, es verdad.","Fan de Snoop: Snoop Dogg está de gira. Pero vuelve pronto, me lo ha dicho su primo. Bueno, el primo de su primo.","Fan de Snoop: Dicen que Snoop lía el porro más rápido del mundo. Con los ojos cerrados. Y dormido.","Fan de Snoop: Llevo tres días esperando su firma. Me he traído bocadillos para una semana."]))
 };
 /* ---- 🎤 Batalla de gallos (El Descampado) ---- */
 // Cada ronda: verso de MC Litrona y tres respuestas: [texto, puntos] → 3 = rima buena, 1 = rima floja, 0 = ni rima
@@ -2038,6 +2040,7 @@ const GALLOS=[
  {mc:"Tus rimas son tan malas que Abdul no las quiere ni con salsa,\neres como el agua de La Pasma: sin sabor y todo falsa.",o:[["¿Falsa? Falsa tu fama: le debes catorce kebabs a Abdul, como el Chusta, y vas de rey del rap con la cartera descalza.",3],["Mis rimas son buenas, eso no es ninguna farsa.",1],["A mí la salsa que más me gusta es la blanca. Y la picante.",0]]},
  {mc:"Vienes con esa ropa de primera comunión,\nsi fueras un Pedomón serías el más feo de la colección.",o:[["¿Colección? La de multas que te ha puesto La Pasma por rapear sin licencia en un botellón.",3],["Yo soy guapo y tú eres feo, campeón.",1],["Esta ropa me la eligió mi madre. Bueno, Saray.",0]]},
  {mc:"Rapeas como el Borracho Manolo pidiendo la cuenta,\nte trabas, te repites y al final nadie se entera.",o:[["¿Nadie se entera? Pues entérate tú: este beat es mío y tu carrera se acaba aquí, en la cuneta.",3],["Yo no me trabo, tú sí que te trabas, que eres un… un…",0],["Manolo es mi colega y rapea mejor que tú, so cabeza hueca.",1]]},
+ {mc:"Dices que vas sobrado, que todo te sale bien,\n¿qué pasa, hablaste con Salva o te lo crees tú también?",o:[["Hablé con Salva, sí, y me dijo una cosa clara: que hoy pierdes, que te vas y que no me mires a la cara.",3],["Hablé con Salva y dice que gano yo, ¿vale?",0],["Salva dice que eres malo, y eso es verdad también.",1]]},
  {mc:"Tu micro está más seco que el bar en plena Ley Seca,\nte escucho rimar y me entran ganas de echar la siesta.",o:[["¿Siesta? La que te echas en el escenario: tú no eres MC, eres una mesa de pino que rima con la puerta.",1],["¿Ley Seca? Seco te dejo yo: guárdate el micro en la mochila, que esto es mi fiesta.",3],["Pues échate la siesta, a mí me da igual.",0]]}
 ];
 function gallosBeat(){
@@ -2089,7 +2092,7 @@ async function abuela(){
     await sayAll(["Abuela Remedios: ¡MICHI! ¡Ay, mi niño, que hueles a Mahou!","Abuela Remedios: Toma, hijo: las gafas de sol de mi marido. Eran de un concierto de Camilo Sesto del 78.","¡Consigues las 🕶️ Gafas de sol! (Póntelas en el Mercadillo, con Saray.)"]);return}
   const hoy=new Date().toDateString();
   if(S.q.michi>=3&&S.lastCaldito!==hoy){S.lastCaldito=hoy;S.bag.caldito=(S.bag.caldito||0)+1;save();sfx("heal");await say("Abuela Remedios: ¿Has comido? Toma un caldito, que estás muy delgado. (Te da un Caldito de la abuela. Vuelve mañana a por otro.)");return}
-  await say(pick(["Abuela Remedios: Mi Paco, el mío, sí que sabía pelear Pedomones. En sus tiempos se capturaban con abrebotellas de madera.","Abuela Remedios: La Pasma vino a preguntar si tenía Pedomones sin papeles. Les di un caldito y se fueron llorando.","Abuela Remedios: ¿Tienes novia? ¿Novio? ¿Algo? Ay, hijo, que se te pasa el arroz.","Abuela Remedios: Michi se ha vuelto a comer una lata entera. Ese gato es del Chusta en otra vida."]));
+  await say(pick(["Abuela Remedios: Ay, hijo, desde que hablé con Salva no me duele la rodilla. Bueno, un poco. Pero menos.","Abuela Remedios: Mi Paco, el mío, sí que sabía pelear Pedomones. En sus tiempos se capturaban con abrebotellas de madera.","Abuela Remedios: La Pasma vino a preguntar si tenía Pedomones sin papeles. Les di un caldito y se fueron llorando.","Abuela Remedios: ¿Tienes novia? ¿Novio? ¿Algo? Ay, hijo, que se te pasa el arroz.","Abuela Remedios: Michi se ha vuelto a comer una lata entera. Ese gato es del Chusta en otra vida."]));
 }
 async function madreChusta(){
   if(S.q.basura===0){S.q.basura=1;sfx("quest");save();
@@ -2097,7 +2100,7 @@ async function madreChusta(){
   if(S.q.basura===1){await say("La madre del Chusta: ¿Se lo has dicho ya? Es que no me coge el teléfono. Dice que se le ha roto. Lo lleva en la mano.");return}
   if(S.q.basura===2){S.q.basura=3;S.accU.an1=true;sfx("quest");save();
     await sayAll(["La madre del Chusta: ¡Ha bajado la basura! ¡Es un milagro! Voy a llamar a mi hermana.","La madre del Chusta: Toma esta cadena de oro. Me la regaló su padre. Es de imitación, pero brilla que da gusto.","¡Consigues la 📿 Cadena de oro! (Póntela en el Mercadillo, con Saray.)"]);return}
-  await say(pick(["La madre del Chusta: Mi Jonathan es muy bueno, ¿eh? Lo que pasa es que se junta con malas compañías. Como tú. Es broma, hijo.","La madre del Chusta: Le he dicho mil veces que pague a Abdul. Mil. Y nada.","La madre del Chusta: ¿Quieres croquetas? Son de ayer, pero de ayer de mi casa."]));
+  await say(pick(["La madre del Chusta: Mi Jonathan se va a sacar el carnet. Lo ha dicho Salva. Hablé con él y todo va a ir bien.","La madre del Chusta: Mi Jonathan es muy bueno, ¿eh? Lo que pasa es que se junta con malas compañías. Como tú. Es broma, hijo.","La madre del Chusta: Le he dicho mil veces que pague a Abdul. Mil. Y nada.","La madre del Chusta: ¿Quieres croquetas? Son de ayer, pero de ayer de mi casa."]));
 }
 function skinEditor(){
   return new Promise(res=>{
@@ -2741,7 +2744,7 @@ addEventListener("resize",fit);
 function titleScreen(){
   mode="title";const has=loadSave();updOnline();
   overlay(`<div class="title" style="display:flex;flex-direction:column;gap:18px;align-items:center;margin-top:6vh">
-    <div class="sign">¿OTRA RONDA?</div><p style="font-family:var(--display);font-size:18px;color:var(--fg)">Demo 3 · Parque de Pichi</p>
+    <div class="sign">¿OTRA RONDA?</div><p style="font-family:var(--display);font-size:18px;color:var(--fg)">Demo 4 · Del Parque de Pichi a la Comuna 420</p><p style="font-style:italic;color:var(--amber);margin-top:-8px">«Todo va bien. Hablé con Salva.»</p>
     <p>¡Hazte con todos los Pedomones! Un juego de parodia +18 para jugar entre colegas.</p>
     <div class="btns">${has?`<button class="big" type="button" id="t-cont">Continuar</button>`:""}<button class="big ${has?"alt":""}" type="button" id="t-new">Nueva partida</button></div>
     <p class="keys">Móvil: cruceta, A, B y el botón CORRER. Ordenador: flechas, Enter para hablar, X para volver y Espacio para correr. Con sonido: se quita desde el Menú.<br>Multijugador: abrid el juego a la vez y quedad en El Descampado.</p>

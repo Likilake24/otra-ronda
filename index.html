@@ -1,3 +1,4 @@
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>¿Otra Ronda?</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -752,7 +753,7 @@ const SKIN_FIELDS=[["hs","Peinado",HAIRS.length,i=>HAIRS[i]],["hc","Color de pel
   ["ts","Ropa",TOPS.length,i=>TOPS[i]],["tc","Color de ropa",TOP_C.length,i=>TOP_C[i]],["tz","Color de detalles",TOP_C.length,i=>TOP_C[i]],
   ["pc","Pantalón",PANT_C.length,i=>PANT_C[i]],["kc","Zapatillas",SHOE_C.length,i=>SHOE_C[i]]];
 const ACC_FIELDS=[["ag","Gafas",3,i=>["Ninguna","De sol","De corazón"][i]],["an","Cuello",2,i=>["Nada","Cadena de oro"][i]],["ac","Espalda",2,i=>["Nada","Capa roja"][i]]];
-function accOk(k,v){return v===0||!!(S&&S.accU&&S.accU[k+v])}
+function accOk(k,v){if(!ACC_FIELDS.some(f=>f[0]===k))return true;return v===0||!!(S&&S.accU&&S.accU[k+v])}
 function accAny(k){const f=ACC_FIELDS.find(x=>x[0]===k);for(let v=1;v<f[2];v++)if(accOk(k,v))return true;return false}
 function defSkin(){return{hs:0,hc:0,sc:0,ts:0,tc:0,tz:5,pc:0,kc:0,ag:0,an:0,ac:0}}
 function cleanSkin(sk){const o=defSkin();if(sk&&typeof sk==="object")SKIN_FIELDS.concat(ACC_FIELDS).forEach(([k,,n])=>{const v=sk[k];if(Number.isInteger(v)&&v>=0&&v<n)o[k]=v});return o}
@@ -1019,7 +1020,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="15 · tienda arreglada";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -2302,7 +2303,7 @@ function titleScreen(){
     <p>¡Hazte con todos los Pedomones! Un juego de parodia +18 para jugar entre colegas.</p>
     <div class="btns">${has?`<button class="big" type="button" id="t-cont">Continuar</button>`:""}<button class="big ${has?"alt":""}" type="button" id="t-new">Nueva partida</button></div>
     <p class="keys">Móvil: cruceta, A, B y el botón CORRER. Ordenador: flechas, Enter para hablar, X para volver y Espacio para correr. Con sonido: se quita desde el Menú.<br>Multijugador: abrid el juego a la vez y quedad en El Descampado.</p>
-    <p class="keys" style="font-size:11px;max-width:560px">Música: «Monkeys Spinning Monkeys», «Carefree», «Local Forecast», «Desert City», «Asian Drums», «Habanera», «Investigations», «Hustle» y «Volatile Reaction», de Kevin MacLeod (incompetech.com). Licencia Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0/).</p></div>`);
+    <p class="keys" style="font-size:11px;max-width:560px">Música: «Monkeys Spinning Monkeys», «Carefree», «Local Forecast», «Desert City», «Asian Drums», «Habanera», «Investigations», «Hustle» y «Volatile Reaction», de Kevin MacLeod (incompetech.com). Licencia Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0/).</p><p class="keys" style="font-size:12px;color:var(--amber)">Versión ${GAME_VER}</p></div>`);
   if(has)$("t-cont").onclick=async()=>{S=Object.assign(freshState(),has);S.bag=Object.assign({},has.bag||{});S.flags=Object.assign(freshState().flags,has.flags||{});S.q=Object.assign({gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},has.q||{});S.accU=has.accU||{};
     S.keys=has.keys||{};S.beaten=has.beaten||{};S.skin=cleanSkin(has.skin);if(!MAPS[S.map])S.map="park";if(!Array.isArray(S.respawn)||S.respawn.length<3||!MAPS[S.respawn[0]])S.respawn=["kebab",4,3];
     closeOverlay();if(!S.name)await nameScreen();start()};

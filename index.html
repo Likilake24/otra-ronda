@@ -83,6 +83,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 .skin .prev{background:var(--panel2);border:2px solid var(--line);border-radius:8px;display:flex;justify-content:center;align-items:center;height:220px}
 .skin .rows{display:flex;flex-direction:column;gap:8px}
 .srow{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px}
+.srow.sel{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber)}
+.srow button{font:inherit;font-size:18px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 0;cursor:pointer;touch-action:manipulation}
 .srow .lab{text-align:center;font-size:14px;display:flex;flex-direction:column}
 .srow .lab small{color:var(--muted);font-size:12px}
 .srow button{font:inherit;font-family:var(--display);font-size:18px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:6px;height:38px;cursor:pointer}
@@ -600,15 +602,15 @@ const SP={
  // ---------- BODEGA: cervezas ----------
  steinburguito:{n:"Steinburguito",t:"agua",fam:"bodega",gen:{k:"lata",b:"#2e7d32",l:"#f4f4f4",tx:"STEIN",tc:"#c8202a",a:"#e8b84a",f:"happy"},b:[48,48,50,46],xp:62,evo:[8,"steinburg"],learn:[[1,"lataza"],[1,"eructo"],[4,"espumarajo"],[6,"rondapagada"],[10,"botellazo"],[16,"oferta3x2"]],z:"Inicial",d:"La latita de 33 del Mercadona. Cuesta menos que un chicle y sabe a lo que cuesta."},
  steinburg:{n:"Steinburg",t:"agua",fam:"bodega",gen:{k:"litro",b:"#2e6b2e",l:"#f4f4f4",tx:"STEIN",tc:"#c8202a",cap:"#e8b84a",f:"cool"},b:[62,62,64,58],xp:140,evo:[16,"steinpack"],learn:[[10,"botellazo"],[13,"tapon"],[16,"oferta3x2"]],z:"Evolución",d:"La litrona del parque. Empieza fría y a la segunda ronda ya está caliente."},
- steinpack:{n:"Steinburg Pack 24",t:"agua",fam:"bodega",gen:{k:"pack",b:"#2e7d32",l:"#f4f4f4",tx:"STEIN 24",tc:"#c8202a",f:"happy"},b:[80,80,84,74],xp:230,learn:[[16,"oferta3x2"],[20,"olacerveza"]],z:"Evolución",d:"El pack de 24. Lleva 24 latas dentro y cada una es una vida extra."},
+ steinpack:{n:"Steinburg Pack 24",t:"agua",fam:"bodega",gen:{k:"pack",b:"#2e7d32",l:"#f4f4f4",tx:"STEIN 24",tc:"#c8202a",f:"happy"},b:[80,80,84,74],xp:230,learn:[[16,"oferta3x2"],[20,"jarrazo"],[20,"olacerveza"]],z:"Evolución",d:"El pack de 24. Lleva 24 latas dentro y cada una es una vida extra."},
  mahou:{n:"Mahou",t:"agua",fam:"bodega",gen:{k:"lata",b:"#c8202a",l:"#f4f4f4",tx:"MAHOU",tc:"#c8202a",a:"#e8b84a",f:"happy"},b:[40,44,40,46],xp:45,evo:[9,"mahoulitro"],learn:[[1,"lataza"],[1,"eructo"],[5,"espumarajo"],[7,"tapon"]],z:"Parque de Pichi",d:"La de Madrid de toda la vida. Siempre hay una en la nevera de alguien."},
  mahoulitro:{n:"Mahou Litrona",t:"agua",fam:"bodega",gen:{k:"litro",b:"#7a3a0a",l:"#c8202a",tx:"MAHOU",tc:"#ffffff",cap:"#c8202a",f:"angry"},b:[56,60,56,56],xp:130,evo:[17,"mahou5"],learn:[[9,"botellazo"],[12,"tapon"],[15,"rondapagada"]],z:"Evolución",d:"Un litro de Madrid. Va al parque con chándal y se cree el dueño del banco."},
  mahou5:{n:"Mahou Cinco Estrellas",t:"agua",fam:"bodega",gen:{k:"pack",b:"#c8202a",l:"#f2c14e",tx:"MAHOU 5",tc:"#c8202a",f:"cool"},b:[78,82,78,76],xp:220,learn:[[17,"cincoestrellas"],[20,"olacerveza"],[24,"oferta3x2"]],z:"Evolución",d:"Cinco estrellas, como los hoteles a los que nunca vas. Lleva una corona de chapas."},
  cruzcampo:{n:"Cruzcampo",t:"normal",fam:"bodega",gen:{k:"lata",b:"#d22a2a",l:"#ffffff",tx:"CRUZ CAMPO",tc:"#c8202a",a:"#f2c14e",f:"happy"},b:[48,50,46,40],xp:55,evo:[9,"cruzlitro"],learn:[[1,"lataza"],[1,"eructo"],[5,"sevillanazo"],[8,"espumarajo"]],z:"Parque de Pichi",d:"Viene de Sevilla con mucho arte. Se cree mejor que la Mahou."},
  cruzlitro:{n:"Cruzcampo Litrona",t:"normal",fam:"bodega",gen:{k:"litro",b:"#6a3a0a",l:"#c8202a",tx:"CRUZ CAMPO",tc:"#ffffff",cap:"#f2c14e",f:"cool"},b:[60,64,58,50],xp:135,evo:[17,"gambrinus"],learn:[[9,"botellazo"],[12,"tapon"],[15,"olacerveza"]],z:"Evolución",d:"La litrona de la feria. Habla con las manos y cuenta chistes que no entiende nadie de fuera."},
- gambrinus:{n:"Gambrinus",t:"normal",fam:"bodega",gen:{k:"rey"},b:[88,90,80,64],xp:240,learn:[[17,"jarrazo"],[20,"brindisreal"],[24,"sevillanazo"]],z:"Evolución",d:"El rey de la cerveza en persona. Barriga, barba, capa y jarra. El bicho más guapo de Sevilla."},
- estrella:{n:"Estrella Galicia",t:"hielo",fam:"bodega",gen:{k:"lata",b:"#f4f4f4",l:"#c8202a",tx:"GALICIA",tc:"#ffffff",a:"#c8202a",f:"happy"},b:[46,48,48,46],xp:55,evo:[12,"estrella1906"],learn:[[1,"lataza"],[1,"eructo"],[6,"morrina"],[10,"olacerveza"]],z:"Más adelante · Las Bodegas",d:"Nunca te dice si sube o si baja. Depende."},
- estrella1906:{n:"Estrella 1906",t:"hielo",fam:"bodega",gen:{k:"botella",b:"#5a3a0a",l:"#111111",tx:"1906",tc:"#f2c14e",cap:"#c8202a",f:"cool"},b:[72,76,72,64],xp:170,learn:[[12,"olacerveza"],[15,"morrina"],[18,"reserva"]],z:"Evolución",d:"La reserva de la abuela gallega. Se toma despacio y con pulpo."},
+ gambrinus:{n:"Gambrinus",t:"normal",fam:"bodega",gen:{k:"rey"},b:[88,90,80,64],xp:240,learn:[[17,"jarrazo"],[19,"cubazo"],[20,"brindisreal"],[24,"sevillanazo"]],z:"Evolución",d:"El rey de la cerveza en persona. Barriga, barba, capa y jarra. El bicho más guapo de Sevilla."},
+ estrella:{n:"Estrella Galicia",t:"hielo",fam:"bodega",gen:{k:"lata",b:"#f4f4f4",l:"#c8202a",tx:"GALICIA",tc:"#ffffff",a:"#c8202a",f:"happy"},b:[46,48,48,46],xp:55,evo:[12,"estrella1906"],learn:[[1,"cubitazo"],[1,"eructo"],[1,"lataza"],[6,"morrina"],[8,"chupitohelado"],[10,"olacerveza"]],z:"Más adelante · Las Bodegas",d:"Nunca te dice si sube o si baja. Depende."},
+ estrella1906:{n:"Estrella 1906",t:"hielo",fam:"bodega",gen:{k:"botella",b:"#5a3a0a",l:"#111111",tx:"1906",tc:"#f2c14e",cap:"#c8202a",f:"cool"},b:[72,76,72,64],xp:170,learn:[[12,"escarcha"],[12,"olacerveza"],[15,"morrina"],[16,"granizada"],[18,"reserva"]],z:"Evolución",d:"La reserva de la abuela gallega. Se toma despacio y con pulpo."},
  judas:{n:"Judas",t:"veneno",fam:"bodega",gen:{k:"judas"},b:[100,108,86,96],xp:300,learn:[[1,"besojudas"],[1,"treintamonedas"],[1,"traicion"],[1,"cervezamaldita"]],singular:true,z:"Singular · más adelante",d:"Rubia, fuerte y traicionera. Entra suave y te vende por 30 monedas. La favorita del Jefe."},
  // ---------- BODEGA: vino, garrafón y licores ----------
  donsimon:{n:"Don Simón",t:"normal",fam:"bodega",gen:{k:"brik",b:"#f2efe6",l:"#8a1a2a",tx:"DON SIMON",tc:"#ffffff",a:"#d23a2e",f:"happy"},b:[54,42,48,30],xp:48,evo:[9,"kalimotxo"],learn:[[1,"brikazo"],[1,"eructo"],[5,"pajitazo"],[8,"kalimotxazo"]],z:"Parque de Pichi",d:"Vive en un brik. El rey del botellón y del kalimotxo."},
@@ -618,8 +620,8 @@ const SP={
  garrafa5l:{n:"Garrafa de 5 Litros",t:"veneno",fam:"bodega",gen:{k:"garrafa",b:"#5a7a2a",l:"#e6e0c8",tx:"5 L",tc:"#6a2a8a",cap:"#3a3a3a",f:"evil"},b:[74,70,72,40],xp:150,learn:[[10,"potada"],[14,"garrafa"],[18,"resacazo"]],z:"Evolución",d:"Cinco litros de algo. La etiqueta pone «licor». Con eso ya lo sabes todo."},
  absolut:{n:"Absolut",t:"hielo",fam:"bodega",gen:{k:"botella",b:"#cfe6f2",l:"#cfe6f2",tx:"ABSOLUT",tc:"#2a5aa8",cap:"#c0c8d0",f:"cool"},b:[44,52,42,54],xp:58,evo:[10,"absolutmagnum"],learn:[[1,"cubitazo"],[1,"eructo"],[6,"chupitohelado"],[8,"congelador"]],z:"Parque de Pichi",d:"Transparente y frío. Casi no se ve hasta que te pega."},
  absolutmagnum:{n:"Absolut Magnum",t:"hielo",fam:"bodega",gen:{k:"garrafa",b:"#cfe6f2",l:"#2a5aa8",tx:"ABSOLUT",tc:"#ffffff",cap:"#c0c8d0",f:"cool"},b:[66,74,62,72],xp:150,learn:[[10,"granizada"],[14,"chupitohelado"],[18,"nuca"]],z:"Evolución",d:"La botella de discoteca VIP. Llega con bengalas y un camarero que no sonríe."},
- jyb:{n:"J&B",t:"fuego",fam:"bodega",gen:{k:"botella",b:"#2a6a2a",l:"#f2d14e",tx:"J&B",tc:"#c8202a",cap:"#c8202a",f:"cool"},b:[48,56,44,50],xp:58,evo:[12,"cubatajyb"],learn:[[1,"licorazo"],[1,"eructo"],[7,"chupito"],[10,"mecherazo"]],z:"Más adelante · Las Bodegas",d:"El clásico de los cubatas de boda. Quema al bajar."},
- cubatajyb:{n:"Cubata de J&B",t:"fuego",fam:"bodega",gen:{k:"copa",b:"#8a4a1a",tx:"J&B",tc:"#f2d14e",f:"happy"},b:[70,80,62,68],xp:160,learn:[[12,"cubatazo"],[15,"chupito"],[18,"soplete"]],z:"Evolución",d:"J&B con cola en vaso de tubo. El tío de la boda bailando con la corbata en la cabeza."},
+ jyb:{n:"J&B",t:"fuego",fam:"bodega",gen:{k:"botella",b:"#2a6a2a",l:"#f2d14e",tx:"J&B",tc:"#c8202a",cap:"#c8202a",f:"cool"},b:[48,56,44,50],xp:58,evo:[12,"cubatajyb"],learn:[[1,"colillazo"],[1,"eructo"],[1,"licorazo"],[4,"quemazon"],[7,"chupito"],[10,"mecherazo"]],z:"Más adelante · Las Bodegas",d:"El clásico de los cubatas de boda. Quema al bajar."},
+ cubatajyb:{n:"Cubata de J&B",t:"fuego",fam:"bodega",gen:{k:"copa",b:"#8a4a1a",tx:"J&B",tc:"#f2d14e",f:"happy"},b:[70,80,62,68],xp:160,learn:[[12,"carajillazo"],[12,"cubatazo"],[15,"chupito"],[16,"infierno"],[18,"soplete"]],z:"Evolución",d:"J&B con cola en vaso de tubo. El tío de la boda bailando con la corbata en la cabeza."},
  larios:{n:"Larios",t:"planta",fam:"bodega",gen:{k:"botella",b:"#e8f6ff",l:"#2a6a2a",tx:"LARIOS",tc:"#ffffff",cap:"#c8202a",f:"happy"},b:[46,46,50,48],xp:55,evo:[12,"gintonic"],learn:[[1,"pepinazo"],[1,"eructo"],[6,"hierbabuena"],[9,"cogollazo"]],z:"Más adelante · Las Bodegas",d:"Ginebra de Málaga. Huele a enebro y a terraza de verano."},
  gintonic:{n:"Gin-Tonic Larios",t:"planta",fam:"bodega",gen:{k:"copa",b:"#d8f0f8",tx:"GIN",tc:"#2a6a2a",f:"cool",garnish:"#6fcf5a"},b:[70,66,74,70],xp:160,learn:[[12,"pepinazo"],[15,"hierbabuena"],[18,"canuto"]],z:"Evolución",d:"En copa de balón, con pepino y tres cubitos. Se cree muy pijo."},
  jager:{n:"Jägermeister",t:"planta",fam:"bodega",gen:{k:"botella",b:"#1f4a2a",l:"#f2a93b",tx:"JAGER",tc:"#1a1410",cap:"#f2a93b",f:"angry"},b:[50,58,48,52],xp:60,evo:[13,"jagerbomb"],learn:[[1,"cogollazo"],[1,"eructo"],[7,"hierbabuena"],[10,"humoverde"]],z:"Más adelante · La Discoteca",d:"Licor de 56 hierbas y un ciervo. Nadie sabe cuáles son las hierbas. Ni el ciervo."},
@@ -640,7 +642,7 @@ const SP={
  camelcarton:{n:"Camel Cartón",t:"normal",fam:"estanco",gen:{k:"carton",b:"#d9b85a",a:"#a8873a",tx:"CAMEL",tc:"#2a4ab8",f:"cool"},b:[58,64,58,66],xp:130,evo:[17,"camello"],learn:[[9,"cartonazo"],[12,"joroba"],[15,"mecherazo"]],z:"Evolución",d:"Diez paquetes de Camel. Ya se le empieza a notar la joroba."},
  camello:{n:"Camello del Desierto",t:"normal",fam:"estanco",gen:{k:"camello",b:"#d9b85a"},b:[80,86,74,90],xp:230,learn:[[17,"desierto"],[20,"joroba"],[24,"duelo"]],z:"Evolución",d:"El camello de la cajetilla, en persona. Joroba llena de tabaco y una calada que derrite el asfalto."},
  marlboro:{n:"Marlboro",t:"fuego",fam:"estanco",gen:{k:"cajetilla",b:"#f4f4f4",a:"#d23a2e",l:"#f4f4f4",tx:"MARLBORO",tc:"#1a1410",f:"angry"},b:[46,54,44,52],xp:58,evo:[11,"marlborocarton"],learn:[[1,"colillazo"],[1,"humareda"],[6,"tos"],[9,"lazo"]],z:"Más adelante · La Ciudad",d:"El tabaco de los vaqueros de las pelis. Tapa roja y cara de malo."},
- marlborocarton:{n:"Marlboro Cartón",t:"fuego",fam:"estanco",gen:{k:"carton",b:"#f4f4f4",a:"#d23a2e",tx:"MARL BORO",tc:"#1a1410",f:"angry"},b:[62,70,60,64],xp:140,evo:[18,"vaquero"],learn:[[11,"cartonazo"],[14,"lazo"],[17,"soplete"]],z:"Evolución",d:"Un cartón entero. Ya va con espuelas."},
+ marlborocarton:{n:"Marlboro Cartón",t:"fuego",fam:"estanco",gen:{k:"carton",b:"#f4f4f4",a:"#d23a2e",tx:"MARL BORO",tc:"#1a1410",f:"angry"},b:[62,70,60,64],xp:140,evo:[18,"vaquero"],learn:[[11,"puro"],[11,"cartonazo"],[14,"lazo"],[15,"desierto"],[17,"soplete"]],z:"Evolución",d:"Un cartón entero. Ya va con espuelas."},
  vaquero:{n:"Vaquero Marlboro",t:"fuego",fam:"estanco",gen:{k:"vaquero"},b:[80,92,72,86],xp:235,learn:[[18,"lazo"],[21,"duelo"],[24,"cartonazo"]],z:"Evolución",d:"El vaquero del cartel, en carne y humo. Sombrero, lazo y un piti que no se apaga nunca."},
  ducados:{n:"Ducados",t:"veneno",fam:"estanco",gen:{k:"cajetilla",b:"#2a4ab8",a:"#f4f4f4",l:"#2a4ab8",tx:"DUCADOS",tc:"#f4f4f4",f:"sleepy"},b:[50,52,50,40],xp:55,evo:[12,"ducadoscarton"],learn:[[1,"tabaconegro"],[1,"tos"],[6,"ceniza"],[9,"humareda"]],z:"Más adelante · La Ciudad",d:"Tabaco negro de toda la vida. Huele a bar de pueblo y a abuelo jugando al dominó."},
  ducadoscarton:{n:"Ducados Cartón",t:"veneno",fam:"estanco",gen:{k:"carton",b:"#2a4ab8",a:"#f4f4f4",tx:"DUCADOS",tc:"#f4f4f4",f:"angry"},b:[74,72,76,56],xp:160,learn:[[12,"tabaconegro"],[15,"cartonazo"],[18,"ceniza"]],z:"Evolución",d:"Un cartón de Ducados. Deja la voz como un camionero."},
@@ -656,10 +658,10 @@ const SP={
  kushito:{n:"Kushito",t:"planta",fam:"huerto",rows:"kushito",pal:"kush",b:[52,46,54,44],xp:62,evo:[8,"ogkush"],learn:[[1,"cogollazo"],[1,"empujon"],[4,"empanada"],[6,"risafloja"],[10,"humoverde"],[16,"bajon"]],z:"Inicial",d:"Un cogollito recién salido del grinder, con la gorra para atrás."},
  ogkush:{n:"OG Kush",t:"planta",fam:"huerto",rows:"ogkush",pal:"kush",b:[66,60,70,56],xp:140,evo:[16,"kushecha"],learn:[[10,"humoverde"],[13,"canuto"],[16,"bajon"]],z:"Evolución",d:"Original Gánster. Gafas de sol, cadena de oro y cero prisas."},
  kushecha:{n:"Kushecha",t:"planta",fam:"huerto",rows:"kushecha",pal:"kush",b:[86,78,90,72],xp:230,learn:[[16,"bajon"],[20,"canuto"]],z:"Evolución",d:"La cosecha entera, con corona incluida. El rey del Huerto."},
- amnesia:{n:"Amnesia",t:"veneno",fam:"huerto",rows:"kushito",pal:"amnesia",b:[46,42,48,46],xp:50,evo:[10,"amnesiahaze"],learn:[[1,"cogollazo"],[1,"olvido"],[5,"empanada"],[7,"humoverde"]],z:"Parque de Pichi",d:"Te hace olvidar lo que ibas a hacer. ¿Qué estaba diciendo?"},
- amnesiahaze:{n:"Amnesia Haze",t:"veneno",fam:"huerto",rows:"ogkush",pal:"amnesia",b:[62,58,62,64],xp:135,evo:[17,"lagunamental"],learn:[[10,"humoverde"],[13,"olvido"],[16,"bajon"]],z:"Evolución",d:"Morada, con gafas y cara de no saber dónde ha aparcado."},
- lagunamental:{n:"Laguna Mental",t:"veneno",fam:"huerto",rows:"kushecha",pal:"amnesia",b:[80,74,82,86],xp:225,learn:[[17,"olvido"],[20,"canuto"],[24,"bajon"]],z:"Evolución",d:"Ya no se acuerda ni de cómo se llama. Ni tú, después de pelear con ella."},
- critical:{n:"Criticón",t:"fuego",fam:"huerto",rows:"ogkush",pal:"critical",crit:true,b:[54,64,46,58],xp:110,learn:[[1,"cogollazo"],[1,"empujon"],[6,"humoverde"],[10,"risafloja"],[14,"canuto"]],z:"Más adelante · Huerto del Hippie",d:"Siempre da golpes críticos y siempre critica a todo el mundo. Insoportable, pero fuerte."},
+ amnesia:{n:"Amnesia",t:"veneno",fam:"huerto",rows:"kushito",pal:"amnesia",b:[46,42,48,46],xp:50,evo:[10,"amnesiahaze"],learn:[[1,"olvido"],[1,"cogollazo"],[3,"resacazo"],[5,"empanada"],[7,"humoverde"],[9,"alucinacion"]],z:"Parque de Pichi",d:"Te hace olvidar lo que ibas a hacer. ¿Qué estaba diciendo?"},
+ amnesiahaze:{n:"Amnesia Haze",t:"veneno",fam:"huerto",rows:"ogkush",pal:"amnesia",b:[62,58,62,64],xp:135,evo:[17,"lagunamental"],learn:[[10,"humoverde"],[11,"acido"],[13,"olvido"],[14,"alucinacion"],[16,"bajon"]],z:"Evolución",d:"Morada, con gafas y cara de no saber dónde ha aparcado."},
+ lagunamental:{n:"Laguna Mental",t:"veneno",fam:"huerto",rows:"kushecha",pal:"amnesia",b:[80,74,82,86],xp:225,learn:[[17,"olvido"],[18,"dolorcabeza"],[20,"canuto"],[22,"cirrosis"],[24,"bajon"]],z:"Evolución",d:"Ya no se acuerda ni de cómo se llama. Ni tú, después de pelear con ella."},
+ critical:{n:"Criticón",t:"fuego",fam:"huerto",rows:"ogkush",pal:"critical",crit:true,b:[54,64,46,58],xp:110,learn:[[1,"colillazo"],[1,"empujon"],[1,"cogollazo"],[6,"humoverde"],[8,"quemazon"],[10,"risafloja"],[14,"canuto"]],z:"Más adelante · Huerto del Hippie",d:"Siempre da golpes críticos y siempre critica a todo el mundo. Insoportable, pero fuerte."},
  viudablanca:{n:"Viuda Blanca",t:"hielo",fam:"huerto",rows:"ogkush",pal:"widow",b:[58,62,56,66],xp:115,learn:[[1,"escarcha"],[1,"olvido"],[7,"congelador"],[11,"granizada"]],z:"Más adelante · Montaña Helada",d:"Blanca como la escarcha. Solo sale de noche y siempre va de luto."},
  pegamentin:{n:"Pegamentín",t:"planta",fam:"huerto",rows:"kushito",pal:"glue",b:[52,56,50,40],xp:55,evo:[14,"gorilon"],learn:[[1,"cogollazo"],[1,"pegamento"],[6,"empujon"],[10,"humoverde"]],z:"Más adelante · Huerto del Hippie",d:"Un cogollo tan pegajoso que se le quedan los dedos dentro."},
  gorilon:{n:"Gorilón Pegamento",t:"normal",fam:"huerto",gen:{k:"gorila",b:"#3f8a36",a:"#f08a2a"},b:[88,96,82,54],xp:220,learn:[[14,"golpegorila"],[17,"pegamento"],[20,"canuto"]],z:"Evolución",d:"Un gorila hecho de cogollo. Te abraza y no te suelta en tres días."},
@@ -680,7 +682,7 @@ const SP={
  rifglacier:{n:"Rif Glacier",t:"hielo",fam:"huerto",gen:{k:"bellota",b:"#c8b080",a:"#e8f6ff",f:"cool",frost:true},b:[76,80,78,74],xp:200,learn:[[1,"glaciar"],[1,"chinazo"],[1,"empanada"],[12,"escarcha"],[16,"hachazo"]],z:"Más adelante · Monte del Rif",d:"Hachís del Rif de los buenos, rubio y con escarcha. Muy raro de encontrar."},
  polen:{n:"Polen",t:"planta",fam:"huerto",gen:{k:"china",b:"#d8b04a",f:"happy"},b:[42,44,44,50],xp:50,evo:[11,"polenprensado"],learn:[[1,"chinazo"],[1,"polvopolen"],[6,"risafloja"],[9,"humoverde"]],z:"Más adelante · Monte del Rif",d:"Polvillo dorado que se deshace en los dedos. Estornudar cerca de él es un drama."},
  polenprensado:{n:"Polen Prensado",t:"planta",fam:"huerto",gen:{k:"placa",b:"#c8a040",tx:"POLEN",tc:"#6a4a2a",f:"cool"},b:[66,66,70,60],xp:150,learn:[[11,"prensado"],[14,"polvopolen"],[18,"bajon"]],z:"Evolución",d:"Polen prensado en tableta. Huele desde la otra punta del Descampado."},
- cerocero:{n:"Doble Cero",t:"veneno",fam:"huerto",gen:{k:"china",b:"#4a3a1a",f:"cool",gold:true},b:[64,70,62,70],xp:140,learn:[[1,"chinazo"],[1,"hachazo"],[8,"bajon"],[12,"canuto"]],z:"Más adelante · Monte del Rif",d:"El más puro del Rif. Pequeño, oscuro y con fama de leyenda."},
+ cerocero:{n:"Doble Cero",t:"veneno",fam:"huerto",gen:{k:"china",b:"#4a3a1a",f:"cool",gold:true},b:[64,70,62,70],xp:140,learn:[[1,"tos"],[1,"hachazo"],[1,"chinazo"],[8,"bajon"],[10,"acido"],[12,"canuto"]],z:"Más adelante · Monte del Rif",d:"El más puro del Rif. Pequeño, oscuro y con fama de leyenda."},
  // ---------- ALCOHOLES VENENO ----------
  absenta:{n:"Absenta",t:"veneno",fam:"bodega",gen:{k:"botella",b:"#5fd04a",l:"#1a3a1a",tx:"ABSENTA",tc:"#9fff8a",cap:"#1a1a1a",f:"evil"},b:[48,58,44,56],xp:60,evo:[13,"hadaverde"],learn:[[1,"absentazo"],[1,"eructo"],[6,"alucinacion"],[10,"acido"]],z:"Más adelante · La Discoteca",d:"Verde fosforito y 70 grados. Dicen que se ven hadas. Dicen."},
  hadaverde:{n:"El Hada Verde",t:"veneno",fam:"bodega",gen:{k:"hada"},b:[70,82,64,84],xp:180,learn:[[13,"alucinacion"],[16,"absentazo"],[20,"cirrosis"]],z:"Evolución",d:"El hada que ves después de la tercera absenta. Tiene alas y muy mala idea."},
@@ -696,10 +698,10 @@ const SP={
  hell:{n:"Hell",t:"fuego",fam:"bodega",gen:{k:"lata",b:"#1a1a1a",l:"#c8202a",tx:"HELL",tc:"#1a1a1a",a:"#c8202a",f:"evil"},b:[44,54,40,56],xp:55,learn:[[1,"infierno"],[1,"eructo"],[6,"subidon"],[10,"mecherazo"],[14,"desierto"]],z:"Más adelante · La Ciudad",d:"La energética barata. Sabe a pila y cuesta menos que el chicle."},
  burn:{n:"Burn",t:"fuego",fam:"bodega",gen:{k:"lata",b:"#1a1a1a",l:"#f07a2a",tx:"BURN",tc:"#1a1a1a",a:"#f2d14e",f:"angry"},b:[46,58,42,58],xp:58,learn:[[1,"quemazon"],[1,"eructo"],[6,"subidon"],[10,"infierno"]],z:"Más adelante · La Ciudad",d:"Llamas en la lata y en el estómago. Viene con el aviso de «no mezclar con alcohol». Nadie lo lee."},
  // ---------- CERVEZAS DEL SÃšPER ----------
- argus:{n:"Argus",t:"electrico",fam:"bodega",gen:{k:"lata",b:"#f4f4f4",l:"#c8202a",tx:"ARGUS",tc:"#ffffff",a:"#c8a040",f:"happy"},b:[42,46,42,48],xp:52,evo:[11,"argus1844"],learn:[[1,"lataza"],[1,"eructo"],[5,"tapon"],[8,"espumarajo"]],z:"MÃ¡s adelante Â· La Ciudad",d:"La birra del Lidl. Barata, fresquita y con nombre de gigante griego de cien ojos."},
- argus1844:{n:"Argus 1844 Black",t:"electrico",fam:"bodega",gen:{k:"botella",b:"#1a1a1a",l:"#c8a040",tx:"1844",tc:"#1a1a1a",cap:"#c8a040",f:"cool"},b:[70,74,70,66],xp:160,learn:[[11,"olacerveza"],[14,"reserva"],[18,"cervezamaldita"]],z:"EvoluciÃ³n",d:"La versiÃ³n negra y tostada que diseÃ±Ã³ un chef. Se cree de gourmet aunque venga del Lidl."},
- chippies:{n:"Chippies",t:"veneno",fam:"bodega",gen:{k:"lata",b:"#f2d14e",l:"#2a6ad0",tx:"CHIPPIES",tc:"#ffffff",a:"#c8202a",f:"drunk"},b:[40,42,40,50],xp:48,evo:[10,"chippiespack"],learn:[[1,"lataza"],[1,"eructo"],[5,"pajitazo"],[8,"tapon"]],z:"MÃ¡s adelante Â· La Ciudad",d:"No sale ni en Google, pero el Jefe jura que existe. La birra mÃ¡s misteriosa del paÃ­s."},
- chippiespack:{n:"Chippies Pack 24",t:"veneno",fam:"bodega",gen:{k:"pack",b:"#f2d14e",l:"#2a6ad0",tx:"CHIP 24",tc:"#ffffff",f:"drunk"},b:[74,70,74,72],xp:150,learn:[[10,"oferta3x2"],[14,"olacerveza"],[18,"pajitazo"]],z:"EvoluciÃ³n",d:"Veinticuatro latas de un misterio. Nadie sabe quiÃ©n las fabrica. Ni falta que hace."},
+ argus:{n:"Argus",t:"electrico",fam:"bodega",gen:{k:"lata",b:"#f4f4f4",l:"#c8202a",tx:"ARGUS",tc:"#ffffff",a:"#c8a040",f:"happy"},b:[42,46,42,48],xp:52,evo:[11,"argus1844"],learn:[[1,"sorboelectrico"],[1,"eructo"],[1,"lataza"],[5,"tapon"],[8,"chispazo"],[8,"espumarajo"]],z:"MÃ¡s adelante Â· La Ciudad",d:"La birra del Lidl. Barata, fresquita y con nombre de gigante griego de cien ojos."},
+ argus1844:{n:"Argus 1844 Black",t:"electrico",fam:"bodega",gen:{k:"botella",b:"#1a1a1a",l:"#c8a040",tx:"1844",tc:"#1a1a1a",cap:"#c8a040",f:"cool"},b:[70,74,70,66],xp:160,learn:[[11,"olacerveza"],[12,"chispazo"],[14,"reserva"],[16,"hormigueo"],[18,"cervezamaldita"]],z:"EvoluciÃ³n",d:"La versiÃ³n negra y tostada que diseÃ±Ã³ un chef. Se cree de gourmet aunque venga del Lidl."},
+ chippies:{n:"Chippies",t:"veneno",fam:"bodega",gen:{k:"lata",b:"#f2d14e",l:"#2a6ad0",tx:"CHIPPIES",tc:"#ffffff",a:"#c8202a",f:"drunk"},b:[40,42,40,50],xp:48,evo:[10,"chippiespack"],learn:[[1,"resacazo"],[1,"eructo"],[1,"lataza"],[5,"pajitazo"],[7,"garrafa"],[8,"tapon"]],z:"MÃ¡s adelante Â· La Ciudad",d:"No sale ni en Google, pero el Jefe jura que existe. La birra mÃ¡s misteriosa del paÃ­s."},
+ chippiespack:{n:"Chippies Pack 24",t:"veneno",fam:"bodega",gen:{k:"pack",b:"#f2d14e",l:"#2a6ad0",tx:"CHIP 24",tc:"#ffffff",f:"drunk"},b:[74,70,74,72],xp:150,learn:[[10,"oferta3x2"],[11,"potada"],[14,"olacerveza"],[15,"orujazo"],[18,"pajitazo"]],z:"EvoluciÃ³n",d:"Veinticuatro latas de un misterio. Nadie sabe quiÃ©n las fabrica. Ni falta que hace."},
  // ---------- LA PASMA: cafÃ© y donuts ----------
  cafetin:{n:"CafetÃ­n",t:"electrico",fam:"bodega",gen:{k:"taza",b:"#f4f4f4",tx:"POLI",tc:"#24346e",f:"angry"},b:[44,48,46,58],xp:60,police:true,evo:[12,"cafemaquina"],learn:[[1,"cafesolo"],[1,"multa"],[6,"turnonoche"],[9,"chispazo"]],z:"La Pasma",d:"El cafÃ© de las 6 de la maÃ±ana de la comisarÃ­a. Amargo como un lunes."},
  cafemaquina:{n:"CafÃ© de MÃ¡quina",t:"electrico",fam:"bodega",gen:{k:"vaso",b:"#6a3a1a",tx:"CAFE",tc:"#6a3a1a",f:"sleepy"},b:[62,64,60,74],xp:140,police:true,evo:[20,"cafetera"],learn:[[12,"cafesolo"],[15,"multa"],[18,"turnonoche"]],z:"La Pasma",d:"Vaso de plÃ¡stico a 0,80 â‚¬. Sabe a cartÃ³n, pero te despierta igual."},
@@ -1371,7 +1373,7 @@ async function chustaEvent(){
   const ch=NPCS.find(n=>n.id==="chusta");ch.dir="down";
   await sayAll(["El Chusta: ¡Ey, tío! ¿Ya te ha soltado uno El Porrosor? A mí también, mira.",
     `El Chusta: Me he pillado a ${SP[S.rivalSp].n}, que le gana al tuyo. Ya sabes cómo va esto, bro.`,"El Chusta: ¡Venga, a ver quién manda en el barrio!"]);
-  const win=await battle([newMon(S.rivalSp,5)],{trainer:{name:"El Chusta",short:"El Chusta",pal:NPC_PAL.chusta,hs:4,ts:1,money:60,lose:"El Chusta: Joder, bro, qué potra… Toma, pa una birra. La próxima te reviento."}});
+  const win=await battle([newMon(S.rivalSp,5)],{trainer:{name:"El Chusta",short:"El Chusta",pal:NPC_PAL.chusta,hs:4,ts:1,money:60,lose:"El Chusta: Joder, bro, qué potra… Toma, pa una birra. La próxima te reviento."},easy:true});
   if(win){S.flags.chusta=true;ch.x=17;ch.y=11;save();await say("El Chusta se aparta del camino y se pone a liarse uno en el césped.")}
 }
 const PASMA_TR={name:"Agentes Pérez y Gómez",short:"La Pasma",pal:NPC_PAL.poli,hs:4,money:120,challenge:"¡Los Agentes Pérez y Gómez, de La Pasma, te cortan el paso!",
@@ -1729,7 +1731,18 @@ function skinEditor(){
     $("sk-rot").onclick=()=>{spin=(spin+1)%4;dir=["down","left","up","right"][spin];draw()};
     $("sk-ok").onclick=done;
     function done(){S.skin=cleanSkin(sk);save();closeOverlay();res()}
-    draw();
+    // Teclado/mando: ⬆️⬇️ eliges fila, ⬅️➡️ cambias, A = Listo (o girar si estás en esa fila)
+    let row=0;const NR=FIELDS.length+2;
+    function markRow(){FIELDS.forEach(([k],i)=>{const el=$("sk-"+k+"-l").parentNode;el.classList.toggle("sel",i===row)});
+      $("sk-rot").classList.toggle("sel",row===FIELDS.length);$("sk-ok").classList.toggle("sel",row===FIELDS.length+1);
+      const cur=row<FIELDS.length?$("sk-"+FIELDS[row][0]+"-l").parentNode:row===FIELDS.length?$("sk-rot"):$("sk-ok");try{cur.scrollIntoView({block:"nearest"})}catch(e){}}
+    pending={refresh(){},key(k){
+      if(k==="b"){done();return}
+      if(k==="up"){row=(row-1+NR)%NR;sfx("sel");markRow()}
+      else if(k==="down"){row=(row+1)%NR;sfx("sel");markRow()}
+      else if(k==="left"||k==="right"){if(row<FIELDS.length){const[kk,,n]=FIELDS[row];sk[kk]=nv(kk,sk[kk],k==="left"?-1:1,n);sfx("sel");draw()}else{row=row===FIELDS.length?FIELDS.length+1:FIELDS.length;markRow()}}
+      else if(k==="a"){if(row===FIELDS.length)$("sk-rot").click();else done()}}};
+    draw();markRow();
   });
 }
 async function nameScreen(){
@@ -1886,8 +1899,12 @@ async function battleOutro(){
   mode="world";B=null;FX.parts.length=0;
   await fadeIn(300);
 }
-async function battle(enemies,{trainer,special}){
-  await battleIntro({enemies,p:S.team.find(m=>m.hp>0)||S.team[0],trainer,special});
+// Combate amañado (el primero contra el Chusta): el rival tira ataques flojos, pega menos y falla más; tú pegas más y haces más críticos.
+function eMovePick(){if(!B.rig)return pick(B.e.moves);
+  const ms=[...B.e.moves].sort((a,b)=>(MV[a].p||0)*(MV[a].p?tmult(MV[a].t,SP[B.p.sp].t):1)-(MV[b].p||0)*(MV[b].p?tmult(MV[b].t,SP[B.p.sp].t):1));
+  return rnd()<.75?ms[0]:pick(ms)}
+async function battle(enemies,{trainer,special,easy}){
+  await battleIntro({enemies,p:S.team.find(m=>m.hp>0)||S.team[0],trainer,special});B.rig=!!easy;
   let result=null;
   while(result===null){
     const act=await playerAction();
@@ -1899,7 +1916,7 @@ async function battle(enemies,{trainer,special}){
     else if(act.item){await enemyTurn()}
     else if(act.sw!==undefined){await switchTo(act.sw);await enemyTurn()}
     else if(act.move){
-      const em=pick(B.e.moves);
+      const em=eMovePick();
       const pFirst=eff(B.p,"spd")>=eff(B.e,"spd")*(0.9+rnd()*0.2);
       const order=pFirst?[[B.p,B.e,act.move,true],[B.e,B.p,em,false]]:[[B.e,B.p,em,false],[B.p,B.e,act.move,true]];
       for(const[u,t,mv,isP]of order){if(u.hp<=0||t.hp<=0)continue;await useMove(u,t,mv,isP,pFirst===isP)}
@@ -1955,13 +1972,14 @@ async function useMove(u,t,mvId,isP,wentFirst){
   if(u.v.skip){u.v.skip=false;updHud();await say(`${un} sigue sin enterarse de nada y pierde el turno.`);return}
   await say(`${un} usa ${mv.n}.`);
   B.an[uw]={type:"lunge",start:now()};await sleep(mv.p?180:120);
-  if(rnd()*100>accOf(mvId)*(1-0.15*u.v.acc)){pop(tw,"¡FALLO!","#ffffff");await sleep(200);await say("¡Pero falla! Ni de lejos.");return}
+  if(rnd()*100>accOf(mvId)*(1-0.15*u.v.acc)*(B.rig&&!isP?.8:1)){pop(tw,"¡FALLO!","#ffffff");await sleep(200);await say("¡Pero falla! Ni de lejos.");return}
   if(mv.p>0){
     const hits=mv.eff==="multi"?3:1;let total=0;const m=tmult(mv.t,SP[t.sp].t);
     for(let h=0;h<hits&&t.hp>0;h++){
       let d=((2*u.lvl/5+2)*mv.p*eff(u,"atk")/eff(t,"def"))/50+2;
       if(mv.t===SP[u.sp].t)d*=1.5;d*=m;d*=0.85+rnd()*0.15;
-      const crit=rnd()<(SP[u.sp].crit?1/4:1/16);if(crit)d*=1.5;if(mv.eff==="first"&&wentFirst)d*=1.5;
+      const crit=rnd()<(B.rig&&isP?1/3:SP[u.sp].crit?1/4:1/16);if(crit)d*=1.5;if(mv.eff==="first"&&wentFirst)d*=1.5;
+      if(B.rig)d*=isP?1.3:.5;
       d=Math.max(1,Math.floor(d));t.hp=Math.max(0,t.hp-d);total+=d;
       burst(mv.t,tb.x,tb.y-24,m===2?26:16);B.an[tw]={type:"hit",start:now()};
       if(m===2){B.shakeUntil=now()+350;sfx("super")}else if(m===.5)sfx("weak");else sfx("hit");
@@ -1983,7 +2001,7 @@ async function useMove(u,t,mvId,isP,wentFirst){
     else if(mv.eff==="skip"){if(rnd()<0.6){t.v.skip=true;updHud();await say(mvId==="risafloja"?`¡${tn} no puede parar de reírse! Perderá su próximo turno.`:mvId==="olvido"?`¡A ${tn} se le ha olvidado qué estaba haciendo! Perderá su próximo turno.`:`¡${tn} tiene que soplar! Perderá su próximo turno.`)}else await say("No le ha hecho ni caso.")}
   }
 }
-async function enemyTurn(){if(B.e.hp>0&&B.p.hp>0)await useMove(B.e,B.p,pick(B.e.moves),false,false)}
+async function enemyTurn(){if(B.e.hp>0&&B.p.hp>0)await useMove(B.e,B.p,eMovePick(),false,false)}
 async function throwBall(k){
   const it=ITEMS[k],e=B.e,s=SP[e.sp];
   if(B.trainer){await say(`${B.trainer.short}: ¡Eh! ¡Que ese es mío, chorizo!`);return"noturn"}

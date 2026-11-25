@@ -138,6 +138,10 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 .puff{font-size:20px;padding:18px 14px;touch-action:none;-webkit-user-select:none;user-select:none}
 .bigsc{font-family:var(--display);font-size:36px;color:var(--amber)}
 .cpm .big{font-size:28px;line-height:1.1;min-width:96px}
+.ticket{display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:#fff8ec;color:#2a1a10;border-radius:6px;padding:8px 10px;font-size:15px;border:2px dashed #c8955a}
+.ticket span{padding:2px 6px;border-radius:4px}.ticket span.done{text-decoration:line-through;opacity:.45}.ticket span.cur{background:var(--amber);font-weight:700}.ticket i{opacity:.4;font-style:normal}
+.plate{min-height:56px;background:linear-gradient(#8a8a8a,#5a5a5a);border-radius:30px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:30px;padding:4px 14px;flex-wrap:wrap}.plate small{color:#e8e8e8;font-size:13px}
+.kbing{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}.kbing .big{font-size:26px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px}.kbing small{font-family:var(--body);font-size:12px}
 .gops{display:flex;flex-direction:column;gap:8px}.gops .big{text-align:left;font-family:var(--body);font-size:16px;line-height:1.3}
 #pad{display:grid;grid-template-columns:auto 1fr auto;align-items:center;width:100%;max-width:520px;touch-action:none;flex:none}
 .dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px)}
@@ -1140,7 +1144,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="24 · hablé con Salva";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="25 · Monta el kebab";
 const MAPNAME={park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Comuna 420",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -1631,8 +1635,9 @@ async function abdul(){
     await sayAll(["Abdul: ¿Que te ha dicho «el lunes»? ¿QUÉ lunes?","Abdul: … Bueno, amego, al menos tú me has hecho reír. Toma, para el camino.","¡Abdul te da 3 Calditos de la abuela!"]);return}
   await say("Abdul: ¡Hola, amego! Bienvenido al Kebab 24h.");
   while(true){
-    const i=await choose("Abdul: ¿Qué te pongo, amego?",[{label:"🥙 Un kebab (curar equipo)"},{label:"🧊 Otra cosilla (La Nevera)"},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
+    const i=await choose("Abdul: ¿Qué te pongo, amego?",[{label:"🥙 Un kebab (curar equipo)"},{label:"🧊 Otra cosilla (La Nevera)"},{label:"👨‍🍳 Echar una mano (Monta el kebab)"},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
     if(i<0)return;
+    if(i===2){await kebabShift();continue}
     if(i===0){
       const j=await choose("Abdul: ¿Con todo? ¿Salsa blanca y picante?",[{label:"Con todo, Abdul"},{label:"Sin cebolla, porfa"}]);
       if(j<0)continue;
@@ -1640,11 +1645,64 @@ async function abdul(){
       S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["kebab",4,3];save();flash("#ffffff",600);sfx("heal");await sleep(700);
       await say("Tus Pedomones se comen un kebab y se recuperan del todo. 🥙");await say("Abdul: ¡Que aproveche, amego! Aquí tienes tu casa.");return;
     }else if(i===1){await say("Abdul: La Nevera del Porrosor está ahí, en la esquina. Puedes dejar y sacar Pedomones. Se mantienen fresquitos.");await pcMenu()}
-    else if(i===2){await say(pick(["Abdul: Desde que hablé con Salva, amego, el kebab gira solo. Todo va bien. Bien, bien.","Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
+    else if(i===3){await say(pick(["Abdul: Desde que hablé con Salva, amego, el kebab gira solo. Todo va bien. Bien, bien.","Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
       "Abdul: Si un Pedomón está KO, un kebab con todo y como nuevo. Es ciencia.","Abdul: El Chusta me debe 14 kebabs. Si lo ves, díselo.","Abdul: Paco y yo somos vecinos desde hace 20 años. Él pone las copas y yo arreglo los estómagos.",
       "Abdul: ¿Sabes qué le gana a la resaca? Mi salsa picante. Y si no, el agua con limón de Chen.","Abdul: El Porrosor dice que vende Pedomones. Yo vendo kebabs. Los dos sabemos quién gana más."]))}
     else{await say("Abdul: ¡Vuelve cuando quieras, amego!");return}
   }
+}
+/* ---- 🥙 Minijuego: Monta el kebab ---- */
+const KB_ING={pita:{e:"🫓",n:"Pan de pita"},durum:{e:"🌯",n:"Durum"},pollo:{e:"🍗",n:"Pollo"},ternera:{e:"🥩",n:"Ternera"},lechuga:{e:"🥬",n:"Lechuga"},tomate:{e:"🍅",n:"Tomate"},
+  cebolla:{e:"🧅",n:"Cebolla"},patatas:{e:"🍟",n:"Patatas"},queso:{e:"🧀",n:"Queso"},blanca:{e:"🥛",n:"Salsa blanca"},picante:{e:"🌶️",n:"Salsa picante"},falafel:{e:"🧆",n:"Falafel"}};
+const KB_CLI=[
+ {n:"Borracho Manolo",say:"¡Un durum con todo y doble picante! ¡Hip!",base:"durum",veg:["lechuga","tomate","cebolla"],sal:["picante","picante"]},
+ {n:"El Chusta",say:"Lo de siempre, Abdul. Apúntalo. Son quince ya, ¿no?",fiado:true},
+ {n:"Salva el Tarotista",say:"Con todo, cariño. Ya sabía que me lo ibas a hacer bien.",veg:["lechuga","tomate","cebolla"],sal:["blanca","picante"]},
+ {n:"Agente de La Pasma",say:"Uno de pollo. SIN CEBOLLA. Y rapidito, que estoy de servicio.",meat:"pollo",veg:["lechuga","tomate"],sal:["blanca"]},
+ {n:"La Loli del Taburete",say:"Cariño, uno de ternera con queso, que esta noche hay dominó.",meat:"ternera",veg:["lechuga","queso"],sal:["blanca"]},
+ {n:"Un guiri",say:"Hello! One kebab… ¿con patatas? ¡Sí, patatas dentro!",veg:["patatas","lechuga"],sal:["blanca","picante"]},
+ {n:"Saray",say:"¡Ay, Abdul! Uno pa mí con mucha salsa, payo. Mucha. MUCHA.",sal:["blanca","picante","blanca"]},
+ {n:"Lucía la vegana",say:"Un durum de falafel. Y si le tocas con el cuchillo de la carne, te denuncio.",base:"durum",meat:"falafel",veg:["lechuga","tomate"],sal:["blanca"]},
+ {n:"Paco",say:"Uno mixto, Abdul, que llevo desde las seis de pie.",meat:"mixto",veg:["cebolla","patatas"],sal:["picante"]},
+ {n:"El Porrosor",say:"Uno de pollo con todo. Y una servilleta, que luego me pringo el chándal.",meat:"pollo",veg:["lechuga","tomate","cebolla"],sal:["blanca"]}];
+function kebabOrder(lvl){const c={...pick(KB_CLI.filter(c=>!c.fiado||rnd()<.6))};
+  const base=c.base||(rnd()<.7?"pita":"durum");const meat=c.meat||pick(["pollo","ternera","mixto"]);
+  const meats=meat==="mixto"?["pollo","ternera"]:[meat];
+  let veg=c.veg||[pick(["lechuga","tomate","cebolla","patatas","queso"])];if(!c.veg&&lvl>1)veg=[...new Set([...veg,pick(["lechuga","tomate","cebolla","queso"])])];
+  const sal=c.sal||[pick(["blanca","picante"])];
+  return{cli:c,steps:[base,...meats,...veg,...sal]}}
+async function kebabShift(){
+  await sayAll(["Abdul: ¿Quieres ayudarme, amego? ¡Ven a la plancha! Hay cola hasta la puerta.","Abdul: Yo te canto el pedido y tú lo montas EN ORDEN: pan, carne, lo de dentro y la salsa al final. Rápido, que la gente tiene hambre.","Abdul: Cinco pedidos. Cada uno bien hecho, 8 pavos. Si vas rápido, propina. Si te equivocas… lo tiro y lo pago yo. Ay, amego."]);
+  closeDlg();const r=await kebabGame();
+  if(r.ok>=5&&!S.flags.kebabMaster){S.flags.kebabMaster=true;S.bag.caldito=(S.bag.caldito||0)+5;save();sfx("quest");
+    await sayAll(["Abdul: ¡CINCO DE CINCO! ¡Amego, tú tienes manos de Damasco!","Abdul: Toma, 5 Calditos de la abuela. Y cuando quieras trabajo, aquí tienes tu plancha."])}
+  else await say(r.ok>=4?"Abdul: ¡Muy bien, amego! Así da gusto. Vuelve cuando quieras.":r.ok>=2?"Abdul: No está mal… pero la cola llegaba hasta el Bar de Paco.":"Abdul: Amego… mejor tú come y yo cocino, ¿vale?")}
+function kebabGame(){
+  return new Promise(res=>{
+    const N=5;let o=0,ok=0,earned=0,ord=null,pos=0,t0=0,T=0,timer=null,lock=false,msg="";const keys=Object.keys(KB_ING);
+    function next(){if(o>=N){end();return}ord=kebabOrder(o);pos=0;T=Math.max(7000,14000-o*1600);t0=now();lock=false;msg="";draw();
+      clearInterval(timer);timer=setInterval(()=>{const q=1-(now()-t0)/T;const b=$("kb-t");if(b){b.style.width=Math.max(0,q*100)+"%";b.style.background=q<.3?"var(--bad)":"var(--amber)"}if(q<=0)fail("¡Se te ha ido el tiempo! El cliente se va al chino a por unas patatas.")},100)}
+    function draw(focus){const c=ord.cli;
+      overlay(`<h2>🥙 Monta el kebab · Pedido ${o+1}/${N}</h2><p>Bien hechos: <b>${ok}</b> · Ganado: <b>${earned}</b> pavos</p>
+        <div class="verse"><b>${esc(c.n)}:</b> ${esc(c.say)}</div>
+        <div class="ticket">${ord.steps.map((s,k)=>`<span class="${k<pos?"done":k===pos?"cur":""}">${KB_ING[s].e} ${esc(KB_ING[s].n)}</span>`).join("<i>›</i>")}</div>
+        <div class="tbar"><i id="kb-t"></i></div>
+        <div class="plate" id="kb-p">${ord.steps.slice(0,pos).map(s=>`<span>${KB_ING[s].e}</span>`).join("")||"<small>La plancha está lista…</small>"}</div>
+        <p id="kb-msg" class="keys">${esc(msg||"Pulsa los ingredientes en orden.")}</p>
+        <div class="kbing">${keys.map(k=>`<button class="big alt" type="button" id="kb-${k}">${KB_ING[k].e}<small>${esc(KB_ING[k].n)}</small></button>`).join("")}</div>`,{onB:()=>{},focusId:focus});
+      keys.forEach(k=>{$("kb-"+k).onclick=()=>add(k)});
+      const b=$("kb-t");if(b)b.style.width=Math.max(0,(1-(now()-t0)/T)*100)+"%"}
+    function add(k){if(lock)return;
+      if(k!==ord.steps[pos]){fail(`¡Eso no toca! Tocaba ${KB_ING[ord.steps[pos]].e} ${KB_ING[ord.steps[pos]].n}. Abdul tira el kebab a la basura llorando.`);return}
+      pos++;sfx("plop");if(pos>=ord.steps.length){lock=true;clearInterval(timer);ok++;const left=Math.max(0,1-(now()-t0)/T);const tip=Math.round(left*6);const pay=ord.cli.fiado?0:8+tip;earned+=pay;S.money+=pay;save();sfx("buy");
+        msg=ord.cli.fiado?"¡Perfecto! … El Chusta se lo lleva sin pagar. «Apúntalo, Abdul». Abdul suspira.":`¡Perfecto! +8 pavos${tip?` y ${tip} de propina por rápido`:""}.`;draw();setTimeout(()=>{o++;next()},1300);return}
+      draw("kb-"+k)}
+    function fail(t){if(lock)return;lock=true;clearInterval(timer);sfx("weak");msg=t;draw();setTimeout(()=>{o++;next()},1700)}
+    function end(){clearInterval(timer);
+      overlay(`<h2>🥙 Fin del turno</h2><p>Kebabs bien hechos: <b>${ok}</b> de ${N}. Has ganado <b>${earned}</b> pavos.</p><p>${ok>=5?"Abdul te mira con orgullo. Hasta el kebab gira más contento.":ok>=3?"Abdul asiente. «Nada mal, amego.»":"Abdul te quita el delantal con mucho cariño."}</p><div class="btns"><button class="big" type="button" id="kb-end">Quitarse el delantal</button></div>`,{focusId:"kb-end"});
+      $("kb-end").onclick=()=>{closeOverlay();res({ok,earned})}}
+    next();
+  });
 }
 const BOX_N=4,BOX_SZ=20,BOX_NAMES=["Caja 1 · Birras","Caja 2 · Estanco","Caja 3 · Huerto","Caja 4 · Lo que sea"];
 function ensureBoxes(){if(!Array.isArray(S.boxes)||S.boxes.length!==BOX_N){const old=Array.isArray(S.boxes)?S.boxes.flat().filter(Boolean):[];S.boxes=Array.from({length:BOX_N},()=>Array(BOX_SZ).fill(null));old.forEach(boxAdd)}

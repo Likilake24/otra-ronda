@@ -492,8 +492,25 @@ function spriteCanvas(rowsKey,palKey,mode,shiny){
   rows.forEach((r,j)=>[...r].forEach((ch,i)=>{const col=pal[ch];if(col){x.fillStyle=mode==="sil"?"#0a0806":mode==="white"?"#ffffff":col;x.fillRect(i,j,1,1)}}));
   return sprCache[key]=c;
 }
-function monSprite(spId,mode,shiny){const s=SP[spId];if(s.gen)return genSprite(spId,mode,shiny);return spriteCanvas(s.rows,s.pal,mode,shiny)}
-function drawToCanvas(el,spId,scale,mode,shiny){const src=monSprite(spId,mode,shiny);el.width=src.width*scale;el.height=src.height*scale;const x=el.getContext("2d");x.imageSmoothingEnabled=false;x.drawImage(src,0,0,el.width,el.height)}
+// ---- Pedomones HD: doble resolución (Scale2x, bordes redondeados) + luz arriba-izquierda y sombra abajo-derecha ----
+const hdCache={};
+function hdify(src,key){if(hdCache[key])return hdCache[key];
+  const w=src.width,h=src.height,sx=src.getContext("2d").getImageData(0,0,w,h).data,W=w*2,H=h*2;
+  const px32=(x,y)=>x<0||y<0||x>=w||y>=h?0:((sx[(y*w+x)*4]<<24)|(sx[(y*w+x)*4+1]<<16)|(sx[(y*w+x)*4+2]<<8)|sx[(y*w+x)*4+3])>>>0;
+  const out=new Uint32Array(W*H);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const P=px32(x,y),A=px32(x,y-1),B=px32(x+1,y),C=px32(x-1,y),Dd=px32(x,y+1);
+    let e0=P,e1=P,e2=P,e3=P;if(C===A&&C!==Dd&&A!==B)e0=A;if(A===B&&A!==C&&B!==Dd)e1=B;if(Dd===C&&Dd!==B&&C!==A)e2=C;if(B===Dd&&B!==A&&Dd!==C)e3=Dd;
+    out[(2*y)*W+2*x]=e0;out[(2*y)*W+2*x+1]=e1;out[(2*y+1)*W+2*x]=e2;out[(2*y+1)*W+2*x+1]=e3}
+  const c=document.createElement("canvas");c.width=W;c.height=H;const cx=c.getContext("2d"),img=cx.createImageData(W,H),d=img.data;
+  const op=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&(out[y*W+x]&255)>0;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const v=out[y*W+x];let r=v>>>24,g=(v>>>16)&255,b=(v>>>8)&255,a=v&255;
+    if(a){const lum=(r+g+b)/3;if(lum>40){   // no tocar el contorno negro
+        let f=1;if(!op(x-2,y-2)||!op(x-1,y-3))f=1.18;else if(!op(x+2,y+2)||!op(x+1,y+3))f=.74;else if(!op(x+3,y+1)||!op(x+1,y+4))f=.88;
+        const g2=1+(.06-(y/H)*.12);f*=g2;r=Math.min(255,r*f);g=Math.min(255,g*f);b=Math.min(255,b*f)}}
+    const i=(y*W+x)*4;d[i]=r;d[i+1]=g;d[i+2]=b;d[i+3]=a}
+  cx.putImageData(img,0,0);hdCache[key]=c;return c}
+function monSprite(spId,mode,shiny){const s=SP[spId];const base=s.gen?genSprite(spId,mode,shiny):spriteCanvas(s.rows,s.pal,mode,shiny);return hdify(base,spId+"|"+(mode||"")+"|"+(shiny?1:0))}
+function drawToCanvas(el,spId,scale,mode,shiny){const src=monSprite(spId,mode,shiny);scale=Math.max(.5,scale/2);el.width=src.width*scale;el.height=src.height*scale;const x=el.getContext("2d");x.imageSmoothingEnabled=false;x.drawImage(src,0,0,el.width,el.height)}
 
 /* ===================== ATAQUES ===================== */
 const MV={
@@ -1288,7 +1305,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="31 · personajes HD";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="32 · personajes HD y hierba variada";
 const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}

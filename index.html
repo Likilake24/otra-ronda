@@ -871,7 +871,7 @@ const MAPS={};
   g[18][11]="B";g[18][12]="B";
   const lamps=[[16,7],[13,12],[16,16],[3,7],[26,7],[10,18],[20,16],[31,10],[2,16]];lamps.forEach(([x,y])=>g[y][x]="L");
   const signs={"13,7":"Parque de Pichi. Prohibido el botellón. (Ja.)","10,14":"Césped alto: aquí salen Pedomones salvajes. Abrebotellas, mechero y grinder a mano.",
-   "13,16":"↖ Kebab 24h   ·   ↑ Bar de Paco (ojo, La Pasma)   ·   ↗ Bazar Chen y Mercadillo   ·   ← El Descampado   ·   → por la calle: La Senda y la Comuna 420",
+   "13,16":"↖ Kebab 24h   ·   ↑ Bar de Paco (ojo, La Pasma)   ·   ↗ Bazar Chen y Mercadillo   ·   ← El Descampado   ·   → por la calle: La Senda y la Ganja Life",
    "23,16":"Zona chunga: aquí salen los Pedomones más fuertes.","1,16":"← EL DESCAMPADO. Zona de colegas: combates e intercambios entre jugadores."};
   Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
   const builds=[
@@ -884,7 +884,7 @@ const MAPS={};
   ];
   builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
   g[7][35]="v";
-  MAPS.park={w:W,h:H,g,outdoor:true,signs,builds,lamps,exits:{"0,17":["descampado",18,7,"left"],"35,7":["senda",1,7,"right"]}};
+  MAPS.park={w:W,h:H,g,outdoor:true,signs,builds,lamps,exits:{"0,17":["descampado",18,7,"left"],"35,7":["senda",1,10,"right"]}};
 })();
 (function(){
   const W=20,H=14,g=grid(W,H,"d");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
@@ -916,21 +916,41 @@ MAPS.abuela={w:8,h:7,style:"casa",signs:{},builds:[],lamps:[],g:rowsGrid(["wwwww
  exits:{"3,6":["park",8,5,"down"],"4,6":["park",8,5,"down"]},entry:[3,5,"up"]};
 MAPS.chustahouse={w:8,h:7,style:"casa",signs:{},builds:[],lamps:[],g:rowsGrid(["wwwwwwww","wgooofmw","woooooow","whotoohw","woooooow","woooooow","wwweewww"]),
  exits:{"3,6":["park",20,5,"down"],"4,6":["park",20,5,"down"]},entry:[3,5,"up"]};
-/* ---- Parte 2: La Senda y la Comuna 420 ---- */
+/* ---- Parte 2: La Senda y la Ganja Life ---- */
 (function(){
-  const W=48,H=14,g=grid(W,H,".");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
-  R("#",0,0,W,2);R("#",0,H-2,W,2);
-  R("=",0,7,10,1);R("=",9,5,1,3);R("=",9,5,12,1);R("=",20,5,1,5);R("=",20,9,10,1);R("=",29,6,1,4);R("=",29,6,12,1);R("=",40,6,1,2);R("=",40,7,8,1);
-  R(",",2,2,6,4);R(",",11,7,7,4);R(",",13,2,5,2);
-  R(",",22,2,6,3);R(",",31,8,8,4);R(",",42,2,4,4);
-  [[1,9],[2,10],[8,10],[19,2],[24,7],[25,11],[33,3],[36,4],[45,10],[46,9],[27,10],[15,11]].forEach(([x,y])=>g[y][x]="#");
-  [[4,8],[5,9],[17,6],[23,10],[34,5],[38,3],[44,9],[12,4]].forEach(([x,y])=>g[y][x]="F");
-  [[38,10],[41,11],[44,4],[46,3],[39,2]].forEach(([x,y])=>g[y][x]="P");
-  const lamps=[[10,4],[21,10],[30,5],[41,8]];lamps.forEach(([x,y])=>g[y][x]="L");
-  const signs={"1,6":"← Parque de Pichi  ·  LA SENDA  ·  Comuna 420 →","46,6":"COMUNA 420 →  «Aquí el tiempo va más despacio.»","21,4":"CUIDADO: hippies sueltos. Si te miran, te retan. Llevan Pedomones de hierba: el Fuego y el Veneno les sientan fatal."};
+  // La Senda: roca gigante, meseta con escalón (solo se baja), río con puente, árbol gigante y colina final
+  const W=56,H=20,g=grid(W,H,".");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
+  R("#",0,0,W,2);R("#",0,H-2,W,2);R("#",0,0,1,H);R("#",W-1,0,1,H);
+  // 1) Entrada y la roca gigante (se rodea por arriba o por abajo)
+  R("=",0,10,7,1);R("R",7,8,4,5);R("=",6,7,1,4);R("=",6,7,7,1);R("=",6,10,1,4);R("=",6,13,7,1);R("=",12,7,1,7);
+  R(",",2,3,8,4);R(",",1,14,5,3);R("#",11,2,3,4);R("#",7,15,4,3);R("#",1,12,2,1);
+  // 2) Escaleras a la meseta, la meseta y el escalón (solo se salta hacia abajo)
+  R("=",12,10,4,1);R("=",15,4,1,7);R("=",15,4,11,1);R("=",25,4,1,4);
+  R(",",17,5,7,3);R("#",16,2,9,1);R("j",16,8,10,1);R("#",16,9,1,8);R("#",14,11,2,6);
+  R(",",18,11,6,3);R("=",19,9,1,1);R("=",19,14,8,1);R("R",22,15,3,2);R("#",24,9,2,2);
+  // 3) El río y el único puente
+  R("~",27,2,2,16);R("n",27,14,2,1);
+  // 4) El árbol gigante y las rocas del bosque
+  R("=",29,14,2,1);R("=",30,5,1,10);R("=",30,5,9,1);R("=",38,5,1,6);R("=",38,10,6,1);
+  R("#",32,7,4,5);R("R",31,15,3,2);R("R",36,13,2,2);R(",",33,13,3,4);R(",",39,12,4,5);R("#",40,2,3,2);R(",",31,2,6,2);
+  // 5) La colina: escaleras arriba, meseta con vistas y salto al camino final
+  R("=",43,4,1,7);R("=",43,4,10,1);R("j",44,7,10,1);R("#",44,8,1,1);R(",",45,2,6,2);
+  R("=",45,8,10,1);g[8][55]="=";R(",",46,10,6,4);R("R",52,11,2,3);
+  // sin atajos: el bosque cierra la meseta, el fondo y la colina
+  R("#",26,2,1,12);R("#",1,17,26,1);R("#",44,8,1,10);
+  // escaleras de vuelta (para regresar al parque): al final de cada escalón
+  R("=",25,8,1,3);g[7][53]="=";
+  [[3,8],[5,18],[20,12],[34,4],[41,16],[47,5],[50,15],[24,13]].forEach(([x,y])=>{if(g[y][x]===".")g[y][x]="F"});
+  [[44,2],[53,3],[45,15],[53,16],[29,3],[29,17]].forEach(([x,y])=>{if(g[y][x]===".")g[y][x]="P"});
+  [[4,16,"senda1"],[23,6,"senda2"],[37,15,"senda3"],[51,3,"senda4"]].forEach(([x,y])=>g[y][x]="i");
+  const lamps=[[5,9],[14,9],[18,10],[31,13],[39,9],[54,9]];lamps.forEach(([x,y])=>g[y][x]="L");
+  const signs={"2,9":"← Parque de Pichi  ·  LA SENDA  ·  Ganja Life →","14,4":"Escaleras a la Meseta. Desde arriba se baja de un salto. Desde abajo… no se sube. Física hippie.","29,13":"Puente de los Suspiros. Aguanta a una persona. O a dos si son delgadas.","54,7":"GANJA LIFE →  «Aquí el tiempo va más despacio.»"};
   Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
-  MAPS.senda={w:W,h:H,g,outdoor:true,signs,builds:[],lamps,music:"senda",exits:{"0,7":["park",34,7,"left"],"47,7":["comuna",1,12,"right"]}};
+  MAPS.senda={w:W,h:H,g,outdoor:true,signs,builds:[],lamps,music:"senda",exits:{"0,10":["park",34,7,"left"],"55,8":["comuna",1,12,"right"]}};
 })();
+const PICKUPS={senda1:{k:"abre",n:3,t:"Entre la hierba hay una bolsa del Mercadona con 3 Abrebotellas."},senda2:{k:"mechero",n:3,t:"En lo alto de la meseta hay una riñonera olvidada con 3 Mecheros."},
+  senda3:{k:"caldito",n:2,t:"Junto a las rocas hay una fiambrera con 2 Calditos de la abuela. Siguen calentitos. Raro."},senda4:{k:"abre",n:3,t:"En la colina, al lado de un mirador, hay 3 Abrebotellas. Alguien ha montado aquí un botellón y se ha ido sin recoger."}};
+const PICK_AT={"senda,4,16":"senda1","senda,23,6":"senda2","senda,37,15":"senda3","senda,51,3":"senda4"};
 (function(){
   const W=36,H=24,g=grid(W,H,".");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
   R("P",0,0,W,2);R("P",0,H-2,W,2);R("P",0,0,1,H);R("P",W-1,0,1,H);
@@ -941,42 +961,46 @@ MAPS.chustahouse={w:8,h:7,style:"casa",signs:{},builds:[],lamps:[],g:rowsGrid(["
   [[3,9],[11,9],[25,13],[29,9],[12,21],[20,21],[4,13],[31,14]].forEach(([x,y])=>g[y][x]="F");
   const lamps=[[12,7],[25,7],[6,20],[29,20],[16,10],[20,14]];lamps.forEach(([x,y])=>g[y][x]="L");
   g[18][34]="X";
-  const signs={"1,11":"COMUNA 420. Población: muchos. Prisas: ninguna. Hora oficial: siempre las 4:20.","17,15":"↑ Tarot · La Cabaña del Humo · Abuelo Rasta · Caravana de Snoop     ↓ La Furgo · Los Veganos · La Okupa · Huerto de Bob"};
+  const signs={"1,11":"GANJA LIFE. Población: muchos. Prisas: ninguna. Hora oficial: siempre las 4:20.","17,15":"↑ Tarot de Salva · Cabaña del Humo · Abuela Luna (cura y Nevera) · Abuelo Rasta · Bazar Chan · Snoop     ↓ La Furgo · Los Veganos · La Okupa · Huerto de Bob"};
   Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
   const builds=[
-   {id:"tarot",x:2,y:3,w:4,h:3,door:[4,5],wall:"#6a3a8a",roof:"#2a1a3a",label:"TAROT",to:"tarot",awn:["#c87ad8","#f2c14e"],board:"#2a1a3a"},
-   {id:"cabana",x:8,y:3,w:6,h:3,door:[11,5],wall:"#9a7040",roof:"#3a5a2a",label:"CABAÑA DEL HUMO",to:"cabana",rasta:true,board:"#2a1a0a"},
-   {id:"casarasta",x:21,y:3,w:4,h:3,door:[22,5],wall:"#f2c14e",roof:"#2a8a3a",label:"",to:"casarasta",house:true,plants:true,rasta:true},
-   {id:"snoop",x:27,y:3,w:6,h:3,door:[30,5],wall:"#e8e4dc",roof:"#3a3a6a",label:"SNOOP DOGG",to:null,awn:["#6a3a8a","#f2c14e"],board:"#1a1a3a"},
-   {id:"furgo",x:2,y:16,w:4,h:3,door:[4,18],wall:"#6fb8d8",roof:"#f4f0e0",label:"LA FURGO",to:"furgo",board:"#2a5a7a",graffiti:true,house:true,tags:["PEACE","☮","LOVE"]},
-   {id:"vegana",x:8,y:16,w:4,h:3,door:[9,18],wall:"#b8e0a0",roof:"#4a7a3a",label:"",to:"vegana",house:true,plants:true},
-   {id:"okupa",x:21,y:16,w:4,h:3,door:[23,18],wall:"#a8a0a0",roof:"#5a4a4a",label:"",to:"okupa",house:true,graffiti:true,tags:["OKUPA","Y","RESISTE"]},
-   {id:"huerto",x:27,y:16,w:7,h:3,door:[30,18],wall:"#5a8a3a",roof:"#2a5a1a",label:"HUERTO DE BOB",to:null,rasta:true,board:"#1a3a0a"}
+   {id:"tarot",kind:"tipi",x:2,y:3,w:3,h:3,door:[3,5],wall:"#6a3a8a",roof:"#c87ad8",label:"TAROT · SALVA",glow:"#e8b8ff",to:"tarot"},
+   {id:"cabana",kind:"cabin",x:6,y:3,w:5,h:3,door:[8,5],wall:"#9a6a3a",roof:"#5a3a1a",label:"CABAÑA DEL HUMO",to:"cabana"},
+   {id:"yurta",kind:"yurt",x:12,y:3,w:4,h:3,door:[13,5],wall:"#e8dcc0",roof:"#8a3a6a",label:"ABUELA LUNA",glow:"#ffd0f0",to:"yurta"},
+   {id:"casarasta",kind:"chabola",x:19,y:3,w:3,h:3,door:[20,5],wall:"#2a8a3a",roof:"#f2c14e",label:"",to:"casarasta",tags:["ONE","LOVE"]},
+   {id:"chan",kind:"kiosk",x:23,y:3,w:4,h:3,door:[24,5],wall:"#a8703a",roof:"#c8202a",label:"BAZAR CHAN",glow:"#ffd14a",to:null},
+   {id:"snoop",kind:"caravan",x:29,y:4,w:5,h:2,door:[31,5],wall:"#6a3a8a",roof:"#f2c14e",label:"SNOOP DOGG",glow:"#e8b8ff",to:null},
+   {id:"furgo",kind:"van",x:2,y:17,w:4,h:2,door:[4,18],wall:"#4aa8d8",roof:"#f4f0e0",label:"",to:"furgo"},
+   {id:"vegana",kind:"caravan",x:8,y:17,w:4,h:2,door:[9,18],wall:"#6fcf5a",roof:"#2a8a3a",label:"",to:"vegana"},
+   {id:"okupa",kind:"chabola",x:21,y:16,w:4,h:3,door:[23,18],wall:"#c8202a",roof:"#5a4a4a",label:"",to:"okupa",tags:["OKUPA","Y","RESISTE"]},
+   {id:"huerto",kind:"garden",x:27,y:15,w:7,h:4,door:[30,18],wall:"#5a8a3a",roof:"#2a5a1a",label:"HUERTO DE BOB",glow:"#b8ff8a",to:null}
   ];
   builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
-  MAPS.comuna={w:W,h:H,g,outdoor:true,rasta:true,signs,builds,lamps,music:"comuna",exits:{"0,12":["senda",46,7,"left"]}};
+  MAPS.comuna={w:W,h:H,g,outdoor:true,rasta:true,signs,builds,lamps,music:"comuna",exits:{"0,12":["senda",54,8,"left"]}};
 })();
 function interior420(id,rows,tx,ty,txt){const H=rows.length,W=rows[0].length,ex={};[...rows[H-1]].forEach((c,i)=>{if(c==="e")ex[i+","+(H-1)]=["comuna",tx,ty,"down"]});
   MAPS[id]={w:W,h:H,style:"c420",music:"c420",signs:{},builds:[],lamps:[],g:rowsGrid(rows),exits:ex,entry:[rows[H-1].indexOf("e"),H-2,"up"],txt}}
-interior420("tarot",["wwwwwwww","wgokoogw","woooooow","whoooohw","woooooow","woooooow","wwweewww"],4,6,
+interior420("tarot",["wwwwwwww","wgokoogw","woooooow","whoooohw","woooooow","woooooow","wwweewww"],3,6,
   {k:"Una bola de cristal. Dentro ves… tu reflejo con cara de no haber dormido.",h:"Un sillón de terciopelo morado. Huele a incienso y a gato.",g:"Una planta que, según Salva, «habla». Hoy no tiene el día.",w:"Cartas del tarot clavadas en la pared, una foto de Rappel y un atrapasueños."});
-interior420("cabana",["wwwwwwwwww","wqgoooogqw","woooooooow","wxooooooxw","woooooooow","woooooooow","wwwweewwww"],11,6,
-  {q:"Una cachimba de cristal gigante. Tiene más horas de vuelo que un piloto.",x:"Cojines en el suelo con manchas de todos los colores. Mejor no preguntar.",g:"Una planta. Muy bien cuidada. Demasiado bien cuidada.",w:"Un cartel: «CONCURSO ¿CUÁNTAS CALADAS? — Récord actual: 10, El Maestro (1987)»."});
-interior420("casarasta",["wwwwwwww","wgoqoomw","woooooow","whotoohw","woooooow","woooooow","wwweewww"],22,6,
+interior420("cabana",["wwwwwwwwww","wqgoooogqw","woooooooow","wxooooooxw","woooooooow","woooooooow","wwwweewwww"],8,6,
+  {q:"Una cachimba de cristal gigante. Tiene más horas de vuelo que un piloto.",x:"Cojines en el suelo con manchas de todos los colores. Mejor no preguntar.",g:"Una planta. Muy bien cuidada. Demasiado bien cuidada.",w:"Un cartel: «CONCURSO ¿CUÁNTAS CALADAS FALTAN? — Récord actual: 10, El Maestro (1987)»."});
+interior420("casarasta",["wwwwwwww","wgoqoomw","woooooow","whotoohw","woooooow","woooooow","wwweewww"],20,6,
   {q:"Un bong con la bandera de Jamaica pintada a mano.",m:"Una tele antigua con un vídeo de Bob Marley en bucle desde 1981.",h:"Un sofá con una manta rasta. Está caliente: alguien acaba de levantarse.",t:"Una mesa con papel de fumar, un grinder y un plato de plátano frito.",g:"Una planta de interior. De interior… y de lo otro.",w:"Un póster de «One Love» y una foto del Abuelo de joven, con más pelo que ahora."});
 interior420("furgo",["wwwwww","wxoqgw","woooow","wweeww"],4,19,
   {x:"Un colchón con una manta de cuadros y tres paquetes de galletas vacíos.",q:"Una nevera portátil. Dentro: salchichas, nata en spray y más galletas.",g:"Una planta en una lata de Steinburg. Shaggy la llama «Señora Planta».",w:"Fotos de Shaggy y Scooby en todos los festivales de España. En todas salen comiendo."});
-interior420("vegana",["wwwwwwww","wgofoogw","woooooow","whotoohw","woooooow","woooooow","wwweewww"],9,19,
+interior420("vegana",["wwwwww","wgofhw","woooow","wweeww"],9,19,
   {f:"La nevera: tofu, tofu ahumado, tofu con finas hierbas y un cartel: «EL QUESO ES VIOLENCIA».",h:"Un sofá de palés reciclados. Muy sostenible. Muy incómodo.",t:"Una mesa llena de pancartas a medio pintar: «LIBERAD A LOS GARBANZOS».",g:"Una monstera enorme. Se llama Greta.",w:"Un póster: «La carne es asesinato» y debajo, a boli: «el kebab de Abdul también»."});
+interior420("yurta",["wwwwwwww","wgokoqgw","woooooow","wpoooohw","woooooow","woooooow","wwweewww"],13,6,
+  {k:"Un cuenco de cristal con agua y pétalos. Dentro flota… una Scooby Galleta. Shaggy pasó por aquí.",q:"Un quemador de incienso de sándalo. Huele a paz. Y a quemado.",h:"Un puf de colores. Te hundes hasta las rodillas.",g:"Plantas medicinales. Todas. TODAS.",p:"La Nevera del Porrosor… dentro de una yurta. La Abuela Luna dice que «la energía del frío conserva el alma de los Pedomones».",w:"Atrapasueños, cuarzos, una foto de la Abuela Luna con Camarón y otra con un extraterrestre."});
 interior420("okupa",["wwwwwwww","wxoqoxmw","woooooow","whoooohw","woooooow","woooooow","wwweewww"],23,19,
   {x:"Un colchón en el suelo con un perro dormido encima. No es tuyo. No es de nadie.",q:"Un bidón convertido en mesa. Encima, una partida de cartas a medias.",m:"Una tele sin antena enchufada a… nada. Pero está encendida.",h:"Un sofá rescatado de El Descampado. Lo reconoces: es el del rincón.",w:"Grafitis por toda la pared: «OKUPA Y RESISTE», «LA CASA ES DE QUIEN LA FUMA»."});
-const WALK=new Set([".",",","=","F","o","e","d","v","A","Z","r"]);
+const WALK=new Set([".",",","=","F","o","e","d","v","A","Z","r","n"]);
 const MAP=()=>MAPS[S.map];
 
 /* ===================== ESTADO ===================== */
 const SAVE_KEY="barralibre_demo_v1";
 let S=null;
-function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{abre:5,mechero:5,grinder:5,agua:3},money:60,tms:{},repel:0,keys:{},
+function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{abre:8,mechero:7,grinder:4,agua:3},money:60,tms:{},repel:0,keys:{},
   flags:{starter:false,chusta:false,poli:false,started:false,barIn:false,gym:false},q:{gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},accU:{},beaten:{},seen:{},caught:{},rivalSp:null,respawn:["kebab",4,3]}}
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));return true}catch(e){return false}}
 function loadSave(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null}catch(e){return null}}
@@ -998,22 +1022,26 @@ const NPCS=[
  {id:"paco",map:"bar",x:6,y:2,dir:"down",pal:NPC_PAL.paco,hs:2,ts:4,fat:true},
  {id:"abuela",map:"abuela",x:3,y:2,dir:"down",pal:NPC_PAL.abuela,hs:3,idle:true},
  // ---- Parte 2: La Senda ----
- {id:"hflor",map:"senda",x:15,y:4,dir:"down",pal:{h:"#e8c860",s:"#f1c27d",e:"#222",c:"#e04a9a",z:"#f2c14e",p:"#6a9ad0",k:"#8a6a4a"},hs:3,acc:{ag:3},trainer:{name:"Hippie Flor",short:"Flor",team:[["china",11],["pegamentin",11]],money:110,
+ {id:"hflor",map:"senda",x:21,y:6,dir:"up",pal:{h:"#e8c860",s:"#f1c27d",e:"#222",c:"#e04a9a",z:"#f2c14e",p:"#6a9ad0",k:"#8a6a4a"},hs:3,acc:{ag:3},trainer:{name:"Hippie Flor",short:"Flor",team:[["china",11],["pegamentin",11]],money:110,
    pre:["Hippie Flor: Paz y amor, hermano. Bueno, primero un combate y luego paz y amor.","Hippie Flor: Mis Pedomones son 100 % ecológicos. Cultivados con música de Manu Chao."],lose:"Hippie Flor: Vale, vale… La energía no fluía. Ha sido Mercurio retrógrado, seguro."}},
- {id:"hrasta",map:"senda",x:25,y:8,dir:"down",pal:{h:"#3a2a1a",s:"#8a5a3a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,smoke:true,trainer:{name:"Rastaman Jairo",short:"Jairo",team:[["polen",12],["kushito",12]],money:120,
+ {id:"hrasta",map:"senda",x:34,y:4,dir:"down",pal:{h:"#3a2a1a",s:"#8a5a3a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,smoke:true,trainer:{name:"Rastaman Jairo",short:"Jairo",team:[["polen",12],["kushito",12]],money:120,
    pre:["Rastaman Jairo: Eh, bredren, ¿pa dónde vas con tanta prisa? Aquí se va despacito.","Rastaman Jairo: Venga, un combatito tranquilo, sin estrés, ¿eh?"],lose:"Rastaman Jairo: Uff… me has dejado más plancha que un sábado a las 6. Respect, bredren."}},
- {id:"hguiri",map:"senda",x:35,y:5,dir:"down",pal:{h:"#f2e0a0",s:"#f8c8a8",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#3a6ad0",k:"#f4f4f4"},hs:0,trainer:{name:"Guiri del Festival",short:"El guiri",team:[["pegamentin",12],["china",12],["polen",13]],money:150,
+ {id:"hguiri",map:"senda",x:49,y:11,dir:"up",pal:{h:"#f2e0a0",s:"#f8c8a8",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#3a6ad0",k:"#f4f4f4"},hs:0,trainer:{name:"Guiri del Festival",short:"El guiri",team:[["pegamentin",12],["china",12],["polen",13]],money:150,
    pre:["Guiri del Festival: Hola amigou! Yo venir a España por el sol y la… plantas. ¡Mucho bonito!","Guiri del Festival: ¿Combate? ¡Yes! ¡Olé! ¡Sangría!"],lose:"Guiri del Festival: Ouch… Mi Pedomón tener… ¿cómo se dice?… resaca. Tú muy fuerte, amigou."}},
- // ---- Parte 2: Comuna 420 ----
+ // ---- Parte 2: Ganja Life ----
  {id:"bob",map:"comuna",x:31,y:19,dir:"down",pal:{h:"#1a1410",s:"#7a4a2a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#3a3a3a",k:"#8a6a4a"},hs:3,idle:true,smoke:true},
  {id:"guardia",map:"comuna",x:33,y:19,dir:"left",pal:NPC_PAL.poli,hs:4},
  {id:"shaggy",map:"comuna",x:8,y:20,dir:"down",pal:{h:"#8a5a2a",s:"#f1c27d",e:"#222",c:"#7ab83a",z:"#7ab83a",p:"#8a5a2a",k:"#5a3a1a"},hs:4,idle:true},
  {id:"scooby",map:"comuna",x:9,y:20,dir:"left",dog:true},
  {id:"lucia",map:"comuna",x:16,y:11,dir:"down",pal:{h:"#c8202a",s:"#f1c27d",e:"#222",c:"#6fcf5a",z:"#6fcf5a",p:"#5a3a6a",k:"#8a6a4a"},hs:3,pancarta:"¡NO A LA CARNE!"},
  {id:"bruno",map:"comuna",x:17,y:11,dir:"down",pal:{h:"#5a3a1a",s:"#e8b880",e:"#222",c:"#e8e0c0",z:"#6fcf5a",p:"#3a5a3a",k:"#8a6a4a"},hs:5,idle:true},
+ {id:"luna",map:"yurta",x:3,y:2,dir:"down",pal:{h:"#e8e8f0",s:"#d8a878",e:"#222",c:"#8a3a6a",z:"#f2c14e",p:"#5a2a5a",k:"#6a4a2a"},hs:3,idle:true,acc:{an:1}},
+ {id:"chan",map:"comuna",x:24,y:6,dir:"down",pal:{h:"#111111",s:"#f1d2a0",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#2a2a2a",k:"#111"},hs:0},
+ {id:"ricardito",map:"comuna",x:26,y:6,dir:"down",pal:{h:"#2a2a2a",s:"#f1c27d",e:"#222",c:"#f4f0e0",z:"#d23a2e",p:"#1a1a1a",k:"#000"},hs:3,acc:{ag:1}},
+ {id:"chusta2",map:"comuna",x:15,y:13,dir:"right",pal:NPC_PAL.chusta,hs:4,ts:1,idle:true,cond:()=>S.flags.chustaJoin&&!S.flags.chustaFollow},
  {id:"rasta1",map:"comuna",x:14,y:10,dir:"down",pal:{h:"#1a1410",s:"#6a3a1a",e:"#222",c:"#f2c14e",z:"#2a8a3a",p:"#2a2a2a",k:"#d23a2e"},hs:3,smoke:true,idle:true},
  {id:"rasta2",map:"comuna",x:22,y:14,dir:"up",pal:{h:"#c8202a",s:"#e8b880",e:"#222",c:"#d23a2e",z:"#f2c14e",p:"#2a5a2a",k:"#1a1a1a"},hs:5,smoke:true,idle:true},
- {id:"fan",map:"comuna",x:29,y:7,dir:"up",pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"},hs:4,ts:1},
+ {id:"fan",map:"comuna",x:31,y:7,dir:"up",pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"},hs:4,ts:1},
  {id:"maruja",map:"tarot",x:3,y:2,dir:"down",pal:{h:"#1a1a1a",s:"#c68642",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#3a1a4a",k:"#1a1a1a"},hs:3,acc:{an:1}},
  {id:"maestro",map:"cabana",x:4,y:2,dir:"down",pal:{h:"#d8d8d8",s:"#a86a3a",e:"#222",c:"#f2c14e",z:"#2a8a3a",p:"#c8202a",k:"#6a4a2a"},hs:3,smoke:true,idle:true},
  {id:"abuelorasta",map:"casarasta",x:3,y:2,dir:"down",pal:{h:"#c8c8c8",s:"#6a3a1a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,idle:true},
@@ -1144,8 +1172,8 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="25 · Monta el kebab";
-const MAPNAME={park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Comuna 420",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
+const NET_PREFIX="otraronda-v1-";const GAME_VER="26 · Ganja Life y La Senda nueva";
+const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -1398,8 +1426,11 @@ async function pvpBattle({id,host,opp,oppName,oppSkin,oppTeam}){
 /* ===================== JUGADOR / MUNDO ===================== */
 const P={moving:false,prog:0,fx:0,fy:0,tx:0,ty:0,step:0};
 const worldParts=[];
-function tileAt(x,y){const m=MAP();return(m.g[y]&&m.g[y][x])||(m.outdoor?"#":"w")}
-function canWalk(x,y){return WALK.has(tileAt(x,y))&&!npcAt(x,y)}
+function tileAt(x,y){const m=MAP();const c=(m.g[y]&&m.g[y][x])||(m.outdoor?"#":"w");if(c==="i"&&S.picked&&S.picked[PICK_AT[S.map+","+x+","+y]])return".";return c}
+// Escalones ("j"): solo se pueden saltar hacia abajo, y solo si hay sitio donde caer
+function canWalk(x,y){const c=tileAt(x,y);if(c==="j")return S.dir==="down"&&!npcAt(x,y)&&WALK.has(tileAt(x,y+1))&&!npcAt(x,y+1);return WALK.has(c)&&!npcAt(x,y)}
+function startMove(nx,ny){P.moving=true;P.prog=0;P.fx=S.x;P.fy=S.y;P.tx=nx;P.ty=ny;
+  if(folOn()){const f=S.fol;f.fx=f.x;f.fy=f.y;f.tx=S.x;f.ty=S.y;const ddx=f.tx-f.fx,ddy=f.ty-f.fy;if(ddx||ddy)f.dir=ddx>0?"right":ddx<0?"left":ddy>0?"down":"up"}}
 let bumpCd=0;
 function update(){
   if(mode!=="world"||busy||pending)return;
@@ -1407,20 +1438,19 @@ function update(){
   if(P.moving){P.prog+=running()?0.25:0.125;if(P.prog>=1){P.moving=false;S.x=P.tx;S.y=P.ty;P.step^=1;if(folOn()){S.fol.x=S.fol.tx;S.fol.y=S.fol.ty}pushPresence();run(onStep)}return}
   const k=held[held.length-1];if(!k)return;
   S.dir=k;const[dx,dy]=DIRS[k],nx=S.x+dx,ny=S.y+dy;
-  if(canWalk(nx,ny)){P.moving=true;P.prog=0;P.fx=S.x;P.fy=S.y;P.tx=nx;P.ty=ny;
-    if(folOn()){const f=S.fol;f.fx=f.x;f.fy=f.y;if(f.x===nx&&f.y===ny){f.tx=S.x;f.ty=S.y}else{f.tx=S.x;f.ty=S.y}const ddx=f.tx-f.fx,ddy=f.ty-f.fy;if(ddx||ddy)f.dir=ddx>0?"right":ddx<0?"left":ddy>0?"down":"up"}}
+  if(canWalk(nx,ny))startMove(nx,ny);
   else{if(tileAt(nx,ny)==="D"&&bumpCd<=0){bumpCd=30;run(interact)}pushPresence()}
 }
-function folOn(){return!!(S&&S.flags&&S.flags.chustaJoin&&S.fol)}
-function placeFol(){if(!S.flags.chustaJoin)return;const[dx,dy]=DIRS[S.dir]||[0,1];let fx=S.x-dx,fy=S.y-dy;if(!WALK.has(tileAt(fx,fy))||npcAt(fx,fy)){fx=S.x;fy=S.y}S.fol={x:fx,y:fy,dir:S.dir}}
+function folOn(){return!!(S&&S.flags&&S.flags.chustaFollow&&S.fol)}
+function placeFol(){if(!S.flags.chustaFollow)return;const[dx,dy]=DIRS[S.dir]||[0,1];let fx=S.x-dx,fy=S.y-dy;if(!WALK.has(tileAt(fx,fy))||npcAt(fx,fy)){fx=S.x;fy=S.y}S.fol={x:fx,y:fy,dir:S.dir}}
 async function warp(mapId,x,y,dir){sfx("door");await fadeOut();S.map=mapId;S.x=x;S.y=y;S.dir=dir;P.moving=false;placeFol();pushPresence();await fadeIn();await onEnterMap()}
 async function onEnterMap(){
   if(S.map==="bar"&&!S.flags.barIn){S.flags.barIn=true;save();
     await sayAll(["Dentro del Bar de Paco huele a cerveza, a fritanga y a treinta años de historia.","Suena la tragaperras del rincón, en la tele echan el fútbol y nadie lo mira.","Al fondo, detrás de la barra, Paco seca un vaso con un trapo y te mira con el palillo en la boca. Para llegar hasta él tendrás que pasar por delante de sus clientes."])}
   if(S.map==="senda"&&!S.flags.sendaIn){S.flags.sendaIn=true;save();
-    await sayAll(["La Senda. Un camino de tierra entre árboles, flores y palmeras que no deberían estar aquí.","Huele a incienso, a pachuli y a algo que La Pasma querría multar.","El Chusta: Bro, en el césped de aquí salen Pedomones de hierba. Y los hippies retan a todo el que pasa. Tú pega con Fuego o Veneno y listo."])}
+    await sayAll(["La Senda. Un camino de tierra entre árboles, flores y palmeras que no deberían estar aquí.","Huele a incienso, a pachuli y a algo que La Pasma querría multar.","📱 Mensaje del Chusta: «bro en el cesped de la senda salen pedomones de hierba y los hipis retan a todo el q pasa. tu pega con fuego o veneno y listo 🔥»"])}
   if(S.map==="comuna"&&!S.flags.comunaIn){S.flags.comunaIn=true;save();
-    await sayAll(["COMUNA 420. Banderas verdes, amarillas y rojas, palmeras, bancos llenos de gente y humaredas por todas partes.","Aquí nadie tiene prisa. El reloj de la plaza lleva parado en las 4:20 desde que alguien lo puso así a propósito.","El Chusta: Bro… aquí me quedo a vivir. Pero primero vamos a ver qué le pasa a ese tal Bob. Dicen que está en su huerto, abajo a la derecha."])}
+    await sayAll(["GANJA LIFE. Banderas verdes, amarillas y rojas, palmeras, bancos llenos de gente y humaredas por todas partes.","Aquí nadie tiene prisa. El reloj de la plaza lleva parado en las 4:20 desde que alguien lo puso así a propósito.","El Chusta (desde un banco de la plaza): ¡BRO! ¡Por aquí! Llevo media hora esperando. Bueno, cinco minutos. El primo conduce fatal.","El Chusta: Dicen que el tal Bob está en su huerto, abajo a la derecha. Ve a hablar con él, que yo vigilo el banco."])}
   if(S.map==="descampado"&&!S.flags.descampado){S.flags.descampado=true;save();
     await sayAll(["El Descampado. Sofás abandonados, bidones con fuego y un carrito del Mercadona.","Aquí se juntan los colegas para combatir y cambiarse Pedomones. Ponte delante de otro jugador y pulsa A."])}
 }
@@ -1432,6 +1462,7 @@ function trainerSees(){
 }
 async function onStep(){
   const m=MAP(),t=tileAt(S.x,S.y);
+  if(t==="j"){sfx("throw");S.dir="down";for(let i=0;i<6;i++)worldParts.push({x:S.x*T+8+ri(-6,6),y:S.y*T+16,vx:(rnd()-.5)*1.4,vy:-.8-rnd(),life:0,max:16,c:pick(["#b8a070","#8a7a5a","#6fcf5a"])});startMove(S.x,S.y+1);return}
   if(t===","){for(let i=0;i<5;i++)worldParts.push({x:S.x*T+8+ri(-5,5),y:S.y*T+12,vx:(rnd()-.5)*1.2,vy:-1-rnd(),life:0,max:18,c:pick(["#6fcf5a","#3f9a3a","#b0e08a"])})}
   const ex=m.exits[S.x+","+S.y];if(ex){
     if(ex[0]==="senda"&&S.map==="park"){
@@ -1455,7 +1486,11 @@ async function interact(){
   if(gl>=0&&S.q.galletas===1&&!(S.gallF||{})[gl]){S.gallF=S.gallF||{};S.gallF[gl]=1;sfx("quest");save();await say(GALLETAS[gl].t+` (${Object.keys(S.gallF).length}/3)`);return}
   if(m.txt&&m.txt[t]){await say(m.txt[t]);return}
   if(t==="X"){await say(S.flags.fumigonWin?"El cañón fumigador de La Pasma, apagado y con una pegatina encima: «PAZ Y AMOR». Alguien le ha plantado una maceta en el tubo.":"Un cañón fumigador enorme apuntando al Huerto de Bob. Pone «PROPIEDAD DE LA PASMA · LEY SECA». Huele a lejía y a maldad.");return}
-  if(t==="J"){await say("El Monumento a la Hoja. En la placa pone: «A todos los que vinieron a la Comuna a pasar un finde y se quedaron 30 años».");return}
+  if(t==="i"){const id=PICK_AT[S.map+","+fx+","+fy];const pk=PICKUPS[id];if(pk){S.picked=S.picked||{};S.picked[id]=1;S.bag[pk.k]=(S.bag[pk.k]||0)+pk.n;save();sfx("quest");await say(pk.t)}return}
+  if(t==="R"){await say(pick(["Una roca enorme. Alguien ha escrito con tiza: «Bob estuvo aquí. Y se quedó dormido».","Una roca gigante. No se puede escalar. Bueno, se puede, pero no con esas zapatillas de Saray."]));return}
+  if(t==="j"){await say("Un escalón de tierra. Desde arriba se baja de un salto. Desde abajo no hay manera de subir.");return}
+  if(t==="n"){await say("El Puente de los Suspiros. Cruje un poco. Bastante.");return}
+  if(t==="J"){await say("El Monumento a la Hoja. En la placa pone: «A todos los que vinieron a Ganja Life a pasar un finde y se quedaron 30 años».");return}
   if(t==="P"){await say(pick(["Una palmera. Nadie sabe quién la plantó. Ni cómo sobrevive al invierno.","Una palmera con un coco… que resulta ser una pelota de fútbol pinchada."]));return}
   if(t==="S"){const s=m.signs[fx+","+fy];if(s==="TABLÓN"){await tablon();return}await say(s||"Un cartel ilegible.");return}
   if(t==="D"){const b=m.builds.find(b=>b.door[0]===fx&&b.door[1]===fy);if(b)await door(b);return}
@@ -1475,6 +1510,7 @@ async function interact(){
 }
 async function door(b){
   if(b.id==="bar"&&!S.flags.poli){await say("La puerta del Bar de Paco tiene un precinto amarillo de La Pasma: «CERRADO POR INSPECCIÓN». Debajo, alguien ha escrito a boli: «mentira».");return}
+  if(b.id==="chan"){await shop(CHAN);return}
   if(b.id==="snoop"){await say("La caravana de Snoop Dogg. En la puerta hay una nota: «De gira. Vuelvo en un rato. Bueno, en un ratito largo. — Snoop». (Próximamente.)");return}
   if(b.id==="huerto"){await say(S.q.bob?"La verja del Huerto de Bob está cerrada con un candado con forma de hoja. Bob no abrirá hasta que pases sus tres pruebas.":"La verja del Huerto de Bob está cerrada. Al lado, un señor con rastas mira el cañón de La Pasma con cara de pena. Habla con él.");return}
   if(!b.to)return;
@@ -1531,7 +1567,7 @@ async function talk(n){
   if(TALK2[id]){await TALK2[id](n);return}
   if(id==="dealer"){
     if(!S.flags.starter){await intro();return}
-    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Que si el negocio va bien? Va de lujo. ¿Por qué? Porque hablé con Salva.","El Porrosor: ¿Has estado en la Comuna 420? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Comuna 420 tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
+    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Que si el negocio va bien? Va de lujo. ¿Por qué? Porque hablé con Salva.","El Porrosor: ¿Has estado en la Ganja Life? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Ganja Life tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
     if(S.flags.started&&!S.flags.poli){await sayAll(["El Porrosor: ¿El Bar de Paco precintado? Eso es un montaje de La Pasma como una casa.","El Porrosor: Busca pruebas por el barrio. Abdul, Richard y Saray siempre se enteran de todo.","El Porrosor: Lo tienes apuntado en el Menú, en Misiones. Yo no te he dicho nada, ¿eh?"]);return}
     await say(pick(["El Porrosor: Yo antes vendía semillas y me iba fatal. Hablé con Salva y ahora soy el Porrosor. Todo va bien.","El Porrosor: Abrebotellas para las bebidas, Mechero para el tabaco y Grinder para lo verde. No me hagas repetírtelo.","El Porrosor: ¿Has visto al Chusta? Me debe 20 pavos. Y una disculpa.","El Porrosor: Hay un sitio al oeste, El Descampado. Ahí se juntan los chavales a pegarse… con Pedomones.","El Porrosor: La Abuela Remedios vive al lado del kebab. Si la ayudas, te da cosas buenas. Y caldito."]));return}
   if(id==="chusta"){
@@ -1585,7 +1621,7 @@ async function pacoEvent(){
   S.flags.gym=true;S.keys.chapa=true;S.tms.mt10=true;S.accU.ac1=true;sfx("win");save();
   await sayAll(["Paco: Toma, la 🏅 Chapa del Bar de Paco. Te la has ganado a pulso.","Paco: Y llévate esta MT10, Potada. Es la especialidad de la casa.",
     "Paco: Y esta capa roja. La dejó un cliente en 1998 y nadie ha vuelto a por ella.","¡Consigues la Chapa del Bar de Paco, la MT10 Potada y la 🦸 Capa roja! (Te la puedes poner en el Mercadillo, con Saray.)",
-    "Paco: Dicen que los hippies de la Comuna 420 también tienen líos con La Pasma. Sigue la calle del parque hacia la derecha, por La Senda. Yo cierro a las tres."]);
+    "Paco: Dicen que los hippies de la Ganja Life también tienen líos con La Pasma. Sigue la calle del parque hacia la derecha, por La Senda. Yo cierro a las tres."]);
   await endingScreen();
 }
 function endingScreen(){
@@ -1602,8 +1638,8 @@ function questLines(){
   else if(!S.flags.started)L.push("• Mira qué pasa en la puerta del Bar de Paco.");
   else if(S.flags.gym){L.push("✅ Parte 1: ¡Bar de Paco reabierto y chapa conseguida!");
     L.push("📜 PARTE 2 · EL HUERTO DE BOB: La Pasma quiere fumigar el huerto de Bob Marley.");
-    if(!S.flags.comunaIn)L.push("• Ve por la calle del parque hacia la derecha: La Senda lleva a la Comuna 420.");
-    else if(!S.q.bob)L.push("• Habla con Bob Marley, en la puerta de su huerto (abajo a la derecha de la Comuna).");
+    if(!S.flags.comunaIn)L.push("• Ve por la calle del parque hacia la derecha: La Senda lleva a la Ganja Life.");
+    else if(!S.q.bob)L.push("• Habla con Bob Marley, en la puerta de su huerto (abajo a la derecha de Ganja Life).");
     else{L.push(S.flags.sendaCatch?"✅ 🌱 Atrapar un Pedomón en La Senda":"• 🌱 Atrapa un Pedomón en el césped de La Senda.");
       L.push(S.flags.snoopWin?"✅ 🌀 Ganar a Snoop Dogg":"• 🌀 Gana a Snoop Dogg en el Concurso de Liar. (Está de gira: próximamente.)");
       L.push(S.flags.fumigonWin?"✅ 🚔 Parar el cañón fumigador":"• 🚔 Para el cañón fumigador de La Pasma. (Próximamente.)")}}
@@ -1621,14 +1657,14 @@ function questLines(){
   L.push(S.q.basura>=3?"✅ La basura del Chusta":S.q.basura===2?"• Vuelve con la madre del Chusta.":S.q.basura===1?"• Dile al Chusta que baje la basura.":"• Visita a la madre del Chusta (casa al lado del Bar de Paco).");
   L.push(S.q.cuerda>=3?"✅ La cuerda de Raúl":S.q.cuerda===2?"• Devuélvele la cuerda a Raúl.":S.q.cuerda===1?"• Busca la cuerda de Raúl en El Descampado, al lado de un bidón con fuego.":"• Habla con Raúl el Gitano en el Mercadillo.");
   if(S.flags.comunaIn){
-    L.push(S.q.galletas>=2?"✅ Las Scooby Galletas":S.q.galletas===1?`• Busca las Scooby Galletas de Shaggy (${Object.keys(S.gallF||{}).length}/3): un árbol y unas flores en La Senda, y una palmera en la Comuna.`:"• Habla con Shaggy y Scooby, abajo a la izquierda de la Comuna.");
-    L.push(S.q.falafel>=3?"✅ El falafel de los veganos":S.q.falafel===2?"• Llévales el falafel de Abdul a los veganos de la plaza.":S.q.falafel===1?"• Pídele a Abdul (Kebab 24h) un falafel para los veganos.":"• Habla con la pareja de la pancarta, en la plaza de la Comuna.")}
+    L.push(S.q.galletas>=2?"✅ Las Scooby Galletas":S.q.galletas===1?`• Busca las Scooby Galletas de Shaggy (${Object.keys(S.gallF||{}).length}/3): dos árboles en La Senda (uno en la meseta y otro al pie de la colina) y una palmera de Ganja Life.`:"• Habla con Shaggy y Scooby, abajo a la izquierda de Ganja Life.");
+    L.push(S.q.falafel>=3?"✅ El falafel de los veganos":S.q.falafel===2?"• Llévales el falafel de Abdul a los veganos de la plaza.":S.q.falafel===1?"• Pídele a Abdul (Kebab 24h) un falafel para los veganos.":"• Habla con la pareja de la pancarta, en la plaza de Ganja Life.")}
   return L;
 }
 /* ===================== KEBAB, NEVERA, TIENDAS, PELU ===================== */
 async function abdul(){
   if(S.q.falafel===1){S.q.falafel=2;save();sfx("quest");
-    await sayAll(["Abdul: ¿Los veganos de la pancarta? Ay, amego… Llevan tres semanas en mi puerta. Les doy kebab y me lo tiran.","Abdul: ¿Un falafel? … Mi abuela hacía el mejor falafel de Damasco. Hace años que no lo hago.","Abdul: Espera aquí, amego.","*Ruido de sartén. Olor a garbanzos, comino y perejil. Abdul se limpia una lágrima.*","Abdul: Toma. Falafel de la abuela. Para los veganos. Diles que en esta casa se respeta a todo el mundo. Hasta a los que no comen carne.","¡Consigues un 🧆 Falafel de Abdul! Llévaselo a los veganos de la Comuna 420."]);return}
+    await sayAll(["Abdul: ¿Los veganos de la pancarta? Ay, amego… Llevan tres semanas en mi puerta. Les doy kebab y me lo tiran.","Abdul: ¿Un falafel? … Mi abuela hacía el mejor falafel de Damasco. Hace años que no lo hago.","Abdul: Espera aquí, amego.","*Ruido de sartén. Olor a garbanzos, comino y perejil. Abdul se limpia una lágrima.*","Abdul: Toma. Falafel de la abuela. Para los veganos. Diles que en esta casa se respeta a todo el mundo. Hasta a los que no comen carne.","¡Consigues un 🧆 Falafel de Abdul! Llévaselo a los veganos de la Ganja Life."]);return}
   if(S.flags.started&&S.q.gorra===0){S.q.gorra=1;sfx("quest");save();
     await sayAll(["Abdul: ¿Pruebas contra La Pasma? Ay, amego… El Chusta estaba detrás de mi kebab la noche del precinto. Meando. Con el móvil en la mano.","Abdul: Dice que lo grabó todo. Pero ya sabes cómo es: gratis no te lo va a dar.","Abdul: Y de paso dile que me debe 14 kebabs. CATORCE."]);return}
   if(S.q.gorra===2){S.q.gorra=3;S.bag.caldito=(S.bag.caldito||0)+3;sfx("quest");save();
@@ -1754,13 +1790,17 @@ async function pcMenu(){
   });
   await say("Cierras La Nevera. Clac.");
 }
-async function shop(){
-  await say("Chen: ¡Bienvenido al Bazar Chen! Alimentación, droguería, mecheros, chanclas y Abrebotellas. Si no lo tengo, no existe.");
+const CHEN={n:"Chen",hi:"Chen: ¡Bienvenido al Bazar Chen! Alimentación, droguería, mecheros, chanclas y Abrebotellas. Si no lo tengo, no existe.",bye:"Chen: ¡Gracias! Vuelve cuando quieras, que aquí siempre está abierto."};
+const CHAN={n:"Chan",hi:"Chan: ¡Hola, hola! Bazar Chan. Soy el primo de Chen. Él vende en el barrio, yo vendo en Ganja Life. Mismo precio, más relajado.",bye:"Chan: ¡Paz y amor! Y vuelve, que mañana me llegan chanclas de cáñamo.",
+  lines:["Chan: Mi primo Chen y yo hablamos todos los días. Bueno, él habla. Yo asiento.","Chan: Aquí vendo lo mismo que Chen, pero con incienso. El incienso no se cobra.","Chan: ¿Negocio? Va de lujo. Hablé con Salva.","Chan: Los hippies pagan con trueque. Tengo 40 pulseras de hilo y ningún euro.","Chan: Contra los Pedomones de hierba, Fuego. Contra La Pasma, paciencia."]};
+async function shop(V){V=V||CHEN;
+  await say(V.hi);
   while(true){
     const cats=Object.keys(SHOP);
-    const c=await choose(`Chen: ¿Qué necesitas? Tienes ${S.money} pavos.`,[...cats.map(k=>({label:k})),{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
+    const c=await choose(`${V.n}: ¿Qué necesitas? Tienes ${S.money} pavos.`,[...cats.map(k=>({label:k})),{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
+    if(c===cats.length&&V.lines){await say(pick(V.lines));continue}
     if(c===cats.length){await say(pick(["Chen: Ventas suben, suben, suben. ¿Secreto? Hablé con Salva. Muy buen consejo. Muy barato.","Chen: El Comisario Paco compra aquí 40 Bezoyas a la semana. Y me debe tres meses.","Chen: Richard y yo llevamos 10 años compartiendo mostrador. Él pone la elegancia; yo, los precios.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga siempre en monedas de 5 céntimos. Contadas en el mostrador. Una a una."]));continue}
-    if(c<0||c===cats.length+1){await say("Chen: ¡Gracias! Vuelve cuando quieras, que aquí siempre está abierto.");return}
+    if(c<0||c===cats.length+1){await say(V.bye);return}
     const ks=SHOP[cats[c]];
     while(true){
       const i=await choose(`${cats[c]} · Tienes ${S.money} pavos`,[...ks.map(k=>({label:ITEMS[k].n,sub:`${ITEMS[k].price} pavos · tienes ${S.bag[k]||0}`,disabled:S.money<ITEMS[k].price})),{label:"⬅️ Volver"}],{cols:1,info:i=>i<ks.length?ITEMS[ks[i]].d:""});
@@ -1776,24 +1816,24 @@ async function lolo(){
     await sayAll(["Richard: ¡Mi Vapito! Sin batería, pero entero. Ahora mismo lo enchufo.","Richard: Tenga, el recibo. Y una MT de regalo. Hecho, jefe. Y con estilo.",had?"¡Consigues el 🧾 Recibo de los precintos y 50 pavos!":"¡Consigues el 🧾 Recibo de los precintos y la MT08 Siesta!"]);return}
   await mtShop();
 }
-async function mtShop(){
-  await say("Richard: Buenas noches, jefe. Aquí, al lado de Chen, vendo MTs: Mezclas Técnicas. Enseñan ataques nuevos y se usan las veces que quiera.");
+async function mtShop(V){const N=V?V.n:"Richard";
+  await say(V?V.hi:"Richard: Buenas noches, jefe. Aquí, al lado de Chen, vendo MTs: Mezclas Técnicas. Enseñan ataques nuevos y se usan las veces que quiera.");
   const list=MTS.filter(m=>!m.reward);
   while(true){
-    const i=await choose(`Richard: ¿Cuál le pongo? Tiene ${S.money} pavos.`,[...list.map(mt=>({label:mtLabel(mt),chip:MV[mt.mv].t,sub:S.tms[mt.id]?"Ya la tienes":`${mt.price} pavos`,disabled:S.tms[mt.id]||S.money<mt.price})),{label:"👋 Nada, gracias"}],
+    const i=await choose(`${N}: ¿Cuál le pongo? Tiene ${S.money} pavos.`,[...list.map(mt=>({label:mtLabel(mt),chip:MV[mt.mv].t,sub:S.tms[mt.id]?"Ya la tienes":`${mt.price} pavos`,disabled:S.tms[mt.id]||S.money<mt.price})),{label:"👋 Nada, gracias"}],
       {cols:1,info:i=>i<list.length?moveInfo(list[i].mv)+`<br>La pueden aprender: ${list[i].types?list[i].types.map(t=>TYPES[t].n).join(", "):"todos"}.`:""});
-    if(i<0||i===list.length){await say(pick(["Richard: Hecho, jefe. Y con estilo.","Richard: Un consejo: una MT a tiempo vale más que diez Calditos.","Richard: Si ve al Chusta, dígale que la MT que me debe no se paga sola.","Richard: Dicen que en la ciudad hay un tal Lolo Gramos que vende cosas que no son MTs. Mejor no pregunte."]));return}
+    if(i<0||i===list.length){if(V){await say(pick(V.lines));return}await say(pick(["Richard: Hecho, jefe. Y con estilo.","Richard: Un consejo: una MT a tiempo vale más que diez Calditos.","Richard: Si ve al Chusta, dígale que la MT que me debe no se paga sola.","Richard: Dicen que en la ciudad hay un tal Lolo Gramos que vende cosas que no son MTs. Mejor no pregunte."]));return}
     const mt=list[i];S.money-=mt.price;S.tms[mt.id]=true;save();sfx("buy");
     await say(`¡Has comprado la ${mtLabel(mt)}!`);
-    const j=await choose("Richard: ¿Se la enseñamos ya a alguien?",[{label:"Sí, venga"},{label:"Luego, desde la Mochila"}]);
+    const j=await choose(`${N}: ¿Se la enseñamos ya a alguien?`,[{label:"Sí, venga"},{label:"Luego, desde la Mochila"}]);
     if(j===0)await teachMT(mt);
   }
 }
 async function teachMT(mt){
   const j=await choose(`¿Quién aprende ${MV[mt.mv].n}?`,S.team.map(m=>({label:SP[m.sp].n,chip:SP[m.sp].t,sub:m.moves.includes(mt.mv)?"Ya lo sabe":canLearn(m,mt)?"Puede":"No puede",disabled:m.moves.includes(mt.mv)||!canLearn(m,mt)})),{cols:1});
   if(j<0)return;const m=S.team[j];
-  if(m.moves.length<4){m.moves.push(mt.mv);sfx("lvl");await say(`¡${SP[m.sp].n} aprende ${MV[mt.mv].n}!`);save();return}
-  const k=await choose(`${SP[m.sp].n} ya sabe 4 ataques. ¿Cuál olvida para aprender ${MV[mt.mv].n}?`,m.moves.map(mv=>({label:MV[mv].n,chip:MV[mv].t,sub:MV[mv].p?"Pot. "+MV[mv].p:"Estado"})),{info:k=>moveInfo(m.moves[k])});
+  if(m.moves.length<4){m.moves.push(mt.mv);sfx("lvl");await say(`¡${SP[m.sp].n} aprende ${MV[mt.mv].n}!\n${moveCardTxt(m,mt.mv)}`);save();return}
+  const k=await chooseForget(m,mt.mv,`${SP[m.sp].n} ya sabe 4 ataques. ¿Cuál olvida para aprender ${MV[mt.mv].n}?`);
   if(k<0){await say(`${SP[m.sp].n} no aprende ${MV[mt.mv].n}.`);return}
   const old=m.moves[k];m.moves[k]=mt.mv;sfx("lvl");await say(`1, 2 y… ¡puf! ${SP[m.sp].n} se olvida de ${MV[old].n} y aprende ${MV[mt.mv].n}.`);save();
 }
@@ -1927,15 +1967,15 @@ function slotMachine(){
     render();
   });
 }
-/* ===================== PARTE 2: LA SENDA Y LA COMUNA 420 ===================== */
-const GALLETAS=[{map:"senda",x:19,y:2,t:"Entre las raíces del árbol hay un paquete de galletas de perro. ¡Una Scooby Galleta!"},
-  {map:"senda",x:44,y:9,t:"Entre las flores hay una Scooby Galleta. Huele a… flores. Y a perro."},
+/* ===================== PARTE 2: LA SENDA Y LA GANJA LIFE ===================== */
+const GALLETAS=[{map:"senda",x:19,y:2,t:"En lo alto de la meseta, entre las raíces de un árbol, hay un paquete de galletas de perro. ¡Una Scooby Galleta!"},
+  {map:"senda",x:44,y:9,t:"Colgada de un árbol, al pie de las escaleras de la colina, hay una Scooby Galleta. Huele a… árbol. Y a perro."},
   {map:"comuna",x:26,y:21,t:"En lo alto de la palmera, atada con un cordón, hay una Scooby Galleta. ¿Cómo ha llegado ahí?"}];
 async function chustaJoin(){
   sfx("alert");
-  await sayAll(["El Chusta: ¡BRO! ¡Espera, espera! ¿Vas pa La Senda?","El Chusta: Me han dicho que al final está la Comuna 420 y que la gente allí lo regala todo. Bueno, todo no. Pero comparten.","El Chusta: Y que La Pasma quiere fumigarle el huerto a un tal Bob. ¡Eso no se hace, bro! Me apunto.","El Chusta: Tú pelea, que yo te sigo y te doy ánimos. Y si hay comida gratis, te aviso.","¡El Chusta se une a tu aventura! Te seguirá a todas partes. (Si le hablas, te contará cosas.)"]);
-  S.flags.chustaJoin=true;placeFol();save()}
-async function chustaTalk(){const f=S.fol;f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir];
+  await sayAll(["El Chusta: ¡BRO! ¡Espera, espera! ¿Vas pa La Senda?","El Chusta: Me han dicho que al final está la Ganja Life y que la gente allí lo regala todo. Bueno, todo no. Pero comparten.","El Chusta: Y que La Pasma quiere fumigarle el huerto a un tal Bob. ¡Eso no se hace, bro! Me apunto.","El Chusta: Tú ve por La Senda, que yo me sé un atajo. Bueno, me lleva mi primo en la moto. Nos vemos en la plaza de Ganja Life, bro.","El Chusta se va corriendo hacia la calle… y se tropieza con un contenedor. Se levanta como si nada."]);
+  S.flags.chustaJoin=true;save()}
+async function chustaTalk(){const f=S.fol;if(f&&folOn()){f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir]}
   const L=[];
   if(S.map==="senda")L.push("El Chusta: Bro, los hippies de aquí llevan todo hierba. Con un Pedomón de Fuego o de Veneno te los meriendas.","El Chusta: ¿Has visto esas palmeras? Aquí no hay palmeras, bro. Algo raro le han echado al agua.","El Chusta: Atrapa algún Pedomón de por aquí, que dicen que a Bob le mola la gente que cuida a los bichos.");
   if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: El Salva me echó las cartas una vez y me dijo que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
@@ -1963,7 +2003,7 @@ const TAROT=[{n:"El Porro",e:"🌿",d:"Verás cosas raras… Los Pedomones brill
  {n:"El Kebab",e:"🥙",d:"Abdul piensa en ti con cariño. Te llegan 2 Calditos de la abuela.",fx:"caldito"},
  {n:"La Pasma",e:"🚔",d:"Mal augurio… Una multa invisible: se te caen 15 pavos del bolsillo.",fx:"lose"},
  {n:"El Chusta",e:"🤙",d:"Un amigo que te debe dinero y nunca te lo va a devolver. No pasa nada. Literal: no pasa nada.",fx:"nada"},
- {n:"La Rueda del Grinder",e:"⚙️",d:"La suerte gira y gira… Ganas 3 Grinders.",fx:"grinder"},
+ {n:"La Rueda de la Fortuna",e:"⚙️",d:"La suerte gira y gira… Te llegan 3 de lo que menos tienes para atrapar Pedomones.",fx:"grinder"},
  {n:"El Sol de Jamaica",e:"☀️",d:"Energía positiva, man. Todo tu equipo se cura del tirón.",fx:"heal"},
  {n:"La Resaca",e:"🤕",d:"Mañana te dolerá la cabeza. Hoy, nada. Disfruta mientras puedas.",fx:"nada"}];
 function tarotGame(){
@@ -1973,13 +2013,13 @@ function tarotGame(){
       <div class="tarot">${deck.map((c,i)=>`<button type="button" class="tcard${picked===i?" up":""}${picked>=0&&picked!==i?" dim":""}" id="tc-${i}"${picked>=0?" disabled":""}>${picked===i?`<span class="te">${c.e}</span><b>${esc(c.n)}</b>`:`<span class="te">✦</span><b>?</b>`}</button>`).join("")}</div>
       ${picked>=0?`<p class="tres">${esc(deck[picked].d)}</p><div class="btns"><button class="big" type="button" id="tc-ok">Gracias, Salva</button></div>`:""}`,{focusId:picked>=0?"tc-ok":"tc-1"});
       if(picked<0)deck.forEach((c,i)=>{$("tc-"+i).onclick=()=>{picked=i;sfx("evo");apply(c);render()}});else $("tc-ok").onclick=()=>{closeOverlay();res()}};
-    function apply(c){if(c.fx==="luck")S.luck=20;else if(c.fx==="money")S.money+=40;else if(c.fx==="caldito")S.bag.caldito=(S.bag.caldito||0)+2;else if(c.fx==="lose")S.money=Math.max(0,S.money-15);else if(c.fx==="grinder")S.bag.grinder=(S.bag.grinder||0)+3;else if(c.fx==="heal")S.team.forEach(m=>m.hp=maxhp(m));save()}
+    function apply(c){if(c.fx==="luck")S.luck=20;else if(c.fx==="money")S.money+=40;else if(c.fx==="caldito")S.bag.caldito=(S.bag.caldito||0)+2;else if(c.fx==="lose")S.money=Math.max(0,S.money-15);else if(c.fx==="grinder"){const k=["abre","mechero","grinder"].sort((a,b)=>(S.bag[a]||0)-(S.bag[b]||0))[0];S.bag[k]=(S.bag[k]||0)+3}else if(c.fx==="heal")S.team.forEach(m=>m.hp=maxhp(m));save()}
     render();
   });
 }
 async function maestroTalk(){
   await say("El Maestro: Bienvenido a la Cabaña del Humo, joven. Yo soy el Maestro. Récord de España de caladas: diez. En 1987. Nadie lo ha superado.");
-  const i=await choose("El Maestro: ¿Te atreves con «¿Cuántas caladas?»?",[{label:"💨 ¡Juego!"},{label:"❓ ¿Cómo se juega?"},{label:"Otro día"}],{cols:1});
+  const i=await choose("El Maestro: ¿Te atreves con «¿Cuántas caladas faltan?»?",[{label:"💨 ¡Juego!"},{label:"❓ ¿Cómo se juega?"},{label:"Otro día"}],{cols:1});
   if(i===1){await sayAll(["El Maestro: Fácil. Apuestas pavos y dices cuántas caladas vas a dar: de 3 a 10. Cuantas más digas, más ganas.","El Maestro: Cada calada: MANTÉN pulsado para llenar los pulmones y SUELTA cuando la barra esté en la zona verde.","El Maestro: Si te pasas, toses y pierdes. Si sueltas antes de tiempo, la calada no cuenta y pierdes también.","El Maestro: Y ojo: cada calada te coloca más. La zona verde se hace pequeña y se mueve. Como la vida."]);return maestroTalk()}
   if(i!==0){await say("El Maestro: El humo no tiene prisa. Tú tampoco.");return}
   closeDlg();const r=await caladasGame();
@@ -1991,7 +2031,7 @@ const CAL_MULT={3:1.5,4:2,5:3,6:4,7:6,8:9,9:13,10:20};
 function caladasGame(){
   return new Promise(res=>{
     const BETS2=[5,10,20,50];let bi=1,n=5,state="setup",i=0,lung=0,holding=false,lastT=0,raf=0,zc=65,zw=24,msg="";const ov2=$("ov");
-    function setup(){const bet=BETS2[bi];overlay(`<h2>💨 ¿Cuántas caladas?</h2><p>Tienes <b>${S.money}</b> pavos. Elige tu apuesta y cuántas caladas te ves capaz de dar.</p>
+    function setup(){const bet=BETS2[bi];overlay(`<h2>💨 ¿Cuántas caladas faltan?</h2><p>Tienes <b>${S.money}</b> pavos. Elige tu apuesta y cuántas caladas te ves capaz de dar.</p>
       <div class="btns betrow"><button class="big alt" type="button" id="cg-bm"${bi===0?" disabled":""}>➖</button><span class="bet">Apuesta: <b>${bet}</b></span><button class="big alt" type="button" id="cg-bp"${bi===BETS2.length-1?" disabled":""}>➕</button></div>
       <div class="btns betrow"><button class="big alt" type="button" id="cg-nm"${n<=3?" disabled":""}>➖</button><span class="bet">Caladas: <b>${n}</b> · paga ×${CAL_MULT[n]}</span><button class="big alt" type="button" id="cg-np"${n>=10?" disabled":""}>➕</button></div>
       <p class="keys">Si lo consigues: ganas ${Math.floor(bet*CAL_MULT[n])} pavos. Récord del Maestro: 10.</p>
@@ -2030,8 +2070,8 @@ function caladasGame(){
   });
 }
 async function abueloRastaTalk(){
-  if(!S.flags.abueloGift){S.flags.abueloGift=true;S.bag.grinder=(S.bag.grinder||0)+5;save();sfx("quest");
-    await sayAll(["Abuelo Rasta: Bienvenido, hijo. Siéntate, que aquí no se viene a estar de pie.","Abuelo Rasta: Yo llegué a la Comuna en el 79, con una furgoneta y una semilla. Mira ahora.","Abuelo Rasta: Toma, para que atrapes a los Pedomones de hierba con respeto. Con cariño, ¿eh? Nada de apretar.","¡El Abuelo Rasta te da 5 Grinders!"]);return}
+  if(!S.flags.abueloGift){S.flags.abueloGift=true;["abre","mechero","grinder"].forEach(k=>S.bag[k]=(S.bag[k]||0)+2);save();sfx("quest");
+    await sayAll(["Abuelo Rasta: Bienvenido, hijo. Siéntate, que aquí no se viene a estar de pie.","Abuelo Rasta: Yo llegué aquí en el 79, cuando esto ni se llamaba Ganja Life, con una furgoneta y una semilla. Mira ahora.","Abuelo Rasta: Toma, para que atrapes a los Pedomones con respeto. Con cariño, ¿eh? Nada de apretar.","¡El Abuelo Rasta te da 2 Abrebotellas, 2 Mecheros y 2 Grinders!"]);return}
   await say(pick(["Abuelo Rasta: Noventa años y como un roble. ¿El secreto? Hablé con Salva en el 85 y desde entonces todo va bien.","Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: El Salva me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
 async function inakiTalk(){
   await say(pick(["Iñaki el Okupa: Antes nos echaban cada semana. Hablé con Salva y aquí seguimos, tío. Todo bien.","Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
@@ -2074,13 +2114,26 @@ async function shaggyTalk(){
   if(q===1){const got=Object.keys(S.gallF||{}).length;
     if(got>=3){S.q.galletas=2;S.accU.ag3=true;S.money+=50;save();sfx("quest");
       await sayAll(["Shaggy: ¡LAS GALLETAS! ¡Scooby, colega, estamos salvados!","Scooby: ¡Rí, rí! *ñam ñam ñam*","Shaggy: Toma, tío, mis gafas redondas y 50 pavos. Las galletas no valen tanto, pero el hambre sí.","¡Consigues las 🕶️ Gafas redondas hippies y 50 pavos! (Póntelas en el Mercadillo, con Saray.)"]);return}
-    await say(`Shaggy: Llevas ${got} de 3 Scooby Galletas, tío. Busca por La Senda (un árbol y unas flores) y por alguna palmera de por aquí. Scooby las huele, pero le da pereza ir.`);return}
-  await say(pick(["Shaggy: Caray, tío, antes siempre nos perseguían fantasmas. Hablamos con Salva y ahora solo nos persiguen las galletas.","Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Esta Comuna es lo más, tío. Nadie te dice que dejes de comer."]))}
+    await say(`Shaggy: Llevas ${got} de 3 Scooby Galletas, tío. Busca por La Senda (un árbol en la meseta y otro al pie de la colina) y en alguna palmera de por aquí. Scooby las huele, pero le da pereza ir.`);return}
+  await say(pick(["Shaggy: Caray, tío, antes siempre nos perseguían fantasmas. Hablamos con Salva y ahora solo nos persiguen las galletas.","Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Ganja Life es lo más, tío. Nadie te dice que dejes de comer."]))}
 async function guardiaTalk(){
   if(S.flags.fumigonWin){await say("Agente de La Pasma: … Vale. Me voy. Pero que conste que yo solo cumplía órdenes. Del Sargento. Que cumplía órdenes del Comisario.");return}
   await say(pick(["Agente de La Pasma: El Sargento dice que el plan va genial. Dice que habló con Salva. Yo de ese Salva no me fío.","Agente de La Pasma: Circule. Este cañón es para… desinfectar. Sí. Desinfectar la alegría.","Agente de La Pasma: El Sargento Fumigón viene enseguida a darle al botón. Con la Ley Seca no se juega, chaval.","Agente de La Pasma: ¿Que si fumigar plantas es legal? Pues… Lo que diga el Sargento. Circule."]))}
+async function lunaTalk(){
+  await say(pick(["Abuela Luna: Bienvenido a mi yurta, criatura. Siento el aura de tus Pedomones… cansadita.","Abuela Luna: Pasa, pasa. Descálzate, que los cuarzos se ponen celosos."]));
+  while(true){
+    const i=await choose("Abuela Luna: ¿Qué necesitas, criatura?",[{label:"🌿 Sanar a mis Pedomones"},{label:"🧊 La Nevera del Porrosor"},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
+    if(i<0||i===3){await say("Abuela Luna: Ve en paz. Y bebe agua. Bueno, en esta zona, lo que quieras.");return}
+    if(i===0){await say("Abuela Luna: Cierra los ojos… Respira… Ommmm… (Te pone una piedra fría en la frente y quema un poco de salvia.)");
+      S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["yurta",3,4];save();flash("#e8b8ff",700);sfx("heal");await sleep(700);
+      await say("Tus Pedomones se sienten renovados. Huelen a lavanda. 🌿");await say("Abuela Luna: Listo, criatura. Si te tumban por ahí, despertarás aquí, en mi yurta.");return}
+    if(i===1){await say("Abuela Luna: La Nevera está en la esquina. El Porrosor me la dejó en el 2003. Aún no ha vuelto a por ella.");await pcMenu();continue}
+    await say(pick(["Abuela Luna: Tengo 93 años. El secreto: infusiones, siesta y hablar con Salva una vez al mes.","Abuela Luna: Bob era un crío cuando llegó. Le enseñé a plantar. Ahora planta mejor que yo, el muy…","Abuela Luna: Esa Pasma no sabe lo que hace. Fumigar plantas… Las plantas también sienten, criatura. Sobre todo las de Bob.","Abuela Luna: Shaggy viene cada día a por galletas de avena. Le digo que son para personas. Le da igual.","Abuela Luna: Los cuarzos curan. El kebab de Abdul también, me han dicho. Cada uno con su fe."]))}}
+const RICARDITO={n:"Ricardito",hi:"Ricardito: ¡Hey, bro! Soy Ricardito, el hermano pequeño de Richard. Él vende MTs con estilo; yo, con flow. Mismas MTs, menos corbata.",
+  lines:["Ricardito: Mi hermano Richard dice que soy un hippie. Yo digo que él es un estirado. Los dos tenemos razón.","Ricardito: ¿Que por qué me va tan bien? Hablé con Salva, bro.","Ricardito: Richard me llama «la oveja verde de la familia». Me lo tomo como un cumplido.","Ricardito: Una MT a tiempo vale más que diez Calditos. Eso lo dice mi hermano. Yo digo que vale más que once."]};
 const TALK2={
-  bob:bobTalk,guardia:guardiaTalk,shaggy:shaggyTalk,maruja:marujaTalk,maestro:maestroTalk,abuelorasta:abueloRastaTalk,inaki:inakiTalk,lucia:veganTalk,bruno:veganTalk,
+  luna:lunaTalk,chan:()=>shop(CHAN),ricardito:()=>mtShop(RICARDITO),
+  chusta2:chustaTalk,bob:bobTalk,guardia:guardiaTalk,shaggy:shaggyTalk,maruja:marujaTalk,maestro:maestroTalk,abuelorasta:abueloRastaTalk,inaki:inakiTalk,lucia:veganTalk,bruno:veganTalk,
   scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Ralva! ¡Ralva rueno! (Scooby también ha hablado con Salva.)","Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
   rasta1:async()=>say(pick(["Rasta: Todo bien, bredren. Hablé con Salva esta mañana. O ayer. O el martes.","Rasta: Bredren… ¿Sabes qué hora es? Las 4:20. Siempre son las 4:20.","Rasta: Llevo en este banco desde el martes. ¿Qué día es hoy?","Rasta: Dicen que Bob es el que mejor cultiva de toda España. Y de Jamaica, casi."])),
   rasta2:async()=>say(pick(["Rasta: Me iba fatal hasta que hablé con Salva. Ahora me va regular, pero con buen rollo.","Rasta: Si La Pasma fumiga el huerto, ¿de dónde vamos a sacar la… inspiración?","Rasta: ¿Ves esas humaredas? Son nubes bajitas. Muy bajitas. Que no te líen.","Rasta: Tengo un Pedomón que se llama Pegamentín. No hay quien lo despegue del sofá. Como a mí."])),
@@ -2413,7 +2466,7 @@ async function battle(enemies,{trainer,special,easy}){
     S.team.forEach(m=>m.hp=maxhp(m));S.map=S.respawn[0];S.x=S.respawn[1];S.y=S.respawn[2];S.dir="up";
   }
   await battleOutro();pushPresence();
-  if(result==="lose")await say(`Te despiertas en el Kebab 24h con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`);
+  if(result==="lose")await say(S.respawn[0]==="yurta"?"Te despiertas en la yurta de la Abuela Luna, con una piedra fría en la frente. Abuela Luna: «Ay, criatura… Ya te he sanado el equipo. Respira.»":`Te despiertas en el Kebab 24h con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`);
   for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}
   S.team.forEach(m=>delete m.v);
   save();
@@ -2505,11 +2558,28 @@ async function giveXp(enemy){
     await learnAt(p);
   }
 }
+// ---- Ayuda al aprender ataques: ficha del ataque y cuál conviene olvidar ----
+function moveValue(m,mv,all){const M=MV[mv];if(!M)return 0;
+  if(!M.p)return 32+({skip:6,heal:8,drain:4,atkup:6,acc:2,spd:2}[M.eff]||0);   // los de estado valen algo, pero menos que un buen golpe
+  let v=M.p*accOf(mv)/100;if(M.t===SP[m.sp].t)v*=1.5;if(M.eff==="multi")v*=1.6;if(M.eff==="drain")v*=1.1;
+  if(all&&all.filter(x=>MV[x]&&MV[x].p&&MV[x].t===M.t).length===1&&M.t!==SP[m.sp].t)v+=12;  // único de su tipo: da cobertura
+  return v}
+function moveCardTxt(m,mv){const M=MV[mv],stab=M.p&&M.t===SP[m.sp].t,strong=STRONG[M.t].map(t=>TYPES[t].n).join(" y ");
+  return `${M.n} · tipo ${TYPES[M.t].n} · ${M.p?"Potencia "+M.p:"Ataque de estado"} · Precisión ${accOf(mv)} %${stab?" · Es de su tipo: pega ×1,5":""}\n${M.d}${M.p?`\nMuy eficaz contra: ${strong}.`:""}`}
+async function chooseForget(m,mv,title){
+  const all=[...m.moves,mv],vals=m.moves.map(x=>moveValue(m,x,all)),nv=moveValue(m,mv,all);let worst=0;vals.forEach((v,i)=>{if(v<vals[worst])worst=i});
+  const better=nv>vals[worst]+2;
+  await say(`📘 Ataque nuevo: ${moveCardTxt(m,mv)}`);
+  await say(better?`💡 Consejo: te recomiendo olvidar ${MV[m.moves[worst]].n} (${MV[m.moves[worst]].p?"Pot. "+MV[m.moves[worst]].p+", "+accOf(m.moves[worst])+" %":"de estado"}). ${MV[mv].n} le sale más a cuenta.`:`💡 Consejo: ${MV[mv].n} no mejora lo que ya tiene. Yo no lo aprendería (pulsa «No aprenderlo»), pero tú mandas.`);
+  const opts=m.moves.map((x,i)=>{const M=MV[x];return{label:(better&&i===worst?"⭐ ":"")+M.n,chip:M.t,sub:(M.p?`Pot. ${M.p} · ${accOf(x)} %`:"Estado")+(better&&i===worst?" · recomendado olvidar":""),subCls:better&&i===worst?"x2":""}});
+  opts.push({label:"🚫 No aprenderlo",sub:better?"":"recomendado"});
+  const k=await choose(title,opts,{cols:1,info:k=>k<m.moves.length?moveInfo(m.moves[k])+`<br><b>Nuevo:</b> ${esc(MV[mv].n)} · ${TYPES[MV[mv].t].n} · ${MV[mv].p?"Pot. "+MV[mv].p:"Estado"} · ${accOf(mv)} %`:`Se queda con sus 4 ataques de siempre.`});
+  return k>=0&&k<m.moves.length?k:-1}
 async function learnAt(m){
   for(const[l,mv]of SP[m.sp].learn){if(l===m.lvl&&!m.moves.includes(mv)){
-    if(m.moves.length<4){m.moves.push(mv);await say(`¡${SP[m.sp].n} aprende ${MV[mv].n}!`)}
-    else{const k=await choose(`${SP[m.sp].n} quiere aprender ${MV[mv].n}, pero ya sabe 4 ataques. ¿Cuál olvida? (B = no aprenderlo)`,m.moves.map(x=>({label:MV[x].n,chip:MV[x].t,sub:MV[x].p?"Pot. "+MV[x].p:"Estado"})),{info:k=>moveInfo(m.moves[k])});
-      if(k<0)await say(`${SP[m.sp].n} no aprende ${MV[mv].n}.`);else{const old=m.moves[k];m.moves[k]=mv;await say(`${SP[m.sp].n} se olvida de ${MV[old].n} y aprende ${MV[mv].n}.`)}}
+    if(m.moves.length<4){m.moves.push(mv);await say(`¡${SP[m.sp].n} aprende ${MV[mv].n}!\n${moveCardTxt(m,mv)}`)}
+    else{const k=await chooseForget(m,mv,`${SP[m.sp].n} quiere aprender ${MV[mv].n}, pero ya sabe 4 ataques. ¿Cuál olvida?`);
+      if(k<0)await say(`${SP[m.sp].n} no aprende ${MV[mv].n}.`);else{const old=m.moves[k];m.moves[k]=mv;await say(`1, 2 y… ¡puf! ${SP[m.sp].n} se olvida de ${MV[old].n} y aprende ${MV[mv].n}.`)}}
   }}
 }
 async function evolve(m){
@@ -2591,10 +2661,16 @@ function drawTile(ch,x,y,sx,sy,t,style){
     if(ch==="S"){px(sx+7,sy+8,2,7,"#6a4a2a");px(sx+2,sy+2,12,7,"#a8773e");px(sx+3,sy+3,10,5,"#c8955a");px(sx+4,sy+5,8,1,"#6a4a2a");return}
     if(ch==="L"){px(sx+7,sy+2,2,14,"#3a3a4a");px(sx+4,sy,8,3,"#2a2a3a");px(sx+5,sy+3,6,2,"#ffe9a8");return}
     return}
+  if(ch==="n"){px(sx,sy,T,T,"#2f6ab8");px(sx,sy+1,T,14,"#8a5a2b");for(let i=0;i<T;i+=4){px(sx+i,sy+1,1,14,"#5a3a1a")}px(sx,sy+1,T,1,"#c8955a");px(sx,sy+14,T,1,"#5a3a1a");px(sx,sy,T,1,"#c8955a");px(sx,sy+15,T,1,"#c8955a");return}
+  if(ch==="R"){const mm2=MAP();px(sx,sy,T,T,mm2.rasta?"#6ab84a":"#5fae4a");const rn=c=>{const q=mm2.g[y+(c[1]||0)]&&mm2.g[y+(c[1]||0)][x+(c[0]||0)];return q==="R"};
+    const L=rn([-1]),Rr=rn([1]),U=rn([0,-1]),D=rn([0,1]);px(sx+(L?0:2),sy+(U?0:3),T-(L?0:2)-(Rr?0:2),T-(U?0:3)-(D?0:1),"#8a8580");
+    px(sx+(L?0:3),sy+(U?0:4),T-(L?0:3)-(Rr?0:4),U?3:3,"#b0aaa4");if(!D)px(sx+(L?0:2),sy+12,T-(L?0:2)-(Rr?0:2),3,"#5a5550");if(h%3===0)px(sx+3+(h%7),sy+6+(h>>4)%5,3,1,"#6a6560");if(h%5===0)px(sx+5,sy+9,2,2,"#7a9a5a");return}
+  if(ch==="j"){px(sx,sy,T,T,"#5fae4a");px(sx,sy+9,T,7,"#8a6a3a");px(sx,sy+9,T,2,"#3f8a36");px(sx,sy+14,T,2,"#5a4020");for(let i=0;i<T;i+=5)px(sx+i+(h%3),sy+11,2,2,"#6a4a20");return}
   if(ch==="r"){px(sx,sy,T,T,"#d8b478");if(h%3===0)px(sx+(h%13),sy+((h>>5)%13),2,1,"#c09a5a");if(h%7===0)px(sx+((h>>9)%13),sy+((h>>3)%13),1,1,"#f0d8a0");if(h%23===0){px(sx+5,sy+9,3,1,"#f4f0e0");px(sx+8,sy+9,1,1,"#f07a2a")}return}
   const mm=MAP(),onSand=mm.rasta&&"BLJSX".includes(ch)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>mm.g[y+b]&&mm.g[y+b][x+a]==="r");
   if(onSand){px(sx,sy,T,T,"#d8b478");if(h%3===0)px(sx+(h%13),sy+((h>>5)%13),2,1,"#c09a5a")}
   else{px(sx,sy,T,T,mm.rasta?"#6ab84a":"#5fae4a");if(h%4===0)px(sx+(h%13),sy+((h>>5)%13),1,2,"#4a9a3a")}
+  if(ch==="i"){const b=Math.floor(t/400)%2;px(sx+4,sy+7,8,7,"#c8202a");px(sx+4,sy+7,8,2,"#e84a4a");px(sx+6,sy+5,4,2,"#8a1a1a");px(sx+7,sy+9,2,2,"#f2c14e");if(b){px(sx+12,sy+3,1,1,"#ffffff");px(sx+3,sy+5,1,1,"#ffffff")}return}
   if(ch==="P"){px(sx+7,sy+5,2,11,"#8a5a2b");px(sx+7,sy+8,2,1,"#6a4020");px(sx+7,sy+12,2,1,"#6a4020");const sw=Math.round(Math.sin(t/800+x)*1);ctx.fillStyle="#2a8a3a";[[-5,2],[5,2],[-4,-1],[4,-1],[0,-3]].forEach(([dx,dy])=>{ctx.beginPath();ctx.ellipse(sx+8+dx+sw,sy+4+dy,5,2,dx*.12,0,7);ctx.fill()});ctx.fillStyle="#4aaa4a";ctx.beginPath();ctx.ellipse(sx+8+sw,sy+1,3,1.5,0,0,7);ctx.fill();px(sx+7+sw,sy+3,2,2,"#6a4a1a");return}
   if(ch==="J"){px(sx+2,sy+11,12,5,"#9a9490");px(sx+2,sy+11,12,1,"#c8c0b8");ctx.fillStyle="#2a8a3a";for(let i=0;i<7;i++){const a=-Math.PI/2+(i-3)*.42;ctx.beginPath();ctx.ellipse(sx+8+Math.cos(a)*4,sy+7+Math.sin(a)*4,4,1.3,a,0,7);ctx.fill()}px(sx+7,sy+8,2,4,"#1f6a2a");ctx.globalAlpha=.25+Math.sin(t/500)*.1;ctx.fillStyle="#f2c14e";ctx.beginPath();ctx.arc(sx+8,sy+6,8,0,7);ctx.fill();ctx.globalAlpha=1;return}
   if(ch==="X"){px(sx+1,sy+7,12,8,"#5a6a5a");px(sx+1,sy+7,12,2,"#7a8a7a");for(let i=0;i<12;i+=4){px(sx+1+i,sy+11,2,2,"#f2d14e");px(sx+3+i,sy+11,2,2,"#1a1a1a")}px(sx+10,sy+3,2,5,"#3a3a3a");px(sx+8,sy+2,8,2,"#3a3a3a");px(sx+3,sy+14,2,2,"#1a1a1a");px(sx+9,sy+14,2,2,"#1a1a1a");
@@ -2605,7 +2681,54 @@ function drawTile(ch,x,y,sx,sy,t,style){
   if(ch==="S"){px(sx+7,sy+8,2,7,"#6a4a2a");px(sx+2,sy+2,12,7,"#a8773e");px(sx+3,sy+3,10,5,"#c8955a");px(sx+4,sy+5,8,1,"#6a4a2a");return}
   if(ch==="L"){px(sx+7,sy+2,2,14,"#3a3a4a");px(sx+4,sy,8,3,"#2a2a3a");px(sx+5,sy+3,6,2,"#ffe9a8");px(sx+5,sy+14,6,2,"#2a2a3a");return}
 }
+function tri(a,b,c,d,e,f,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.lineTo(e,f);ctx.closePath();ctx.fill()}
+// Viviendas hippies de Ganja Life: tipi, yurta, cabaña, chabola, chiringuito, autocaravana, furgo y huerto
+function drawKind(b,ox,oy,t){const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,dx=b.door[0]*T-ox,dy=b.door[1]*T-oy,K=b.kind,c1=b.wall,c2=b.roof;
+  ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(x+w/2,y+h-2,w/2+3,5,0,0,7);ctx.fill();
+  if(K==="tipi"){const cx=x+w/2,top=y-18,bot=y+h-1;px(cx-1,top-6,2,9,"#6a4a2a");px(cx-6,top-4,2,7,"#6a4a2a");px(cx+4,top-4,2,7,"#6a4a2a");
+    ctx.save();ctx.beginPath();ctx.moveTo(cx,top);ctx.lineTo(x-3,bot);ctx.lineTo(x+w+3,bot);ctx.closePath();ctx.fillStyle=c1;ctx.fill();ctx.clip();
+    for(let i=0;i<3;i++){const by=top+16+i*13;px(x-4,by,w+8,3,i%2?c2:"#f2c14e");for(let k=x-4;k<x+w+4;k+=6)tri(k,by+3,k+3,by+7,k+6,by+3,i%2?"#f2c14e":c2)}
+    px(x-4,top,w/2+4,bot-top,"rgba(0,0,0,.12)");ctx.restore();tri(dx+8,dy-4,dx+2,dy+15,dx+14,dy+15,"#2a1a10");return}
+  if(K==="yurt"){const wy=y+8,wh=h-9;px(x,wy,w,wh,c1);ctx.strokeStyle="rgba(90,60,30,.35)";ctx.lineWidth=1;for(let i=0;i<w;i+=6){ctx.beginPath();ctx.moveTo(x+i,wy);ctx.lineTo(x+i+6,wy+wh);ctx.moveTo(x+i+6,wy);ctx.lineTo(x+i,wy+wh);ctx.stroke()}
+    px(x,wy,w,3,c2);px(x,wy+wh-3,w,3,"#8a5a3a");ctx.fillStyle=c2;ctx.beginPath();ctx.ellipse(x+w/2,wy+1,w/2+3,18,0,Math.PI,0);ctx.fill();
+    ctx.fillStyle="#f2c14e";ctx.beginPath();ctx.ellipse(x+w/2,wy-15,5,3,0,0,7);ctx.fill();for(let i=0;i<6;i++){const a=Math.PI+(i+.5)*Math.PI/6;px(x+w/2+Math.cos(a)*(w/2-3),wy+Math.sin(a)*13,2,2,"#f2c14e")}
+    px(dx+3,dy-4,10,20,"#4a2a5a");px(dx+4,dy-3,8,18,"#6a3a8a");px(dx+7,dy+2,2,2,"#f2c14e");return}
+  if(K==="cabin"){const top=y-14;tri(x-4,y+3,x+w/2,top,x+w+4,y+3,c2);px(x,y+3,w,h-3,c1);for(let j=y+6;j<y+h;j+=4)px(x,j,w,1,"#5a3a1a");
+    ctx.fillStyle="#6a4a2a";for(let j=y+5;j<y+h;j+=4){ctx.beginPath();ctx.arc(x,j,2,0,7);ctx.arc(x+w,j,2,0,7);ctx.fill()}
+    px(x+w-16,top-4,6,14,"#5a5a5a");for(let k=0;k<3;k++){const ph=((t/1500)+k/3)%1;ctx.globalAlpha=.45*(1-ph);ctx.fillStyle="#e8e8e8";ctx.beginPath();ctx.arc(x+w-13+ph*6,top-6-ph*18,2+ph*4,0,7);ctx.fill()}ctx.globalAlpha=1;
+    for(const wx of[x+6,x+w-18]){px(wx,y+12,12,10,"#2a1a10");px(wx+1,y+13,10,8,"#f2c870");px(wx+5,y+13,1,8,"#2a1a10")}
+    px(dx+2,dy-8,12,24,"#3a2414");px(dx+3,dy-7,10,22,"#6a4a2a");px(dx+11,dy+4,1,2,"#f2c14e");return}
+  if(K==="chabola"){const top=y+4,pans=["#8a8a90","#a86a3a","#6a8aa8","#9a9a7a",c1];
+    for(let i=0;i<w;i+=8){px(x+i,top,8,h-4,pans[(hash(b.x+i,b.y)>>3)%pans.length]);for(let k=1;k<8;k+=2)px(x+i+k,top,1,h-4,"rgba(0,0,0,.12)")}
+    tri(x-4,top+3,x+w+5,top-8,x+w+5,top+3,"#7a7a80");px(x-4,top+1,w+9,3,"#5a5a60");px(x+4,top-6,w/2,6,"#3a6ad0");px(x+4,top-6,w/2,1,"#6a9af0");
+    ctx.fillStyle="#1a1a1a";ctx.beginPath();ctx.arc(x+w-8,top-6,4,0,7);ctx.fill();ctx.fillStyle="#4a4a4a";ctx.beginPath();ctx.arc(x+w-8,top-6,2,0,7);ctx.fill();
+    px(x+4,top+10,10,8,"#1a1a1a");px(x+5,top+11,8,6,"#f2c870");px(dx+2,dy-8,12,24,"#5a3a1a");for(let k=0;k<24;k+=4)px(dx+2,dy-8+k,12,1,"#8a6a3a");
+    if(b.tags){ctx.font="bold 6px sans-serif";ctx.textAlign="left";let tx=x+3;b.tags.forEach((s,i)=>{const ty=top+h-11-(i%2)*7;ctx.fillStyle="#1a1410";ctx.fillText(s,tx+1,ty+1);ctx.fillStyle=["#e04a9a","#6fcf5a","#f2d14e"][i%3];ctx.fillText(s,tx,ty);tx+=ctx.measureText(s).width+3;if(tx>x+w-12)tx=x+3})}return}
+  if(K==="kiosk"){const top=y+2;px(x+2,top+6,3,h-6,"#6a4a2a");px(x+w-5,top+6,3,h-6,"#6a4a2a");px(x+2,y+14,w-4,2,"#8a5a2b");
+    for(let i=6;i<w-6;i+=7)px(x+i,y+8,5,6,["#d23a2e","#f2c14e","#3a6ad0","#6fcf5a","#e04a9a"][(i/7|0)%5]);
+    px(x,y+24,w,h-24,c1);px(x,y+24,w,3,"#c8955a");for(let i=0;i<w;i+=8)px(x+i,y+27,1,h-27,"rgba(0,0,0,.15)");
+    ctx.fillStyle="#e8c860";ctx.beginPath();ctx.moveTo(x-5,top+8);ctx.lineTo(x+w/2,top-12);ctx.lineTo(x+w+5,top+8);ctx.closePath();ctx.fill();for(let i=-5;i<w+5;i+=3)px(x+i,top+7,2,4,"#c8a040");
+    px(x+6,y+30,w-12,9,c2);return}
+  if(K==="caravan"||K==="van"){const body=y+2,bh=h-6;
+    if(K==="caravan"){px(x+2,body,w-4,bh,"#f0ece0");px(x+w-14,body-6,12,8,"#f0ece0");px(x+w-12,body-4,9,4,"#8fd3f4");px(x+2,body+bh/2,w-4,3,c1);px(x+2,body+bh/2+4,w-4,1,c2);
+      for(let i=x+6;i<x+w-20;i+=12)px(i,body+4,8,6,"#2a3a5a");px(x+2,body,w-4,1,"#c8c4b8")}
+    else{px(x+1,body+bh/2,w-2,bh/2,c1);px(x+3,body-4,w-6,bh/2+4,"#f4f0e0");px(x+1,body,w-2,bh/2,"#f4f0e0");for(let i=x+5;i<x+w-8;i+=11)px(i,body+1,8,6,"#2a3a5a");
+      const fl=["#e04a9a","#f2c14e","#ffffff"];for(let i=0;i<4;i++){const fx=x+8+i*14,fy=body+bh/2+5;ctx.fillStyle=fl[i%3];for(let k=0;k<5;k++){const a=k*1.256;ctx.beginPath();ctx.arc(fx+Math.cos(a)*3,fy+Math.sin(a)*3,2,0,7);ctx.fill()}px(fx-1,fy-1,2,2,"#f2a93b")}}
+    for(const wx of[x+9,x+w-13]){ctx.fillStyle="#1a1a1a";ctx.beginPath();ctx.arc(wx,y+h-3,5,0,7);ctx.fill();ctx.fillStyle="#8a8a8a";ctx.beginPath();ctx.arc(wx,y+h-3,2,0,7);ctx.fill()}
+    px(dx+3,dy-6,10,15,"#c8c4b8");px(dx+4,dy-5,8,13,K==="van"?c1:"#e0dcd0");px(dx+5,dy-4,6,4,"#8fd3f4");px(dx+11,dy+2,1,2,"#5a5a5a");return}
+  if(K==="garden"){px(x,y,w,h,"#5a3a1a");for(let j=y+5;j<y+h-6;j+=9)for(let i=x+5;i<x+w-6;i+=9){const sw=Math.sin(t/700+i)*1;ctx.fillStyle=(i+j)%2?"#3f9a3a":"#2f8a2f";
+      for(let k=0;k<7;k++){const a=-Math.PI/2+(k-3)*.42;ctx.beginPath();ctx.ellipse(i+3+sw+Math.cos(a)*3.5,j+3+Math.sin(a)*3.5,3.5,1.1,a,0,7);ctx.fill()}px(i+3,j+4,1,4,"#1f6a2a")}
+    for(let i=0;i<w;i+=5){px(x+i,y-4,2,8,"#c8955a");px(x+i,y+h-7,2,8,"#c8955a")}for(let j=0;j<h;j+=5){px(x-1,y+j-4,2,8,"#c8955a");px(x+w-2,y+j-4,2,8,"#c8955a")}
+    px(x,y-2,w,1,"#8a5a2b");px(x,y+h-5,w,1,"#8a5a2b");px(dx,dy-2,16,16,"#8a5a2b");for(let i=1;i<16;i+=3)px(dx+i,dy-2,1,16,"#c8955a");px(dx+6,dy+4,4,4,"#f2c14e");
+    if(!S.flags.fumigonWin){ctx.globalAlpha=.16+Math.sin(t/600)*.05;px(x,y,w,h-5,"#e0f0a0");ctx.globalAlpha=1}return}
+}
+function kindLights(b,ox,oy,t){if(!b.label)return;const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,K=b.kind;
+  const ly=K==="kiosk"?y+37:K==="garden"?y-8:K==="caravan"||K==="van"?y+h-10:K==="tipi"?y+h+9:y-20;
+  ctx.font="bold 7px monospace";ctx.textAlign="center";const tw=ctx.measureText(b.label).width+6;
+  if(K!=="kiosk"){ctx.fillStyle="rgba(26,16,10,.85)";ctx.fillRect(Math.round(x+w/2-tw/2),ly-7,Math.round(tw),9)}
+  ctx.fillStyle=b.glow||"#ffd98a";ctx.globalAlpha=.45;ctx.fillText(b.label,x+w/2+1,ly);ctx.globalAlpha=1;ctx.fillText(b.label,x+w/2,ly-1)}
 function drawBuilding(b,ox,oy,t){
+  if(b.kind){drawKind(b,ox,oy,t);return}
   const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,dk=hexShade(b.wall,.86);
   px(x,y-14,w,h+14,b.wall);
   for(let j=0;j<h+14;j+=4){px(x,y-14+j,w,1,dk);for(let i=((j/4)%2)*5;i<w;i+=10)px(x+i,y-14+j,1,4,dk)}
@@ -2625,6 +2748,7 @@ function drawBuilding(b,ox,oy,t){
   if(b.id==="kebab"){const s=Math.sin(t/250);px(x+w-13,y+16,8,11,"#5a5a5a");px(x+w-12+s,y+17,6,8,"#a85a2a");px(x+w-11+s,y+18,4,2,"#c87a3a")}
 }
 function drawBuildingLights(b,ox,oy,t){
+  if(b.kind){kindLights(b,ox,oy,t);return}
   const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T;
   for(let i=0;i<b.w;i++){const wx=x+i*T;const lit=(hash(b.x+i,7)+Math.floor(t/7000))%3!==0;if(lit){px(wx+4,y-11,4,7,"#f2d38a");px(wx+9,y-11,3,7,"#e8c070")}
     if(b.x+i===b.door[0])continue;const fl=b.id==="yoli"?"#f8b8d8":b.id==="gas"?"#fff0c0":b.house?"#f2d38a":"#f2c870";ctx.globalAlpha=.85;px(wx+3,y+15,10,13,fl);ctx.globalAlpha=1;
@@ -2659,7 +2783,7 @@ function renderWorld(t){
   ctx.fillStyle="#000";ctx.fillRect(0,0,SW,SH);
   const x0=Math.floor(ox/T),y0=Math.floor(oy/T);
   for(let y=Math.max(0,y0);y<=Math.min(m.h-1,y0+SH/T+1);y++)for(let x=Math.max(0,x0);x<=Math.min(m.w-1,x0+SW/T+1);x++){
-    let ch=m.g[y][x];if(ch==="H"||ch==="D")ch=".";drawTile(ch,x,y,x*T-ox,y*T-oy,t,m.style)}
+    let ch=m.g[y][x];if(ch==="H"||ch==="D")ch=".";else if(ch==="i"&&S.picked&&S.picked[PICK_AT[S.map+","+x+","+y]])ch=".";drawTile(ch,x,y,x*T-ox,y*T-oy,t,m.style)}
   m.builds.forEach(b=>drawBuilding(b,ox,oy,t));
   const list=NPCS.filter(n=>n.map===S.map&&npcVisible(n)).map(n=>({y:n.y,draw:()=>{const bob=n.idle&&Math.floor(t/700+n.x)%2?1:0;const nx=n.x*T-ox,ny=n.y*T-oy;
     if(n.dog){drawDog(nx,ny,n.dir,t);return}
@@ -2802,7 +2926,7 @@ addEventListener("resize",fit);
 function titleScreen(){
   mode="title";const has=loadSave();updOnline();
   overlay(`<div class="title" style="display:flex;flex-direction:column;gap:18px;align-items:center;margin-top:6vh">
-    <div class="sign">¿OTRA RONDA?</div><p style="font-family:var(--display);font-size:18px;color:var(--fg)">Demo 4 · Del Parque de Pichi a la Comuna 420</p><p style="font-style:italic;color:var(--amber);margin-top:-8px">«Todo va bien. Hablé con Salva.»</p>
+    <div class="sign">¿OTRA RONDA?</div><p style="font-family:var(--display);font-size:18px;color:var(--fg)">Demo 4 · Del Parque de Pichi a la Ganja Life</p><p style="font-style:italic;color:var(--amber);margin-top:-8px">«Todo va bien. Hablé con Salva.»</p>
     <p>¡Hazte con todos los Pedomones! Un juego de parodia +18 para jugar entre colegas.</p>
     <div class="btns">${has?`<button class="big" type="button" id="t-cont">Continuar</button>`:""}<button class="big ${has?"alt":""}" type="button" id="t-new">Nueva partida</button></div>
     <p class="keys">Móvil: cruceta, A, B y el botón CORRER. Ordenador: flechas, Enter para hablar, X para volver y Espacio para correr. Con sonido: se quita desde el Menú.<br>Multijugador: abrid el juego a la vez y quedad en El Descampado.</p>

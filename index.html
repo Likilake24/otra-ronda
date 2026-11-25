@@ -780,18 +780,29 @@ function charRows(dir,walk,hs,ts,fat){
   if(walk===1){r[12]="..pp...pp.";r[13]=".kkk...kkk"}else if(walk===2){r[12]=".pp...pp..";r[13]="kkk...kkk."}
   return r;
 }
+// Capa roja con pliegues, sombra y broche dorado. back=true: la parte que va detrás del cuerpo; back=false: la que va por encima.
+function capeDraw(put,dir,bob,back){const R="#c8202a",D="#8e141a",L="#e8484a",G="#f2c14e",o=-bob;
+  if(dir==="up"){if(back)return;
+    put(1,6+o,8,1,D);put(1,7+o,8,5,R);put(0,8+o,1,4,D);put(9,8+o,1,4,D);
+    put(3,7+o,1,5,L);put(6,7+o,1,5,L);put(1,12+o,8,1,D);put(0,12+o,1,1,D);put(9,12+o,1,1,D);return}
+  if(dir==="down"){if(back){put(1,7+o,8,6,R);put(0,8+o,1,5,D);put(9,8+o,1,5,D);put(1,12+o,8,1,D)}
+    else{put(1,6+o,1,2,R);put(8,6+o,1,2,R);put(2,6+o,1,1,G);put(7,6+o,1,1,G)}return}
+  const s=dir==="left"?1:-1,bx=dir==="left"?6:1; // la capa ondea hacia atrás
+  if(back){put(bx,7+o,3,6,R);put(dir==="left"?9:0,8+o,1,5,D);put(bx+(dir==="left"?1:1),8+o,1,4,L);put(bx,12+o,3,1,D)}
+  else put(dir==="left"?6:3,6+o,1,1,G)}
 function accDraw(put,dir,acc,bob){if(!acc)return;
+  if(acc.ac)capeDraw(put,dir,bob,false);
   if(acc.ag&&dir!=="up"){const col=acc.ag===2?"#e04a9a":"#111111";if(dir==="down"){put(2,3-bob,6,1,col);put(3,3-bob,1,1,acc.ag===2?"#ff9ad0":"#5a6a8a")}else if(dir==="left")put(2,3-bob,3,1,col);else put(5,3-bob,3,1,col)}
   if(acc.an&&dir!=="up"){put(3,6-bob,4,1,"#f2c14e");put(4,7-bob,2,1,"#f2c14e")}}
 function drawChar(pal,dir,sx,sy,walk,bob,hs,ts,fat,acc){
   ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(sx+8,sy+15,fat?6:5,2,0,0,7);ctx.fill();
   const put=(i,j,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(sx+3+i,sy+1+j,w,h)};
-  if(acc&&acc.ac){if(dir==="up")put(1,6-bob,8,7,"#c8202a");else{put(0,6-bob,1,7,"#a8181e");put(9,6-bob,1,7,"#a8181e")}}
+  if(acc&&acc.ac)capeDraw(put,dir,bob,true);
   charRows(dir,walk,hs,ts,fat).forEach((row,j)=>[...row].forEach((c,i)=>{if(c!=="."){ctx.fillStyle=pal[c]||pal.c;ctx.fillRect(sx+3+i,sy+1+j-bob,1,1)}}));
   accDraw(put,dir,acc,bob)}
 function drawCharBig(c2,pal,dir,cx,by,sc,hs,ts,fat,acc){
   const put=(i,j,w,h,c)=>{c2.fillStyle=c;c2.fillRect(cx-5*sc+i*sc,by-14*sc+j*sc,w*sc,h*sc)};
-  if(acc&&acc.ac){if(dir==="up")put(1,6,8,7,"#c8202a");else{put(0,6,1,7,"#a8181e");put(9,6,1,7,"#a8181e")}}
+  if(acc&&acc.ac)capeDraw(put,dir,0,true);
   charRows(dir,0,hs,ts,fat).forEach((row,j)=>[...row].forEach((c,i)=>{if(c!==".")put(i,j,1,1,pal[c]||pal.c)}));
   accDraw(put,dir,acc,0)}
 const NPC_PAL={
@@ -1021,7 +1032,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="18 · radar de Pedomones";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="19 · capa nueva y nombres del derecho";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -2245,7 +2256,8 @@ function drawMon(mon,who,t){
   const x=base.x+pose.dx-w/2,y=base.y+pose.dy-h;
   ctx.save();ctx.globalAlpha=pose.alpha;
   if(pose.clip){ctx.beginPath();ctx.rect(0,0,SW,base.y+2);ctx.clip()}
-  if(who==="p"){ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(s,0,0,w,h)}else ctx.drawImage(s,x,y,w,h);
+  // Los Pedomones con marca escrita (latas, botellas, cajetillas…) no se giran, para que el nombre no salga al revés
+  if(who==="p"&&!SP[spId].gen){ctx.translate(x+w,y);ctx.scale(-1,1);ctx.drawImage(s,0,0,w,h)}else ctx.drawImage(s,x,y,w,h);
   if(who==="e"&&B.cap&&B.cap.phase==="absorb"){ctx.globalAlpha=.85;ctx.drawImage(monSprite(spId,"white"),x,y,w,h)}
   ctx.restore();
 }

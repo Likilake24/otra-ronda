@@ -1021,7 +1021,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="17 · más Absolut para Saray";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="18 · radar de Pedomones";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -1760,12 +1760,13 @@ async function nameScreen(){
 /* ===================== MENÚS ===================== */
 async function mainMenu(){
   while(true){
-    const i=await choose(`${S.name||"Menú"} · ${S.money} pavos`,[{label:"🍺 Equipo"},{label:"🎒 Mochila"},{label:"📖 Destiladex"},{label:"📜 Misiones"},{label:"👥 Colegas"},{label:"💾 Partida"},{label:muted?"🔇 Sonido: no":"🔊 Sonido: sí"},{label:"✖️ Cerrar"}]);
+    const i=await choose(`${S.name||"Menú"} · ${S.money} pavos`,[{label:"🍺 Equipo"},{label:"🎒 Mochila"},{label:"📖 Destiladex"},{label:"📡 Radar"},{label:"📜 Misiones"},{label:"👥 Colegas"},{label:"💾 Partida"},{label:muted?"🔇 Sonido: no":"🔊 Sonido: sí"},{label:"✖️ Cerrar"}]);
     if(i===0)await teamMenu(false);else if(i===1)await bagMenu(false);else if(i===2)await dexScreen();
-    else if(i===3)await say(questLines().join("\n"));
-    else if(i===4)await colegasMenu();
-    else if(i===5)await partidaMenu();
-    else if(i===6){muted=!muted;sfx("sel");setMusic(muted?null:wantedMusic())}
+    else if(i===3)await radar();
+    else if(i===4)await say(questLines().join("\n"));
+    else if(i===5)await colegasMenu();
+    else if(i===6)await partidaMenu();
+    else if(i===7){muted=!muted;sfx("sel");setMusic(muted?null:wantedMusic())}
     else return;
   }
 }
@@ -1854,6 +1855,19 @@ async function wildEncounter(){
   const needAbs=S.q.walkie===1&&!ownsSp("absolut");
   const sp=needAbs&&rnd()<(zb?.6:.25)?"absolut":pick(z.pool);
   await battle([newMon(sp,ri(z.lv[0],z.lv[1]),true)],{});
+}
+// 📡 Radar: qué Pedomones salen en la zona donde estás y cuáles ya tienes
+function radarZone(z,boostAbs,boostP){const cnt={};z.pool.forEach(s=>cnt[s]=(cnt[s]||0)+1);if(boostAbs&&!cnt.absolut)cnt.absolut=0;
+  return Object.keys(cnt).map(s=>{let pc=cnt[s]/z.pool.length;if(boostAbs)pc=s==="absolut"?boostP+(1-boostP)*pc:(1-boostP)*pc;
+    const own=ownsSp(s),seen=S.seen&&S.seen[s];
+    return{s,pc,line:`${own?"✔":seen?"👁":"❓"} ${seen||own?SP[s].n:"???"} · ${SP[s].t} · ${Math.round(pc*100)} %`}}).sort((a,b)=>b.pc-a.pc).map(o=>o.line).join("\n")}
+async function radar(){
+  sfx("sel");
+  if(S.map!=="park"){await say("📡 Radar: aquí dentro no salen Pedomones salvajes. Sal al Parque de Pichi y pisa el césped.");return}
+  const needAbs=S.q.walkie===1&&!ownsSp("absolut");const here=S.x>=12?"B":"A";
+  await say(`📡 Radar · Césped normal (izquierda) · nivel ${ZONES.A.lv[0]}-${ZONES.A.lv[1]}${here==="A"?" · ESTÁS AQUÍ":""}\n`+radarZone(ZONES.A,needAbs,.25));
+  await say(`📡 Radar · Césped chungo (derecha) · nivel ${ZONES.B.lv[0]}-${ZONES.B.lv[1]}${here==="B"?" · ESTÁS AQUÍ":""}\n`+radarZone(ZONES.B,needAbs,.6)+(needAbs?"\n🍸 ¡Saray quiere un Absolut! Ahora salen mucho más.":""));
+  await say("✔ = ya lo tienes · 👁 = lo has visto · ❓ = ni idea de qué es");
 }
 function ownsSp(id){ensureBoxes();return S.team.some(m=>m.sp===id)||S.boxes.some(b=>b.some(m=>m&&m.sp===id))}
 function nameOf(m){if(m===B.p)return mName(m);if(B.special==="lolo")return"Vapito de Richard";return B.trainer?`${mName(m)} de ${B.trainer.short}`:`${mName(m)} salvaje`}

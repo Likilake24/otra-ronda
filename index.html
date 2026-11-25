@@ -74,7 +74,8 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 .dex .card h3{font-size:15px}
 .dex .card p{font-size:12px}
 .title{align-items:center;text-align:center}
-.sign{font-family:var(--display);font-size:clamp(44px,11vw,92px);line-height:.95;color:var(--amber);text-shadow:0 0 18px rgba(242,169,59,.45),0 0 2px rgba(242,169,59,.9);animation:neon 3s infinite}
+#ov .in{min-width:0;width:100%}#ov .in>*{max-width:100%}
+.sign{font-family:var(--display);font-size:clamp(28px,9.5vw,92px);overflow-wrap:anywhere;line-height:.95;color:var(--amber);text-shadow:0 0 18px rgba(242,169,59,.45),0 0 2px rgba(242,169,59,.9);animation:neon 3s infinite}
 @keyframes neon{0%,92%,100%{opacity:1}93%{opacity:.4}95%{opacity:1}96%{opacity:.6}}
 .btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .keys{font-size:13px;color:var(--muted)}
@@ -1020,7 +1021,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="15 · tienda arreglada";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="16 · tienda y móvil arreglados";
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -2320,5 +2321,6 @@ function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleSc
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(boot);else boot(window.claude&&window.claude.hot&&window.claude.hot.data||{});
 </script>
+
 
 </body></html>

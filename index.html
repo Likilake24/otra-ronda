@@ -310,7 +310,7 @@ function setMusic(name){
     a.volume=0;AUD.el=a;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{AUD.failed[name]=true;if(MUS.cur===name){AUD.el=null;startSynth(name)}});fadeAudio(a,.42,700);
   }else startSynth(name);
 }
-function wantedMusic(){if(MUS.hold)return null;if(mode==="battle")return"battle";if(mode==="world"&&S){const k=(MAPS[S.map]&&MAPS[S.map].music)||S.map;return SONGS[k]||TRACKS[k]||PLAYLISTS[k]?k:"park"}return"park"}
+function wantedMusic(){if(MUS.hold)return null;if(mode==="battle")return(typeof B!=="undefined"&&B&&B.music)||"battle";if(mode==="world"&&S){const k=(MAPS[S.map]&&MAPS[S.map].music)||S.map;return SONGS[k]||TRACKS[k]||PLAYLISTS[k]?k:"park"}return"park"}
 /* ===================== TIPOS ===================== */
 const TYPES={
   agua:{n:"Agua",c:"#6fa8f0"},fuego:{n:"Fuego",c:"#f07a4a"},planta:{n:"Planta",c:"#6fcf5a"},
@@ -1031,7 +1031,7 @@ const NPCS=[
    pre:["Guiri del Festival: Hola amigou! Yo venir a España por el sol y la… plantas. ¡Mucho bonito!","Guiri del Festival: ¿Combate? ¡Yes! ¡Olé! ¡Sangría!"],lose:"Guiri del Festival: Ouch… Mi Pedomón tener… ¿cómo se dice?… resaca. Tú muy fuerte, amigou."}},
  // ---- Parte 2: Ganja Life ----
  {id:"bob",map:"comuna",x:31,y:19,dir:"down",pal:{h:"#1a1410",s:"#7a4a2a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#3a3a3a",k:"#8a6a4a"},hs:3,idle:true,smoke:true},
- {id:"guardia",map:"comuna",x:33,y:19,dir:"left",pal:NPC_PAL.poli,hs:4},
+ {id:"guardia",map:"comuna",x:33,y:19,dir:"left",pal:NPC_PAL.poli,hs:4,cond:()=>!S.flags.fumigonWin},
  {id:"shaggy",map:"comuna",x:8,y:20,dir:"down",pal:{h:"#8a5a2a",s:"#f1c27d",e:"#222",c:"#7ab83a",z:"#7ab83a",p:"#8a5a2a",k:"#5a3a1a"},hs:4,idle:true},
  {id:"scooby",map:"comuna",x:9,y:20,dir:"left",dog:true},
  {id:"lucia",map:"comuna",x:16,y:11,dir:"down",pal:{h:"#c8202a",s:"#f1c27d",e:"#222",c:"#6fcf5a",z:"#6fcf5a",p:"#5a3a6a",k:"#8a6a4a"},hs:3,pancarta:"¡NO A LA CARNE!"},
@@ -1042,7 +1042,9 @@ const NPCS=[
  {id:"chusta2",map:"comuna",x:15,y:13,dir:"right",pal:NPC_PAL.chusta,hs:4,ts:1,idle:true,cond:()=>S.flags.chustaJoin&&!S.flags.chustaFollow},
  {id:"rasta1",map:"comuna",x:14,y:10,dir:"down",pal:{h:"#1a1410",s:"#6a3a1a",e:"#222",c:"#f2c14e",z:"#2a8a3a",p:"#2a2a2a",k:"#d23a2e"},hs:3,smoke:true,idle:true},
  {id:"rasta2",map:"comuna",x:22,y:14,dir:"up",pal:{h:"#c8202a",s:"#e8b880",e:"#222",c:"#d23a2e",z:"#f2c14e",p:"#2a5a2a",k:"#1a1a1a"},hs:5,smoke:true,idle:true},
- {id:"fan",map:"comuna",x:31,y:7,dir:"up",pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"},hs:4,ts:1},
+ {id:"snoop",map:"comuna",x:31,y:6,dir:"down",pal:{h:"#1a1a1a",s:"#6a4a2a",e:"#222",c:"#3a3a6a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"},hs:3,smoke:true,idle:true,acc:{ag:1},cond:()=>S.q.bob>=1},
+ {id:"fumigon",map:"comuna",x:32,y:20,dir:"up",pal:{h:"#1d2a5a",s:"#f1c27d",e:"#222",c:"#e8d040",z:"#1a1a1a",p:"#e8d040",k:"#111"},hs:2,fat:true,cond:()=>S.flags.snoopWin&&!S.flags.fumigonWin},
+ {id:"fan",map:"comuna",x:33,y:7,dir:"left",pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"},hs:4,ts:1},
  {id:"maruja",map:"tarot",x:3,y:2,dir:"down",pal:{h:"#1a1a1a",s:"#c68642",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#3a1a4a",k:"#1a1a1a"},hs:3,acc:{an:1}},
  {id:"maestro",map:"cabana",x:4,y:2,dir:"down",pal:{h:"#d8d8d8",s:"#a86a3a",e:"#222",c:"#f2c14e",z:"#2a8a3a",p:"#c8202a",k:"#6a4a2a"},hs:3,smoke:true,idle:true},
  {id:"abuelorasta",map:"casarasta",x:3,y:2,dir:"down",pal:{h:"#c8c8c8",s:"#6a3a1a",e:"#222",c:"#2a8a3a",z:"#f2c14e",p:"#d23a2e",k:"#1a1a1a"},hs:3,idle:true},
@@ -1173,7 +1175,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="29 · chiringuito de Chan";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="30 · Bloque 2: Snoop y el Sargento Fumigón";
 const MAPNAME={yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -1472,6 +1474,7 @@ async function onStep(){
     await warp(ex[0],ex[1],ex[2],ex[3]);return}
   const tr=trainerSees();if(tr){await trainerBattle(tr);return}
   if(S.map==="park"&&!S.flags.chusta&&S.flags.starter&&Math.abs(S.x-15)<=1&&S.y>=10&&S.y<=11){await chustaEvent();return}
+  await checkGalletas();
   if(S.repel>0){S.repel--;if(S.repel===0)await say("El Ambientador de pino se ha acabado. Vuelven a oler los Pedomones.");return}
   if(t===","&&rnd()<0.13)await wildEncounter();
 }
@@ -1512,7 +1515,7 @@ async function interact(){
 async function door(b){
   if(b.id==="bar"&&!S.flags.poli){await say("La puerta del Bar de Paco tiene un precinto amarillo de La Pasma: «CERRADO POR INSPECCIÓN». Debajo, alguien ha escrito a boli: «mentira».");return}
   if(b.id==="chan"){await shop(CHAN);return}
-  if(b.id==="snoop"){await say("La caravana de Snoop Dogg. En la puerta hay una nota: «De gira. Vuelvo en un rato. Bueno, en un ratito largo. — Snoop». (Próximamente.)");return}
+  if(b.id==="snoop"){await say(S.q.bob>=1?"La autocaravana de Snoop Dogg. Dentro suena reggae con rap a todo volumen y sale más humo que de la Cabaña. Snoop está fuera, en la puerta.":"La autocaravana de Snoop Dogg. En la puerta hay una nota: «De gira. Vuelvo en un rato. Bueno, en un ratito largo. — Snoop». (Habla antes con Bob, en su huerto.)");return}
   if(b.id==="huerto"){await say(S.q.bob?"La verja del Huerto de Bob está cerrada con un candado con forma de hoja. Bob no abrirá hasta que pases sus tres pruebas.":"La verja del Huerto de Bob está cerrada. Al lado, un señor con rastas mira el cañón de La Pasma con cara de pena. Habla con él.");return}
   if(!b.to)return;
   const e=MAPS[b.to].entry;await warp(b.to,e[0],e[1],e[2]);
@@ -1642,8 +1645,9 @@ function questLines(){
     if(!S.flags.comunaIn)L.push("• Ve por la calle del parque hacia la derecha: La Senda lleva a la Ganja Life.");
     else if(!S.q.bob)L.push("• Habla con Bob Marley, en la puerta de su huerto (abajo a la derecha de Ganja Life).");
     else{L.push(S.flags.sendaCatch?"✅ 🌱 Atrapar un Pedomón en La Senda":"• 🌱 Atrapa un Pedomón en el césped de La Senda.");
-      L.push(S.flags.snoopWin?"✅ 🌀 Ganar a Snoop Dogg":"• 🌀 Gana a Snoop Dogg en el Concurso de Liar. (Está de gira: próximamente.)");
-      L.push(S.flags.fumigonWin?"✅ 🚔 Parar el cañón fumigador":"• 🚔 Para el cañón fumigador de La Pasma. (Próximamente.)")}}
+      L.push(S.flags.snoopWin?"✅ 🌀 Ganar a Snoop Dogg":S.q.snoop===2?"• 🌀 ¡Has ganado el Concurso! Ahora gánale el combate a Snoop.":S.q.snoop===1?(S.flags.chustaFollow?"• 🌀 Vuelve con Snoop para el Concurso de Liar, con el Chusta.":"• 🌀 Busca compañero para el Concurso: el Chusta está en la plaza."):"• 🌀 Habla con Snoop Dogg, delante de su autocaravana (arriba a la derecha).");
+      L.push(S.flags.fumigonWin?"✅ 🚔 Parar el cañón fumigador":S.flags.snoopWin?"• 🚔 Gana al Sargento Fumigón, al lado del cañón (abajo a la derecha).":"• 🚔 Para el cañón fumigador de La Pasma. (Su jefe llegará después de lo de Snoop.)");
+      if(S.flags.sendaCatch&&S.flags.snoopWin&&S.flags.fumigonWin)L.push("• Habla con Bob: ¡has pasado las tres pruebas!")}}
   else{
     const g=S.q.gorra,p=S.q.placa,w=S.q.walkie;
     L.push("📜 EL PRECINTO FALSO: consigue tres pruebas de que la inspección de La Pasma es mentira.");
@@ -1976,7 +1980,8 @@ async function chustaJoin(){
   sfx("alert");
   await sayAll(["El Chusta: ¡BRO! ¡Espera, espera! ¿Vas pa La Senda?","El Chusta: Me han dicho que al final está la Ganja Life y que la gente allí lo regala todo. Bueno, todo no. Pero comparten.","El Chusta: Y que La Pasma quiere fumigarle el huerto a un tal Bob. ¡Eso no se hace, bro! Me apunto.","El Chusta: Tú ve por La Senda, que yo me sé un atajo. Bueno, me lleva mi primo en la moto. Nos vemos en la plaza de Ganja Life, bro.","El Chusta se va corriendo hacia la calle… y se tropieza con un contenedor. Se levanta como si nada."]);
   S.flags.chustaJoin=true;save()}
-async function chustaTalk(){const f=S.fol;if(f&&folOn()){f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir]}
+async function chustaTalk(){
+  if(S.q.snoop===1&&!S.flags.chustaFollow){await sayAll(["El Chusta: ¿Un concurso de liar contra SNOOP DOGG? ¿Por parejas? Bro… BRO. Llevo toda la vida esperando este momento.","El Chusta: Yo pongo la boquilla. Tú pica y lía. Si algo sale mal, ha sido el viento.","¡El Chusta va contigo! Ahora te sigue. Ve a buscar a Snoop Dogg, delante de su autocaravana."]);S.flags.chustaFollow=true;placeFol();save();return}const f=S.fol;if(f&&folOn()){f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir]}
   const L=[];
   if(S.map==="senda")L.push("El Chusta: Bro, los hippies de aquí llevan todo hierba. Con un Pedomón de Fuego o de Veneno te los meriendas.","El Chusta: ¿Has visto esas palmeras? Aquí no hay palmeras, bro. Algo raro le han echado al agua.","El Chusta: Atrapa algún Pedomón de por aquí, que dicen que a Bob le mola la gente que cuida a los bichos.");
   if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: El Salva me echó las cartas una vez y me dijo que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
@@ -1988,7 +1993,9 @@ async function bobTalk(){
     await sayAll(["Bob Marley: Easy, easy, my friend… No te acerques mucho, que la cosa está tensa.","Bob Marley: Ese cañón de ahí es de La Pasma. Dicen que van a FUMIGAR mi huerto. Mis plantas… mis niñas…","Bob Marley: Es la «Ley Seca», man. Primero el bar de vuestro barrio, ahora mi huerto. Quieren que nadie disfrute de nada.","Bob Marley: Yo no abro el Huerto a cualquiera. Si quieres retarme, demuéstrame tres cosas:","Bob Marley: 🌱 Uno: que respetas a las criaturas. Atrapa un Pedomón en La Senda.","Bob Marley: 🌀 Dos: que tienes arte con las manos. Gana a Snoop Dogg en el Concurso de Liar. Cuando vuelva de gira, claro.","Bob Marley: 🚔 Tres: que tienes valor. Para a quien maneja ese cañón fumigador.","Bob Marley: One love, my friend. Y no corras. Aquí nadie corre."]);return}
   const p1=!!S.flags.sendaCatch,p2=!!S.flags.snoopWin,p3=!!S.flags.fumigonWin;
   await say(`Bob Marley: ¿Cómo va eso, my friend?\n${p1?"✅":"⬜"} 🌱 Atrapar un Pedomón en La Senda\n${p2?"✅":"⬜"} 🌀 Ganar a Snoop Dogg en el Concurso de Liar\n${p3?"✅":"⬜"} 🚔 Parar el cañón fumigador de La Pasma`);
-  if(p1&&!p2)await say("Bob Marley: Snoop está de gira, pero dicen que vuelve muy pronto. Y el del cañón… ese aparece cuando le da la gana. (Próximamente.)");
+  if(p1&&p2&&p3){await sayAll(["Bob Marley: … Lo has conseguido, my friend. Las tres pruebas. El cañón apagado, Snoop vencido y mis niñas a salvo.","Bob Marley: Ahora sí: el Huerto está abierto para ti. Pero dentro mandan mis hippies… y luego, yo. (El gimnasio de Bob abre en el Bloque 3: ¡muy pronto!)","Bob Marley: One love. Y lo de Salva… sí, yo también hablé con él."]);return}
+  if(p1&&!p2)await say("Bob Marley: Snoop ya ha vuelto de gira. Está delante de su autocaravana, arriba a la derecha. Te va a pedir que busques compañero.");
+  else if(p1&&p2&&!p3)await say("Bob Marley: ¡Ahí está! El Sargento Fumigón ha llegado al cañón. Páralo, my friend. Es el del traje amarillo.");
   else if(!p1)await say("Bob Marley: Empieza por lo fácil, man. Ve a La Senda, pisa el césped y atrapa algo. Con cariño.");
   else await say(pick(["Bob Marley: Everything's gonna be alright, man. Hablé con Salva.","Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
 async function marujaTalk(){
@@ -2111,7 +2118,7 @@ async function veganTalk(n){
 async function shaggyTalk(){
   const q=S.q.galletas||0;
   if(q===0){S.q.galletas=1;S.gallF={};save();sfx("quest");
-    await sayAll(["Shaggy: ¡Caray, tío! ¿Tienes algo de comer? Scooby y yo tenemos un hambre… del tipo que te entra después de… bueno, ya sabes.","Scooby: ¡Rooby-roo!","Shaggy: Se nos han perdido las Scooby Galletas. Tres paquetes. Creo que se cayeron de la furgo por La Senda… y una se la llevó el viento a una palmera de aquí.","Shaggy: Si nos las traes, te doy mis gafas redondas. Con ellas todo se ve más… redondo."]);return}
+    await sayAll(["Shaggy: ¡Caray, tío! ¿Tienes algo de comer? Scooby y yo tenemos un hambre… del tipo que te entra después de… bueno, ya sabes.","Scooby: ¡Rooby-roo!","Shaggy: Se nos han perdido las Scooby Galletas. Tres paquetes. Creo que se cayeron de la furgo por La Senda… y una se la llevó el viento a una palmera de aquí.","Shaggy: Si nos las traes, te doy mis gafas redondas. Con ellas todo se ve más… redondo.","Shaggy: Tranqui, que se ven desde lejos: brillan. Solo tienes que pasar al lado y Scooby te avisa."]);return}
   if(q===1){const got=Object.keys(S.gallF||{}).length;
     if(got>=3){S.q.galletas=2;S.accU.ag3=true;S.money+=50;save();sfx("quest");
       await sayAll(["Shaggy: ¡LAS GALLETAS! ¡Scooby, colega, estamos salvados!","Scooby: ¡Rí, rí! *ñam ñam ñam*","Shaggy: Toma, tío, mis gafas redondas y 50 pavos. Las galletas no valen tanto, pero el hambre sí.","¡Consigues las 🕶️ Gafas redondas hippies y 50 pavos! (Póntelas en el Mercadillo, con Saray.)"]);return}
@@ -2132,7 +2139,79 @@ async function lunaTalk(){
     await say(pick(["Abuela Luna: Tengo 93 años. El secreto: infusiones, siesta y hablar con Salva una vez al mes.","Abuela Luna: Bob era un crío cuando llegó. Le enseñé a plantar. Ahora planta mejor que yo, el muy…","Abuela Luna: Esa Pasma no sabe lo que hace. Fumigar plantas… Las plantas también sienten, criatura. Sobre todo las de Bob.","Abuela Luna: Shaggy viene cada día a por galletas de avena. Le digo que son para personas. Le da igual.","Abuela Luna: Los cuarzos curan. El kebab de Abdul también, me han dicho. Cada uno con su fe."]))}}
 const RICARDITO={n:"Ricardito",hi:"Ricardito: ¡Hey, bro! Soy Ricardito, el hermano pequeño de Richard. Él vende MTs con estilo; yo, con flow. Mismas MTs, menos corbata.",
   lines:["Ricardito: Mi hermano Richard dice que soy un hippie. Yo digo que él es un estirado. Los dos tenemos razón.","Ricardito: ¿Que por qué me va tan bien? Hablé con Salva, bro.","Ricardito: Richard me llama «la oveja verde de la familia». Me lo tomo como un cumplido.","Ricardito: Una MT a tiempo vale más que diez Calditos. Eso lo dice mi hermano. Yo digo que vale más que once."]};
+/* ===================== BLOQUE 2: SNOOP DOGG, CONCURSO DE LIAR Y EL SARGENTO FUMIGÓN ===================== */
+const SNOOP_PAL={h:"#1a1a1a",s:"#6a4a2a",e:"#222",c:"#3a3a6a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"};
+const FUMIGON_PAL={h:"#1d2a5a",s:"#f1c27d",e:"#222",c:"#e8d040",z:"#1a1a1a",p:"#e8d040",k:"#111"};
+async function snoopTalk(){
+  const q=S.q.snoop||0;
+  if(q===0){S.q.snoop=1;save();sfx("quest");
+    await sayAll(["Snoop Dogg: Yo, yo, yo… ¿Qué pasa, homie? Acabo de volver de gira. Ganja Life, baby. Home sweet home.","Snoop Dogg: ¿Bob te ha mandado? Ya me imagino. Quiere que alguien le gane a Snoop en el Concurso de Liar. Nadie lo ha conseguido nunca, homie.","Snoop Dogg: Pero el concurso es por PAREJAS. Yo voy con mi socio, Big Snoopy. Tú búscate un compañero que sepa poner una boquilla sin liarla.","Snoop Dogg: Cuando lo tengas, vuelve. Fo shizzle."]);return}
+  if(q===1){
+    if(!S.flags.chustaFollow){await say(pick(["Snoop Dogg: ¿Y tu compañero, homie? Solo no se puede. Las reglas son las reglas. Bueno, las mías.","Snoop Dogg: Busca a alguien. ¿Ese chaval del chándal azul de la plaza? Tiene pinta de liarla. Perfecto."]));return}
+    await sayAll(["Snoop Dogg: ¿Este es tu compañero? … ¿En serio, homie?","El Chusta: ¡Eh! Que yo pongo boquillas desde los doce, bro. Bueno, desde los catorce. Legalmente, desde los dieciocho.","Snoop Dogg: Ok, ok. Tres rondas: picar, boquilla y liar. Gana el porro más bonito. Big Snoopy, ¡música!"]);
+    closeDlg();const r=await liarContest();
+    if(r.me<=r.snoop){await say(`Snoop Dogg: ${r.snoop} a ${r.me}, homie. Snoop sigue invicto. Vuelve cuando quieras, que aquí siempre hay papel.`);return}
+    S.q.snoop=2;save();sfx("quest");
+    await sayAll([`Snoop Dogg: … ${r.me} a ${r.snoop}. Hacía veinte años que nadie me ganaba liando. Respect, homie.`,"El Chusta: ¡TOMAAA! ¡Bro! ¡Hemos ganado a Snoop Dogg! Mi madre no se lo va a creer. Mejor no se lo cuento.","Snoop Dogg: Pero un porro bonito no es nada sin un Pedomón que lo defienda. Vamos a ver qué tal combates."])}
+  if((S.q.snoop||0)===2){
+    const win=await battle([newMon("pegamentin",14),newMon("ogkush",15),newMon("polenprensado",16)],{trainer:{name:"Snoop Dogg",short:"Snoop",pal:SNOOP_PAL,hs:3,money:250,
+      challenge:"¡Snoop Dogg, el rey del Concurso de Liar, te desafía!",lose:"Snoop Dogg: Drop it like it's hot… Me has tumbado, homie. Bob tenía razón contigo."}});
+    if(!win){await say("Snoop Dogg: Easy, homie. Vuelve cuando tus Pedomones hayan dormido la siesta.");return}
+    S.q.snoop=3;S.flags.snoopWin=true;S.flags.chustaFollow=false;S.fol=null;S.accU.ag3=true;save();sfx("quest");
+    await sayAll(["Snoop Dogg: Toma, homie. Las gafas redondas de mi gira del 98. Si ya tenías unas, ahora tienes unas de Snoop.","Snoop Dogg: Y dile a Bob que Snoop le respeta. Esa Pasma no va a tocar su huerto mientras yo esté aquí. Bueno, mientras tú estés aquí.","El Chusta: Bro, yo me vuelvo al banco de la plaza, que me ha dado el bajón. Ha sido el mejor día de mi vida.","✅ Prueba de Bob: ¡Snoop Dogg vencido!"]);return}
+  await say(pick(["Snoop Dogg: Fo shizzle, todo va bien, homie. Hablé con Salva.","Snoop Dogg: Gin and juice… y kebab de Abdul. Esa es mi dieta de gira.","Snoop Dogg: Ese Chusta tiene futuro, homie. Pero que deje de deber kebabs."]))}
+// Concurso de Liar: 3 rondas (picar · boquilla del Chusta · liar y sellar)
+function liarContest(){
+  return new Promise(res=>{
+    MUS.hold=true;setMusic(null);const stopBeat=gallosBeat();
+    const sc=[0,0,0],sn=[ri(70,92),ri(66,90),ri(72,94)];let round=0,keyH=null;const kd=e=>{if(keyH&&!e.repeat){const r=keyH(e);if(r){e.preventDefault();e.stopPropagation()}}};addEventListener("keydown",kd,true);
+    const isA=e=>e.key===" "||e.key==="Enter"||e.key==="z"||e.key==="Z";
+    const head=(t,sub)=>`<h2>🌀 Concurso de Liar · ${t}</h2><div class="hype"><div><small>Tú y el Chusta · ${sc.reduce((a,b)=>a+b,0)}</small><div class="hb"><i style="width:${Math.min(100,sc.reduce((a,b)=>a+b,0)/3)}%"></i></div></div><div><small>Snoop y Big Snoopy · ${sn.slice(0,round).reduce((a,b)=>a+b,0)}</small><div class="hb mc"><i style="width:${Math.min(100,sn.slice(0,round).reduce((a,b)=>a+b,0)/3)}%"></i></div></div></div>${sub?`<p>${sub}</p>`:""}`;
+    function between(txt,next){keyH=null;overlay(head(["Picar","Boquilla","Liar"][Math.min(round,2)])+`<div class="verse">${esc(txt)}</div><div class="btns"><button class="big" type="button" id="lc-n">Seguir ▶</button></div>`,{focusId:"lc-n"});$("lc-n").onclick=next}
+    // Ronda 1: picar (machacar el botón)
+    function r1(){let n=0,t0=0,on=false;const T=4000;
+      overlay(head("Ronda 1/3: Picar","Pulsa lo más rápido que puedas para picar la hierba. ¡4 segundos!")+`<div class="tbar"><i id="lc-t"></i></div><div class="plate" id="lc-p" style="font-size:22px">⚙️ 0 %</div><button class="big puff" type="button" id="lc-b">⚙️ ¡PICA! (o machaca Espacio)</button>`);pending={key(){}};
+      const hit=()=>{if(!on){on=true;t0=now();tick()}if(now()-t0>T)return;n++;sfx("sel");const p=$("lc-p");if(p)p.textContent="⚙️ "+Math.min(100,n*6)+" %"};
+      $("lc-b").addEventListener("pointerdown",e=>{e.preventDefault();hit()});keyH=e=>{if(isA(e)){hit();return true}};
+      function tick(){const q=1-(now()-t0)/T,b=$("lc-t");if(b)b.style.width=Math.max(0,q*100)+"%";if(q>0)requestAnimationFrame(tick);else{sc[0]=Math.min(100,n*6);round=1;sfx(sc[0]>=80?"win":"buy");
+        between(`Has picado al ${sc[0]} %. ${sc[0]>=90?"Fino como harina. Snoop levanta una ceja.":sc[0]>=60?"Bien picadito. Se puede trabajar.":"Quedan trozos como garbanzos. Big Snoopy se ríe."} Snoop y Big Snoopy sacan ${sn[0]}.`,r2)}}}
+    // Ronda 2: la boquilla del Chusta (a veces la lía y hay que salvarla con flechas)
+    function r2(){keyH=null;const lia=rnd()<.65;
+      if(!lia){sc[1]=ri(80,95);round=2;between(`El Chusta pone la boquilla… ¡y le sale perfecta! «Desde los doce, bro». ${sc[1]} puntos. Snoop y Big Snoopy sacan ${sn[1]}.`,r3);return}
+      const AR=["up","right","down","left"],SYM={up:"⬆️",right:"➡️",down:"⬇️",left:"⬅️"},seq=Array.from({length:5},()=>pick(AR));let i=0,t0=now(),done=false;const T=5000;
+      const draw=()=>{overlay(head("Ronda 2/3: Boquilla","¡El Chusta la está liando! Se le está deshaciendo el cartón. Pulsa las flechas en orden para salvarla.")+`<div class="tbar"><i id="lc-t"></i></div><div class="ticket" style="font-size:26px;justify-content:center">${seq.map((a,k)=>`<span class="${k<i?"done":k===i?"cur":""}">${SYM[a]}</span>`).join("")}</div><div class="btns cpm">${AR.map(a=>`<button class="big alt" type="button" id="lc-${a}">${SYM[a]}</button>`).join("")}</div>`);pending={key(){}};
+        AR.forEach(a=>{$("lc-"+a).onclick=()=>press2(a)})};
+      function press2(a){if(done)return;if(a===seq[i]){i++;sfx("sel");if(i>=seq.length){end2(true)}else draw()}else{sfx("weak");t0-=600}}
+      keyH=e=>{const m={ArrowUp:"up",ArrowRight:"right",ArrowDown:"down",ArrowLeft:"left",w:"up",d:"right",s:"down",a:"left"}[e.key];if(m){press2(m);return true}};
+      function end2(ok){if(done)return;done=true;keyH=null;const left=Math.max(0,1-(now()-t0)/T);sc[1]=ok?Math.round(60+left*35):Math.round(i*10);round=2;sfx(ok?"buy":"weak");
+        between(ok?`¡Salvada! La boquilla queda decente. «Lo tenía controlado, bro». ${sc[1]} puntos. Snoop y Big Snoopy sacan ${sn[1]}.`:`La boquilla se ha deshecho… El Chusta: «Ha sido el viento, bro». ${sc[1]} puntos. Snoop y Big Snoopy sacan ${sn[1]}.`,r3)}
+      draw();(function tk(){if(done)return;const q=1-(now()-t0)/T,b=$("lc-t");if(b)b.style.width=Math.max(0,q*100)+"%";if(q<=0){end2(false);return}requestAnimationFrame(tk)})()}
+    // Ronda 3: liar y sellar (parar el cursor en la zona verde 3 veces)
+    function r3(){let hits=0,tries=0,pos=0,dir=1,zw=26,zc=50,last=now(),done=false;const steps=["Enrollar","Apretar","Chupar y sellar"];
+      const draw=()=>{overlay(head("Ronda 3/3: Liar",`Paso ${Math.min(tries+1,3)}/3: <b>${steps[Math.min(tries,2)]}</b>. Pulsa cuando la línea esté en lo verde.`)+`<div class="lungwrap" style="width:100%;height:40px;border-radius:10px"><div class="zone" id="lc-z" style="top:0;bottom:0;left:${zc-zw/2}%;width:${zw}%;height:auto;border:0;border-left:2px solid var(--good);border-right:2px solid var(--good)"></div><div id="lc-c" style="position:absolute;top:0;bottom:0;width:3px;background:var(--amber);left:0"></div></div><div class="plate" style="font-size:22px">${"✅".repeat(hits)}${"❌".repeat(tries-hits)}${"⬜".repeat(3-tries)}</div><button class="big puff" type="button" id="lc-b">📜 ¡AHORA! (Espacio)</button>`);pending={key(){}};
+        $("lc-b").addEventListener("pointerdown",e=>{e.preventDefault();stop()})};
+      function stop(){if(done)return;tries++;const ok=Math.abs(pos-zc)<=zw/2;if(ok){hits++;sfx("buy")}else sfx("weak");if(tries>=3){done=true;keyH=null;fin();return}zw=Math.max(12,zw-6);zc=20+rnd()*60;draw()}
+      keyH=e=>{if(isA(e)){stop();return true}};
+      function fin(){sc[2]=[10,45,75,100][hits];round=3;between(`${["El porro parece una salchicha rota.","Un poco torcido, pero fuma.","¡Bien liado! Recto y prieto.","¡PERFECTO! Parece de fábrica. Big Snoopy aplaude."][hits]} ${sc[2]} puntos. Snoop y Big Snoopy sacan ${sn[2]}.`,end)}
+      draw();(function tk(nw){if(done)return;const dt=Math.min(.05,(performance.now()-last)/1000);last=performance.now();pos+=dir*dt*(70+tries*25);if(pos>100){pos=100;dir=-1}if(pos<0){pos=0;dir=1}const c=$("lc-c");if(c)c.style.left=pos+"%";requestAnimationFrame(tk)})()}
+    function end(){const me=sc.reduce((a,b)=>a+b,0),sno=sn.reduce((a,b)=>a+b,0);removeEventListener("keydown",kd,true);keyH=null;stopBeat();MUS.hold=false;
+      overlay(`<h2>🌀 Resultado del Concurso</h2><p>Picar ${sc[0]} · Boquilla ${sc[1]} · Liar ${sc[2]}</p><div class="hype"><div><small>Tú y el Chusta</small><div class="bigsc">${me}</div></div><div><small>Snoop y Big Snoopy</small><div class="bigsc">${sno}</div></div></div><p>${me>sno?"🏆 ¡Le habéis ganado a Snoop Dogg!":"💨 Gana Snoop… esta vez."}</p><div class="btns"><button class="big" type="button" id="lc-end">Vale</button></div>`,{focusId:"lc-end"});
+      sfx(me>sno?"win":"weak");$("lc-end").onclick=()=>{closeOverlay();res({me,snoop:sno})}}
+    r1();
+  });
+}
+async function fumigonTalk(){
+  await sayAll(["Sargento Fumigón: ¡ALTO! ¡Sargento Fumigón, de La Pasma, División Antialegría!","Sargento Fumigón: Por orden del Comisario y en aplicación de la Ley Seca, este huerto será fumigado. Con lejía. Y con aburrimiento.","Sargento Fumigón: ¿Que qué me ha hecho Bob? Nada. Pero está contento. Y eso, en este país, es sospechoso.","Sargento Fumigón: El plan va perfecto. Hablé con Salva y me dijo que hoy era mi día. ¡A por ti!"]);
+  const win=await battle([newMon("bezoya5l",17),newMon("cafemaquina",16),newMon("cajadonuts",18)],{music:"fumigon",trainer:{name:"Sargento Fumigón",short:"Fumigón",pal:FUMIGON_PAL,hs:2,fat:true,money:400,leader:true,
+    challenge:"¡El Sargento Fumigón, de La Pasma, te corta el paso!",lose:"Sargento Fumigón: ¡Imposible! Salva me dijo que hoy era mi día… ¡Me ha engañado! ¡Retirada!"}});
+  if(!win){await say("Sargento Fumigón: ¡Ja! La Ley Seca no se para con cuatro hippies y un chaval. Vuelve cuando tengas Pedomones de verdad.");return}
+  S.flags.fumigonWin=true;save();sfx("quest");
+  await sayAll(["El Sargento Fumigón sale corriendo con el agente detrás. Se le cae la gorra. Y un donut.","El cañón fumigador se queda apagado. Alguien de Ganja Life le pone una maceta en el tubo.","✅ Prueba de Bob: ¡cañón fumigador parado!","Bob Marley (desde la verja): ¡Lo has hecho, my friend! Ven a hablar conmigo."])}
+/* ---- Galletas de Scooby: se ven en el mapa y se recogen al pasar al lado ---- */
+async function checkGalletas(){if(S.q.galletas!==1)return;S.gallF=S.gallF||{};
+  for(let i=0;i<GALLETAS.length;i++){const g=GALLETAS[i];if(g.map!==S.map||S.gallF[i])continue;if(Math.abs(g.x-S.x)+Math.abs(g.y-S.y)<=1){S.gallF[i]=1;sfx("quest");save();await say(GALLETAS[i].t+` (${Object.keys(S.gallF).length}/3)`+(Object.keys(S.gallF).length>=3?" ¡Ya las tienes todas! Llévaselas a Shaggy.":""))}}}
 const TALK2={
+  snoop:snoopTalk,fumigon:fumigonTalk,
   luna:lunaTalk,chan:()=>shop(CHAN),ricardito:()=>mtShop(RICARDITO),
   chusta2:chustaTalk,bob:bobTalk,guardia:guardiaTalk,shaggy:shaggyTalk,maruja:marujaTalk,maestro:maestroTalk,abuelorasta:abueloRastaTalk,inaki:inakiTalk,lucia:veganTalk,bruno:veganTalk,
   scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Ralva! ¡Ralva rueno! (Scooby también ha hablado con Salva.)","Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
@@ -2427,8 +2506,8 @@ async function battleOutro(){
 function eMovePick(){if(!B.rig)return pick(B.e.moves);
   const ms=[...B.e.moves].sort((a,b)=>(MV[a].p||0)*(MV[a].p?tmult(MV[a].t,SP[B.p.sp].t):1)-(MV[b].p||0)*(MV[b].p?tmult(MV[b].t,SP[B.p.sp].t):1));
   return rnd()<.75?ms[0]:pick(ms)}
-async function battle(enemies,{trainer,special,easy}){
-  await battleIntro({enemies,p:S.team.find(m=>m.hp>0)||S.team[0],trainer,special});B.rig=!!easy;
+async function battle(enemies,{trainer,special,easy,music}){
+  await battleIntro({enemies,p:S.team.find(m=>m.hp>0)||S.team[0],trainer,special});B.rig=!!easy;B.music=music||null;
   let result=null;
   while(result===null){
     const act=await playerAction();
@@ -2786,6 +2865,10 @@ function renderWorld(t){
   for(let y=Math.max(0,y0);y<=Math.min(m.h-1,y0+SH/T+1);y++)for(let x=Math.max(0,x0);x<=Math.min(m.w-1,x0+SW/T+1);x++){
     let ch=m.g[y][x];if(ch==="H"||ch==="D")ch=".";else if(ch==="i"&&S.picked&&S.picked[PICK_AT[S.map+","+x+","+y]])ch=".";drawTile(ch,x,y,x*T-ox,y*T-oy,t,m.style)}
   m.builds.forEach(b=>drawBuilding(b,ox,oy,t));
+  if(S.q.galletas===1)GALLETAS.forEach((g,i)=>{if(g.map!==S.map||(S.gallF||{})[i])return;const gx=g.x*T-ox+8,gy=g.y*T-oy+2+Math.sin(t/300+i)*2;
+    ctx.globalAlpha=.35+Math.sin(t/250)*.15;ctx.fillStyle="#fff4a0";ctx.beginPath();ctx.arc(gx,gy,8,0,7);ctx.fill();ctx.globalAlpha=1;
+    ctx.fillStyle="#c8862a";ctx.beginPath();ctx.arc(gx,gy,5,0,7);ctx.fill();ctx.fillStyle="#8a5a1a";[[-2,-1],[2,1],[0,2],[1,-2]].forEach(([a,b2])=>{ctx.fillRect(gx+a,gy+b2,1,1)});
+    if(Math.floor(t/300+i)%2){px(gx+6,gy-6,1,3,"#ffffff");px(gx+5,gy-5,3,1,"#ffffff")}});
   const list=NPCS.filter(n=>n.map===S.map&&npcVisible(n)).map(n=>({y:n.y,draw:()=>{const bob=n.idle&&Math.floor(t/700+n.x)%2?1:0;const nx=n.x*T-ox,ny=n.y*T-oy;
     if(n.dog){drawDog(nx,ny,n.dir,t);return}
     drawChar(n.pal,n.dir,nx,ny,0,bob,n.hs,n.ts,n.fat,n.acc);

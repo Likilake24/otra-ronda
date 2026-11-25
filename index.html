@@ -955,7 +955,7 @@ MAPS.chustahouse={w:8,h:7,style:"casa",signs:{},builds:[],lamps:[],g:rowsGrid(["
 function interior420(id,rows,tx,ty,txt){const H=rows.length,W=rows[0].length,ex={};[...rows[H-1]].forEach((c,i)=>{if(c==="e")ex[i+","+(H-1)]=["comuna",tx,ty,"down"]});
   MAPS[id]={w:W,h:H,style:"c420",music:"c420",signs:{},builds:[],lamps:[],g:rowsGrid(rows),exits:ex,entry:[rows[H-1].indexOf("e"),H-2,"up"],txt}}
 interior420("tarot",["wwwwwwww","wgokoogw","woooooow","whoooohw","woooooow","woooooow","wwweewww"],4,6,
-  {k:"Una bola de cristal. Dentro ves… tu reflejo con cara de no haber dormido.",h:"Un sillón de terciopelo morado. Huele a incienso y a gato.",g:"Una planta que, según Maruja, «habla». Hoy no tiene el día.",w:"Cartas del tarot clavadas en la pared, una foto de Rappel y un atrapasueños."});
+  {k:"Una bola de cristal. Dentro ves… tu reflejo con cara de no haber dormido.",h:"Un sillón de terciopelo morado. Huele a incienso y a gato.",g:"Una planta que, según Salva, «habla». Hoy no tiene el día.",w:"Cartas del tarot clavadas en la pared, una foto de Rappel y un atrapasueños."});
 interior420("cabana",["wwwwwwwwww","wqgoooogqw","woooooooow","wxooooooxw","woooooooow","woooooooow","wwwweewwww"],11,6,
   {q:"Una cachimba de cristal gigante. Tiene más horas de vuelo que un piloto.",x:"Cojines en el suelo con manchas de todos los colores. Mejor no preguntar.",g:"Una planta. Muy bien cuidada. Demasiado bien cuidada.",w:"Un cartel: «CONCURSO ¿CUÁNTAS CALADAS? — Récord actual: 10, El Maestro (1987)»."});
 interior420("casarasta",["wwwwwwww","wgoqoomw","woooooow","whotoohw","woooooow","woooooow","wwweewww"],22,6,
@@ -1140,8 +1140,8 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="22 · La Senda y la Comuna 420";
-const MAPNAME={park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Comuna 420",tarot:"Tarot de Maruja",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
+const NET_PREFIX="otraronda-v1-";const GAME_VER="23 · el tarotista Salva";
+const MAPNAME={park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Comuna 420",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -1880,7 +1880,7 @@ async function chustaJoin(){
 async function chustaTalk(){const f=S.fol;f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir];
   const L=[];
   if(S.map==="senda")L.push("El Chusta: Bro, los hippies de aquí llevan todo hierba. Con un Pedomón de Fuego o de Veneno te los meriendas.","El Chusta: ¿Has visto esas palmeras? Aquí no hay palmeras, bro. Algo raro le han echado al agua.","El Chusta: Atrapa algún Pedomón de por aquí, que dicen que a Bob le mola la gente que cuida a los bichos.");
-  if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: La tarotista me dijo una vez que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
+  if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: El Salva me echó las cartas una vez y me dijo que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
   L.push("El Chusta: ¿Sabes que Abdul me ha bloqueado en WhatsApp? Por 14 kebabs, bro. CATORCE.","El Chusta: Mi madre dice que si no vuelvo antes de las 12 me cambia la cerradura. Otra vez.","El Chusta: Tú tranquilo, que yo te cubro la espalda. Desde atrás. Bastante atrás.");
   sfx("blip");await say(pick(L))}
 async function bobTalk(){
@@ -1893,10 +1893,10 @@ async function bobTalk(){
   else await say(pick(["Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
 async function marujaTalk(){
   const hoy=new Date().toDateString();
-  await say("Madame Maruja: Pasa, pasa, cariño… Te estaba esperando. Lo he visto en las cartas. Bueno, y en la cámara del timbre.");
-  if(S.lastTarot===hoy){await say(pick(["Madame Maruja: Las cartas solo hablan una vez al día, cariño. Están cansadas. Y yo también.","Madame Maruja: Vuelve mañana. Hoy ya te he leído el futuro, y el presente me da un poco de pena."]));return}
-  const j=await choose("Madame Maruja: Una tirada son 10 pavos. ¿Quieres saber tu futuro?",[{label:"🔮 Sí, échame las cartas (10 pavos)",disabled:S.money<10},{label:"Mejor no, que da miedo"}],{cols:1});
-  if(j!==0){await say("Madame Maruja: Haces bien. El futuro está sobrevalorado.");return}
+  await say("Salva el Tarotista: Pasa, pasa, cariño… Te estaba esperando. Lo he visto en las cartas. Bueno, y en la cámara del timbre.");
+  if(S.lastTarot===hoy){await say(pick(["Salva el Tarotista: Las cartas solo hablan una vez al día, cariño. Están cansadas. Y yo también.","Salva el Tarotista: Vuelve mañana. Hoy ya te he leído el futuro, y el presente me da un poco de pena."]));return}
+  const j=await choose("Salva el Tarotista: Una tirada son 10 pavos. ¿Quieres saber tu futuro?",[{label:"🔮 Sí, échame las cartas (10 pavos)",disabled:S.money<10},{label:"Mejor no, que da miedo"}],{cols:1});
+  if(j!==0){await say("Salva el Tarotista: Haces bien. El futuro está sobrevalorado.");return}
   S.money-=10;S.lastTarot=hoy;save();closeDlg();await tarotGame()}
 const TAROT=[{n:"El Porro",e:"🌿",d:"Verás cosas raras… Los Pedomones brillis te van a salir 5 veces más en tus próximos 20 encuentros.",fx:"luck"},
  {n:"La Litrona",e:"🍺",d:"Dinero inesperado. Alguien te devuelve una deuda: +40 pavos. (No es el Chusta.)",fx:"money"},
@@ -1909,9 +1909,9 @@ const TAROT=[{n:"El Porro",e:"🌿",d:"Verás cosas raras… Los Pedomones brill
 function tarotGame(){
   return new Promise(res=>{
     const deck=[...TAROT].sort(()=>rnd()-.5).slice(0,3);let picked=-1;
-    const render=()=>{overlay(`<h2>🔮 El Tarot de Madame Maruja</h2><p>${picked<0?"Concéntrate… y elige una carta. Solo una. Elige con el corazón. O al azar, que viene a ser lo mismo.":"Madame Maruja da la vuelta a la carta muy despacio…"}</p>
+    const render=()=>{overlay(`<h2>🔮 El Tarot de Salva</h2><p>${picked<0?"Concéntrate… y elige una carta. Solo una. Elige con el corazón. O al azar, que viene a ser lo mismo.":"Salva da la vuelta a la carta muy despacio…"}</p>
       <div class="tarot">${deck.map((c,i)=>`<button type="button" class="tcard${picked===i?" up":""}${picked>=0&&picked!==i?" dim":""}" id="tc-${i}"${picked>=0?" disabled":""}>${picked===i?`<span class="te">${c.e}</span><b>${esc(c.n)}</b>`:`<span class="te">✦</span><b>?</b>`}</button>`).join("")}</div>
-      ${picked>=0?`<p class="tres">${esc(deck[picked].d)}</p><div class="btns"><button class="big" type="button" id="tc-ok">Gracias, Maruja</button></div>`:""}`,{focusId:picked>=0?"tc-ok":"tc-1"});
+      ${picked>=0?`<p class="tres">${esc(deck[picked].d)}</p><div class="btns"><button class="big" type="button" id="tc-ok">Gracias, Salva</button></div>`:""}`,{focusId:picked>=0?"tc-ok":"tc-1"});
       if(picked<0)deck.forEach((c,i)=>{$("tc-"+i).onclick=()=>{picked=i;sfx("evo");apply(c);render()}});else $("tc-ok").onclick=()=>{closeOverlay();res()}};
     function apply(c){if(c.fx==="luck")S.luck=20;else if(c.fx==="money")S.money+=40;else if(c.fx==="caldito")S.bag.caldito=(S.bag.caldito||0)+2;else if(c.fx==="lose")S.money=Math.max(0,S.money-15);else if(c.fx==="grinder")S.bag.grinder=(S.bag.grinder||0)+3;else if(c.fx==="heal")S.team.forEach(m=>m.hp=maxhp(m));save()}
     render();
@@ -1972,7 +1972,7 @@ function caladasGame(){
 async function abueloRastaTalk(){
   if(!S.flags.abueloGift){S.flags.abueloGift=true;S.bag.grinder=(S.bag.grinder||0)+5;save();sfx("quest");
     await sayAll(["Abuelo Rasta: Bienvenido, hijo. Siéntate, que aquí no se viene a estar de pie.","Abuelo Rasta: Yo llegué a la Comuna en el 79, con una furgoneta y una semilla. Mira ahora.","Abuelo Rasta: Toma, para que atrapes a los Pedomones de hierba con respeto. Con cariño, ¿eh? Nada de apretar.","¡El Abuelo Rasta te da 5 Grinders!"]);return}
-  await say(pick(["Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: La Maruja me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
+  await say(pick(["Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: El Salva me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
 async function inakiTalk(){
   await say(pick(["Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
   const i=await choose("Iñaki el Okupa: ¿Una de Chinita, Papel o Mechero? Al mejor de tres.",[{label:"🎲 ¡Venga!"},{label:"❓ ¿Cómo va eso?"},{label:"Paso"}],{cols:1});

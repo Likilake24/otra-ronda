@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="48 · Logros, recreativa y cada uno en su sitio";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="49 · Guardería y experiencia que premia";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -6031,6 +6031,41 @@ function arcadeGame(){return new Promise(res=>{
 NPCS.forEach(n=>{if(n.trainer&&n.trainer.money&&!n.trainer._eco){n.trainer.money=Math.round(n.trainer.money*.75);n.trainer._eco=1}});
 
 /*</B4JUEGOS>*/
+/*<B4GUARDE>*/
+/* ===================== EXPERIENCIA QUE PREMIA IR POR DETRÁS y GUARDERÍA DE MARI CARMEN ===================== */
+// Si tu Pedomón tiene menos nivel que el rival, gana muchísima más experiencia (hasta ×4); si le sacas mucho nivel, gana menos.
+function xpFactor(myL,enL){const d=enL-myL;if(d>0)return Math.min(4,1+.2*d);return Math.max(.3,Math.pow((2*enL+10)/(enL+myL+10),2))}
+giveXp=async function(enemy){const p=B.p;if(p.hp<=0)return;const f=xpFactor(p.lvl,enemy.lvl);
+  const g=Math.max(1,Math.floor(SP[enemy.sp].xp*enemy.lvl/7*(B.trainer?1.5:1)*f));p.xp+=g;updHud();
+  await say(`${SP[p.sp].n} gana ${g} puntos de experiencia.${f>=1.6?" ¡Ha aprendido mucho de alguien más fuerte! (×"+f.toFixed(1)+")":""}`);
+  while(p.xp>=toNext(p.lvl)){p.xp-=toNext(p.lvl);const oldMax=maxhp(p);p.lvl++;p.hp+=maxhp(p)-oldMax;updHud();sfx("lvl");burst("star",PPOS.x,PPOS.y-24,20);
+    await say(`¡${SP[p.sp].n} sube a ${lvlTxt(p,true)}!`);await learnAt(p)}};
+
+// ---- Guardería Pedomón de Mari Carmen («Aquí se cuidan… más o menos») ----
+// Deja hasta 2 Pedomones. Suben rápido al principio y cada vez más despacio, con un tope según tus medallas. Cobra al recogerlos.
+function medallas(){return[S.flags.gym,S.flags.hoja,S.flags.neon,S.flags.costa,S.flags.terraza,S.flags.hoyales,S.flags.marruecos,S.flags.profe].filter(Boolean).length}
+function guardeCap(){return 12+8*medallas()}
+function guardeLvl(g){const min=(Date.now()-g.t0)/60000;const room=Math.max(0,Math.min(10,guardeCap()-g.lvl0));return g.lvl0+Math.floor(room*(1-Math.exp(-min/90)))}
+function guardeCost(g){return 20+8*(guardeLvl(g)-g.lvl0)}
+(function(){NPC_LOOK.marican={hs:9,ts:5};const m=MAPS.park;let spot=null;
+  for(const[x,y]of[[12,6],[13,6],[12,7],[11,6],[14,6],[12,8],[10,6]])if(m.g[y]&&WALK.has(m.g[y][x])){spot=[x,y];break}
+  if(spot)NPCS.push({id:"marican",map:"park",x:spot[0],y:spot[1],dir:"down",pal:{h:"#c87a3a",s:"#f1c27d",e:"#222",c:"#e04a9a",z:"#f4f4f4",p:"#3a6ad0",k:"#8a4a2a"},hs:9,ts:5,idle:true})})();
+TALK2.marican=async()=>{S.guarde=S.guarde||[];
+  await say(pick(["Mari Carmen: ¡Bienvenido a la Guardería Pedomón! Aquí se cuidan… más o menos. Les pongo la tele y unos frutos secos.","Mari Carmen: Yo de Pedomones sé un montón. Tengo cuatro en casa y uno en el congelador. Es broma. Creo.","Mari Carmen: Los dejas aquí, se pasan el día viendo Sálvame con los míos y suben de nivel. Ciencia."]));
+  while(true){const opts=[];S.guarde.forEach((g,i)=>{const L=guardeLvl(g);opts.push({label:`📦 Recoger a ${mName(g.m)}`,sub:`Nv ${g.lvl0} → ${L} · ${guardeCost(g)} pavos`,disabled:S.money<guardeCost(g)||S.team.length>=6})});
+    opts.push({label:"🍼 Dejar un Pedomón",disabled:S.guarde.length>=2||S.team.length<=1});opts.push({label:"❓ ¿Cómo funciona?"});opts.push({label:"👋 Nada, gracias"});
+    const i=await choose(`Mari Carmen: Tienes ${S.guarde.length}/2 aquí. Tope de nivel con tus medallas: ${guardeCap()}.`,opts,{cols:1});
+    const nG=S.guarde.length;
+    if(i<0||i===nG+2){await say("Mari Carmen: ¡Venga, guapo! Y no te los lleves al bar de Paco, que vuelven oliendo a orujo.");return}
+    if(i===nG+1){await sayAll(["Mari Carmen: Me dejas hasta dos Pedomones. Los primeros niveles los suben rápido; luego cada vez más despacio, que a todos nos cuesta.","Mari Carmen: No pasan del tope que marcan tus medallas: aquí no se hace nadie campeón viendo la tele.","Mari Carmen: Al recogerlos me pagas 20 pavos y 8 más por cada nivel que hayan subido. Los pañales no se pagan solos."]);continue}
+    if(i===nG){const t=await choose("¿A quién dejas con Mari Carmen?",S.team.map(m=>({label:mName(m),sub:lvlTxt(m)+(m.lvl>=guardeCap()?" · ya está en el tope":""),disabled:m.lvl>=guardeCap()})),{cols:1});if(t<0)continue;
+      const m=S.team.splice(t,1)[0];m.hp=maxhp(m);S.guarde.push({m,t0:Date.now(),lvl0:m.lvl});save();sfx("heal");await say(`Mari Carmen coge a ${mName(m)} en brazos y le pone un babero. «Ay, qué rico. Vuelve cuando quieras».`);continue}
+    const g=S.guarde[i];const L=guardeLvl(g),cost=guardeCost(g);S.money-=cost;const m=g.m;const learned=[];
+    for(let lv=g.lvl0+1;lv<=L;lv++)for(const[l,mv]of SP[m.sp].learn||[])if(l===lv&&MV[mv]&&!m.moves.includes(mv)){if(m.moves.length>=4)m.moves.shift();m.moves.push(mv);learned.push(MV[mv].n)}
+    m.lvl=L;m.xp=0;m.hp=maxhp(m);S.guarde.splice(i,1);S.team.push(m);save();sfx("lvl");
+    await say(`¡${mName(m)} vuelve contigo! ${L>g.lvl0?`Ha subido de nivel ${g.lvl0} a nivel ${L}.`:"No ha subido nada: ha estado durmiendo todo el rato."}${learned.length?" Ha aprendido: "+learned.join(", ")+".":""} Pagas ${cost} pavos.`)}};
+
+/*</B4GUARDE>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

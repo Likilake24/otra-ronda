@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="44 · Bar claro, láseres chungos y líderes con counters";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="45 · La sombra del Profe";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -2198,7 +2198,7 @@ function endingScreen(){
   return new Promise(res=>{const caught=DEX_ORDER.filter(s=>S.caught[s]).length;
     overlay(`<div class="title" style="display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:6vh"><div class="sign" style="font-size:clamp(36px,8vw,64px)">🏅 ¡CHAPA CONSEGUIDA!</div>
     <p style="font-size:18px;color:var(--fg)">Has echado a La Pasma y reabierto el Bar de Paco.</p><p>Pedomones capturados: ${caught} de ${DEX_ORDER.length} · Pavos: ${S.money}</p>
-    <p>Fin de esta parte de la demo. Puedes seguir haciendo misiones secundarias, completar la Destiladex, jugar a los minijuegos y retar a tus colegas en El Descampado.</p>
+    <p>Ahora puedes seguir con la historia o hacer misiones secundarias, completar la Destiladex, jugar a los minijuegos y retar a tus colegas en El Descampado.</p>
     <p style="font-family:var(--display);color:var(--amber);font-size:20px">Lo siguiente: La Senda y la Ganja Life, saliendo del parque por la derecha. ¿Otra ronda?</p><button class="big" type="button" id="end-ok">Seguir jugando</button></div>`);
     $("end-ok").onclick=()=>{closeOverlay();res()}});
 }
@@ -5795,6 +5795,66 @@ const _battleLeader=battle;
 battle=async function(team,opts){const tr=opts&&opts.trainer;if(tr&&tr.leader){const k=tr.short==="Lolo"?"lolo":tr.short==="Paco"?"paco":tr.short==="Bob"?"bob":null;if(k)team=LEADER_TEAMS[k]()}return _battleLeader(team,opts)};
 
 /*</B4FIX2>*/
+/*<B4CINE>*/
+/* ===================== HISTORIA · Cinemáticas «Mientras tanto…»: la sombra del Profe ===================== */
+// Escena a pantalla completa con franjas de cine, título, decorado animado y diálogo que se escribe solo.
+function cutaway(o){return new Promise(res=>{
+  overlay(`<div style="position:fixed;inset:0;background:#000;cursor:pointer" id="ct"><canvas id="ct-c" style="width:100%;height:100%;display:block"></canvas>
+    <div id="ct-t" style="position:absolute;left:6%;right:6%;bottom:13%;font:600 clamp(16px,2.6vw,24px) Rubik,Arial;color:#f4e7d4;text-shadow:0 2px 6px #000;min-height:3em"></div>
+    <div style="position:absolute;right:4%;bottom:4%;font:12px Rubik,Arial;color:#8a7560">Toca o pulsa para seguir</div></div>`,{onB:()=>{}});
+  const c=$("ct-c"),x=c.getContext("2d");let W=innerWidth,H=innerHeight;c.width=W;c.height=H;
+  const t0=performance.now();let li=-1,shown=0,lineT=0,done=false,raf=0;const L=o.lines;
+  const next=()=>{if(done)return;const full=L[li]||"";if(li>=0&&shown<full.length){shown=full.length;return}li++;shown=0;lineT=performance.now();if(li>=L.length){done=true;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);closeOverlay();res();return}sfx("blip")};
+  const kd=e=>{e.preventDefault();e.stopPropagation();next()};addEventListener("keydown",kd,true);$("ct").onclick=next;
+  const tick=nw=>{const el=(nw-t0)/1000;x.fillStyle="#000";x.fillRect(0,0,W,H);
+    (CUT_SCENES[o.scene]||CUT_SCENES.office)(x,W,H,el);
+    // franjas de cine y título
+    const bar=Math.min(H*.12,el*H*.4);x.fillStyle="#000";x.fillRect(0,0,W,bar);x.fillRect(0,H-bar,W,bar);
+    if(el<2.6){x.save();x.globalAlpha=Math.min(1,el*2)*(el>2?(2.6-el)/.6:1);x.fillStyle="#f2a93b";x.font=`700 ${Math.round(Math.min(W,H)*.045)}px "Pixelify Sans",Arial`;x.textAlign="center";x.fillText(o.title||"Mientras tanto…",W/2,H*.5);x.restore()}
+    else{if(li<0)next();const full=L[li]||"";shown=Math.min(full.length,Math.floor((nw-lineT)/28));$("ct-t").textContent=full.slice(0,shown)}
+    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+// decorados
+const CUT_SCENES={
+  // despacho del Comisario, de noche, con el teléfono
+  phone(x,W,H,t){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0c1020");g.addColorStop(1,"#1a1a2a");x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(let i=0;i<5;i++){x.fillStyle="#1e2436";x.fillRect(W*.62+i*W*.06,H*.18,W*.045,H*.3);x.fillStyle=Math.sin(t*3+i)>.2?"#3a6aff22":"#ff3a3a22";x.fillRect(W*.62+i*W*.06,H*.18,W*.045,H*.3)}
+    x.fillStyle="#3a2414";x.fillRect(W*.15,H*.62,W*.7,H*.06);x.fillStyle="#2a180c";x.fillRect(W*.18,H*.68,W*.04,H*.2);x.fillRect(W*.78,H*.68,W*.04,H*.2);
+    const cx=W*.42,cy=H*.72;try{const L=NPC_LOOK.comisario||{};x.imageSmoothingEnabled=false;drawCharBig(x,{h:"#8a8a8a",s:"#f1c27d",e:"#222",c:"#24346e",z:"#f2c14e",p:"#1a2a4a",k:"#111"},"down",cx,cy+Math.sin(t*2)*2,Math.max(4,H/90),L.hs||10,L.ts||8,true,L.acc,L)}catch(e){}
+    x.fillStyle="#c8202a";x.fillRect(cx+H*.07,cy-H*.22,H*.03,H*.08);x.fillStyle="#3a2414";x.fillRect(W*.15,H*.62,W*.7,H*.06);x.fillStyle="#5a3a1e";x.fillRect(W*.15,H*.62,W*.7,H*.012);if(Math.floor(t*4)%2){x.fillStyle="#fff";x.font=`${H*.03}px Arial`;x.fillText("📞",cx+H*.1,cy-H*.08)}
+    const lg=x.createRadialGradient(W*.3,H*.62,5,W*.3,H*.62,H*.4);lg.addColorStop(0,"rgba(255,220,150,.35)");lg.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=lg;x.fillRect(0,0,W,H)},
+  // la guarida del Profe: sillón de espaldas, brasa encendida, humo, pantallas con la Destiladex
+  office(x,W,H,t){x.fillStyle="#07060a";x.fillRect(0,0,W,H);
+    for(let i=0;i<6;i++){const sx=W*.08+i*W*.14,sy=H*.16;x.fillStyle="#10141a";x.fillRect(sx,sy,W*.12,H*.16);x.fillStyle=`rgba(80,220,140,${.25+.15*Math.sin(t*2+i)})`;x.fillRect(sx+4,sy+4,W*.12-8,H*.16-8);
+      x.fillStyle="rgba(200,255,220,.6)";for(let k=0;k<4;k++)x.fillRect(sx+10,sy+14+k*H*.03,(W*.12-20)*(.4+.5*Math.abs(Math.sin(i+k+t*.5))),2)}
+    x.fillStyle="#1a0e0a";x.beginPath();x.ellipse(W*.5,H*.95,W*.5,H*.08,0,0,7);x.fill();
+    x.fillStyle="#2a1410";x.beginPath();x.moveTo(W*.38,H*.9);x.lineTo(W*.36,H*.45);x.quadraticCurveTo(W*.5,H*.36,W*.64,H*.45);x.lineTo(W*.62,H*.9);x.closePath();x.fill();
+    x.fillStyle="#3a1c14";x.fillRect(W*.34,H*.62,W*.04,H*.2);x.fillRect(W*.62,H*.62,W*.04,H*.2);
+    const ex=W*.6,ey=H*.5+Math.sin(t*1.3)*4,br=.6+.4*Math.sin(t*5);x.fillStyle=`rgba(255,${120+80*br},40,1)`;x.beginPath();x.arc(ex,ey,5+br*2,0,7);x.fill();
+    const eg=x.createRadialGradient(ex,ey,1,ex,ey,40);eg.addColorStop(0,`rgba(255,140,40,${.4*br})`);eg.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=eg;x.fillRect(ex-40,ey-40,80,80);
+    for(let i=0;i<8;i++){const p=((t/4)+i/8)%1;x.fillStyle=`rgba(180,180,190,${.18*(1-p)})`;x.beginPath();x.arc(ex+Math.sin(t+i)*20*p,ey-p*H*.35,8+p*40,0,7);x.fill()}},
+  // Ganja Life de noche: una figura con una linterna y un bote de muestras
+  garden(x,W,H,t){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0a1418");g.addColorStop(1,"#10241a");x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(let i=0;i<40;i++){x.fillStyle="#fff";if(Math.sin(t*2+i*7)>.3)x.fillRect((i*137)%W,(i*71)%(H*.4),2,2)}
+    for(let i=0;i<9;i++){const px=i*W/8,ph=H*.55+Math.sin(i)*20;x.fillStyle="#1a4a24";x.beginPath();x.moveTo(px,H);for(let k=0;k<7;k++){const a=-Math.PI/2+(k-3)*.42+Math.sin(t+i)*.03;x.lineTo(px+Math.cos(a)*H*.2,ph+H*.25+Math.sin(a)*H*.2);x.lineTo(px,H*.85)}x.fill()}
+    const fx=W*.55+Math.sin(t*.6)*W*.05;x.fillStyle="#0a0a0a";x.beginPath();x.ellipse(fx,H*.66,W*.035,H*.12,0,0,7);x.fill();x.beginPath();x.arc(fx,H*.5,H*.045,0,7);x.fill();
+    x.save();x.globalAlpha=.25;x.fillStyle="#fff8c0";x.beginPath();x.moveTo(fx+10,H*.6);x.lineTo(fx+W*.25,H*.85);x.lineTo(fx+W*.08,H*.95);x.fill();x.restore();
+    x.fillStyle="#8fd3f4";x.fillRect(fx-W*.04,H*.6,W*.015,H*.04);x.fillStyle="#3faa4a";x.fillRect(fx-W*.04,H*.62,W*.015,H*.02)}};
+
+// ---- Dónde salen ----
+const _pacoCut=pacoEvent;
+pacoEvent=async function(){const had=S.flags.gym;await _pacoCut();if(!had&&S.flags.gym&&!S.flags.cut1){S.flags.cut1=true;save();
+  await cutaway({scene:"phone",title:"Mientras tanto, en la Comisaría Central…",lines:["Comisario: ¿Sí? … Sí, señor. El chaval ha reabierto el Bar de Paco. Pérez y Gómez han salido corriendo.","Voz al teléfono: Tranquilo, Comisario. Que siga.","Comisario: ¿Que siga? ¡Pero si nos está destrozando el negocio!","Voz al teléfono: El chaval trabaja para nosotros. Solo que todavía no lo sabe.","Comisario: … Sí, Profe. Lo que usted diga, Profe."]})}};
+const _bobCut=TALK2.bobgym;
+TALK2.bobgym=async function(n){const had=S.flags.hoja;await _bobCut(n);if(!had&&S.flags.hoja&&!S.flags.cut2){S.flags.cut2=true;save();
+  await cutaway({scene:"garden",title:"Esa noche, en el Huerto de Bob…",lines:["Una figura con capucha se cuela entre las plantas de Bob con una linterna.","Figura: Kushecha, OG Kush, Pegamentín… Cuánta variedad. Cuánto potencial.","Figura: (guarda unas hojas en un bote) Para la colección del Profe.","Figura: El chaval ha hecho bien su trabajo. Sin Fumigón y sin La Pasma por aquí, nadie vigila el huerto.","La figura desaparece entre el humo. Solo queda un olor raro… a semillas y a tiza de pizarra."]})}};
+const _comCut=TALK2.comisario;
+TALK2.comisario=async n=>{const had=S.keys.expediente;await _comCut(n);if(!had&&S.keys.expediente)await sayAll(["Hojeas el expediente. En la última página hay una lista de transferencias mensuales.","Todas van al mismo sitio: «EL PROFE». Ni nombre, ni apellido. Solo «EL PROFE».","El Comisario (sudando): Eso… eso no lo has visto. Eso no existe. ¡Y el Profe tampoco!"])};
+const _loloCut=TALK2.lolo;
+TALK2.lolo=async n=>{const had=S.flags.neon;await _loloCut(n);if(!had&&S.flags.neon&&!S.flags.cut3){S.flags.cut3=true;save();
+  await sayAll(["Lolo Gramos: Una cosa más, chaval. El Comisario no es el jefe de nada. Él cobra, pero no manda.","Lolo Gramos: Manda un tal «Profe». Nadie le ha visto la cara. Dicen que siempre huele a tiza… y a otra cosa."]);
+  await cutaway({scene:"office",title:"Mientras tanto, en un sitio que nadie conoce…",lines:["Pantallas. Decenas de pantallas. En todas, la misma Destiladex: la tuya.","Voz: Tres medallas. Paco, Bob y Lolo… fuera de juego. Tres rivales menos.","Voz: Cada Pedomón que ve el chaval, lo veo yo. Cada uno que captura… lo apunto yo.","Voz: (da una calada larga) Sigue, chaval. Sigue limpiándome el camino.","Voz: Cuando acabes, el país entero será mío. Todo lo que se bebe, se fuma y se lía… pasará por mí."]})}};
+
+/*</B4CINE>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

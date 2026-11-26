@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="43 · Pantalla de carga";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="44 · Bar claro, láseres chungos y líderes con counters";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -3980,12 +3980,12 @@ TALK2.richi=async()=>{await mtShop(RICHI)};
 TALK2.nvecino1=async()=>{await say(pick(["Vecino: El casino nunca cierra. Ni el 24H Chin. Ni yo, que no duermo desde que abrió.","Vecino: Dicen que Lolo empezó vendiendo papelillas en la puerta del instituto. Ahora tiene un casino. Esto es España.","Vecino: ¿Ves al tío de las tres cartas, al lado del casino? No juegues con él. Bueno, juega. Pero luego no llores."]))};
 TALK2.nludopata=async()=>{await say(pick(["Ludópata: Hoy es mi noche. Lo noto. Lo noté ayer también. Y antes de ayer.","Ludópata: El truco de la ruleta es apostar al rojo. O al negro. Uno de los dos, seguro.","Ludópata: Las tragaperras están trucadas. Lo sé porque el truco se lo puse yo. Y aun así pierdo. Esa es la magia."]))};
 TALK2.nturista=async()=>{await say(pick(["Turista: ¡En el jardín del casino salen Pedomones muy raros! Uno con gafas de científico se enfadó y se puso enorme.","Turista: He visto un ganso gris enorme picando a un señor en los tobillos. Creo que no había pagado."]))};
-TALK2.nvecino2=async()=>{await say(pick(["Vecina: La Disco Megawatt lleva cerrada desde que el DJ se fue de gira. Dicen que volverá. Los DJs siempre vuelven.","Vecina: Mi hijo dice que en el callejón hay un señor con un libro de cuentas. Que no me acerque. Pues no me acerco."]))};
+TALK2.nvecino2=async()=>{await say(pick(["Vecina: La Disco Megawatt lleva cerrada desde que el DJ se fue de gira. Dicen que volverá. Los DJs siempre vuelven.","Vecina: Mi hijo dice que en el hostal hay un señor con un libro de cuentas que no duerme nunca. Solo suma."]))};
 TALK2.nchusta=async()=>{
   if(!S.flags.neonChusta){S.flags.neonChusta=true;save();
     await sayAll(["El Chusta: ¡BROOO! ¿Tú también aquí? Me ha traído mi primo en la furgo. Venía a por un trabajo. Bueno, a por el casino.","El Chusta: Escucha, que me he enterado de cosas: el casino es de Lolo Gramos. Y Lolo es el líder de gimnasio de la ciudad. Está arriba, en la Planta VIP.",
       "El Chusta: Pero el gorila de la puerta no deja subir a nadie. Y el Comisario de La Pasma le cubre las espaldas. Ese es el que mandaba a Pérez y a Gómez, ¿te acuerdas?",
-      "El Chusta: Si destapamos el chanchullo, el gorila no podrá pararte. Necesitas tres pruebas: el Libro de Cuentas del Contable (está en el callejón), una ficha trucada del casino y el Expediente del Comisario.",
+      "El Chusta: Si destapamos el chanchullo, el gorila no podrá pararte. Necesitas tres pruebas: el Libro de Cuentas del Contable (se esconde en el Hostal La Estrella), una ficha trucada del casino y el Expediente del Comisario.",
       "📜 Nueva misión: «El chanchullo del casino». La tienes en el Menú, en Misiones."]);S.q.casino=1;save();return}
   await say(pick(["El Chusta: Tres pruebas, bro: el Libro de Cuentas, la ficha trucada y el Expediente del Comisario. Yo vigilo la entrada. Bueno, vigilo un piti.","El Chusta: He apostado 5 pavos a la ruleta y he perdido 20. No sé cómo, bro."]))};
 TALK2.trile=async()=>{await trileGame()};
@@ -4190,7 +4190,7 @@ interact=async function(){const[fx,fy]=facing();const t=tileAt(fx,fy);
 // ---- Misiones ----
 const _ql4=questLines;
 questLines=function(){const L=_ql4();if(S.flags.hoja&&!S.flags.neonIn)L.push("🛣️ Sigue la carretera a la derecha de la Ganja Life hasta Ciudad Neón.");
-  if(S.q.casino&&!S.flags.neon){const k=S.keys;L.push(`🎰 El chanchullo del casino: ${k.libro?"✅":"⬜"} Libro de Cuentas (callejón) · ${k.ficha?"✅":"⬜"} Ficha trucada (juega en el casino) · ${k.expediente?"✅":"⬜"} Expediente (comisaría).`);
+  if(S.q.casino&&!S.flags.neon){const k=S.keys;L.push(`🎰 El chanchullo del casino: ${k.libro?"✅":"⬜"} Libro de Cuentas (Hostal La Estrella) · ${k.ficha?"✅":"⬜"} Ficha trucada (juega en el casino) · ${k.expediente?"✅":"⬜"} Expediente (comisaría).`);
     if(k.libro&&k.ficha&&k.expediente)L.push(S.flags.vipOpen?"⚡ ¡Sube a la Planta VIP y reta a Lolo Gramos!":"⚡ Enséñale las tres pruebas al portero del casino.")}
   if(S.flags.neon)L.push("✅ Medalla Calambrazo conseguida. Usa VUELO desde el menú para viajar.");return L};
 // el Contable suelta el libro al perder
@@ -4759,7 +4759,7 @@ async function vuelo(){
   await new Promise(res=>{const c=$("vu-c");const t0=performance.now(),D=2200;const spr=fl?monSprite(fl.sp,null,fl.shiny):null;sfx("throw");
     const step=nw=>{const p=Math.min(1,(nw-t0)/D),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;const X=from.mx+(d.mx-from.mx)*e,Y=from.my+(d.my-from.my)*e-Math.sin(p*Math.PI)*60;
       drawWorldMap(c,d,from,{x:X,y:Y,p,spr});if(p<1)requestAnimationFrame(step);else setTimeout(res,250)};requestAnimationFrame(step)});
-  closeOverlay();await warp(d.map,d.x,d.y,"down");sfx("quest");toast(`🕊️ Has aterrizado en ${d.n}`)}
+  closeOverlay();{const L=d.land&&MAPS[d.land]?MAPS[d.land].entry:[d.x,d.y,"down"];await warp(d.land||d.map,L[0],L[1],L[2]||"up")}sfx("quest");toast(`🕊️ Has aterrizado en ${d.n}`)}
 function drawWorldMap(c,dest,from,fly){const x=c.getContext("2d"),W=360,H=220;let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#5aa8e8");g.addColorStop(1,"#bfe4ff");x.fillStyle=g;x.fillRect(0,0,W,H);
   // tierra
   x.fillStyle="#7ab85a";x.beginPath();x.moveTo(0,70);x.bezierCurveTo(80,40,160,60,220,50);x.bezierCurveTo(290,40,330,70,360,60);x.lineTo(360,220);x.lineTo(0,220);x.closePath();x.fill();
@@ -5728,6 +5728,73 @@ titleScreen=function(){if(SPLASHED)return _titleSplash();SPLASHED=true;mode="tit
     raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)};
 
 /*</B4DRUNK>*/
+/*<B4FIX2>*/
+/* ===================== BLOQUE 4 · ARREGLOS 2: bar más claro, textos por sitio, Contable en el hostal, láseres difíciles, líderes con counters ===================== */
+// ---- Bar de Paco: zonas abiertas y dos filas de muebles con UN hueco cada una. En cada hueco hay un cliente que te corta el paso ----
+MAPS.bar.g=rowsGrid(["wwwwwwwwwwwwwwww","wmmmmoooooooommw","wccccccccccccccw","wHoHoHoooHoooHow","wXXXXXXoXXXXXXXw","woooooooooooooow","wtHooooooooooHtw","woooooooooooooow",
+  "wPPQtHtoQtHtPPQw","woooooooooooooow","wJooooooooooooYw","wtHtQPPoQtHtQtHw","woooooooooooooow","wwwwwwweewwwwwww"]);
+const BAR_SPOTS={manolo:{at:[7,11,"down"],aside:[6,10,"right"],sight:2},loli:{at:[7,8,"down"],aside:[8,7,"left"],sight:3}};
+function barPlace(){for(const id in BAR_SPOTS){const n=NPCS.find(x=>x.id===id);if(!n)continue;const sp=BAR_SPOTS[id];const p=S&&S.beaten&&S.beaten[id]?sp.aside:sp.at;n.x=p[0];n.y=p[1];n.dir=p[2];n.sight=sp.sight}}
+barPlace();
+const _oemBar=onEnterMap;onEnterMap=async function(){if(S.map==="bar")barPlace();return _oemBar()};
+const _startBar=start;start=function(){barPlace();return _startBar()};
+// tras ganarles, se apartan del hueco andando
+const _tbBar=trainerBattle;
+trainerBattle=async function(n){const r=await _tbBar(n);const sp=BAR_SPOTS[n.id];
+  if(sp&&S.beaten[n.id]&&S.map==="bar"&&(n.x!==sp.aside[0]||n.y!==sp.aside[1])){emote(n,pick(["🍺","😵","🤝"]),1500);await sleep(400);await npcWalk(n,[[sp.at[0],sp.aside[1]],[sp.aside[0],sp.aside[1]]].filter((p,i)=>i||p[1]!==n.y),200);n.dir=sp.aside[2];await say(n.id==="manolo"?"Borracho Manolo se aparta tambaleándose. Ya puedes pasar.":"La Loli se aparta con su taburete. Ya puedes pasar.")}
+  return r};
+
+// ---- Textos al mirar cosas: cada sitio con lo suyo; si no hay texto propio, no sale nada ----
+const BAR_TXT={P:["La mesa de billar. Le falta la bola 8: se la tragó Manolo en una apuesta en 2019. Bueno, en una apuesta.","El billar. Hay una nota: «Prohibido jugar con los Pedomones de bola». La firma Paco."],
+  Q:["Un barril de cerveza. Vacío. Paco lo usa de mesa para los que no merecen mesa.","Un tonel de vino peleón. Pone «RESERVA». Reserva de qué, nadie lo sabe."],
+  X:["La barandilla de madera. Separa a los clientes de la barra. Y a la barra de Manolo, sobre todo.","Una barandilla pegajosa. Mejor no apoyarse."],
+  H:["Un taburete. Tiene la marca de mil culos.","Un taburete cojo. Es el de la Loli: nadie más se atreve."],
+  m:["Botellas y botellas. La de arriba del todo es de 1982 y Paco dice que no está a la venta. Está vacía."],
+  c:["La barra. Pegajosa en su punto justo."],Y:null,J:null};
+const TILE_WHERE={P:["park","senda","comuna","descampado"],X:["comuna"],Q:["descampado"],R:["senda","park"],n:["senda"],j:["senda"],B:["park","comuna","senda","descampado"],G:["descampado","park"],O:["descampado"],U:["descampado","park"],"~":["park","senda"],K:["kebab"],s:["gas","kebab","gasolinera","tienda24","yoli"],h:["yoli"],g:["yoli"]};
+const _intTxt=interact;
+interact=async function(){const[fx,fy]=facing();const t=tileAt(fx,fy);const m=MAP();
+  if(!npcAt(fx,fy)&&t!=="c"&&!peerAtTile(fx,fy)&&!(m.txt&&m.txt[t])){
+    if(S.map==="bar"&&BAR_TXT[t]){await say(pick(BAR_TXT[t]));return}
+    if(TILE_WHERE[t]&&!TILE_WHERE[t].includes(S.map)&&m.style!=="casa")return}
+  return _intTxt()};
+
+// ---- El Contable ya no está en la calle: está en el Hostal La Estrella, haciendo cuentas ----
+(function(){const c=NPCS.find(n=>n.id==="contable");if(c){c.map="hostal";c.x=7;c.y=4;c.dir="left";c.sight=0;c.cond=()=>!!(S.q.casino||S.beaten.contable);
+  c.trainer.pre=["El Contable: (Está en una mesa del hostal, rodeado de facturas y con una calculadora que echa humo).","Tú: Vengo a por el libro de cuentas de Lolo.","El Contable: ¿El libro? ¿Qué libro? Aquí no hay ningún libro. Y si lo hubiera, no te lo daría. Y si te lo diera… no, no te lo doy.","El Contable: Venga, chaval. Si lo quieres, sácamelo a Pedomonazos."];}
+  MAPS.hostal.g[4][7]="o"})();
+// ---- Vuelo: siempre aterrizas en el sitio de curar (con su Nevera) de cada ciudad ----
+VUELO_DEST.forEach(d=>{d.land={park:"kebab",comuna:"yurta",neon:"hostal"}[d.map]});
+
+// ---- Planta VIP: láseres mucho más difíciles. Bandas de dos filas, un hueco que se mueve y te zapa aunque te quedes quieto ----
+(function(){const g=MAPS.vip.g;for(const y of[5,8,11])for(let x=1;x<16;x++)if(g[y][x]==="o")g[y][x]="!";
+  for(const id of["guarda","crup1","crup2"]){const n=NPCS.find(x=>x.id===id);if(n)g[n.y][n.x]="o"}})();
+laserOn=function(x,y,t){t=t===undefined?now():t;const band=y<=5?0:y<=8?1:2;const dir=band===1?-1:1;const P=1.45+band*.12;
+  const ph=((t/1000/P)+band*.31+dir*x*.1)%1;return(ph+1)%1<.58};
+function laserZap(){sfx("super");FX.shake=now()+300;flash("#ff2a2a",300);const e=MAPS.vip.entry;S.x=e[0];S.y=e[1];S.dir="up";P.moving=false;pushPresence();toast("⚡ ¡ZZZAP! Un láser te ha devuelto al ascensor.")}
+const _stepLaser=onStep;onStep=async function(){if(S.map==="vip"&&tileAt(S.x,S.y)==="!"&&laserOn(S.x,S.y)){laserZap();return}return _stepLaser()};
+setInterval(()=>{if(mode==="world"&&!busy&&S&&S.map==="vip"&&!P.moving&&tileAt(S.x,S.y)==="!"&&laserOn(S.x,S.y))laserZap()},60);
+
+// ---- Líderes con counters: cubren sus debilidades con ataques de otros tipos y eligen bien qué usar ----
+const _empLeader=eMovePick;
+eMovePick=function(){if(!(B&&B.trainer&&B.trainer.leader)||rnd()<.15)return _empLeader();
+  const sc=B.e.moves.map(mv=>{const M=MV[mv];if(!M)return[mv,-1];if(!M.p)return[mv,B.e.hp>maxhp(B.e)*.7&&rnd()<.3?40:5];const st=spTypes(SP[B.e.sp]).includes(M.t)?1.5:1;return[mv,M.p*st*tmult(M.t,SP[B.p.sp])*(accOf(mv)/100)]});
+  sc.sort((a,b)=>b[1]-a[1]);return sc[0][0]};
+const LEADER_TEAMS={
+  // Lolo (Eléctrico) pierde con Planta, Tierra y Siniestro → lleva Volador y Fuego (anti-Planta), Hielo y Agua (anti-Tierra), Lucha y Fuego (anti-Siniestro)
+  lolo:()=>[monMoves(newMon("modbox",26),["rascacielos","granizada","uppercut","recarga"]),monMoves(newMon("torito",27),["alasrojas","huracan","patadon","subidon"]),
+    monMoves(newMon("jagerbomb",27),["bombajager","mafia","quemazon","sifon"]),monMoves(newMon("nubarron",28),["nubegorda","huracan","granizada","recarga"]),
+    monMoves(newMon("monsterpack",30),["rascacielos","glaciar","desierto","punaltrapera"])],
+  // Paco (Veneno) pierde con Agua, Psíquico y Tierra → Eléctrico y Planta (anti-Agua), Siniestro (anti-Psíquico), Agua/Hielo (anti-Tierra)
+  paco:()=>[monMoves(newMon("orujo",10),["orujazo","chispazo","eructo","tos"]),monMoves(newMon("absenta",11),["absentazo","cogollazo","mordisco","colocon"]),
+    monMoves(newMon("alcohol96",13),["desinfectante","chispazo","cubitazo","mordisco"])],
+  // Bob (Planta) pierde con Fuego, Veneno y Volador → Agua y Tierra (anti-Fuego), Psíquico (anti-Veneno), Hielo (anti-Volador)
+  bob:()=>[monMoves(newMon("pegamentin",17),["humoverde","bongazo","terronazo","pegamento"]),monMoves(newMon("northern",18),["granizada","humoverde","chorro","escarcha"]),
+    monMoves(newMon("ogkush",18),["canuto","terronazo","cubitazo","bajon"]),monMoves(newMon("kushecha",20),["canuto","bongazo","tercerojo","granizada"])]};
+const _battleLeader=battle;
+battle=async function(team,opts){const tr=opts&&opts.trainer;if(tr&&tr.leader){const k=tr.short==="Lolo"?"lolo":tr.short==="Paco"?"paco":tr.short==="Bob"?"bob":null;if(k)team=LEADER_TEAMS[k]()}return _battleLeader(team,opts)};
+
+/*</B4FIX2>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

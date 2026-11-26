@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="53 · Maripili a mano y guardería en Neón";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="54 · Guardería grande, casino y cigarros en su sitio";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -3461,8 +3461,13 @@ function drawBuildingLights(b,ox,oy,t){
 }
 const dark=document.createElement("canvas");dark.width=SW;dark.height=SH;const dctx=dark.getContext("2d");
 const flies=Array.from({length:14},(_,i)=>({x:rnd()*36*T,y:rnd()*22*T,ph:rnd()*6}));
-function drawSmoke(nx,ny,t,seed){px(nx+12,ny+8,3,1,"#f4f0e0");px(nx+14,ny+8,1,1,(Math.floor(t/250)+seed)%2?"#ff8a2a":"#f2c14e");
-  for(let k=0;k<3;k++){const ph=((t/1400)+k/3+seed*.13)%1;ctx.globalAlpha=.45*(1-ph);ctx.fillStyle="#e8e8e8";ctx.beginPath();ctx.arc(nx+14+Math.sin(ph*6+seed)*2+ph*3,ny+6-ph*16,1.2+ph*2.6,0,7);ctx.fill()}ctx.globalAlpha=1}
+// El cigarro va SIEMPRE en la boca según hacia dónde mire (antes salía por la nuca al mirar a la izquierda)
+function drawSmoke(nx,ny,t,seed,dir){dir=dir||"right";const ember=(Math.floor(t/250)+seed)%2?"#ff8a2a":"#f2c14e";let ex;
+  if(dir==="right"){px(nx+12,ny+8,3,1,"#f4f0e0");px(nx+14,ny+8,1,1,ember);ex=nx+14}
+  else if(dir==="left"){px(nx+1,ny+8,3,1,"#f4f0e0");px(nx+1,ny+8,1,1,ember);ex=nx+1}
+  else if(dir==="down"){px(nx+9,ny+9,1,2,"#f4f0e0");px(nx+9,ny+11,1,1,ember);ex=nx+9}
+  else ex=nx+8;// de espaldas: el cigarro no se ve, sólo el humo saliendo por delante
+  for(let k=0;k<3;k++){const ph=((t/1400)+k/3+seed*.13)%1;ctx.globalAlpha=(dir==="up"?.3:.45)*(1-ph);ctx.fillStyle="#e8e8e8";ctx.beginPath();ctx.arc(ex+Math.sin(ph*6+seed)*2+(dir==="left"?-ph*3:ph*3),ny+(dir==="up"?2:6)-ph*16,1.2+ph*2.6,0,7);ctx.fill()}ctx.globalAlpha=1}
 function drawDog(nx,ny,dir,t){const l=dir==="left",bob=Math.floor(t/500)%2;const X=i=>l?nx+15-i:nx+i;const P2=(i,j,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(l?nx+16-i-w:nx+i,ny+j,w,h)};
   ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(nx+8,ny+15,6,2,0,0,7);ctx.fill();
   P2(3,8,9,4,"#a8702a");P2(4,8,2,2,"#3a2a1a");P2(8,10,2,1,"#3a2a1a");P2(3,12,2,3,"#8a5a1a");P2(10,12,2,3,"#8a5a1a");
@@ -3489,7 +3494,7 @@ function renderWorld(t){
   const list=NPCS.filter(n=>n.map===S.map&&npcVisible(n)).map(n=>({y:n.y,draw:()=>{const bob=n.idle&&Math.floor(t/700+n.x)%2?1:0;const nx=n.x*T-ox,ny=n.y*T-oy;
     if(n.dog){drawDog(nx,ny,n.dir,t);return}
     const L=NPC_LOOK[n.id]||{};if(n.emo&&now()-n.emoAt<(n.emoMs||2500))list.emo.push([n.emo,nx+8,ny-18]);drawChar(n.pal,n.dir,Math.round(nx),Math.round(ny),n.wk||0,n.wk?0:bob,L.hs!==undefined?L.hs:n.hs,L.ts!==undefined?L.ts:n.ts,n.fat,L.acc||n.acc,L);
-    if(n.smoke)drawSmoke(nx,ny-7-bob,t,n.x);
+    if(n.smoke)drawSmoke(nx,ny-7-bob,t,n.x,n.dir);
     if(n.pancarta){ctx.font="bold 7px monospace";const pw=Math.ceil(ctx.measureText(n.pancarta).width)+10,bx=Math.round(nx+16-pw/2),sw2=Math.round(Math.sin(t/500)*1);px(nx+7,ny-20,2,14,"#8a5a2b");px(nx+23,ny-20,2,14,"#8a5a2b");px(bx,ny-33+sw2,pw,13,"#f4f0e0");px(bx,ny-33+sw2,pw,2,"#6fcf5a");px(bx,ny-21+sw2,pw,1,"#a89880");ctx.textAlign="center";ctx.fillStyle=Math.floor(t/700)%2?"#2a8a3a":"#c8202a";ctx.fillText(n.pancarta,nx+16,ny-23+sw2)}
     if(n.guitar){px(nx+4,ny+6-bob,8,5,"#a8602a");px(nx+6,ny+7-bob,2,2,"#3a1a0a");px(nx+12,ny+5-bob,4,1,"#6a3a1a");px(nx+15,ny+4-bob,1,1,"#e8d8a0");const s=Math.floor(t/400)%3;if(s<2){ctx.fillStyle="#f2d14e";ctx.font="7px sans-serif";ctx.textAlign="center";ctx.fillText(s?"♪":"♫",nx+14+s*2,ny-11-s*2)}}}}));
   // otros jugadores
@@ -6388,11 +6393,85 @@ MAPS.guarderia={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"neon2",
   txt:{m:"Una tele con dibujos animados a todo volumen. Tres Pedomones la miran sin pestañear.",h:"Un sofá lleno de babas de Pedomón. Mejor no sentarse.",g:"Una planta de plástico. Los Pedomones ya se comieron la de verdad.",t:"Una mesa con biberones de todos los tamaños. Uno pone «ORUJO». Esperemos que sea broma.",p:"La Nevera: aquí también puedes guardar y sacar tus Pedomones."}};
 MAPNAME.guarderia="Guardería Pedomón";
 // Pedomones de otros jugando por la guardería (de adorno)
-const _rwG=renderWorld;renderWorld=function(t){_rwG(t);if(S.map!=="guarderia")return;const m=MAPS.guarderia,mw=m.w*T,mh=m.h*T;const ox=-Math.round((SW-mw)/2),oy=-Math.round((SH-mh)/2);
-  [["steinburguito",2,4],["kushito",6,5],["westito",7,3]].forEach(([s,tx,ty],i)=>{if(!SP[s])return;const spr=monSprite(s);const hop=Math.abs(Math.sin(t/300+i))*3;ctx.drawImage(spr,tx*T-ox,ty*T-oy-hop,14,14)});
-  (S.guarde||[]).forEach((g,i)=>{const spr=monSprite(g.m.sp,null,g.m.shiny);const hop=Math.abs(Math.sin(t/260+i*2))*4;ctx.drawImage(spr,(3+i*2)*T-ox,4*T-oy-hop,16,16)})};
+// (los Pedomones de la guardería ahora juegan dentro de la cuna: ver b4_fix6.js)
 
 /*</B4FIX5>*/
+/*<B4FIX6>*/
+/* ===================== ARREGLOS 6: Guardería grande con corral-cuna, Nevera a la vista y la Tata Chupi ===================== */
+// ---- La cuidadora ahora se llama la Tata Chupi (mitad chupete, mitad chupito) ----
+(function(){const src=TALK2.marican.toString().replace(/Mari Carmen/g,"Tata Chupi");TALK2.marican=eval("("+src+")")})();
+// ---- Mapa nuevo, mucho más espacioso: recepción a la izquierda y una cuna gigante a la derecha ----
+MAPS.guarderia={w:18,h:12,style:"casa",signs:{},builds:[],lamps:[],music:"neon2",
+  g:rowsGrid(["wwwwwwwwwwwwwwwwww","wgmoooo}}}}}}}}}}w","woooooo}{{{{{{{{}w","wtooooo}{{{{{{{{}w","wpooooo}{{{{{{{{}w","wpooooo}{{{{{{{{}w","whooooo}{{{{{{{{}w","woooooo}{{{{{{{{}w","wgooooo}{{{{{{{{}w","woooooo}}}}}}}}}}w","woooooooooooooooow","wwwwwwwweewwwwwwww"]),
+  exits:{"8,11":["neon",7,24,"down"],"9,11":["neon",7,24,"down"]},entry:[8,10,"up"],
+  txt:{m:"Una tele con dibujos animados a todo volumen. Tres Pedomones la miran sin pestañear.",h:"Un sofá lleno de babas de Pedomón. Mejor no sentarse.",g:"Una planta de plástico. Los Pedomones ya se comieron la de verdad.",t:"Una mesa con biberones de todos los tamaños. Uno pone «ORUJO». Esperemos que sea broma.",
+    "}":"La cuna gigante. Los barrotes llegan por la cintura: ni ellos salen ni tú entras. La Tata Chupi lo tiene todo controlado.","{":"Colchonetas de colores llenas de juguetes mordidos."}};
+(function(){const mc=NPCS.find(n=>n.id==="marican");if(mc){mc.map="guarderia";mc.x=6;mc.y=5;mc.dir="down"}})();
+// La Nevera (dos casillas): se ve como una nevera de verdad con imanes de Pedomón
+const _dtG6=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){
+  if(S.map==="guarderia"){
+    if(ch==="p"){_dtG6("o",x,y,sx,sy,t,style);const top=tileAt(x,y-1)!=="p";
+      px(sx+1,sy-(top?6:0),14,top?22:16,"#eef3f6");px(sx+1,sy-(top?6:0),1,top?22:16,"#c8d2d8");px(sx+14,sy-(top?6:0),1,top?22:16,"#b8c2c8");
+      if(top){px(sx+2,sy+4,12,1,"#9aa6ae");px(sx+12,sy-3,1,5,"#7a868e");px(sx+3,sy-4,7,2,"#6fb6ff");}else{px(sx+12,sy+2,1,7,"#7a868e");px(sx+1,sy+15,14,1,"#8a949a")}
+      const mg=[["#c8202a",3,2],["#2a9a48",7,5],["#f2c230",4,9],["#4ad8ff",9,11]];if(!top)mg.forEach(([c,a,b])=>{px(sx+a,sy+b,2,2,c)});else px(sx+5,sy+1,4,2,"#2a9a48");return}
+    if(ch==="{"){const h=hash(x,y),cs=["#ffb8d8","#9ad8ff","#fff0a0","#b8f0b0"];px(sx,sy,T,T,cs[(x+y)%4]);px(sx,sy,T,1,"rgba(0,0,0,.08)");px(sx,sy,1,T,"rgba(0,0,0,.08)");
+      if(h%5===0){px(sx+5,sy+6,5,5,"#e04a4a");px(sx+6,sy+7,2,1,"#ff9a9a")}else if(h%7===0){px(sx+4,sy+5,3,3,"#4a8ae0");px(sx+9,sy+8,3,3,"#f2c230");px(sx+6,sy+10,3,3,"#2a9a48")}return}
+    if(ch==="}"){const I=["#fff4e0","#e6d2b0"];px(sx,sy,T,T,"#f4e6c8");const L=tileAt(x-1,y)==="}"||tileAt(x+1,y)==="}";
+      if(L&&tileAt(x,y-1)!=="}"&&tileAt(x,y+1)!=="}"){px(sx,sy+3,T,3,"#c8905a");px(sx,sy+3,T,1,"#e8b07a");for(let i=1;i<T;i+=4)px(sx+i,sy+6,2,8,"#d8a070");px(sx,sy+13,T,2,"#a8703a")}
+      else{px(sx+5,sy,5,T,"#d8a070");px(sx+5,sy,1,T,"#e8b07a");px(sx+9,sy,1,T,"#a8703a")}return}}
+  return _dtG6(ch,x,y,sx,sy,t,style)};
+// Los Pedomones juegan DENTRO de la cuna (no se pueden atravesar: la cuna es sólida)
+const PEN={x0:8,y0:2,x1:15,y1:8};
+function penMon(i,t){const sx=PEN.x1-PEN.x0,sy=PEN.y1-PEN.y0,sp=.00025+(i%3)*.00008,ph=i*1.7;
+  return{x:PEN.x0+sx*(.5+.45*Math.sin(t*sp+ph)),y:PEN.y0+sy*(.5+.42*Math.sin(t*sp*1.3+ph*2.1)),hop:Math.abs(Math.sin(t/240+i))*3,fl:Math.cos(t*sp+ph)<0}}
+const _rwG6base=renderWorld;
+renderWorld=function(t){_rwG6base(t);if(S.map!=="guarderia")return;const m=MAPS.guarderia,mw=m.w*T,mh=m.h*T;
+  let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+  const ox=mw<=SW?-Math.round((SW-mw)/2):Math.max(0,Math.min(mw-SW,Math.round(wx*T+8-SW/2))),oy=mh<=SH?-Math.round((SH-mh)/2):Math.max(0,Math.min(mh-SH,Math.round(wy*T+8-SH/2)));
+  const list=[...(S.guarde||[]).map(g=>({sp:g.m.sp,sh:g.m.shiny,mine:true})),...["steinburguito","kushito","westito","porrito","birrin"].filter(s=>SP[s]).map(s=>({sp:s}))];
+  list.map((o,i)=>Object.assign(o,penMon(i,t))).sort((a,b)=>a.y-b.y).forEach(o=>{const spr=monSprite(o.sp,null,o.sh);const X=o.x*T-ox,Y=o.y*T-oy;
+    ctx.fillStyle="rgba(0,0,0,.18)";ctx.beginPath();ctx.ellipse(X+8,Y+15,6,2,0,0,7);ctx.fill();
+    ctx.save();if(o.fl){ctx.translate(X+16,0);ctx.scale(-1,1);ctx.drawImage(spr,0,Y-o.hop,16,16)}else ctx.drawImage(spr,X,Y-o.hop,16,16);ctx.restore();
+    if(o.mine){ctx.fillStyle="#ffd14a";ctx.beginPath();ctx.arc(X+8,Y-5-o.hop,1.6,0,7);ctx.fill()}})};
+// Hablar con la cuna: te dice quién está jugando
+const _intG6=interact;interact=async function(){if(S.map==="guarderia"){const d={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[S.dir],tx=S.x+d[0],ty=S.y+d[1];const c=tileAt(tx,ty);
+  if(c==="}"||c==="{"){const mine=(S.guarde||[]);await say(mine.length?`Dentro de la cuna, ${mine.map(g=>mName(g.m)).join(" y ")} ${mine.length>1?"juegan":"juega"} con los Pedomones de la Tata Chupi. Te ${mine.length>1?"ven":"ve"} y ${mine.length>1?"saludan":"saluda"}. (Los que tienen el puntito dorado son tuyos.)`:"Los Pedomones de la Tata Chupi se pelean por un sonajero con forma de chapa. Ninguno es tuyo… todavía.");return}}
+  return _intG6()};
+// La Tata Chupi también te abre la Nevera
+const _talkTC=TALK2.marican;TALK2.marican=async n=>{const i=await choose("Tata Chupi: ¡Hola, cariño! ¿Qué te traes?",[{label:"🍼 La guardería"},{label:"🧊 Abrir la Nevera (guardar y sacar Pedomones)"},{label:"👋 Nada"}],{cols:1});
+  if(i===0)return _talkTC(n);if(i===1){await say("Tata Chupi: La Nevera está ahí, a la izquierda. Los imanes no se tocan, que son de colección.");await pcMenu();return}
+  await say("Tata Chupi: ¡Venga, cariño! Lávate las manos antes de tocar a ninguno.")};
+
+// ---- Casino: mostradores de CAJA y PREMIOS rehechos; el empleado queda DETRÁS (la parte de delante se pinta por encima) ----
+function casinoCounter(ch,x,sx,sy,t){const caja=ch==="6",L=caja?20:1,R=caja?23:5,first=x===L,last=x===R;
+  // cuerpo del mueble
+  px(sx,sy-2,T,18,caja?"#4a2a14":"#2a1a3a");px(sx,sy+14,T,2,"#1a0e06");
+  px(sx+(first?2:0),sy+1,T-(first?2:0)-(last?2:0),11,caja?"#5e3a1e":"#3a2850");px(sx+(first?3:1),sy+2,T-(first?4:2)-(last?2:0),9,caja?"#6e4626":"#46325e");
+  px(sx,sy+12,T,1,"#c8a040");if(first)px(sx,sy-2,1,18,"#c8a040");if(last)px(sx+T-1,sy-2,1,18,"#c8a040");
+  // encimera de mármol
+  px(sx-(first?1:0),sy-6,T+(first?1:0)+(last?1:0),4,"#ece6da");px(sx,sy-6,T,1,"#ffffff");if((x*7)%5===1)px(sx+4,sy-5,5,1,"#d0c8b8");px(sx-(first?1:0),sy-2,T+(first?1:0)+(last?1:0),1,"#c8a040");
+  if(caja){// ventanilla de cristal, caja registradora y fichas
+    if(x===21){px(sx+2,sy-12,12,7,"#3a3a42");px(sx+3,sy-11,10,3,"#1a1a1a");px(sx+4,sy-10,6,1,"#6fff8a");px(sx+3,sy-7,10,1,"#6a6a72");px(sx+5,sy-14,6,2,"#3a3a42")}
+    if(x===22){const c=["#c8202a","#2a6ad0","#2a8a3a","#1a1a1a"];for(let i=0;i<4;i++)px(sx+2+(i%2)*6,sy-8-Math.floor(i/2)*2-(i%3),5,2,c[i])}
+    if(x===23){px(sx+6,sy-9,4,3,"#c8a040");px(sx+7,sy-11,2,2,"#e8c860");if(Math.floor(t/900)%4===0)px(sx+10,sy-12,1,1,"#ffffff")}
+    if(x===20){px(sx+1,sy+3,14,7,"#1a0e06");px(sx+2,sy+4,12,5,"#c8a040");ctx.font="bold 5px monospace";ctx.textAlign="center";ctx.fillStyle="#1a0e06";ctx.fillText("CAJA",sx+8,sy+8)}}
+  else{// vitrina de premios: cristal con cosas dentro
+    px(sx+1,sy+1,T-2,10,"rgba(170,220,255,.35)");const it=x%5;
+    if(it===1){px(sx+4,sy+4,8,6,"#e04a9a");px(sx+5,sy+3,2,2,"#e04a9a");px(sx+9,sy+3,2,2,"#e04a9a");px(sx+6,sy+6,1,1,"#000");px(sx+9,sy+6,1,1,"#000")}// peluche
+    if(it===2){px(sx+6,sy+2,4,8,"#2a8a3a");px(sx+7,sy+1,2,2,"#2a8a3a");px(sx+6,sy+5,4,2,"#f3ead0")}// botella
+    if(it===3){px(sx+4,sy+5,8,4,"#c8a040");px(sx+6,sy+4,4,6,"#e8c860");px(sx+7,sy+6,2,2,"#ffffff")}// reloj
+    if(it===4){px(sx+4,sy+3,8,7,"#6fa8f0");px(sx+5,sy+4,6,3,"#1a1a2a");px(sx+7,sy+8,2,1,"#ffffff")}// consola
+    if(it===0){px(sx+3,sy+7,10,3,"#f2c14e");px(sx+5,sy+4,6,3,"#f2c14e");px(sx+7,sy+2,2,2,"#f2c14e")}// copa
+    if(Math.sin(t/400+x)>.85)px(sx+3,sy+2,1,4,"#ffffff");px(sx+2,sy+1,1,10,"rgba(255,255,255,.5)");
+    if(x===1){px(sx+1,sy-12,30,6,"#1a0e06");px(sx+2,sy-11,28,4,"#c8a040");ctx.font="bold 5px monospace";ctx.textAlign="center";ctx.fillStyle="#1a0e06";ctx.fillText("PREMIOS",sx+16,sy-7.5)}
+    if(x===5){px(sx+6,sy-9,4,3,"#c8a040");px(sx+7,sy-11,2,2,"#e8c860")}}}
+const _dcC6=drawCasinoTile;drawCasinoTile=function(ch,x,y,sx,sy,t,h){if(ch==="6"||ch==="0"){px(sx,sy,T,T,(x+y)%2?"#6a1a24":"#5e1620");casinoCounter(ch,x,sx,sy,t);return true}return _dcC6(ch,x,y,sx,sy,t,h)};
+const _rwC6=renderWorld;renderWorld=function(t){_rwC6(t);if(S.map!=="casino")return;const m=MAPS.casino,mw=m.w*T,mh=m.h*T;let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+  const ox=mw<=SW?-Math.round((SW-mw)/2):Math.round(Math.max(0,Math.min(mw-SW,wx*T+8-SW/2))),oy=mh<=SH?-Math.round((SH-mh)/2):Math.round(Math.max(0,Math.min(mh-SH,wy*T+8-SH/2)));
+  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){const c=m.g[y][x];if(c!=="6"&&c!=="0")continue;const sx=x*T-ox,sy=y*T-oy;if(sx<-20||sx>SW+20||sy<-20||sy>SH+20)continue;
+    ctx.save();ctx.beginPath();ctx.rect(sx-2,sy-16,T+40,24);ctx.clip();casinoCounter(c,x,sx,sy,t);ctx.restore()}};
+
+/*</B4FIX6>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="47 · Equipos a la vista y efectos visibles";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="48 · Logros, recreativa y cada uno en su sitio";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -4776,7 +4776,7 @@ function drawWorldMap(c,dest,from,fly){const x=c.getContext("2d"),W=360,H=220;le
   x.fillStyle="rgba(0,0,0,.2)";x.beginPath();x.ellipse(fly.x,fly.y+40+Math.sin(fly.p*Math.PI)*20,14,4,0,0,7);x.fill();
   if(fly.spr){const s=fly.spr,h=40,w=s.width*h/s.height;x.save();x.translate(fly.x,fly.y+Math.sin(t/120)*3);if(dest.mx<from.mx)x.scale(-1,1);x.drawImage(s,-w/2,-h/2,w,h);x.restore()}}
 // ---- Menú principal con Medallero y Vuelo ----
-mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallero",()=>medallero()]];
+mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallero",()=>medallero()],["🏆 Logros",()=>logrosScreen()]];
   if(S.flags.vuelo)L.push(["🕊️ Vuelo",async()=>{await vuelo();return"close"}]);
   L.push(["📡 Radar",()=>radar()],["📜 Misiones",()=>say(questLines().join("\n"))],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["🎚️ Volumen"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],["✖️ Cerrar",null]);
   const i=await choose(`${S.name||"Menú"} · ${S.money} pavos${S.fichas?` · ${S.fichas} fichas`:""}`,L.map(([label])=>({label})));
@@ -5899,6 +5899,138 @@ MAPS.vip.h=20;MAPS.vip.entry=[7,18,"up"];MAPS.vip.exits={"7,19":["casino",12,3,"
 laserOn=function(x,y,t){t=t===undefined?now():t;const band=y<=5?0:y<=10?1:2;const P=1.45+band*.12;const ph=((t/1000/P)+band*.31+x*.1)%1;return(ph+1)%1<.58};
 
 /*</B4FIX3>*/
+/*<B4FIX4>*/
+/* ===================== ARREGLOS 4: nadie encima de nada, teles de verdad ===================== */
+(function(){const mv=(id,x,y,d)=>{const n=NPCS.find(q=>q.id===id);if(n){n.x=x;n.y=y;if(d)n.dir=d}};
+  // Hostal: Doña Puri detrás del mostrador, al lado de la tele (no encima)
+  mv("puri",3,1,"down");
+  // Casino: detrás de la barra hay suelo; las botellas van en la pared
+  const cg=MAPS.casino.g;for(let x=16;x<24;x++)cg[1][x]="o";cg[1][15]="c";cg[1][24]="c";
+  // Casino: canjero y cajera detrás de sus mostradores (tú les hablas desde abajo, desde la entrada)
+  mv("canjero",3,14,"down");mv("cajera",21,14,"down");
+  // Comisaría: el Comisario detrás de su mesa
+  const k=MAPS.comisaria.g;k[1]=[..."wmoohooohoogfw"];k[2]=[..."woooocccooooow"];mv("comisario",6,1,"down");
+  // Ganja Life: Chan y Ricardito delante de su quiosco
+  mv("chan",24,6,"down");mv("ricardito",26,6,"down")})();
+// botellas en la pared del casino, encima de la barra
+const _dcCas=drawCasinoTile;
+drawCasinoTile=function(ch,x,y,sx,sy,t,h){if(ch==="w"&&y===0&&x>=16&&x<24){px(sx,sy,T,T,"#2a1430");px(sx,sy+3,T,1,"#c8a040");px(sx,sy+10,T,1,"#c8a040");
+    for(let i=0;i<4;i++){const c=["#6fa8f0","#e8f6ff","#c8a040","#6fcf5a","#c8202a","#f2a93b"][(h+i)%6];px(sx+1+i*4,sy+4,3,6,c);px(sx+2+i*4,sy+2,1,2,c);px(sx+1+i*4,sy+11,3,5,["#8a5a2a","#e8e8e8","#2a6a3a"][(h+i)%3])}
+    if(Math.sin(t/300+x*2)>.9)px(sx+2+(x%4)*3,sy+5,1,1,"#ffffff");return true}
+  if(ch==="o"&&y===1&&x>=16&&x<24){px(sx,sy,T,T,(x+y)%2?"#3a2414":"#341f11");px(sx,sy,T,1,"#2a180c");return true}
+  return _dcCas(ch,x,y,sx,sy,t,h)};
+
+// ---- Teles y monitores que parecen teles: cada una echa su programa ----
+function tvScreen(sx,sy,w,h,ch,t){const c=ch%6,f=Math.floor(t/120);
+  if(Math.floor(t/4000+ch)%7===0&&(t%4000)<260){for(let i=0;i<w*h/3;i++)px(sx+((i*7+f*13)%w),sy+((i*5+f*3)%h),1,1,(i+f)%2?"#e8e8e8":"#5a5a5a");return}
+  if(c===0){px(sx,sy,w,h,"#2a4ab8");px(sx+w/2-2,sy+1,4,3,"#f1c27d");px(sx+w/2-3,sy+4,6,3,"#1a1a2a");px(sx,sy+h-2,w,2,"#c8202a");px(sx+((-f)%w+w)%w,sy+h-2,2,1,"#ffffff")}          // noticias
+  else if(c===1){px(sx,sy,w,h,"#2a8a3a");px(sx+w/2,sy,1,h,"#ffffff");const bx=sx+1+((f*1.3)%(w-2)),by=sy+1+Math.abs(((f*.7)%(h*2-2))-(h-1));px(bx,by,1,1,"#ffffff");px(sx+2+(f%3),sy+2,1,1,"#c8202a");px(sx+w-3-(f%2),sy+h-3,1,1,"#2a4ab8")} // fútbol
+  else if(c===2){px(sx,sy,w,h,"#8a3a5a");const k=Math.floor(t/900)%2;px(sx+1+(k?1:0),sy+2,3,3,"#f1c27d");px(sx+w-5,sy+2,3,3,"#e0a878");px(sx+1,sy+1,3,1,"#3a1a0a");px(sx+w-5,sy+1,3,1,"#e8d070");if(k)px(sx+w/2-1,sy+1,2,2,"#ff6a8a")} // telenovela
+  else if(c===3){px(sx,sy,w,h,"#ff9ad0");const b=Math.abs(Math.sin(t/220))*(h-3);px(sx+1+((f*.8)%(w-3)),sy+h-3-b,2,2,"#f2d14e");px(sx,sy+h-1,w,1,"#6fcf5a")}  // dibujos
+  else if(c===4){px(sx,sy,w,h,"#6fa8f0");px(sx+1,sy+2,w-5,h-3,"#6fcf5a");px(sx+w-4,sy+1,3,3,"#ffd14a");if(f%4<2)px(sx+3,sy+3,2,1,"#ffffff")} // el tiempo
+  else{px(sx,sy,w,h,"#1a1a1a");for(let i=0;i<3;i++)px(sx+1+i*3,sy+h-2-((f+i*2)%4),2,(f+i*2)%4+1,["#ff4ad0","#4ad8ff","#f2d14e"][i])} // videoclips
+  ctx.globalAlpha=.12;for(let j=0;j<h;j+=2)px(sx,sy+j,w,1,"#000");ctx.globalAlpha=1}
+const _dtTv=drawTile;
+drawTile=function(ch,x,y,sx,sy,t,style){
+  if(ch==="m"&&(style==="casa"||style==="c420")){_dtTv("o",x,y,sx,sy,t,style);px(sx+2,sy+12,12,3,"#5a3a1a");px(sx+2,sy+12,12,1,"#8a5a2a");px(sx+1,sy+1,14,11,"#1a1a1a");px(sx+1,sy+1,14,1,"#3a3a3a");
+    tvScreen(sx+2,sy+2,12,8,hash(x,y)+(S&&S.map?S.map.length:0),t);px(sx+12,sy+10,1,1,"#c8202a");return}
+  if(ch==="m"&&style==="comi"){_dtTv("o",x,y,sx,sy,t,style);px(sx+2,sy+13,12,2,"#6a6a72");px(sx+6,sy+10,4,3,"#3a3a42");px(sx+1,sy+1,14,10,"#2a2a32");px(sx+2,sy+2,12,8,"#1a7a3a");
+    for(let i=0;i<4;i++){px(sx+3+i*3,sy+3,2,3,"#f4f4f4");px(sx+3+i*3,sy+3,2,1,i%2?"#c8202a":"#1a1a1a")}px(sx+3,sy+7,2,2,"#f4f4f4");px(sx+9+(Math.floor(t/700)%2),sy+7,2,1,"#ffffff");return}
+  return _dtTv(ch,x,y,sx,sy,t,style)};
+
+/*</B4FIX4>*/
+/*<B4JUEGOS>*/
+/* ===================== LOGROS (con pistas) y RECREATIVA «HUYE DE LA PASMA» con ranking entre colegas ===================== */
+const LOGROS=[
+ {id:"captura1",n:"¡Al bote!",d:"Captura tu primer Pedomón.",ic:"🎒",ok:()=>Object.keys(S.caught||{}).length>=1,rw:{it:"rino",n:3}},
+ {id:"captura25",n:"Coleccionista",d:"Captura 25 Pedomones distintos.",ic:"📖",ok:()=>Object.keys(S.caught||{}).length>=25,rw:{it:"rinomarca",n:3}},
+ {id:"captura60",n:"Catador profesional",d:"Captura 60 Pedomones distintos.",ic:"🍷",ok:()=>Object.keys(S.caught||{}).length>=60,rw:{it:"rinogucci",n:2}},
+ {id:"shiny",n:"¡Brilli brilli!",d:"Captura un Pedomón brillante.",ic:"✨",ok:()=>(S.shinies||0)>=1,rw:{it:"rinogucci",n:1}},
+ {id:"chapa",n:"Cliente fiel",d:"Gana la Chapa del Bar de Paco.",ic:"🍺",ok:()=>!!S.flags.gym,rw:{it:"caldito",n:2}},
+ {id:"hoja",n:"One love",d:"Gana la Medalla Bob Marihuano.",ic:"🍃",ok:()=>!!S.flags.hoja,rw:{it:"ibu",n:1}},
+ {id:"neon",n:"Calambrazo",d:"Gana la Medalla Calambrazo.",ic:"⚡",ok:()=>!!S.flags.neon,rw:{it:"ibu",n:2}},
+ {id:"potada",n:"La Gran Potada",d:"Bebe hasta perder el conocimiento en el Bar de Paco.",ic:"🤮",hide:"Paco dice que hay un límite… y que solo lo ha visto Manolo.",ok:()=>!!(S.keys&&S.keys.potada),rw:{it:"suero",n:2}},
+ {id:"canas5",n:"Tirador de cañas",d:"Tira 5 cañas perfectas.",ic:"🍻",hide:"Maripili dice que una caña perfecta se suelta un pelín por encima de la raya.",ok:()=>(S.stats&&S.stats.canasPerf||0)>=5,rw:{money:40}},
+ {id:"pleno",n:"Pleno al quince",d:"Acierta un pleno en la ruleta.",ic:"🎡",hide:"En el casino hay una apuesta que paga 35 veces lo apostado…",ok:()=>!!(S.stats&&S.stats.pleno),rw:{money:60}},
+ {id:"granpremio",n:"La máquina escupe",d:"Saca un gran premio en Neón Fortune.",ic:"🎰",hide:"Las tragaperras de la derecha están más sueltas, dice Rocío.",ok:()=>!!(S.stats&&S.stats.granpremio),rw:{it:"rinomarca",n:2}},
+ {id:"apuesta",n:"El que sabe, sabe",d:"Gana una apuesta deportiva.",ic:"📺",ok:()=>!!(S.stats&&S.stats.apuesta),rw:{money:20}},
+ {id:"arcade1",n:"Prófugo",d:"Haz 1000 puntos en «Huye de la Pasma».",ic:"🕹️",hide:"En el Kebab 24h hay una máquina que nadie usa…",ok:()=>(S.stats&&S.stats.arcade||0)>=1000,rw:{it:"rinomarca",n:2}},
+ {id:"arcade2",n:"Más buscado que el Profe",d:"Haz 3000 puntos en «Huye de la Pasma».",ic:"🚔",hide:"Si llegas lejos en la recreativa del kebab, la Pasma te pondrá en su lista.",ok:()=>(S.stats&&S.stats.arcade||0)>=3000,rw:{it:"rinogucci",n:1}},
+ {id:"borracho",n:"Piripi",d:"Llega a estar muy borracho.",ic:"🥴",ok:()=>(S.drunk||0)>=5,rw:{it:"agua",n:3}},
+];
+function stat(k,v){S.stats=S.stats||{};if(v===undefined)S.stats[k]=(S.stats[k]||0)+1;else S.stats[k]=v}
+function giveRw(rw){if(!rw)return"";if(rw.money){S.money+=rw.money;return`+${rw.money} pavos`}if(rw.it){S.bag[rw.it]=(S.bag[rw.it]||0)+rw.n;return`+${rw.n} ${ITEMS[rw.it].n}`}return""}
+function logroPopup(L,txt){const d=document.createElement("div");d.style.cssText="position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:70;background:linear-gradient(180deg,#3a2a12,#1a120a);border:2px solid #ffd14a;border-radius:14px;padding:10px 18px;color:#fff;font:600 15px Rubik,Arial;box-shadow:0 0 24px rgba(255,209,74,.5);display:flex;gap:12px;align-items:center;animation:cwpop .5s both";
+  d.innerHTML=`<span style="font-size:32px">${L.ic}</span><span><b style="color:#ffd14a">🏆 ¡Logro conseguido!</b><br>${esc(L.n)}<br><small style="opacity:.8">${esc(txt)}</small></span>`;document.body.appendChild(d);try{jingle(false)}catch(e){}setTimeout(()=>d.remove(),3600)}
+setInterval(()=>{if(!S||!S.flags||mode==="title")return;S.logros=S.logros||{};for(const L of LOGROS){if(!S.logros[L.id]&&L.ok()){S.logros[L.id]=Date.now();const txt=giveRw(L.rw);save();logroPopup(L,txt);break}}},1500);
+function logrosScreen(){return new Promise(res=>{const close=()=>{closeOverlay();res()};const got=LOGROS.filter(L=>S.logros&&S.logros[L.id]).length;
+  overlay(`<h2>🏆 Logros · ${got}/${LOGROS.length}</h2><p>Los secretos salen como «???». Lee la pista… y a buscar.</p>
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:10px 0">${LOGROS.map(L=>{const h=S.logros&&S.logros[L.id],secret=L.hide&&!h;
+    return `<div style="border-radius:12px;padding:10px;background:${h?"linear-gradient(160deg,#4a3a14,#22180a)":"#1e1610"};border:2px solid ${h?"#ffd14a":"#3a2c1e"};display:flex;gap:10px;align-items:center">
+     <span style="font-size:30px;filter:${h?"none":"grayscale(1) brightness(.5)"}">${secret?"❔":L.ic}</span><span style="font-size:13px"><b>${secret?"???":esc(L.n)}</b><br><span style="opacity:.8">${secret?"💡 "+esc(L.hide):esc(L.d)}</span>${L.rw?`<br><small style="color:#7fd46b">Premio: ${L.rw.money?L.rw.money+" pavos":L.rw.n+" × "+ITEMS[L.rw.it].n}</small>`:""}</span></div>`}).join("")}</div>
+   <button class="big" type="button" id="lg-x">Cerrar</button>`,{onB:close,focusId:"lg-x"});$("lg-x").onclick=close})}
+// contadores para los logros
+const _canasL=canasGame;canasGame=async function(o){const r=await _canasL(o);if(r&&r.perf){S.stats=S.stats||{};S.stats.canasPerf=(S.stats.canasPerf||0)+r.perf}return r};
+const _cwL=casinoWin;casinoWin=function(a,t){if(t==="¡PLENO!")stat("pleno",1);if(t==="¡GRAN PREMIO!")stat("granpremio",1);if(t==="¡APUESTA GANADA!")stat("apuesta",1);return _cwL(a,t)};
+
+/* ---- La recreativa del Kebab 24h ---- */
+(function(){const g=MAPS.kebab.g;g[6][8]="@"})();
+const _dtArc=drawTile;
+drawTile=function(ch,x,y,sx,sy,t,style){if(ch==="@"){_dtArc("o",x,y,sx,sy,t,style);px(sx+2,sy-8,12,24,"#1a1a3a");px(sx+2,sy-8,12,3,"#c8202a");px(sx+3,sy-4,10,8,"#000");
+    const f=Math.floor(t/150);px(sx+4+(f%3)*2,sy+1,2,2,"#ff4a4a");px(sx+8,sy-3+(f%4),2,2,"#4ad8ff");px(sx+5,sy+6,6,3,"#3a3a5a");px(sx+6,sy+6,1,2,"#c8202a");px(sx+9,sy+7,2,1,"#f2d14e");
+    if(f%6<3){ctx.globalAlpha=.4;px(sx+2,sy-9,12,1,"#ff4ad0");ctx.globalAlpha=1}return}return _dtArc(ch,x,y,sx,sy,t,style)};
+const _intArc=interact;interact=async function(){const[fx,fy]=facing();if(tileAt(fx,fy)==="@"&&!npcAt(fx,fy)){await arcadeMenu();return}return _intArc()};
+
+const ARC_KEY="otraronda_arcade_v1";
+function arcBoard(){try{return JSON.parse(localStorage.getItem(ARC_KEY))||[]}catch(e){return[]}}
+function arcSave(b){try{localStorage.setItem(ARC_KEY,JSON.stringify(b.slice(0,15)))}catch(e){}}
+function arcAdd(e){const b=arcBoard();const i=b.findIndex(x=>x.nm===e.nm&&x.ini===e.ini);if(i>=0){if(b[i].s>=e.s)return;b.splice(i,1)}b.push(e);b.sort((a,c)=>c.s-a.s);arcSave(b)}
+// los récords viajan con los colegas conectados: cada uno publica su mejor marca y el resto la guarda
+function arcPublish(){const me=(S.stats&&S.stats.arcadeBest)||null;if(me)try{setMP({hs:{pasma:[me.ini,me.s]}})}catch(e){}}
+setInterval(()=>{try{for(const o of OTHERS.values()){const h=o.info&&o.info.pr&&o.info.pr.hs&&o.info.pr.hs.pasma;if(Array.isArray(h)&&typeof h[1]==="number"&&h[1]>0&&h[1]<1e6)arcAdd({ini:String(h[0]||"???").replace(/[^A-Z0-9]/gi,"").slice(0,3).toUpperCase()||"???",s:Math.floor(h[1]),nm:cleanName(o.info.nm)||"Colega",friend:true})}}catch(e){}},4000);
+setTimeout(arcPublish,5000);
+async function arcadeMenu(){while(true){const i=await choose("🕹️ HUYE DE LA PASMA · 2 pavos la partida. Esquiva los coches patrulla y pilla las latas.",[{label:"▶️ Jugar",sub:"2 pavos",disabled:S.money<2},{label:"🏆 Récords"},{label:"👋 Dejarlo"}],{cols:1});
+  if(i===0){S.money-=2;save();await arcadeGame()}else if(i===1)await arcadeTop();else return}}
+function arcadeTop(){return new Promise(res=>{const b=arcBoard();const close=()=>{closeOverlay();res()};
+  overlay(`<div class="qbox" style="font-family:monospace"><h2 style="margin:0;color:#ffd14a;text-align:center">🏆 RÉCORDS · HUYE DE LA PASMA</h2>
+   ${b.length?b.slice(0,10).map((e,i)=>`<div style="display:flex;justify-content:space-between;font-size:18px;color:${i===0?"#ffd14a":"#f4e7d4"}"><span>${i+1}. <b>${esc(e.ini)}</b> <small style="opacity:.65">${esc(e.nm)}${e.friend?" 👥":""}</small></span><b>${e.s}</b></div>`).join(""):'<p style="text-align:center">Nadie ha jugado todavía. Sé el primero.</p>'}
+   <p style="font-size:12px;text-align:center">👥 = puntuación de un colega. Se actualiza cuando estáis conectados a la vez.</p><div class="qrow"><button class="big" type="button" id="ar-x">Cerrar</button></div></div>`,{onB:close,focusId:"ar-x"});$("ar-x").onclick=close})}
+function arcadeGame(){return new Promise(res=>{
+  overlay(`<div class="qbox" style="max-width:420px;margin:0 auto"><canvas id="ar-c" width="320" height="440" style="width:100%;border-radius:10px;background:#111;touch-action:none"></canvas>
+   <div class="qrow"><button class="big alt" type="button" id="ar-l">◀</button><button class="big alt" type="button" id="ar-r">▶</button></div></div>`,{onB:()=>{}});
+  const c=$("ar-c"),x=c.getContext("2d");const LX=[70,160,250];let lane=1,px2=160,score=0,dist=0,speed=170,alive=true,last=performance.now(),spawn=0,objs=[],cans=0,shake=0,raf=0;
+  const mv=d=>{if(alive){lane=Math.max(0,Math.min(2,lane+d));sfx("sel")}};
+  const kd=e=>{if(["ArrowLeft","a","A"].includes(e.key)){mv(-1);e.preventDefault();e.stopPropagation()}else if(["ArrowRight","d","D"].includes(e.key)){mv(1);e.preventDefault();e.stopPropagation()}};
+  addEventListener("keydown",kd,true);$("ar-l").onpointerdown=()=>mv(-1);$("ar-r").onpointerdown=()=>mv(1);
+  c.onpointerdown=e=>{const r=c.getBoundingClientRect();mv(e.clientX-r.left<r.width/2?-1:1)};
+  const car=(cx,cy,col,pol,t)=>{x.fillStyle="rgba(0,0,0,.35)";x.fillRect(cx-17,cy-26,36,56);x.fillStyle=col;x.fillRect(cx-18,cy-30,36,58);x.fillStyle=pol?"#f4f4f4":"#8fd3f4";x.fillRect(cx-14,cy-20,28,12);x.fillStyle="#8fd3f4";x.fillRect(cx-14,cy+8,28,10);
+    x.fillStyle="#111";x.fillRect(cx-21,cy-22,4,12);x.fillRect(cx+17,cy-22,4,12);x.fillRect(cx-21,cy+10,4,12);x.fillRect(cx+17,cy+10,4,12);
+    if(pol){const on=Math.floor(t/120)%2;x.fillStyle=on?"#3a6aff":"#ff3a3a";x.fillRect(cx-12,cy-4,10,5);x.fillStyle=on?"#ff3a3a":"#3a6aff";x.fillRect(cx+2,cy-4,10,5);x.fillStyle="#1a2a6a";x.font="bold 8px Arial";x.textAlign="center";x.fillText("PASMA",cx,cy+30)}};
+  const end=async()=>{alive=false;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);sfx("weak");const s=Math.floor(score);
+    S.stats=S.stats||{};if(s>(S.stats.arcade||0))S.stats.arcade=s;const pay=Math.min(15,Math.floor(s/250));if(pay)S.money+=pay;save();
+    let ini=(S.stats.arcadeBest&&S.stats.arcadeBest.ini)||(S.name||"YOU").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+    await new Promise(r2=>{overlay(`<div class="qbox" style="text-align:center"><h2 style="margin:0;color:#ff4a4a">🚔 ¡TE HA PILLADO LA PASMA!</h2><p style="font-size:26px;color:#ffd14a;margin:0"><b>${s}</b> puntos</p><p style="margin:0">${cans} latas · ${pay?`Te llevas ${pay} pavos.`:"Sin premio esta vez."}</p>
+      <p style="margin:0">Tus iniciales:</p><input class="qin" id="ar-i" maxlength="3" value="${esc(ini)}" style="width:120px;text-transform:uppercase"><div class="qrow"><button class="big" type="button" id="ar-ok">Guardar</button></div></div>`,{focusId:"ar-ok"});
+      const inp=$("ar-i");inp.onkeydown=e=>e.stopPropagation();$("ar-ok").onclick=()=>{ini=(inp.value||"???").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase()||"???";r2()}});
+    if(!S.stats.arcadeBest||s>S.stats.arcadeBest.s)S.stats.arcadeBest={ini,s};else S.stats.arcadeBest.ini=ini;save();arcAdd({ini,s,nm:S.name||"Tú"});arcPublish();closeOverlay();await arcadeTop();res()};
+  const tick=nw=>{const dt=Math.min(.05,(nw-last)/1000);last=nw;if(!c.isConnected){removeEventListener("keydown",kd,true);res();return}
+    if(alive){speed+=dt*6;dist+=speed*dt;score+=speed*dt/10;spawn-=dt;px2+=(LX[lane]-px2)*Math.min(1,dt*14);
+      if(spawn<=0){spawn=Math.max(.38,1.1-speed/900)+Math.random()*.3;const l=Math.floor(Math.random()*3);objs.push({l,y:-40,k:Math.random()<.28?"can":"pol",v:Math.random()*.3});if(speed>300&&Math.random()<.3)objs.push({l:(l+1+Math.floor(Math.random()*2))%3,y:-110,k:"pol",v:0})}
+      objs.forEach(o=>{o.y+=speed*dt*(o.k==="pol"?1.25+o.v:1)});
+      for(const o of objs){if(Math.abs(LX[o.l]-px2)<30&&Math.abs(o.y-370)<50){if(o.k==="can"){if(!o.got){o.got=1;cans++;score+=50;sfx("buy")}}else{shake=.4;end();break}}}
+      objs=objs.filter(o=>o.y<480&&!o.got)}
+    shake=Math.max(0,shake-dt);x.save();if(shake)x.translate((Math.random()-.5)*10,(Math.random()-.5)*10);
+    x.fillStyle="#2a2a30";x.fillRect(0,0,320,440);x.fillStyle="#3a6a2a";x.fillRect(0,0,22,440);x.fillRect(298,0,22,440);
+    for(let i=0;i<12;i++){const yy=((dist*1.2)+i*40)%480-40;x.fillStyle="#e8e8e8";x.fillRect(113,yy,4,22);x.fillRect(203,yy,4,22);x.fillStyle="#2a5a1a";x.fillRect(4,((dist*1.2)+i*80)%520-60,12,12);x.fillRect(304,((dist*1.2)+i*80+40)%520-60,12,12)}
+    objs.forEach(o=>{if(o.k==="pol")car(LX[o.l],o.y,"#f4f4f4",true,nw);else{x.fillStyle="#c8202a";x.fillRect(LX[o.l]-8,o.y-12,16,24);x.fillStyle="#f4f4f4";x.fillRect(LX[o.l]-8,o.y-4,16,6);x.fillStyle="#c0c8d0";x.fillRect(LX[o.l]-6,o.y-14,12,3)}});
+    car(px2,370,"#c8202a",false,nw);x.restore();
+    x.fillStyle="rgba(0,0,0,.6)";x.fillRect(0,0,320,30);x.fillStyle="#ffd14a";x.font="bold 18px monospace";x.textAlign="left";x.fillText(String(Math.floor(score)).padStart(6,"0"),10,22);x.textAlign="right";x.fillStyle="#fff";x.fillText("🍺"+cans,310,22);
+    if(alive)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+
+// economía más medida: los entrenadores normales pagan un 25 % menos
+NPCS.forEach(n=>{if(n.trainer&&n.trainer.money&&!n.trainer._eco){n.trainer.money=Math.round(n.trainer.money*.75);n.trainer._eco=1}});
+
+/*</B4JUEGOS>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

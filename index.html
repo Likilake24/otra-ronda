@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="69 · Siluetas variadas y fondos de cueva, playa y piscina";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="70 · Línea Marlboro que evoluciona de verdad";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -6784,7 +6784,7 @@ const PIXVAR0={slim:1,leg:"stub",arm:"stub",head:1,tr:null};let PIXVAR=PIXVAR0;
 const PIX_FIXED=["steinburguito","steinburg","steinpack","westito","west","lejanowest","kushito","ogkush","kushecha"];
 const PIX_VAR_OVR={};// retoques a mano por especie
 function pixVariety(id){if(PIX_FIXED.includes(id))return PIXVAR0;let h=2166136261;for(const ch of id){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}
-  const q=(sh,n)=>(h>>>sh)%n;const v={slim:[.62,.72,.82,.92,1][q(0,5)],leg:["stub","thin","none","skate","spring","thin","tentacle","stub","thin","none"][q(3,10)],arm:["stub","noodle","none","noodle","claw","stub","noodle"][q(7,7)],head:[.9,1,1.12][q(10,3)],tr:{sx:[.78,.84,.9,.96][q(12,4)],sy:[1,1.04,1.08][q(14,3)],rot:(q(16,7)-3)*.025}};return Object.assign(v,PIX_VAR_OVR[id]||{})}
+  const q=(sh,n)=>(h>>>sh)%n;const v={slim:[.62,.72,.82,.92,1][q(0,5)],leg:["stub","thin","none","stub"][q(3,4)],arm:["stub","none","stub"][q(7,3)],head:[.9,1,1.12][q(10,3)],tr:{sx:[.78,.84,.9,.96][q(12,4)],sy:[1,1.04,1.08][q(14,3)],rot:0}};return Object.assign(v,PIX_VAR_OVR[id]||{})}
 const PIXLIMB={
  legs(x,cx,bot,gap,col){const D2=c=>{const n=parseInt(c.slice(1),16);return"#"+[16,8,0].map(s=>Math.round(((n>>s)&255)*.6).toString(16).padStart(2,"0")).join("")};const sh=col[0]==="#"?D2(col):"#2a2a2a";const st=PIXVAR.leg;const el=(a,b,rx,ry,c)=>{x.fillStyle=c;x.beginPath();x.ellipse(a,b,rx,ry,0,0,7);x.fill()};
   if(st==="thin"){x.strokeStyle=col;x.lineWidth=9;x.lineCap="round";for(const k of[-1,1]){x.beginPath();x.moveTo(cx+k*gap*.7,bot-6);x.lineTo(cx+k*gap*1.05,bot+50);x.stroke();el(cx+k*(gap*1.05+12),bot+58,30,13,sh)}return}
@@ -6865,6 +6865,7 @@ const PIXLIB=(function(){
   try{PIXD[id][view](x)}catch(e){console.warn("pix",id,view,e)}x.restore();TR=null;PIXVAR=PIXVAR0;
   const o=document.createElement("canvas");o.width=o.height=96;pixelize(c,o,96);drawFace(o);return o}
  function get(id,view,mode,shiny){const k=id+"|"+view+"|"+(mode||"")+"|"+(shiny?1:0);if(CACHE[k])return CACHE[k];
+  if(PIXD[id].ready&&!PIXD[id].ready()){return render(id,view==="backm"?"back":view)}// la imagen libre aún carga: se dibuja sin guardar en caché
   let base;if(view==="backm"){const b=get(id,"back");base=document.createElement("canvas");base.width=base.height=96;const x=base.getContext("2d");x.translate(96,0);x.scale(-1,1);x.drawImage(b,0,0);}
   else if(mode||shiny){const b=get(id,view);base=document.createElement("canvas");base.width=base.height=96;const x=base.getContext("2d");if(shiny)x.filter=`hue-rotate(${PIXD[id].shinyHue||150}deg) saturate(1.15)`;x.drawImage(b,0,0);x.filter="none";
     if(mode==="white"||mode==="sil"){x.globalCompositeOperation="source-in";x.fillStyle=mode==="white"?"#ffffff":"#2a2430";x.fillRect(0,0,96,96)}}
@@ -7973,6 +7974,57 @@ if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=
 })();
 
 /*</B4PIXDES10>*/
+/*<B4PIXLINES>*/
+/* ===================== LÍNEAS COHERENTES: el bichito-producto crece por fases como una evolución de verdad (Marlboro) ===================== */
+(function(){const{soft,E,P,L,D,eye,mouth,ground}=PIXLIB;
+const R="#d8202a",W="#f8f4ec",MANE="#a8141a",FIL="#e8a040";
+const chev=(x,cx,cy,w,h,col=R)=>P(x,[[cx-w/2,cy-h/2],[cx,cy+h*.1],[cx+w/2,cy-h/2],[cx+w/2,cy-h*.05],[cx,cy+h*.5],[cx-w/2,cy-h*.05]],col,{hi:.4,lo:.4});
+const tuft=(x,a,b,r,rot,col=MANE)=>soft(x,c=>c.ellipse(a,b,r,r*.5,rot,0,7),col,[a-r,b-r,a+r,b+r],{hi:.45,lo:.4,spec:false});
+const flame=(x,cx,by,r,lean=0)=>{for(const[k,c]of[[1,"#ff6a1a"],[.62,"#ffb02a"],[.32,"#ffe27a"]])soft(x,cc=>{cc.moveTo(cx-r*k,by);cc.quadraticCurveTo(cx-r*k*.9+lean*.3,by-r*1.3*k,cx+lean,by-r*2.4*k);cc.quadraticCurveTo(cx+r*k*.9+lean*.3,by-r*1.3*k,cx+r*k,by);cc.closePath()},c,[cx-r,by-r*2.4,cx+r,by],{hi:.6,lo:.2,spec:false})};
+const hoof=(x,cx,cy,w)=>soft(x,c=>c.roundRect(cx-w/2,cy-w*.35,w,w*.55,w*.18),"#3a2a2a",[cx-w/2,cy-w*.35,cx+w/2,cy+w*.2],{hi:.4});
+// st: 1 cigarro · 2 joven · 3 adulto. Mismos rasgos que crecen.
+function cigHorse(x,view,st){const cx=350,feet=606;const h=[0,320,350,370][st],w=[0,92,122,150][st],legH=[0,0,62,92][st];
+ const bot=feet-legH-(st===1?14:0),top=bot-h,fh=h*.3,ftop=bot-fh;ground(x,cx,feet+6,[0,110,150,190][st]);
+ const back=view==="back";
+ // cola (detrás)
+ if(st>=2){if(st===2){tuft(x,cx+w*.62,bot-30,34,.9);tuft(x,cx+w*.7,bot+4,30,1.2)}else{flame(x,cx+w*.75,bot+30,46,30)}}
+ // crin por la espalda: en la 1 y 2 son mechones; en la 3, fuego
+ const maneX=back?cx:cx-w*.5-6;
+ if(st<3){const n=st===1?4:6;for(let i=0;i<n;i++)tuft(x,maneX+(back?0:(i%2)*4),top+40+i*(st===1?48:52),st===1?24:30,back?0:.25)}
+ else for(let i=0;i<5;i++)flame(x,back?cx:cx-w*.5-4,top+80+i*70,34-i*3,back?0:-22);
+ // piernas con pezuña (2 y 3)
+ if(st>=2)for(const k of[-1,1]){const lx=cx+k*w*.24;soft(x,c=>c.roundRect(lx-(st===3?20:15),bot-6,st===3?40:30,legH+2,12),st===3?W:"#f0e6d6",[lx-20,bot-6,lx+20,bot+legH],{hi:.35,lo:.35});
+   if(st===3){x.fillStyle=R;x.fillRect(lx-20,bot+legH*.45,40,10)}hoof(x,lx,feet-6,st===3?52:40)}
+ if(st===1)for(const k of[-1,1])hoof(x,cx+k*28,feet-6,34);
+ // brazos (2 y 3)
+ if(st>=2&&!back)for(const k of[-1,1]){const sx=cx+k*w*.5,sy=top+h*.42;x.save();x.translate(sx,sy);x.rotate(k*(st===3?-.35:.25));soft(x,c=>c.roundRect(k<0?-(st===3?110:84):0,-(st===3?16:12),st===3?110:84,st===3?32:24,12),W,[-110,-16,110,16],{hi:.35,lo:.35});
+   if(st===3){x.fillStyle=R;x.fillRect(k<0?-70:40,-16,30,32)}x.restore();const hx=sx+k*(st===3?100:80)*Math.cos(st===3?.35:.25),hy=sy+(st===3?-36:20);hoof(x,hx,hy+8,st===3?46:34)}
+ // cuerpo: papel blanco y filtro naranja con la V
+ soft(x,c=>c.roundRect(cx-w/2,top,w,h,w*.2),W,[cx-w/2,top,cx+w/2,bot],{hi:.35,lo:.35,sx:.3});
+ soft(x,c=>c.roundRect(cx-w/2,ftop,w,fh,w*.2),FIL,[cx-w/2,ftop,cx+w/2,bot],{hi:.45,lo:.45,tex:x=>{x.fillStyle="rgba(140,70,10,.35)";for(let i=0;i<18;i++)x.fillRect(cx-w*.42+((i*31)%(w*.84)),ftop+8+((i*23)%(fh-16)),6,4)}});
+ chev(x,cx,ftop+fh*.4,w*.92,fh*.55);
+ // hombreras con la V en el adulto
+ if(st===3&&!back)for(const k of[-1,1]){soft(x,c=>c.ellipse(cx+k*w*.52,top+h*.36,36,28,0,0,7),R,[cx+k*w*.52-36,top+h*.36-28,cx+k*w*.52+36,top+h*.36+28],{hi:.5,lo:.4});chev(x,cx+k*w*.52,top+h*.36,40,24,W)}
+ // ceniza y brasa arriba: humo (1), llamita (2), crin de fuego (3)
+ soft(x,c=>c.roundRect(cx-w/2,top-4,w,20,8),"#7a7a7a",[cx-w/2,top-4,cx+w/2,top+16],{spec:false});E(x,cx,top-2,w*.32,9,0,"#ff6a1a",{hi:.6});
+ if(st===1)for(let i=0;i<2;i++)soft(x,c=>c.arc(cx+10+i*12,top-34-i*30,12+i*6,0,7),"#e8e8ee",[cx-20,top-100,cx+50,top-20],{hi:.3,lo:.15,spec:false});
+ if(st===2)flame(x,cx,top+2,26,6);if(st===3){flame(x,cx-34,top+6,30,-16);flame(x,cx+4,top+6,38,4);flame(x,cx+38,top+6,28,16)}
+ // orejas de caballo (crecen)
+ const es=[0,1,1.3,1.45][st];for(const k of[-1,1]){P(x,[[cx+k*w*.18,top+8],[cx+k*w*.36,top-48*es],[cx+k*w*.48,top+12]],W,{hi:.4,lo:.35});P(x,[[cx+k*w*.24,top+6],[cx+k*w*.36,top-30*es],[cx+k*w*.43,top+8]],"#f0a0a8")}
+ if(back)return;
+ // cara: los mismos ojos (más fieros al crecer) y, desde la 2, el hocico de caballo
+ const ey=top+h*(st===1?.3:.2);const er=[0,16,19,22][st];
+ eye(cx-w*.2,ey,er,{k:"hard",iris:st===3?"#c81818":"#3a1a0a",mood:st===3?"angry":undefined,side:-1});eye(cx+w*.2,ey,er,{k:"hard",iris:st===3?"#c81818":"#3a1a0a",mood:st===3?"angry":undefined,side:1});
+ if(st===1)mouth([[cx-14,ey+40],[cx,ey+46],[cx+14,ey+38]]);
+ else{const my=ey+w*.42;soft(x,c=>c.ellipse(cx,my,w*.3,w*.2,0,0,7),"#f4d8d0",[cx-w*.3,my-w*.2,cx+w*.3,my+w*.2],{hi:.35,lo:.3});for(const k of[-1,1])E(x,cx+k*w*.1,my-2,5,7,0,"#6a2a2a");mouth([[cx-w*.14,my+w*.11],[cx,my+w*.14],[cx+w*.14,my+w*.1]])}}
+PIXD.marlboro={shinyHue:180,front:x=>cigHorse(x,"front",1),back:x=>cigHorse(x,"back",1)};
+PIXD.marlborocarton={shinyHue:180,front:x=>cigHorse(x,"front",2),back:x=>cigHorse(x,"back",2)};
+PIXD.vaquero={shinyHue:180,front:x=>cigHorse(x,"front",3),back:x=>cigHorse(x,"back",3)};
+Object.assign(PIX_VAR_OVR,{marlboro:{tr:null},marlborocarton:{tr:null},vaquero:{tr:null}});
+if(typeof SP!=="undefined")["marlboro","marlborocarton","vaquero"].forEach(id=>{if(SP[id]){SP[id].pix=true;delete SP[id].vec;delete SP[id].gen}});
+})();
+
+/*</B4PIXLINES>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

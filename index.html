@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="74 · ACTO 5: Bahía, Terrazalia, Hoyales, Marruecos, el Sumiller y la Liga";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="75 · Evoluciones coherentes y 32 terceras fases nuevas";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8459,6 +8459,74 @@ const _hassanAgain=TALK2.hassan;TALK2.hassan=async()=>{if(S.flags.marruecos&&!S.
 const _gz5=grassZones;grassZones=function(){if(S.map==="hoyales")return[[ZONES.HY,"Hoyales · las eras",true]];return _gz5()};
 const _we5=wildEncounter;wildEncounter=async function(){if(S.map==="hoyales"){const z=ZONES.HY;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _we5()};
 /*</B4ACTO5>*/
+/*<B4PIXEVO>*/
+/* ===================== EVOLUCIONES COHERENTES + TERCERAS FASES NUEVAS ===================== */
+// Cada evolución es el mismo producto de la primera fase, más grande y con rasgos de su tipo (como la línea Marlboro).
+(function(){const{soft,E,P,L,D,star,ground}=PIXLIB;
+// ---- terceras fases nuevas para las líneas de 2 ----
+const NEW3=[["garrafa5l","bidonradiactivo","Bidón Radiactivo","Un bidón de garrafón que lleva tanto tiempo al sol que brilla en la oscuridad. Si lo hueles, ves a tus antepasados."],
+ ["absolutmagnum","absolutglaciar","Absolut Glaciar","La botella se ha convertido en un iceberg andante. Dicen que el Titanic chocó contra un primo suyo."],
+ ["ducadoscarton","ducadoseterno","Ducados Eterno","Un cartón de negro que lleva fumando desde 1963. Tose humo con forma de abuelo."],
+ ["habano","habanosupremo","Habano Supremo","El puro de los puros. Solo se enciende en bodas, bautizos y comuniones de mafiosos."],
+ ["modbox","overclock","Mod Box Overclock","Un vapeador con tanta potencia que echa nubes con rayos dentro. Lo han prohibido en tres festivales."],
+ ["prensarosin","prensahidraulica","Prensa Hidráulica","Aprieta con dos toneladas de fuerza. Saca resina de una piedra. Y de un poli."],
+ ["increible","cogollogamma","Cogollo Gamma","Un cogollo expuesto a radiación de flexo de armario. Cuando se enfada, se pone todavía más verde."],
+ ["elcapo","elpadrino","El Padrino","El puro del capo de capos. Te hace una oferta que no puedes rechazar: otra calada."],
+ ["heinekenpack","barrilkraken","Barril Kraken","Un barril de Heineken tan grande que tiene su propio puerto. Los marineros le tienen miedo."],
+ ["sangria","ponchedeferia","Ponche de Feria","La jarra de sangría de las fiestas que nadie ha conseguido terminar. Lleva fruta de 2015."],
+ ["cenicero","cenicerovolcan","Cenicero Volcán","Un cenicero de bar con tantas colillas que ha entrado en erupción. Huele a lunes."],
+ ["chippiespack","chippiesturbo","Chippies Turbo","La lata más barata del súper, tuneada con alerones. Corre más que el guepardo de la etiqueta."],
+ ["millerpack","millerjet","Miller Jet","Un pack de botellas con motor a reacción. Vuela bajo para que no lo pare la Pasma."],
+ ["austincarton","austincampeon","Austin Campeón","El cartón de Austin con cinturón de campeón. Ha ganado todos los combates del polígono."],
+ ["monsterpack","monsterultra","Monster Ultra","La lata blanca, la que no se debería abrir de noche. Tiene garras en las garras."],
+ ["gansogris","goosepolar","Grey Goose Polar","El ganso del vodka en su forma definitiva: aletea y congela el aire a su paso."],
+ ["estrella1906","estrellafugaz","Estrella Fugaz","La 1906 tan fría que cruza el cielo dejando escarcha. Pide un deseo: otra ronda."],
+ ["cubatajyb","tercercubata","El Tercer Cubata","El cubata que separa una buena noche de una noche legendaria. Nadie se acuerda del cuarto."],
+ ["gintonic","copabalonreal","Copa Balón Real","Un gin-tonic con tanto adorno que parece un jardín botánico. Pepino, enebro y dignidad."],
+ ["jagerbomb","jagertormenta","Jäger Tormenta","Una Jägerbomb que ha explotado de verdad. Trae truenos de serie."],
+ ["carajillo","carajilloquemado","Carajillo Quemado","El carajillo del bar de abajo, flambeado hasta que arde la barra. Despierta a un muerto."],
+ ["hadaverde","reinaabsenta","Reina Absenta","La reina de las hadas verdes. Sus alas son de azúcar quemado y su mirada, de 70 grados."],
+ ["torito","torosupersonico","Toro Supersónico","La lata con alas que rompe la barrera del sonido. Deja un rastro de taurina."],
+ ["fresahelada","fresaglacial","Fresa Glacial","El vaper de fresa tan helado que congela los pulmones. Es broma. Bueno, no del todo."],
+ ["bongazo","bongabisal","Bong Abisal","Un bong de cristal tan hondo que tiene su propio ecosistema. Burbujea como un volcán submarino."],
+ ["gorilon","gorilonrey","Gorilón Rey","El gorila del pegamento, coronado rey de la selva del armario. Lo que toca, se queda pegado."],
+ ["polenprensado","polenimperial","Polen Imperial","Una placa de polen prensada con el sello del sultán. Brilla como el oro del Rif."],
+ ["bezoya5l","garrafaantidisturbios","Garrafa Antidisturbios","La garrafa de agua de la Pasma con casco, escudo y porra. Moja y multa a la vez."],
+ ["cajadonuts","furgondonuts","Furgón de Donuts","El furgón de la Pasma lleno de donuts hasta el techo. Patrulla siempre hacia la pastelería."],
+ ["queimada","queimadameiga","Queimada de Meiga","La queimada con el conjuro completo. Arde azul y espanta a los malos espíritus. Y a la Pasma."],
+ ["escanciador","sidratempestad","Sidra Tempestad","La sidra escanciada desde tan alto que provoca tormentas. Nunca cae fuera del vaso."],
+ ["argus1844","argusmedianoche","Argus Medianoche","La 1844 Black a las doce en punto. Se ilumina con rayos negros."]];
+if(typeof SP!=="undefined")for(const[prev,id,n,d]of NEW3){const p=SP[prev];if(!p||SP[id])continue;
+ SP[id]={n,t:p.t,t2:p.t2,fam:p.fam,b:(p.b||[60,60,60,60]).map(v=>Math.round(v*1.18)),xp:Math.round((p.xp||160)*1.35),learn:(p.learn||[]).slice(),z:"Evolución",d};
+ const lv=Math.max(36,((Object.values(SP).find(s=>s.evo&&s.evo[1]===prev)||{}).evo||[24])[0]+14);p.evo=[lv,id];if(!DEX_ORDER.includes(id))DEX_ORDER.push(id)}
+// ---- rasgos por tipo ----
+const F={
+ fuego:(x,k,v)=>{for(const[dx,r]of[[-40,28],[0,38],[40,28]])flame(x,350+dx*k,250,r*k)},
+ agua:(x,k,v)=>{for(const s of[-1,1])P(x,[[350+s*95*k,360],[350+s*170*k,330],[350+s*150*k,420],[350+s*95*k,440]],"#3aa0e8",{hi:.5,lo:.4})},
+ planta:(x,k,v)=>{for(const a of[-.9,-.45,0,.45,.9]){x.save();x.translate(350,255);x.rotate(a);soft(x,c=>c.ellipse(0,-50*k,18*k,50*k,0,0,7),"#4aa83a",[-18*k,-100*k,18*k,0],{hi:.5,lo:.4});x.restore()}},
+ electrico:(x,k,v)=>{for(const s of[-1,1])P(x,[[350+s*30*k,265],[350+s*60*k,200],[350+s*45*k,205],[350+s*80*k,140],[350+s*50*k,215],[350+s*62*k,212],[350+s*40*k,268]],"#ffe23a",{hi:.6,lo:.3})},
+ hielo:(x,k,v)=>{for(const[dx,h]of[[-110,60],[-80,90],[80,90],[110,60],[0,70]])P(x,[[350+dx*k-14,300],[350+dx*k,300-h*k],[350+dx*k+14,300]],"#bfe4ff",{hi:.75,lo:.35})},
+ veneno:(x,k,v)=>{for(const dx of[-60,-20,20,60])P(x,[[350+dx*k-12,270],[350+dx*k,220-Math.abs(dx)*.3*k],[350+dx*k+12,270]],"#9a4ad0",{hi:.5,lo:.4});for(const s of[-1,1])E(x,350+s*100*k,440,10*k,16*k,0,"#7aff3a",{hi:.6})},
+ normal:(x,k,v)=>{for(const s of[-1,1]){E(x,350+s*130*k,400,34*k,50*k,s*.3,"#f1c27d",{hi:.4});E(x,350+s*150*k,450,30*k,28*k,0,"#f1c27d",{hi:.5})}},
+ lucha:(x,k,v)=>{for(const s of[-1,1])soft(x,c=>c.ellipse(350+s*150*k,400,36*k,32*k,0,0,7),"#d8202a",[350+s*150*k-36*k,368,350+s*150*k+36*k,432],{hi:.6,lo:.45,sa:.8});x.fillStyle="#f4f4f4";x.fillRect(350-90*k,275,180*k,14*k)},
+ volador:(x,k,v)=>{for(const s of[-1,1]){x.save();x.translate(350+s*80,360);x.scale(s,1);soft(x,c=>{c.moveTo(0,0);c.quadraticCurveTo(110*k,-120*k,180*k,-50*k);c.lineTo(150*k,-10);c.lineTo(180*k,20*k);c.lineTo(140*k,40*k);c.quadraticCurveTo(80*k,70*k,0,60);c.closePath()},"#f4f0e8",[0,-120*k,180*k,70*k],{hi:.45,lo:.45});x.restore()}},
+ psiquico:(x,k,v)=>{x.strokeStyle="#c87aff";x.lineWidth=12*k;x.beginPath();x.ellipse(350,250,70*k,22*k,0,0,7);x.stroke();E(x,350,300,14*k,14*k,0,"#ff6aff",{hi:.7})},
+ tierra:(x,k,v)=>{for(const s of[-1,1])P(x,[[350+s*80*k,300],[350+s*150*k,290],[350+s*160*k,350],[350+s*90*k,360]],"#8a6a4a",{hi:.4,lo:.5});for(const dx of[-40,0,40])P(x,[[350+dx*k-20,270],[350+dx*k,230-(dx?0:20)*k],[350+dx*k+20,270]],"#6a5a4a",{hi:.4})},
+ siniestro:(x,k,v)=>{for(const s of[-1,1])soft(x,c=>{c.moveTo(350+s*40*k,270);c.quadraticCurveTo(350+s*110*k,240,350+s*90*k,170);c.quadraticCurveTo(350+s*70*k,230,350+s*20*k,262);c.closePath()},"#2a1a2a",[350-120*k,170,350+120*k,270],{hi:.5,lo:.4})},
+ fantasma:(x,k,v)=>{for(const s of[-1,1])soft(x,c=>c.ellipse(350+s*120*k,430,30*k,60*k,s*.3,0,7),"#c8c0f0",[350+s*120*k-30*k,370,350+s*120*k+30*k,490],{hi:.5,lo:.3,spec:false})},
+ acero:(x,k,v)=>{for(const s of[-1,1]){soft(x,c=>c.ellipse(350+s*105*k,330,48*k,30*k,0,0,7),"#a8b0bc",[350+s*105*k-48*k,300,350+s*105*k+48*k,360],{hi:.7,lo:.45,sa:.9});E(x,350+s*105*k,330,6*k,6*k,0,"#5a6070")}}};
+const BEHIND=new Set(["volador","fantasma","psiquico"]);
+function flame(x,cx,by,r){for(const[k,c]of[[1,"#ff6a1a"],[.62,"#ffb02a"],[.32,"#ffe27a"]])soft(x,cc=>{cc.moveTo(cx-r*k,by);cc.quadraticCurveTo(cx-r*k*.9,by-r*1.3*k,cx,by-r*2.4*k);cc.quadraticCurveTo(cx+r*k*.9,by-r*1.3*k,cx+r*k,by);cc.closePath()},c,[cx-r,by-r*2.4,cx+r,by],{hi:.6,lo:.2,spec:false})}
+function evolved(base,types,k){const draw=view=>x=>{for(const t of types)if(BEHIND.has(t)&&F[t])F[t](x,k,view);PIXD[base][view](x);for(const t of types)if(!BEHIND.has(t)&&F[t])F[t](x,k,view)};return{shinyHue:PIXD[base].shinyHue,front:draw("front"),back:draw("back")}}
+// ---- reconstruir todas las líneas (menos los iniciales y Marlboro) ----
+if(typeof SP!=="undefined"){const FIXEDL=new Set(["steinburguito","westito","kushito","marlboro"]);const prevOf={};for(const[id,s]of Object.entries(SP))if(s.evo&&SP[s.evo[1]])prevOf[s.evo[1]]=id;
+ for(const root of Object.keys(SP)){if(prevOf[root]||!SP[root].evo||FIXEDL.has(root)||!PIXD[root])continue;
+  let st=1,id=root;while(SP[id].evo&&SP[SP[id].evo[1]]){id=SP[id].evo[1];st++;if(st>3)break;const types=[SP[id].t,SP[id].t2].filter(Boolean);
+   PIXD[id]=evolved(root,st===2?types.slice(0,1):types,st===2?1:1.25);PIX_VAR_OVR[id]={tr:{sx:st===2?1.08:1.18,sy:st===2?1.08:1.18,rot:0},leg:"stub",arm:st===2?"stub":"stub"};
+   SP[id].pix=true;delete SP[id].vec;delete SP[id].gen}}}
+})();
+
+/*</B4PIXEVO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

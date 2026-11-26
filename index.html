@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="51 · Tipos Fantasma y Acero";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="52 · Autovía de verdad";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -3633,7 +3633,7 @@ function titleScreen(){
     <p>¡Hazte con todos los Pedomones! Un juego de parodia +18 para jugar entre colegas.</p>
     <div class="btns">${has?`<button class="big" type="button" id="t-cont">Continuar</button>`:""}<button class="big ${has?"alt":""}" type="button" id="t-new">Nueva partida</button></div>
     <p class="keys">Móvil: cruceta, A, B y el botón CORRER. Ordenador: flechas, Enter para hablar, X para volver y Espacio para correr. El volumen se cambia aquí o desde el Menú.<br>Multijugador: abrid el juego a la vez y quedad en El Descampado.</p>
-    ${volSlider("t-vol")}<p class="keys" style="font-size:11px;max-width:560px">Música: «Hackbeat», «Rollin at 5», «Gonna Start», «Local Forecast», «Desert City», «Asian Drums», «Habanera», «Investigations», «Hustle», «Volatile Reaction», «Maccary Bay», «Montego», «Easy Jam», «Mandeville» y «Sunday Dub», de Kevin MacLeod (incompetech.com). Licencia Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0/).</p><p class="keys" style="font-size:12px;color:var(--amber)">Versión ${GAME_VER}</p></div>`);
+    ${volSlider("t-vol")}<p class="keys" style="font-size:11px;max-width:560px">Música: «Hackbeat», «Rollin at 5», «Gonna Start», «Dirt Rhodes», «Local Forecast», «Desert City», «Asian Drums», «Habanera», «Investigations», «Hustle», «Volatile Reaction», «Maccary Bay», «Montego», «Easy Jam», «Mandeville» y «Sunday Dub», de Kevin MacLeod (incompetech.com). Licencia Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0/).</p><p class="keys" style="font-size:12px;color:var(--amber)">Versión ${GAME_VER}</p></div>`);
   if(has)$("t-cont").onclick=async()=>{S=Object.assign(freshState(),has);S.bag=Object.assign({},has.bag||{});S.flags=Object.assign(freshState().flags,has.flags||{});S.q=Object.assign({gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},has.q||{});S.accU=has.accU||{};
     S.keys=has.keys||{};S.beaten=has.beaten||{};S.skin=cleanSkin(has.skin);if(!MAPS[S.map])S.map="park";if(!Array.isArray(S.respawn)||S.respawn.length<3||!MAPS[S.respawn[0]])S.respawn=["kebab",4,3];
     closeOverlay();if(!S.name)await nameScreen();start()};
@@ -6306,6 +6306,58 @@ VEC.delirium=(V,g,x)=>{V.shadow(30,57,22);const P=g.b;V.fill(V.el(48,36,6,12),P,
   V.face(30,22,"happy",8,1.1,"#3a2a5a");if(!V.flat){for(let i=0;i<5;i++){x.fillStyle=["#fff","#ffd14a","#7ad0ff","#ff4ad0","#7aff6a"][i];V.path(V.el(10+i*10,6+Math.sin(i)*3,1.6,1.6));x.fill()}}V.legs(30,52,10,"#e070b0")};
 
 /*</B4TIPOS2>*/
+/*<B4TRAFICO>*/
+/* ===================== AUTOVÍA A-420 REALISTA: líneas fijas, tráfico de verdad y sonido de coches ===================== */
+SONGS.carretera=["musica/carretera.mp3","Dirt Rhodes"];
+// asfalto con la pintura quieta (como en una autovía de verdad)
+const _dt4Traf=drawTile4;
+drawTile4=function(ch,x,y,sx,sy,t,m){if(ch!=="a"||S.map!=="carretera")return _dt4Traf(ch,x,y,sx,sy,t,m);const h=hash(x,y);
+  px(sx,sy,T,T,"#34343c");if(h%3===0)px(sx+(h%13),sy+((h>>4)%13),1,1,"#44444e");if(h%7===0)px(sx+((h>>6)%12),sy+((h>>9)%12),3,1,"#2c2c34");
+  if(y===0){px(sx,sy,T,2,"#5a5a62");px(sx,sy+3,T,1,"#e8e8e8")}
+  if(y===1&&x%3!==2)px(sx+2,sy,10,1,"#e8e8e8");
+  if(y===2){px(sx,sy-1,T,1,"#e8e8e8");px(sx,sy+1,T,1,"#e8e8e8")}
+  if(y===3){if(x%3!==2)px(sx+2,sy,10,1,"#e8e8e8");px(sx,sy+14,T,1,"#e8e8e8")}
+  return true};
+CARS4.length=0;   // fuera los coches de antes
+const VTYPES=[{k:"coche",L:24,W:10,w:50},{k:"coche",L:22,W:10,w:30},{k:"furgo",L:28,W:11,w:12},{k:"camion",L:46,W:12,w:8},{k:"moto",L:11,W:5,w:6}];
+const VCOLS=["#c8202a","#2a4ab8","#e8e8e8","#1a1a1a","#8a8a92","#2a7a3a","#e8b84a","#6a2a8a","#f07a2a","#4ad8ff"];
+const TRAF={list:[],next:[0,0,0,0],last:0};
+function newVeh(lane){let r=Math.random()*106,v=VTYPES[0];for(const tt of VTYPES){if(r<tt.w){v=tt;break}r-=tt.w}const dir=lane<2?-1:1;const mw=MAPS.carretera.w*T;
+  const base=(lane===0||lane===3?95:120)*(v.k==="camion"?.72:v.k==="moto"?1.25:1)*(.85+Math.random()*.3);
+  return{lane,dir,k:v.k,L:v.L,W:v.W,c:v.k==="camion"?pick(["#e8e8e8","#c8202a","#2a4ab8","#e8b84a"]):pick(VCOLS),tr:pick(["#d8d8d8","#4a6a8a","#c8a060","#8a2a2a"]),x:dir>0?-60:mw+60,v:base,v0:base,sound:false,horn:Math.random()<.04}}
+function whoosh(big,vol,dir){if(!AC||muted)return;try{const t0=AC.currentTime,len=big?1.1:.7;const buf=AC.createBuffer(1,Math.floor(AC.sampleRate*len),AC.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const src=AC.createBufferSource();src.buffer=buf;const bp=AC.createBiquadFilter();bp.type="bandpass";bp.Q.value=1.2;const f0=big?260:520;bp.frequency.setValueAtTime(f0*1.5,t0);bp.frequency.exponentialRampToValueAtTime(f0*.6,t0+len);
+  const g=AC.createGain();const V=Math.min(.22,vol)*(MUSV/.22*.6+.4);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(V,t0+len*.45);g.gain.exponentialRampToValueAtTime(.0008,t0+len);
+  let out=g;if(AC.createStereoPanner){const p=AC.createStereoPanner();p.pan.setValueAtTime(-dir*.7,t0);p.pan.linearRampToValueAtTime(dir*.7,t0+len);g.connect(p);out=p}
+  src.connect(bp);bp.connect(g);out.connect(AC.destination);src.start(t0);src.stop(t0+len)}catch(e){}}
+function horn(vol){if(!AC||muted)return;try{const t0=AC.currentTime;for(const f of[392,494]){const o=AC.createOscillator(),g=AC.createGain();o.type="square";o.frequency.value=f;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol*.06,t0+.02);g.gain.setValueAtTime(vol*.06,t0+.35);g.gain.linearRampToValueAtTime(0,t0+.45);o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+.5)}}catch(e){}}
+function drawVeh(v,X,Y){const f=v.dir>0,L=v.L,W=v.W,x0=Math.round(X-L/2),y0=Math.round(Y-W/2);const front=f?x0+L:x0;
+  ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(x0+2,y0+2,L,W);
+  if(v.k==="moto"){px(x0,y0+1,L,W-2,"#1a1a1a");px(x0+2,y0,L-4,W,v.c);px(x0+(f?2:L-6),y0+1,4,3,"#2a2a2a");px(f?x0+L-1:x0,y0+2,1,1,"#fff4c8");return}
+  if(v.k==="camion"){const cab=12,tl=L-cab-1;const cx0=f?x0+tl+1:x0,tx0=f?x0:x0+cab+1;
+    px(tx0,y0,tl,W,v.tr);px(tx0,y0,tl,1,hexShade(v.tr,1.25));px(tx0,y0+W-1,tl,1,hexShade(v.tr,.7));for(let i=4;i<tl;i+=6)px(tx0+i,y0+1,1,W-2,hexShade(v.tr,.85));
+    px(cx0,y0,cab,W,v.c);px(cx0+(f?cab-4:1),y0+1,3,W-2,"#2a3a5a");px(cx0+(f?1:cab-3),y0+2,2,W-4,hexShade(v.c,1.2));
+    for(const wx of[tx0+3,tx0+tl-7,cx0+(f?7:2)]){px(wx,y0-1,4,1,"#111");px(wx,y0+W,4,1,"#111")}}
+  else{px(x0,y0,L,W,v.c);px(x0,y0,L,1,hexShade(v.c,1.3));px(x0,y0+W-1,L,1,hexShade(v.c,.65));
+    const ws=f?x0+L-9:x0+3;px(ws,y0+1,5,W-2,"#2a3a5a");px(ws+(f?1:0),y0+2,1,W-4,"#6a8ab8");
+    const rr=f?x0+3:x0+L-7;px(rr,y0+2,3,W-4,"#2a3a5a");
+    if(v.k==="furgo")px(f?x0+2:x0+10,y0+1,L-14,W-2,hexShade(v.c,1.1));else px(x0+(f?7:8),y0+2,L-16,W-4,hexShade(v.c,1.15));
+    for(const wx of[x0+3,x0+L-7]){px(wx,y0-1,4,1,"#111");px(wx,y0+W,4,1,"#111")}}
+  px(f?x0+L-1:x0,y0+1,1,2,"#fff4c8");px(f?x0+L-1:x0,y0+W-3,1,2,"#fff4c8");px(f?x0:x0+L-1,y0+1,1,2,"#d82020");px(f?x0:x0+L-1,y0+W-3,1,2,"#d82020");
+  ctx.save();ctx.globalAlpha=.07;ctx.fillStyle="#fff4c8";ctx.beginPath();ctx.moveTo(front,Y);ctx.lineTo(front+(f?34:-34),Y-9);ctx.lineTo(front+(f?34:-34),Y+9);ctx.fill();ctx.restore()}
+const _rwTraf=renderWorld;
+renderWorld=function(t){_rwTraf(t);if(S.map!=="carretera")return;const m=MAPS.carretera,mw=m.w*T;let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+  const ox=Math.round(Math.max(0,Math.min(mw-SW,wx*T+8-SW/2))),oy=Math.round(Math.max(0,Math.min(m.h*T-SH,wy*T+8-SH/2)));
+  const nw=performance.now(),dt=Math.min(.05,(nw-(TRAF.last||nw))/1000);TRAF.last=nw;
+  for(let ln=0;ln<4;ln++){TRAF.next[ln]-=dt;if(TRAF.next[ln]<=0){TRAF.next[ln]=1.2+Math.random()*2.6;TRAF.list.push(newVeh(ln))}}
+  TRAF.list.sort((a,b)=>a.dir*(b.x-a.x));
+  for(const v of TRAF.list){const ahead=TRAF.list.filter(o=>o!==v&&o.lane===v.lane&&(o.x-v.x)*v.dir>0).sort((a,b)=>Math.abs(a.x-v.x)-Math.abs(b.x-v.x))[0];
+    let target=v.v0;if(ahead){const gap=Math.abs(ahead.x-v.x)-(ahead.L+v.L)/2;if(gap<26)target=Math.min(target,ahead.v*(gap<12?.6:.95))}v.v+=(target-v.v)*Math.min(1,dt*2);v.x+=v.dir*v.v*dt;
+    const pxp=wx*T+8;if(!v.sound&&Math.abs(v.x-pxp)<26&&mode==="world"){v.sound=true;const rows=Math.max(1,wy-v.lane);const vol=.34/rows;if(rows<9){whoosh(v.k==="camion",vol*(v.k==="camion"?1.4:v.k==="moto"?.8:1),v.dir);if(v.horn)horn(Math.min(1,vol*3))}}}
+  TRAF.list=TRAF.list.filter(v=>v.x>-80&&v.x<mw+80);
+  for(const v of TRAF.list){const X=v.x-ox,Y=v.lane*16+8-oy;if(X<-60||X>SW+60)continue;drawVeh(v,X,Y)}};
+
+/*</B4TRAFICO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

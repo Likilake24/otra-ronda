@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="65 · Pixel art: Ciudad Neón y el Casino";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="66 · Pixel art: La Pasma y Las Bodegas";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -7684,6 +7684,77 @@ if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=
 })();
 
 /*</B4PIXDES7>*/
+/*<B4PIXDES8>*/
+/* ===================== DISEÑOS EN PIXEL ART · tanda 8: La Pasma y Las Bodegas ===================== */
+(function(){const{soft,E,P,L,D,gloss,star,eye,mouth,fur,clawsDown,ground}=PIXLIB;const{make,face,K}=PIXO;const{biped,quad}=PIXB;
+const txt=(x,s,cx,cy,size,col,font="Georgia",st="900")=>{x.font=`${st} ${size}px ${font}`;x.textAlign="center";x.textBaseline="middle";x.fillStyle=col;x.fillText(s,cx,cy)};
+const custom=(fn,o)=>({shinyHue:o.shinyHue||170,front:x=>{ground(x,350,628,170*(o.sz||1));fn(x,"front",o)},back:x=>{ground(x,350,628,170*(o.sz||1));fn(x,"back",o)}});
+const legs=(x,cx,bot,gap,col)=>{for(const k of[-1,1]){E(x,cx+k*gap,bot+24,18,32,0,col);E(x,cx+k*(gap+4),bot+54,26,14,0,D(col,.4))}};
+const arms=(x,cx,y,half,col,up)=>{for(const k of[-1,1]){x.save();x.translate(cx+k*half,y);x.rotate(k*(up?-.9:.35));E(x,k*20,0,34,14,0,col);E(x,k*48,0,15,15,0,"#f4f0e8");x.restore()}};
+const steam=(x,ax,ay,n=3)=>{for(let i=0;i<n;i++){x.strokeStyle="rgba(240,240,250,.9)";x.lineWidth=10;x.lineCap="round";x.beginPath();x.moveTo(ax-30+i*30,ay);x.bezierCurveTo(ax-50+i*30,ay-30,ax-10+i*30,ay-50,ax-30+i*30,ay-80);x.stroke()}};
+const copCap=(x,cx,y,s)=>{soft(x,c=>c.roundRect(cx-s*.55,y-s*.5,s*1.1,s*.5,s*.1),"#1a2a5a",[cx-s*.55,y-s*.5,cx+s*.55,y],{hi:.4});E(x,cx,y,s*.7,s*.12,0,"#0a1a3a",{hi:.3});star(x,cx,y-s*.25,s*.13,"#e6bc3a",6)};
+
+// ===================== BEZOYA (agua): botella de la Pasma → hipopótamo poli =====================
+PIXD.bezoya=make("bottle",{col:"#d8ecf8",lab:"#2a6ad0",cap:"#2a6ad0",limb:"#1a2a5a",shinyHue:30,face:{k:"slit",m:"flat",mood:"angry",iris:"#2a6ad0"},logo:(x,cx,cy,w)=>txt(x,"BEZOYA",cx,cy,w*.17,"#f4f4f4","Arial"),extra:(x,v,cx,top)=>copCap(x,cx,top+10,130)});
+const HIPPO={col:"#8a8ab8",belly:"#c8c8e0",muzzle:"#a8a8d0",head:"pig",ears:"round",inner:"#6a6a9a",snout:"#b8b8d8",iris:"#2a2a4a",mood:"angry"};
+const garrafaBelly=(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-90,cy-90,180,190,40),"#d8ecf8",[cx-90,cy-90,cx+90,cy+100],{hi:.65,lo:.4,sa:.9});x.fillStyle="rgba(120,180,240,.5)";x.fillRect(cx-88,cy-10,176,108);soft(x,c=>c.roundRect(cx-70,cy-20,140,50,6),"#2a6ad0",[cx-70,cy-20,cx+70,cy+30],{spec:false});txt(x,"5 L",cx,cy+6,34,"#f4f4f4","Arial")};
+PIXD.bezoya5l={shinyHue:30,front:x=>biped(x,"front",Object.assign({},HIPPO,{big:2,armCol:"#1a2a5a",legCol:"#1a2a5a",foot:"#0a0a1a",chest:garrafaBelly,top:(x,cx,cy,s)=>copCap(x,cx,cy-s*.6,s*1.2),front:(x,W)=>{x.save();x.translate(350+170*W,470);x.rotate(.3);soft(x,c=>c.roundRect(-10,-10,20,130,8),"#1a1a1a",[-10,-10,10,120],{hi:.4});x.restore()}})),
+ back:x=>biped(x,"back",Object.assign({},HIPPO,{big:2,armCol:"#1a2a5a",legCol:"#1a2a5a",top:(x,cx,cy,s)=>copCap(x,cx,cy-s*.55,s*1.2),backMark:(x,cx,cy)=>txt(x,"PASMA",cx,cy-30,54,"#e6bc3a","Arial")}))};
+PIXD.solan=make("bottle",{sz:1.05,col:"#2a5ab8",lab:"#f4ecd8",cap:"#1a3a8a",limb:"#1a2a5a",shinyHue:30,face:{k:"hard",m:"smile",iris:"#e6bc3a"},logo:(x,cx,cy,w)=>{txt(x,"Solán",cx,cy-w*.06,w*.15,"#1a3a8a");txt(x,"de Cabras",cx,cy+w*.12,w*.1,"#1a3a8a","Arial","700")},
+  extra:(x,v,cx,top)=>{for(const k of[-1,1])soft(x,c=>{c.moveTo(cx+k*18,top+70);c.quadraticCurveTo(cx+k*90,top+40,cx+k*80,top+130);c.quadraticCurveTo(cx+k*60,top+70,cx+k*14,top+100);c.closePath()},"#e8dcc0",[cx-90,top+40,cx+90,top+130],{hi:.5})}});
+// ===================== CAFÉ: cafetín → café de máquina → cafetera de comisaría =====================
+PIXD.cafetin=custom((x,v)=>{legs(x,350,520,46,"#6a3a1a");if(v==="front")arms(x,350,460,120,"#6a3a1a");soft(x,c=>{c.moveTo(230,360);c.lineTo(470,360);c.quadraticCurveTo(470,540,350,545);c.quadraticCurveTo(230,540,230,360);c.closePath()},"#f8f8f4",[230,360,470,545],{hi:.5,lo:.4});E(x,350,362,120,22,0,"#4a2a12",{hi:.3});
+  x.strokeStyle="#f8f8f4";x.lineWidth=18;x.beginPath();x.arc(480,430,36,-1.2,1.2);x.stroke();E(x,350,560,150,22,0,"#e8e8e4",{hi:.4});steam(x,350,320);if(v==="front")face(x,350,430,240,{face:{k:"wide",m:"grin",gap:.2}})},{shinyHue:200});
+PIXD.cafemaquina=custom((x,v)=>{legs(x,350,550,46,"#6a4a2a");if(v==="front")arms(x,350,440,110,"#6a4a2a",true);soft(x,c=>{c.moveTo(250,280);c.lineTo(450,280);c.lineTo(420,555);c.lineTo(280,555);c.closePath()},"#f4f0e8",[250,280,450,555],{hi:.4,lo:.35,tex:x=>{x.strokeStyle="rgba(0,0,0,.1)";x.lineWidth=3;for(let i=0;i<8;i++){x.beginPath();x.moveTo(260+i*25,282);x.lineTo(285+i*18,553);x.stroke()}}});
+  x.fillStyle="#6a3a1a";x.fillRect(265,440,170,40);txt(x,"CAFÉ",350,460,30,"#f4f0e8","Arial");E(x,350,282,100,16,0,"#3a1a08",{hi:.3});steam(x,350,250);x.strokeStyle="#c0c8d0";x.lineWidth=6;x.beginPath();x.moveTo(380,300);x.lineTo(420,220);x.stroke();
+  if(v==="front")face(x,350,360,200,{face:{k:"spiral",m:"wavy",gap:.22}})},{shinyHue:200});
+PIXD.cafetera=custom((x,v)=>{legs(x,350,560,70,"#4a4a52");if(v==="front")arms(x,350,430,150,"#4a4a52",true);
+  soft(x,c=>{c.moveTo(250,555);c.lineTo(450,555);c.lineTo(420,420);c.lineTo(280,420);c.closePath()},"#a8b0b8",[250,420,450,555],{hi:.6,lo:.5,sa:.8});soft(x,c=>c.roundRect(300,395,100,30,4),"#5a5a62",[300,395,400,425],{hi:.5});
+  soft(x,c=>{c.moveTo(280,400);c.lineTo(420,400);c.lineTo(445,230);c.lineTo(255,230);c.closePath()},"#c0c8d0",[255,230,445,400],{hi:.6,lo:.5,sa:.85});soft(x,c=>c.ellipse(350,225,100,26,0,0,7),"#8a9098",[250,200,450,250],{hi:.5});E(x,350,200,18,18,0,"#1a1a1a",{hi:.5});
+  x.strokeStyle="#1a1a1a";x.lineWidth=20;x.beginPath();x.moveTo(445,260);x.quadraticCurveTo(520,280,470,380);x.stroke();P(x,[[250,240],[200,215],[255,265]],"#a8b0b8");
+  star(x,350,480,30,"#e6bc3a",6);txt(x,"POLICÍA",350,520,22,"#1a2a5a","Arial");steam(x,210,200,2);if(v==="front")face(x,350,310,260,{face:{k:"slit",m:"grin",mood:"angry",iris:"#ff3a1a"}})},{shinyHue:200,sz:1.3});
+// ===================== DONUT → CAJA DE DONUTS =====================
+const donut=(x,cx,cy,r,glaze="#f088b0")=>{soft(x,c=>c.ellipse(cx,cy,r,r*.9,0,0,7),"#d8a060",[cx-r,cy-r,cx+r,cy+r],{hi:.45,lo:.45});soft(x,c=>c.ellipse(cx,cy-r*.05,r*.92,r*.78,0,0,7),glaze,[cx-r,cy-r,cx+r,cy+r],{hi:.55,lo:.35});
+  E(x,cx,cy,r*.28,r*.24,0,"#8a5a2a",{hi:.2});const cols=["#4ad8ff","#f2d14e","#7aff6a","#ffffff","#c8202a"];for(let i=0;i<16;i++){const a=i*2.3,d=r*(.45+((i*37)%30)/100);x.save();x.translate(cx+Math.cos(a)*d,cy+Math.sin(a)*d*.85);x.rotate(a*2);x.fillStyle=cols[i%5];x.fillRect(-r*.08,-r*.025,r*.16,r*.05);x.restore()}};
+PIXD.donut=custom((x,v)=>{legs(x,350,520,50,"#a8703a");if(v==="front")arms(x,350,440,150,"#a8703a");donut(x,350,420,150);if(v==="front")face(x,350,340,260,{face:{k:"baby",m:"smile",r:.07,gap:.22,my:.05}})},{shinyHue:150});
+PIXD.cajadonuts=custom((x,v)=>{legs(x,350,555,90,"#8a5a2a");if(v==="front")arms(x,350,440,200,"#8a5a2a",true);
+  soft(x,c=>{c.moveTo(170,330);c.lineTo(530,330);c.lineTo(560,170);c.lineTo(140,170);c.closePath()},"#f4ecd8",[140,170,560,330],{hi:.3,lo:.35});txt(x,"DONUTS",350,250,50,"#e04a9a","Arial");
+  soft(x,c=>c.roundRect(170,330,360,225,14),"#f4ecd8",[170,330,530,555],{hi:.35,lo:.4});x.fillStyle="#e04a9a";x.fillRect(170,330,360,30);
+  for(let i=0;i<3;i++)donut(x,235+i*115,440,48,["#f088b0","#6a3a1a","#f4f0e0"][i]);if(v==="front")face(x,350,300,420,{face:{k:"hard",m:"grin",mood:"angry",iris:"#e04a9a",gap:.18,r:.05,my:.0}})},{shinyHue:150,sz:1.3});
+// ===================== ESTRELLA GALICIA (hielo): lata → 1906 helada =====================
+PIXD.estrella=make("can",{col:"#c8202a",band:"#f4f0e8",bandY:.56,limb:"#7a1010",shinyHue:200,face:{k:"star",m:"smile",iris:"#e6bc3a"},logo:(x,cx,cy,w)=>{star(x,cx-w*.3,cy,w*.09,"#c8202a");txt(x,"ESTRELLA",cx+w*.06,cy-w*.04,w*.13,"#c8202a");txt(x,"GALICIA",cx+w*.06,cy+w*.12,w*.1,"#c8202a","Arial")},extra:(x,v,cx,top,bot,w)=>{for(const[a,b]of[[-.6,.2],[.62,.35]]){const X=cx+a*w,Y=top+b*(bot-top);P(x,[[X,Y-16],[X+10,Y],[X,Y+16],[X-10,Y]],"#bfe4ff",{hi:.6})}}});
+PIXD.estrella1906=make("bottle",{sz:1.12,col:"#3a1a10",lab:"#c8202a",cap:"#1a1a1a",limb:"#2a0a0a",shinyHue:200,face:{k:"slit",m:"flat",iris:"#bfe4ff",mood:"angry"},armUp:true,logo:(x,cx,cy,w)=>{txt(x,"1906",cx,cy-w*.06,w*.2,"#f4ecd8");txt(x,"reserva especial",cx,cy+w*.13,w*.08,"#f4ecd8","Arial","700")},
+  extra:(x,v,cx,top,bot,w)=>{x.fillStyle="rgba(220,240,255,.85)";for(let i=0;i<14;i++)x.fillRect(cx-w*.4+((i*37)%(w*.8)),top+60+((i*53)%(bot-top-80)),6,10);for(const k of[-1,1])P(x,[[cx+k*w*.5,bot-60],[cx+k*w*.75,bot-120],[cx+k*w*.55,bot-30]],"#bfe4ff",{hi:.6})}});
+// ===================== J&B → CUBATA =====================
+PIXD.jyb=make("bottle",{sz:1.05,col:"#2a6a3a",lab:"#f2e070",cap:"#c8202a",limb:"#1a4a2a",shinyHue:200,face:{k:"dot",m:"grin"},logo:(x,cx,cy,w)=>{txt(x,"J&B",cx,cy-w*.04,w*.24,"#c8202a");txt(x,"RARE",cx,cy+w*.16,w*.09,"#1a1a1a","Arial")}});
+PIXD.cubatajyb=custom((x,v)=>{legs(x,350,555,50,"#5a2a10");if(v==="front")arms(x,350,430,110,"#5a2a10",true);soft(x,c=>c.roundRect(250,230,200,325,20),"#e8f0f4",[250,230,450,555],{hi:.6,lo:.35,sa:.9});
+  x.save();x.beginPath();x.roundRect(250,230,200,325,20);x.clip();x.fillStyle="#5a2a10";x.fillRect(250,290,200,270);x.fillStyle="rgba(220,240,255,.85)";for(const[a,b]of[[280,320],[360,350],[300,420],[390,450],[330,500]])x.fillRect(a-22,b-22,44,44);x.restore();
+  gloss(x,[[270,250],[270,540]],10);x.strokeStyle="#c8202a";x.lineWidth=12;x.beginPath();x.moveTo(400,300);x.lineTo(450,170);x.stroke();E(x,260,236,40,40,0,"#f2e84a",{hi:.5});E(x,260,236,26,26,0,"#fff8a0");if(v==="front")face(x,350,380,220,{face:{k:"sleepy",m:"smile",iris:"#c8202a"}})},{shinyHue:200});
+// ===================== LARIOS → GIN-TONIC =====================
+PIXD.larios=make("bottle",{sz:1.05,col:"#e0f0e8",lab:"#c8202a",cap:"#c8202a",limb:"#3a6a4a",shinyHue:300,face:{k:"hard",m:"smile",iris:"#2a8a4a"},logo:(x,cx,cy,w)=>{txt(x,"LARIOS",cx,cy-w*.04,w*.18,"#f4f4f4");txt(x,"gin",cx,cy+w*.13,w*.1,"#f4f4f4","Arial")}});
+PIXD.gintonic=custom((x,v)=>{legs(x,350,560,40,"#3a6a4a");x.strokeStyle="#e8f0f4";x.lineWidth=16;x.beginPath();x.moveTo(350,470);x.lineTo(350,550);x.stroke();E(x,350,556,70,14,0,"#e8f0f4",{hi:.6});if(v==="front")arms(x,350,330,170,"#3a6a4a");
+  soft(x,c=>c.ellipse(350,330,170,150,0,0,7),"#e8f0f4",[180,180,520,480],{hi:.7,lo:.35,sa:.95});x.save();x.beginPath();x.ellipse(350,330,170,150,0,0,7);x.clip();x.fillStyle="rgba(200,240,210,.6)";x.fillRect(180,300,340,200);
+  for(const[a,b,r]of[[300,380,12],[390,360,10],[350,420,8],[420,410,9]]){x.strokeStyle="rgba(255,255,255,.9)";x.lineWidth=3;x.beginPath();x.arc(a,b,r,0,7);x.stroke()}x.fillStyle="#4aa83a";x.beginPath();x.ellipse(290,330,50,14,.4,0,7);x.fill();x.fillStyle="#c8f0a0";x.beginPath();x.ellipse(290,330,40,9,.4,0,7);x.fill();x.restore();
+  E(x,430,190,40,40,0,"#6ac83a",{hi:.5});E(x,430,190,26,26,0,"#c8f08a");gloss(x,[[220,280],[230,380]],10);if(v==="front")face(x,350,300,300,{face:{k:"shades",m:"smile",gap:.18,tint:"#2a6a4a"}})},{shinyHue:300,sz:1.1});
+// ===================== ORUJO → QUEIMADA (con sombrero de meiga) =====================
+PIXD.orujo=make("bottle",{sz:1.02,col:"#eef4f0",lab:"#f4ecd8",cap:"#6a4a2a",limb:"#5a5a4a",shinyHue:120,face:{k:"wide",k2:"dot",m:"wavy"},logo:(x,cx,cy,w)=>{txt(x,"ORUJO",cx,cy-w*.04,w*.18,"#3a2a1a");txt(x,"de la abuela",cx,cy+w*.13,w*.09,"#3a2a1a","Arial","700")}});
+PIXD.queimada=custom((x,v)=>{legs(x,350,560,80,"#8a4a2a");if(v==="front")arms(x,350,470,190,"#8a4a2a",true);
+  for(const[r,c]of[[90,"#4a8aff"],[60,"#9ac8ff"]])soft(x,cc=>{cc.moveTo(350-r*1.8,390);cc.quadraticCurveTo(350-r*1.2,390-r*1.6,350-r*.6,390-r*.8);cc.quadraticCurveTo(350,390-r*2.4,350+r*.6,390-r*.8);cc.quadraticCurveTo(350+r*1.2,390-r*1.6,350+r*1.8,390);cc.closePath()},c,[350-r*1.8,390-r*2.4,350+r*1.8,390],{hi:.6,lo:.2,spec:false});
+  soft(x,c=>{c.moveTo(170,380);c.lineTo(530,380);c.quadraticCurveTo(540,570,350,575);c.quadraticCurveTo(160,570,170,380);c.closePath()},"#b8643a",[160,380,540,575],{hi:.45,lo:.5,tex:x=>{x.strokeStyle="rgba(90,40,10,.35)";x.lineWidth=5;x.beginPath();x.moveTo(180,420);x.lineTo(520,420);x.stroke()}});E(x,350,382,182,30,0,"#7a3a1a",{hi:.3});
+  for(const k of[-1,1]){x.strokeStyle="#6a4a2a";x.lineWidth=12;x.beginPath();x.moveTo(350+k*175,400);x.lineTo(350+k*215,300);x.stroke()}
+  if(v==="front")face(x,350,460,320,{face:{k:"slit",m:"grin",mood:"angry",iris:"#4a8aff",my:.12}})},{shinyHue:120,sz:1.3});
+// ===================== SIDRÍN → OSO ESCANCIADOR (asturiano) =====================
+PIXD.sidrin=make("bottle",{sz:1.08,col:"#3a7a2a",lab:"#f4ecd8",cap:"#3a7a2a",limb:"#2a4a1a",shinyHue:30,face:{k:"baby",m:"smile",r:.08},logo:(x,cx,cy,w)=>{txt(x,"SIDRA",cx,cy-w*.04,w*.17,"#3a7a2a");txt(x,"natural",cx,cy+w*.13,w*.09,"#3a7a2a","Arial","700")}});
+const BEAR={col:"#7a4a2a",belly:"#c8986a",muzzle:"#c8986a",head:"round",ears:"round",inner:"#4a2a12",iris:"#3a1a0a",tex:bb=>fur(bb,"rgba(40,20,5,.3)",50)};
+const sidraPour=(x,W)=>{x.save();x.translate(350+165*W,265);x.rotate(.5);soft(x,c=>c.roundRect(-20,-90,40,140,12),"#3a7a2a",[-20,-90,20,50],{hi:.6});x.restore();x.strokeStyle="rgba(240,220,120,.85)";x.lineWidth=8;x.beginPath();x.moveTo(350+170*W,250);x.quadraticCurveTo(350+150*W,420,350-150*W,500);x.stroke();
+  x.save();x.translate(350-160*W,520);soft(x,c=>{c.moveTo(-26,-40);c.lineTo(26,-40);c.lineTo(20,20);c.lineTo(-20,20);c.closePath()},"#e8f0f4",[-26,-40,26,20],{hi:.6});x.restore()};
+PIXD.escanciador={shinyHue:30,front:x=>biped(x,"front",Object.assign({},BEAR,{big:2,front:sidraPour,iris:"#3a1a0a",mood:"angry",chest:(x,cx,cy,W)=>{x.fillStyle="#2a2a2a";x.fillRect(cx-120*W,cy+60,240*W,24)},top:(x,cx,cy,s)=>{soft(x,c=>c.ellipse(cx,cy-s*.78,s*.6,s*.2,0,0,7),"#c8202a",[cx-s*.6,cy-s,cx+s*.6,cy-s*.58],{hi:.4})}})),back:x=>biped(x,"back",Object.assign({},BEAR,{big:2,top:(x,cx,cy,s)=>{soft(x,c=>c.ellipse(cx,cy-s*.74,s*.6,s*.2,0,0,7),"#c8202a",[cx-s*.6,cy-s,cx+s*.6,cy-s*.54],{hi:.4})}}))};
+// ===================== ALCOHOL DE 96 (veneno) =====================
+PIXD.alcohol96=make("bottle",{col:"#f4f8fa",lab:"#f4f4f4",cap:"#c8202a",limb:"#6a7a6a",shinyHue:80,face:{k:"x",m:"wavy"},logo:(x,cx,cy,w)=>{x.strokeStyle="#c8202a";x.lineWidth=4;x.strokeRect(cx-w*.4,cy-w*.22,w*.8,w*.44);txt(x,"96°",cx-w*.16,cy,w*.18,"#c8202a");x.fillStyle="#1a1a1a";x.beginPath();x.arc(cx+w*.2,cy-w*.04,w*.08,0,7);x.fill();x.fillStyle="#f4f4f4";x.fillRect(cx+w*.16,cy-w*.06,w*.03,w*.03);x.fillRect(cx+w*.22,cy-w*.06,w*.03,w*.03);x.fillStyle="#1a1a1a";x.fillRect(cx+w*.08,cy+w*.08,w*.24,w*.03)}});
+if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=true;delete SP[id].vec;delete SP[id].gen}});
+})();
+
+/*</B4PIXDES8>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

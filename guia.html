@@ -1,0 +1,238 @@
+<title>Guía de ¿Otra Ronda?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Layout: libreta de camarero. Una columna de lectura, pasos numerados para la historia y fichas para lo secundario. Tema único oscuro, el del juego. */
+:root{--bg:#120e0b;--panel:#1f1712;--panel2:#2a1f17;--line:#4a3626;--fg:#f4e7d4;--muted:#b8a38b;--amber:#f2a93b;--good:#7fd46b;
+  --display:"Pixelify Sans","Courier New",monospace;--body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,7vw,56px);color:var(--amber);line-height:1}
+h2{font-size:26px;color:var(--amber)}
+h3{font-size:18px}
+p{margin:0}
+.lead{color:var(--muted);max-width:65ch}
+section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:12px}
+nav{display:flex;flex-wrap:wrap;gap:8px}
+nav a{color:var(--fg);text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:14px}
+nav a:hover,nav a:focus-visible{border-color:var(--amber);outline:none}
+.part{font-family:var(--display);color:var(--muted);font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:40px 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+ol.steps li::before{content:counter(s);font-family:var(--display);font-size:22px;color:var(--amber);line-height:1.2}
+ol.steps li div{min-width:0;display:flex;flex-direction:column;gap:4px}
+ol.steps b,.card b{color:var(--fg)}
+.muted{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card .rw{color:var(--good);font-size:14px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+tr:last-child td{border-bottom:0}
+kbd{font-family:var(--display);background:var(--panel2);border:1px solid var(--line);border-bottom-width:3px;border-radius:5px;padding:0 6px;font-size:14px}
+.tip{border-left:3px solid var(--amber);padding:6px 12px;background:var(--panel);border-radius:0 6px 6px 0}
+.t{display:inline-block;border-radius:99px;padding:0 8px;font-size:12px;font-weight:700;color:#1a1410;white-space:nowrap}
+footer{color:var(--muted);font-size:13px}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:12px">
+    <h1>Guía de ¿Otra Ronda?</h1>
+    <p class="lead">Todo lo que hay en el juego hasta Ciudad Neón: la historia paso a paso, las misiones secundarias, los minijuegos, el casino, los tipos y dónde salen los Pedomones.</p>
+    <nav aria-label="Secciones"><a href="#controles">Controles</a><a href="#historia">Historia</a><a href="#secundarias">Secundarias</a><a href="#minijuegos">Minijuegos</a><a href="#casino">Casino</a><a href="#tipos">Tipos</a><a href="#pedomones">Pedomones</a><a href="#mts">MTs</a><a href="#sitios">Curar y comprar</a><a href="#accesorios">Accesorios</a><a href="#colegas">Multijugador</a></nav>
+  </header>
+
+  <section id="controles">
+    <h2>Controles</h2>
+    <div class="tbl"><table><thead><tr><th>Acción</th><th>Ordenador</th><th>Móvil</th></tr></thead><tbody>
+      <tr><td>Moverse</td><td>Flechas o WASD</td><td>Cruceta</td></tr>
+      <tr><td>Hablar, interactuar, aceptar</td><td><kbd>Enter</kbd> o <kbd>Z</kbd></td><td>Botón A</td></tr>
+      <tr><td>Volver, cancelar</td><td><kbd>X</kbd> o <kbd>Esc</kbd></td><td>Botón B</td></tr>
+      <tr><td>Correr</td><td>Mantén <kbd>Espacio</kbd> o <kbd>Shift</kbd></td><td>Botón CORRER (se queda activado)</td></tr>
+      <tr><td>Menú</td><td><kbd>M</kbd></td><td>Botón MENÚ</td></tr>
+    </tbody></table></div>
+    <div class="tbl"><table><thead><tr><th>En el Menú</th><th>Para qué sirve</th></tr></thead><tbody>
+      <tr><td>🍺 Equipo</td><td>Tus Pedomones, dando saltitos. Toca uno para ver sus estadísticas, sus ataques y ponerlo el primero.</td></tr>
+      <tr><td>🎒 Mochila</td><td>Curas, capturas, MTs y objetos clave.</td></tr>
+      <tr><td>📖 Destiladex</td><td>Todos los Pedomones con su dibujo: ✔ verde si lo tienes, 👁 si lo has visto, ✖ rojo si no. También la <b>tabla de tipos</b> y el buscador por tipo.</td></tr>
+      <tr><td>🏅 Medallero</td><td>Las 8 medallas de gimnasio. Con las 8, la Liga.</td></tr>
+      <tr><td>🕊️ Vuelo</td><td>Aparece al ganar a Lolo. Te lleva volando a cualquier ciudad que hayas visitado.</td></tr>
+      <tr><td>📡 Radar</td><td>Qué Pedomones salen en el césped donde estás y con qué probabilidad.</td></tr>
+      <tr><td>📜 Misiones</td><td>Lo que te toca hacer ahora. Si te pierdes, mira aquí.</td></tr>
+      <tr><td>🎚️ Volumen</td><td>Sube, baja o quita la música. También está en la pantalla de inicio.</td></tr>
+    </tbody></table></div>
+    <p class="tip">La partida se guarda sola después de cada combate. En <b>💾 Partida</b> puedes guardar a mano o exportarla para seguir en otro dispositivo.</p>
+  </section>
+
+  <section id="historia">
+    <h2>La historia</h2>
+    <p class="lead">La Pasma, una banda de polis corruptos, quiere aplicar la «Ley Seca»: requisar todos los Pedomones del país. Detrás está el Comisario… y alguien más arriba.</p>
+
+    <p class="part">Parte 1 · El precinto falso</p>
+    <ol class="steps">
+      <li><div><b>Elige tu primer Pedomón.</b> El Porrosor te espera en el banco del Parque de Pichi: Steinburguito (Agua), Westito (Fuego) o Kushito (Planta).</div></li>
+      <li><div><b>Gana al Chusta.</b> Está en el camino que sube hacia la calle. Antes entrena un poco en el césped de la izquierda.</div></li>
+      <li><div><b>Habla con La Pasma en la puerta del Bar de Paco.</b> Los agentes Pérez y Gómez han precintado el bar. Necesitas tres pruebas de que la inspección es falsa.</div></li>
+      <li><div><b>📸 La foto.</b> Pregunta a Abdul (Kebab 24h). El Chusta lo grabó todo: gánale otra vez y te da la foto.</div></li>
+      <li><div><b>🧾 El recibo.</b> Richard (Bazar Chen) lo tiene, pero quiere su Vapito, que anda suelto por el césped chungo de la derecha. Déjalo sin batería y vuelve con él.</div></li>
+      <li><div><b>📻 La grabación.</b> Saray (Mercadillo) te cambia el walkie de un madero por un <b>Absolut</b>, que sale en el césped chungo.</div></li>
+      <li><div><b>Enséñale las pruebas a La Pasma.</b> Te atacan los dos a la vez con Bezoya, Cafetín y Donut Glaseado. Planta y Eléctrico les pegan fuerte.</div></li>
+      <li><div><b>Dentro del bar.</b> Las mesas, el billar y los toneles hacen un zigzag: tienes que pasar por delante del <b>Borracho Manolo</b> (Garrafón y Orujo) y de <b>La Loli del Taburete</b> (Absenta y Orujo). No se pueden esquivar.</div></li>
+      <li><div><b>Maripili y las cañas.</b> La camarera tapa el único hueco de la barandilla. Te canta 4 pedidos y necesitas 3 bien tirados (mira <a href="#minijuegos" style="color:var(--amber)">Tirar cañas</a>).</div></li>
+      <li><div><b>Paco, líder de tipo Veneno</b>, detrás de la barra: Orujo, Absenta y Alcohol de 96 (nivel 13). El Veneno pierde contra Agua, Psíquico y Tierra. Premio: <b>🍺 Chapa del Bar de Paco</b>, la MT10 Potada y la Capa roja.</div></li>
+    </ol>
+
+    <p class="part">Parte 2 · El huerto de Bob</p>
+    <ol class="steps">
+      <li><div><b>Sal del parque por la derecha.</b> La Senda lleva a la Ganja Life. Por el camino hay cinco hippies con ganas de pelea (Pegamentín, Kushito, OG Kush).</div></li>
+      <li><div><b>Habla con Bob Marley</b> en la puerta de su huerto (abajo a la derecha de Ganja Life). Te pone tres pruebas.</div></li>
+      <li><div><b>🌱 Atrapa un Pedomón en La Senda.</b> Con un Grinder si es verde, con Abrebotellas si es bebida, con Mechero si es tabaco.</div></li>
+      <li><div><b>🌀 Gana a Snoop Dogg.</b> Primero el Concurso de Liar con el Chusta de compañero (está en la plaza): picar, boquilla y liar. Si ganáis, te toca el combate.</div></li>
+      <li><div><b>🚔 Para el cañón fumigador.</b> Gana al Sargento Fumigón (Bezoya 5L, Café de Máquina y Caja de Donuts), al lado del cañón, abajo a la derecha.</div></li>
+      <li><div><b>El Huerto de Bob.</b> Cruza el laberinto de humo, gana a sus tres hippies y reta a <b>Bob Marley, líder de tipo Planta</b>: Pegamentín, OG Kush y su Kushecha (nivel 20). Premio: <b>🍃 Medalla La Hoja</b> y la MT13 Bongazo.</div></li>
+    </ol>
+    <p class="tip">La Abuela Luna (la yurta de Ganja Life) cura a tus Pedomones y tiene La Nevera.</p>
+
+    <p class="part">Parte 3 · La Carretera y Ciudad Neón</p>
+    <ol class="steps">
+      <li><div><b>La Carretera del Polígono.</b> Con la Medalla La Hoja, el obrero te deja salir por la derecha de Ganja Life. Hay siete entrenadores: obreros, un camionero, un macarra, un skater, un motero y un guiri.</div></li>
+      <li><div><b>⛽ La Gasolinera 24H</b>, a mitad de carretera, justo antes del puente. Mari cura a tu equipo (y si caes, despiertas aquí), Chun tiene tienda y hay Nevera.</div></li>
+      <li><div><b>Ciudad Neón.</b> Al entrar, el Chusta te espera a la izquierda liándose un piti. Te cuenta que el casino es de <b>Lolo Gramos</b>, el líder de la ciudad, y que el portero no deja subir a la Planta VIP. Necesitas <b>tres pruebas del chanchullo</b>.</div></li>
+      <li><div><b>📒 El Libro de Cuentas.</b> Cuando el Chusta te cuenta lo del chanchullo, aparece <b>El Contable</b> en el Callejón del Gato Negro (abajo a la derecha). Gánale: Al Capone, Jack Daniel's y Fortuna.</div></li>
+      <li><div><b>🪙 La ficha trucada.</b> Juega 5 partidas en el casino (lo que quieras: ruleta, blackjack, póker, tragaperras o apuestas) y habla con Rocío, la de la barra.</div></li>
+      <li><div><b>📁 El Expediente.</b> En la Comisaría Central (arriba a la derecha) te paran dos agentes. Al fondo, en su despacho, está el Comisario: Cafetera de Comisaría, Caja de Donuts y Bezoya 5L.</div></li>
+      <li><div><b>Enséñale las tres pruebas al portero del casino.</b> Te abre el ascensor de la Planta VIP.</div></li>
+      <li><div><b>La Planta VIP.</b> Hay filas de láseres que se encienden y se apagan: espera a que se apaguen y pasa rápido. Si te toca uno, vuelves al ascensor. Por el camino, dos crupieres y un guardaespaldas.</div></li>
+      <li><div><b>Lolo Gramos, líder de tipo Eléctrico</b>: Mod Box, Jägerbomb, Nubarrón y Monster Pack (nivel 29). El Eléctrico pierde contra Planta, Tierra y Siniestro. Premio: <b>⚡ Medalla Neón</b>, la <b>MO Vuelo</b>, la MT17 Golpe de Neón y 500 fichas.</div></li>
+    </ol>
+    <p class="tip">Ciudad Neón es tranquila: el único que te reta por la calle es El Contable. Doña Puri, en el Hostal La Estrella, cura y tiene La Nevera. Lolo te deja una pista: el Comisario tenía un jefe… detrás de la Ley Seca.</p>
+  </section>
+
+  <section id="secundarias">
+    <h2>Misiones secundarias</h2>
+    <div class="grid">
+      <div class="card"><h3>🐱 El gato de la Abuela</h3><p>La Abuela Remedios (casa de las macetas, al lado del kebab) ha perdido a Michi. Está en el árbol a la izquierda del estanque.</p><p class="rw">Premio: 🕶️ Gafas de sol y un Caldito gratis cada día.</p></div>
+      <div class="card"><h3>🗑️ La basura del Chusta</h3><p>La madre del Chusta (casa de los grafitis, al lado del bar) quiere que baje la basura. Díselo al Chusta y vuelve con ella.</p><p class="rw">Premio: 📿 Cadena de oro.</p></div>
+      <div class="card"><h3>🎸 La cuerda de Raúl</h3><p>Raúl el Gitano (Mercadillo) ha roto una cuerda. La de repuesto está en El Descampado, al lado del bidón con fuego.</p><p class="rw">Premio: 🧊 Rif Glacier nivel 10, exclusivo.</p></div>
+      <div class="card"><h3>🍪 Las Scooby Galletas</h3><p>Shaggy y Scooby (abajo a la izquierda de Ganja Life) han perdido 3 paquetes: un árbol en la meseta de La Senda, otro al pie de la colina y una palmera de Ganja Life. Brillan: pasa al lado.</p><p class="rw">Premio: 🕶️ Gafas redondas hippies y 50 pavos.</p></div>
+      <div class="card"><h3>🧆 El falafel de los veganos</h3><p>Lucía y Bruno (la pancarta de la plaza de Ganja Life) quieren un falafel. Pídeselo a Abdul en el Kebab 24h y llévaselo.</p><p class="rw">Premio: 🧶 Poncho.</p></div>
+      <div class="card"><h3>🍺 Turnos en el Bar de Paco</h3><p>Después del examen, Maripili se pone detrás de la barra y te paga por tirar cañas.</p><p class="rw">6 pavos por caña perfecta y 2 por caña buena.</p></div>
+    </div>
+  </section>
+
+  <section id="minijuegos">
+    <h2>Minijuegos</h2>
+    <div class="grid">
+      <div class="card"><h3>🍺 Tirar cañas</h3><p>Mantén pulsado para abrir el grifo. Al principio el vaso va inclinado y hace poca espuma. Suelta un pelín <b>por encima de la raya roja</b>: al asentarse, la espuma baja. La perfecta llega a la raya con dos dedos de espuma. Si se sale, la has liado.</p></div>
+      <div class="card"><h3>🎰 La tragaperras de Paco</h3><p>En la esquina del Bar de Paco. 5 pavos la tirada. Tres 💰 dan 100 pavos.</p><p class="rw">El primer 💰💰💰 te da las 😍 Gafas de corazón.</p></div>
+      <div class="card"><h3>👏 Palmas con Raúl</h3><p>Pulsa A cuando cada palma llegue a la raya amarilla. Un «¡Olé!» justo vale 2 puntos.</p><p class="rw">30 puntos: Abrebotellas de Oro y Zippo.</p></div>
+      <div class="card"><h3>🌀 Concurso de Liar</h3><p>Contra Snoop Dogg: machaca el botón para picar, haz la boquilla y para la línea en lo verde para liar.</p></div>
+      <div class="card"><h3>🥤 El trile</h3><p>El tío de los tres vasos, al lado del casino. Sigue la bolita… si puedes. Se juega con pavos, no con fichas.</p></div>
+    </div>
+  </section>
+
+  <section id="casino">
+    <h2>Gran Casino Gramos</h2>
+    <p>Compra fichas en la <b>CAJA</b> (abajo a la derecha, 1 ficha = 1 pavo) y cámbialas de vuelta cuando quieras. En <b>PREMIOS</b> (abajo a la izquierda) se canjean por Pedomones exclusivos, MTs y objetos.</p>
+    <div class="grid">
+      <div class="card"><h3>🎡 Ruleta europea</h3><p>37 casillas (0 al 36). Pleno paga 35 a 1. Rojo/negro, par/impar y falta/pasa pagan 1 a 1. Docenas y columnas, 2 a 1.</p></div>
+      <div class="card"><h3>🃏 Blackjack</h3><p>6 barajas. La banca se planta en 17. Blackjack paga 3 a 2. Puedes doblar.</p></div>
+      <div class="card"><h3>♠️ Póker Texas Hold'em</h3><p>Mesa de 6. Si tus colegas están conectados, os sentáis juntos y el resto de sillas las ocupan jugadores del casino.</p></div>
+      <div class="card"><h3>🎰 Neón Fortune</h3><p>Tragaperras de 5 rodillos. Tres ⭐ dan 8 tiradas gratis que pagan doble.</p></div>
+      <div class="card"><h3>📺 Apuestas en directo</h3><p>Fútbol (1·X·2), galgos, boxeo a 8 asaltos y carreras de Pedomones. Los partidos se ven en directo: pases, robos, paradas, golpes, caídas y cuentas de diez. Puedes acelerar.</p></div>
+      <div class="card"><h3>🎁 Premios</h3><p>Johnnie Walker y Capitán Morgan (1500 fichas), Alhambra Reserva y Rioja Reserva (1000), las MT14, MT15 y MT16 y packs de objetos.</p></div>
+    </div>
+  </section>
+
+  <section id="tipos">
+    <h2>Tabla de tipos</h2>
+    <p>Hay 12 tipos. Cada uno gana a 3 y pierde contra 3. Un ataque muy eficaz hace ×2. Si el Pedomón tiene dos tipos, se multiplica: puede quedar en ×4 o en ×¼. Los ataques del mismo tipo que el Pedomón pegan más. La tabla completa también está en la Destiladex.</p>
+    <div class="tbl"><table><thead><tr><th>Tipo</th><th>Gana a</th><th>Pierde contra</th></tr></thead><tbody>
+      <tr><td><span class="t" style="background:#6fa8f0">Agua</span></td><td>Fuego, Veneno, Tierra</td><td>Planta, Eléctrico, Volador</td></tr>
+      <tr><td><span class="t" style="background:#f07a4a">Fuego</span></td><td>Planta, Hielo, Siniestro</td><td>Agua, Normal, Tierra</td></tr>
+      <tr><td><span class="t" style="background:#6fcf5a">Planta</span></td><td>Agua, Eléctrico, Tierra</td><td>Fuego, Veneno, Volador</td></tr>
+      <tr><td><span class="t" style="background:#8fd3f4">Hielo</span></td><td>Psíquico, Tierra, Volador</td><td>Fuego, Normal, Lucha</td></tr>
+      <tr><td><span class="t" style="background:#f2d14e">Eléctrico</span></td><td>Agua, Psíquico, Volador</td><td>Planta, Tierra, Siniestro</td></tr>
+      <tr><td><span class="t" style="background:#b58ae0">Veneno</span></td><td>Planta, Normal, Lucha</td><td>Agua, Psíquico, Tierra</td></tr>
+      <tr><td><span class="t" style="background:#e8d9c4">Normal</span></td><td>Fuego, Hielo, Siniestro</td><td>Veneno, Psíquico, Lucha</td></tr>
+      <tr><td><span class="t" style="background:#f07ab8">Psíquico</span></td><td>Veneno, Normal, Lucha</td><td>Hielo, Eléctrico, Siniestro</td></tr>
+      <tr><td><span class="t" style="background:#c8955a">Tierra</span></td><td>Fuego, Eléctrico, Veneno</td><td>Agua, Planta, Hielo</td></tr>
+      <tr><td><span class="t" style="background:#a8b8f8">Volador</span></td><td>Agua, Planta, Lucha</td><td>Hielo, Eléctrico, Siniestro</td></tr>
+      <tr><td><span class="t" style="background:#d0503a;color:#fff">Lucha</span></td><td>Hielo, Normal, Siniestro</td><td>Veneno, Psíquico, Volador</td></tr>
+      <tr><td><span class="t" style="background:#6a5a8a;color:#fff">Siniestro</span></td><td>Eléctrico, Psíquico, Volador</td><td>Fuego, Normal, Lucha</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="pedomones">
+    <h2>Dónde salen los Pedomones</h2>
+    <p>Hay 147 en la Destiladex. El Radar del Menú te dice cuáles salen donde estás.</p>
+    <div class="tbl"><table><thead><tr><th>Zona</th><th>Niveles</th><th>Salen</th></tr></thead><tbody>
+      <tr><td>Parque · césped normal (izquierda)</td><td>2-4</td><td>Mahou, Don Simón, Camel, Amnesia, Garrafón</td></tr>
+      <tr><td>Parque · césped chungo (derecha)</td><td>4-7</td><td>Cruzcampo, Absolut, Vapito, Camel, Amnesia, Garrafón, Mahou</td></tr>
+      <tr><td>La Senda · primera mitad</td><td>9-12</td><td>Pegamentín, Chinita, Polen, Limonazo, Amnesia</td></tr>
+      <tr><td>La Senda · segunda mitad</td><td>11-14</td><td>Pegamentín, Polen, Chinita, Criticón, Pipa, Limonazo</td></tr>
+      <tr><td>La Carretera · arcén y polígono</td><td>15-18</td><td>Winston, Austin, Águila Sin Filtrar, Heineken, Librillo Smoking, Tinto de Verano</td></tr>
+      <tr><td>La Carretera · bajo el puente</td><td>17-20</td><td>Miller, Voll-Damm, Eristoff, Desperados, Marlboro, Smirnoff</td></tr>
+      <tr><td>La Carretera · entrada a la ciudad</td><td>18-21</td><td>Coronita, Northern Lights, Purple Haze, Rosin, Fortuna, Puerto de Indias</td></tr>
+      <tr><td>Ciudad Neón · Jardín del Casino</td><td>19-22</td><td>Al Capone, Jack Daniel's, Grey Goose, Famous Grouse, Bruce Banner, Beefeater</td></tr>
+    </tbody></table></div>
+    <p class="tip">Captura las bebidas con <b>Abrebotellas</b>, el tabaco con <b>Mechero</b> y lo verde con <b>Grinder</b>. Cuanta menos vida le quede, más fácil. Uno de cada 100 sale <b>✨ shiny</b>. Los legendarios (<b>Vino Feliz</b> y <b>Royal Lobo</b>) aparecen al final del juego, después de la Liga.</p>
+  </section>
+
+  <section id="mts">
+    <h2>Mezclas Técnicas (MTs)</h2>
+    <p>Enseñan un ataque y no se gastan. Richard (Bazar Chen) vende las del barrio. Richi (24H Chin, Ciudad Neón) vende las de ciudad.</p>
+    <div class="tbl"><table><thead><tr><th>MT</th><th>Ataque</th><th>Cómo se consigue</th></tr></thead><tbody>
+      <tr><td>MT01-MT09</td><td>Cubatazo, Chorro de Sifón, Soplete, Canuto XXL, Pedete Mortal, Cubito en la Nuca, Calambrazo, Siesta, Grito de Hooligan</td><td>Tiendas, de 30 a 50 pavos</td></tr>
+      <tr><td>MT10</td><td>Potada (Veneno)</td><td>Ganar a Paco</td></tr>
+      <tr><td>MT11 · MT12</td><td>Tercer Ojo (Psíquico) · Placa Tectónica (Tierra)</td><td>Tiendas, 120 pavos</td></tr>
+      <tr><td>MT13</td><td>Bongazo (Agua)</td><td>Ganar a Bob Marley</td></tr>
+      <tr><td>MT14 · MT15 · MT16</td><td>Picado (Volador) · Uppercut (Lucha) · Navajazo (Siniestro)</td><td>Richi (100-120 pavos) o Premios del casino</td></tr>
+      <tr><td>MT17</td><td>Golpe de Neón (Eléctrico)</td><td>Ganar a Lolo Gramos</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="sitios">
+    <h2>Dónde curar y comprar</h2>
+    <div class="tbl"><table><thead><tr><th>Sitio</th><th>Curar y Nevera</th><th>Tienda</th></tr></thead><tbody>
+      <tr><td>Kebab 24h (Parque)</td><td>Abdul</td><td>—</td></tr>
+      <tr><td>Bazar Chen (Parque)</td><td>—</td><td>Chen (objetos) y Richard (MTs)</td></tr>
+      <tr><td>Yurta (Ganja Life)</td><td>Abuela Luna</td><td>Chan y Ricardito, en Ganja Life</td></tr>
+      <tr><td>Gasolinera 24H (mitad de la Carretera)</td><td>Mari</td><td>Chun</td></tr>
+      <tr><td>Hostal La Estrella (Ciudad Neón)</td><td>Doña Puri</td><td>—</td></tr>
+      <tr><td>24H Chin (Ciudad Neón)</td><td>—</td><td>Chin (objetos) y Richi (MTs)</td></tr>
+    </tbody></table></div>
+    <p class="muted">Si tus Pedomones caen todos, despiertas en el último sitio donde te curaron.</p>
+  </section>
+
+  <section id="accesorios">
+    <h2>Accesorios</h2>
+    <p>Se ven en el mapa, en los combates y los ven tus colegas. Póntelos con <b>Saray</b>, en el Mercadillo («Cambiar de look»).</p>
+    <div class="tbl"><table><thead><tr><th>Accesorio</th><th>Cómo se consigue</th></tr></thead><tbody>
+      <tr><td>🕶️ Gafas de sol</td><td>El gato de la Abuela</td></tr>
+      <tr><td>😍 Gafas de corazón</td><td>Jackpot 💰💰💰 en la tragaperras de Paco</td></tr>
+      <tr><td>📿 Cadena de oro</td><td>La basura del Chusta</td></tr>
+      <tr><td>🦸 Capa roja</td><td>Ganar a Paco</td></tr>
+      <tr><td>🕶️ Gafas redondas hippies</td><td>Las Scooby Galletas</td></tr>
+      <tr><td>🧶 Poncho</td><td>El falafel de los veganos</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="colegas">
+    <h2>Multijugador</h2>
+    <ol class="steps">
+      <li><div>Abrid el juego a la vez desde la web. Arriba a la derecha sale cuántos colegas hay online.</div></li>
+      <li><div>Quedad en <b>El Descampado</b> (al oeste del parque). Ponte delante de tu colega y pulsa A para retarle, cambiar Pedomones, saludar, brindar o bailar.</div></li>
+      <li><div>En el <b>casino</b>, sentaos juntos en la mesa de póker: el resto de la mesa se llena con jugadores del casino.</div></li>
+    </ol>
+  </section>
+
+  <footer>Guía de ¿Otra Ronda?, actualizada con la versión 38: hasta Ciudad Neón y la Medalla Neón.</footer>
+</div>

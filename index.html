@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="54 · Guardería grande, casino y cigarros en su sitio";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="55 · N-340 y Costa Cangrejo";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -6472,6 +6472,305 @@ const _rwC6=renderWorld;renderWorld=function(t){_rwC6(t);if(S.map!=="casino")ret
     ctx.save();ctx.beginPath();ctx.rect(sx-2,sy-16,T+40,24);ctx.clip();casinoCounter(c,x,sx,sy,t);ctx.restore()}};
 
 /*</B4FIX6>*/
+/*<B4COSTA>*/
+/* ===================== ACTO 4 · LA N-340 (carretera de la costa) ===================== */
+// Casillas nuevas (solo en la costa): á arena · ú arena mojada · é tarima de madera · í acantilado · ó roca · ü sombrilla · ë banco · ï prismáticos · ö chiringuito
+["á","ú","é"].forEach(c=>WALK.add(c));
+Object.assign(MAPNAME,{n340:"N-340 · Carretera de la Costa"});
+Object.assign(SONGS,{n340:["musica/n340.mp3","Bossa Antigua"],costa:["musica/costa.mp3","Island Meet and Greet"]});
+
+// ---- Pedomón nuevo: la gaviota ladrona ----
+SP.gaviotadamm={n:"Gaviota Damm",t:"volador",t2:"agua",fam:"bodega",vec:{k:"ave",b:"#f4f4f4",a:"#c8202a",c:"#f2c14e",crest:"#d8d8d8",tx:"ED",f:"angry"},b:[60,72,56,84],xp:140,
+  learn:[[1,"picado"],[1,"chorro"],[1,"espumarajo"],[1,"lataza"]],z:"N-340 · la playa (la gaviota ladrona)",d:"Una gaviota que se ha bebido todas las Estrella Damm que dejan los guiris en la playa. Roba bocatas, riñoneras y dignidades. Mediterráneamente."};
+if(!DEX_ORDER.includes("gaviotadamm"))DEX_ORDER.push("gaviotadamm");
+Object.assign(ZONES,{NA:{pool:["coronita","heineken","tintoverano","miller","aguila","barrilete"],lv:[26,29]},NB:{pool:["coronita","barrilete","miller","tintoverano","heineken","aguila"],lv:[27,30]}});
+Object.assign(KEYS_IT,{servilleta:{n:"🧻 Servilleta del mirador",d:"Una servilleta del chiringuito El Náufrago. Encima, dos porros apagados cruzados en aspa. La firma del Sumiller… o la merienda de alguien."}});
+
+// ---- El mapa ----
+(function(){const W=60,H=22,g=grid(W,H,"á");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(g[j]&&g[j][i]!==undefined)g[j][i]=ch};
+  R("í",0,0,W,2);R("a",0,2,W,3);R("E",0,5,W,1);R("d",0,6,W,2);R("ú",0,16,W,1);R("~",0,17,W,5);
+  // dunas con matorral (hierba alta) y pinos
+  R(",",3,8,10,3);R(",",14,9,4,2);R(",",30,8,9,3);R(",",33,11,4,1);
+  [[2,9],[13,8],[19,8],[39,9],[1,12]].forEach(([x,y])=>g[y][x]="#");
+  // chiringuito El Náufrago
+  R("ö",22,8,7,1);g[9][22]="ö";g[10][22]="ö";g[9][28]="ö";g[10][28]="ö";R("c",22,11,7,1);
+  // sombrillas, rocas y el cabo con el mirador
+  [[6,13],[9,14],[16,13],[20,13],[30,13],[35,14],[38,12],[41,14]].forEach(([x,y])=>g[y][x]="ü");
+  R("í",47,8,13,8);R("é",50,8,5,2);g[9][51]="ë";g[9][53]="ï";
+  [[44,16],[45,15],[46,16],[46,15]].forEach(([x,y])=>g[y][x]="ó");
+  const signs={"4,7":"N-340 · CARRETERA DE LA COSTA.  ← Ciudad Neón   ·   Costa Cangrejo →   ·   ↓ Playa de los Ahogaditos","44,7":"MIRADOR DEL ATARDECER →  Prohibido tirar colillas al mar. (En el mar hay 3.000 colillas.)","57,7":"COSTA CANGREJO. Hermanada con Benidorm, con Magaluf y con tu resaca."};
+  Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
+  MAPS.n340={w:W,h:H,g,outdoor:true,signs,builds:[],lamps:[],music:"n340",
+    exits:{"0,6":["neon",38,15,"left"],"0,7":["neon",38,15,"left"]},
+    txt:{"ü":"Una sombrilla clavada desde 1998. Debajo, una toalla con la cara de Camilo Sesto y una nevera de corcho.","ó":"Una roca llena de mejillones y de chapas de botellín.","í":"El acantilado. Abajo, el mar. Arriba, más acantilado.","ë":"Un banco de madera con una placa: «A Manoli, que vio aquí 4.000 atardeceres y ninguno le pareció mal».","ï":"Unos prismáticos de monedas. Echas 1 pavo: ves un barco, una gaviota y a un guiri haciendo topless. Mediterráneo.","ö":"El chiringuito El Náufrago. Paredes de caña y techo de hojas de palmera. Huele a sardinas y a crema solar.","E":"El quitamiedos. Le han pegado una pegatina: «Si lees esto, frena».","a":"La N-340. Los coches pasan a 120 con la ventanilla bajada y la música alta."}};
+  // Ciudad Neón: la Gran Avenida sigue por la derecha hasta la N-340
+  const n=MAPS.neon;for(let y=14;y<=16;y++){n.g[y][39]="A";n.exits[`39,${y}`]=["n340",1,7,"right"]}
+})();
+VUELO_DEST.push({map:"n340",n:"N-340 · Chiringuito",x:25,y:12,mx:330,my:100,ok:()=>!!S.flags.n340In,ic:"🏖️"});
+
+// ---- Dibujo de las casillas de la costa ----
+function sandPx(sx,sy,h,base){px(sx,sy,T,T,base||"#f0dca0");if(h%3===0)px(sx+(h%13),sy+((h>>3)%14),1,1,"#e2c888");if(h%5===0)px(sx+((h>>4)%14),sy+((h>>6)%13),1,1,"#fff2c8");if(h%11===0)px(sx+((h>>2)%12),sy+((h>>5)%12),2,1,"#d8bc7a")}
+function costaTile(ch,x,y,sx,sy,t){const h=hash(x,y),m=MAP(),up=(dx,dy)=>m.g[y+dy]&&m.g[y+dy][x+dx];
+  if(ch==="á"){sandPx(sx,sy,h);return true}
+  if(ch==="ú"){px(sx,sy,T,T,"#d8bf86");if(h%4===0)px(sx+(h%12),sy+8,3,1,"#c8ab72");const w=(Math.sin(t/900+x*.5)+1)/2;px(sx,sy+T-2-Math.round(w*4),T,2,"rgba(255,255,255,.75)");return true}
+  if(ch==="~"){const d=y-17;px(sx,sy,T,T,["#3ec0c8","#2aa0c0","#2286b4","#1c70a4","#185e94"][Math.min(4,d)]);const o=Math.floor(t/320+x*1.3+y)%6;px(sx+o*2,sy+5,4,1,"rgba(255,255,255,.45)");px(sx+((o+3)%6)*2,sy+12,4,1,"rgba(255,255,255,.3)");
+    if(d===0){const w=(Math.sin(t/900+x*.5)+1)/2;px(sx,sy,T,2+Math.round(w*3),"rgba(255,255,255,.55)")}if((Math.floor(t/140)+h)%53===0)px(sx+(h%14),sy+((h>>3)%14),1,1,"#ffffff");return true}
+  if(ch==="a"){px(sx,sy,T,T,"#3a3a42");if(h%4===0)px(sx+(h%13),sy+((h>>4)%13),1,1,"#4a4a52");if(y===2)px(sx,sy+1,T,1,"#e8e8e8");if(y===4)px(sx,sy+14,T,1,"#e8e8e8");if(y===3&&x%3!==0)px(sx,sy+7,T,2,"#f2d14e");return true}
+  if(ch==="E"){px(sx,sy,T,T,"#c8a870");px(sx,sy+5,T,3,"#c0c8d0");px(sx,sy+5,T,1,"#e8eef2");px(sx,sy+8,T,1,"#7a8288");if(x%2===0)px(sx+7,sy+8,2,6,"#8a9298");return true}
+  if(ch==="d"){px(sx,sy,T,T,"#cfae74");if(h%3===0)px(sx+(h%13),sy+((h>>3)%13),2,1,"#b8955a");if(h%7===0)px(sx+((h>>5)%12),sy+((h>>2)%12),1,1,"#e8cc94");return true}
+  if(ch==="í"){const top=up(0,-1)!=="í";px(sx,sy,T,T,"#a8784e");px(sx,sy+(h%6)+4,T,2,"#8a5e3a");px(sx+(h%9),sy+2,4,3,"#b88a5e");if((h>>3)%3===0)px(sx+((h>>4)%10),sy+10,5,2,"#7a5232");
+    if(top){px(sx,sy,T,4,"#6aa04a");px(sx,sy+4,T,1,"#4a7a32");if(h%3===0)px(sx+(h%12),sy+1,2,2,"#8ac860")}return true}
+  if(ch==="#"&&(S.map==="n340"||S.map==="costa")){const bg=up(0,0);sandPx(sx,sy,h);ctx.fillStyle="rgba(0,0,0,.18)";ctx.beginPath();ctx.ellipse(sx+9,sy+14,7,2,0,0,7);ctx.fill();px(sx+7,sy+6,2,9,"#7a5232");px(sx+6,sy+9,1,2,"#7a5232");
+    const sw=Math.round(Math.sin(t/1100+x)*.6);ctx.fillStyle="#2f6a2a";ctx.beginPath();ctx.ellipse(sx+8+sw,sy+4,8,4,0,0,7);ctx.fill();ctx.fillStyle="#4a8a3a";ctx.beginPath();ctx.ellipse(sx+6+sw,sy+3,5,2.5,0,0,7);ctx.fill();px(sx+5+sw,sy+2,3,1,"#6aaa4a");return true}
+  if(ch===","&&(S.map==="n340"||S.map==="costa")){sandPx(sx,sy,h,"#ead49a");const sw=Math.sin(t/600+x*.9+y)*1.2;for(let i=0;i<5;i++){const bx=sx+1+i*3+(h>>i)%2,hh=7+((h>>(i+2))%5);ctx.strokeStyle=i%2?"#8aa84a":"#a8b85a";ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(bx,sy+15);ctx.quadraticCurveTo(bx+sw*.5,sy+15-hh/2,bx+sw,sy+15-hh);ctx.stroke()}return true}
+  if(ch==="ü"){sandPx(sx,sy,h);const c=["#e23b2a","#2a6ad0","#f2c14e","#2a9a48","#e04a9a"][h%5];px(sx+1,sy+10,10,5,["#f4f4f4","#4ad8ff","#ff9ad0"][h%3]);px(sx+1,sy+12,10,1,c);
+    ctx.fillStyle="rgba(0,0,0,.15)";ctx.beginPath();ctx.ellipse(sx+9,sy+13,7,2.5,0,0,7);ctx.fill();px(sx+8,sy-1,1,15,"#d8d8d8");ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(sx,sy+1);ctx.quadraticCurveTo(sx+8,sy-8,sx+16,sy+1);ctx.closePath();ctx.fill();
+    ctx.fillStyle="#f4f4f4";ctx.beginPath();ctx.moveTo(sx+5,sy-1);ctx.quadraticCurveTo(sx+8,sy-6,sx+11,sy-1);ctx.closePath();ctx.fill();return true}
+  if(ch==="ó"){px(sx,sy,T,T,y>=16?"#d8bf86":"#f0dca0");ctx.fillStyle="#8a8a92";ctx.beginPath();ctx.ellipse(sx+8,sy+9,7,6,0,0,7);ctx.fill();ctx.fillStyle="#a8a8b0";ctx.beginPath();ctx.ellipse(sx+6,sy+7,4,3,0,0,7);ctx.fill();px(sx+4,sy+12,2,1,"#2a2a3a");px(sx+9,sy+13,2,1,"#2a2a3a");return true}
+  if(ch==="é"){px(sx,sy,T,T,"#b8844a");for(let i=0;i<T;i+=4)px(sx,sy+i,T,1,"#8a5e32");if(h%3===0)px(sx+(h%12),sy+2,1,1,"#5a3a1a");if(up(0,-1)!=="é")px(sx,sy,T,2,"#e8d8b8");return true}
+  if(ch==="ë"){costaTile("é",x,y,sx,sy,t);px(sx+1,sy+5,14,3,"#8a5a2a");px(sx+1,sy+5,14,1,"#b8844a");px(sx+1,sy+9,14,2,"#8a5a2a");px(sx+2,sy+11,1,4,"#4a3a2a");px(sx+13,sy+11,1,4,"#4a3a2a");return true}
+  if(ch==="ï"){costaTile("é",x,y,sx,sy,t);px(sx+7,sy+6,2,9,"#6a6a72");px(sx+4,sy+2,8,5,"#2a6ad0");px(sx+3,sy+3,2,3,"#1a1a2a");px(sx+11,sy+3,2,3,"#1a1a2a");px(sx+6,sy+3,4,1,"#6fa8f0");return true}
+  if(ch==="ö"){const roof=up(0,-1)!=="ö"&&y===8;sandPx(sx,sy,h);if(roof){px(sx,sy-6,T,14,"#c8a050");for(let i=0;i<T;i+=3)px(sx+i,sy-6+(i%2),2,14,"#a8803a");px(sx,sy+6,T,2,"#8a6a2a");if(x===25){px(sx-6,sy-4,28,7,"#f4f0e0");ctx.font="bold 5px monospace";ctx.textAlign="center";ctx.fillStyle="#2a6ad0";ctx.fillText("EL NÁUFRAGO",sx+8,sy+1)}}
+    else{px(sx+3,sy,10,T,"#d8b878");for(let i=0;i<T;i+=4)px(sx+3,sy+i,10,1,"#a8884a");px(sx+3,sy,1,T,"#8a6a3a");px(sx+12,sy,1,T,"#8a6a3a")}return true}
+  if(ch==="c"&&S.map==="n340"){sandPx(sx,sy,h);px(sx,sy+2,T,13,"#d8b878");for(let i=0;i<T;i+=4)px(sx+i,sy+4,1,11,"#a8884a");px(sx,sy+1,T,3,"#8a6a3a");px(sx,sy+1,T,1,"#b8946a");
+    const it=x%4;if(it===0){px(sx+3,sy-4,3,6,"#2a9a48");px(sx+4,sy-6,1,2,"#2a9a48")}if(it===1){px(sx+4,sy-2,6,4,"#f4f4f4");px(sx+5,sy-1,4,2,"#f2c14e")}if(it===2){px(sx+5,sy-5,3,7,"#f0d870");px(sx+5,sy-6,3,1,"#f2c14e");px(sx+9,sy-2,3,4,"#e23b2a")}return true}
+  if(ch==="S"){const below=S.map==="costa"?"v":(y>=8?"á":"d");if(S.map==="costa")cityTile("v",x,y,sx,sy,t);else costaTile(below,x,y,sx,sy,t);px(sx+7,sy+8,2,7,"#7a5232");px(sx+1,sy+2,14,8,"#8a5a2a");px(sx+2,sy+3,12,6,"#c8a070");px(sx+4,sy+5,8,1,"#6a4a2a");px(sx+4,sy+7,6,1,"#6a4a2a");return true}
+  return false}
+const _dtCosta=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if((S.map==="n340"||S.map==="costa")&&costaTile(ch,x,y,sx,sy,t))return;return _dtCosta(ch,x,y,sx,sy,t,style)};
+
+// ---- Coches por la N-340, la gaviota y el atardecer ----
+const GAV={st:null,x:0,y:0,item:null};const GSUN={on:false,t0:0};
+function camOf(m){let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}const mw=m.w*T,mh=m.h*T;
+  return[mw<=SW?-Math.round((SW-mw)/2):Math.round(Math.max(0,Math.min(mw-SW,wx*T+8-SW/2))),mh<=SH?-Math.round((SH-mh)/2):Math.round(Math.max(0,Math.min(mh-SH,wy*T+8-SH/2)))]}
+function drawGull(X,Y,t,fly,item){ctx.fillStyle="rgba(0,0,0,.15)";if(!fly){ctx.beginPath();ctx.ellipse(X,Y+6,5,1.5,0,0,7);ctx.fill()}
+  const f=fly?Math.sin(t/70)*4:0;ctx.fillStyle="#f4f4f4";ctx.beginPath();ctx.ellipse(X,Y,5,3.2,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(X+4,Y-2,2.4,0,7);ctx.fill();
+  ctx.fillStyle="#9aa0a8";if(fly){ctx.beginPath();ctx.moveTo(X-2,Y-1);ctx.lineTo(X-8,Y-3-f);ctx.lineTo(X+1,Y-1);ctx.fill();ctx.beginPath();ctx.moveTo(X,Y-1);ctx.lineTo(X+5,Y-4-f);ctx.lineTo(X+3,Y);ctx.fill()}else{ctx.beginPath();ctx.ellipse(X-1,Y-.5,4,2,0,0,7);ctx.fill();px(X-1,Y+3,1,3,"#f2a93b");px(X+1,Y+3,1,3,"#f2a93b")}
+  px(X+6,Y-2,3,1,"#f2c14e");px(X+5,Y-3,1,1,"#1a1a1a");if(item)px(X+8,Y-1,3,3,item)}
+const _rwCosta=renderWorld;renderWorld=function(t){_rwCosta(t);if(S.map!=="n340")return;const m=MAPS.n340,[ox,oy]=camOf(m);
+  // coches
+  for(let i=0;i<5;i++){const dir=i%2?1:-1,sp=.05+(i%3)*.02,len=m.w*T+120;let X=((t*sp+i*233)%len);if(dir<0)X=len-X;X-=60;const Y=(dir>0?4:2)*T+3,sx=X-ox,sy=Y-oy;if(sx<-30||sx>SW+30)continue;
+    const c=["#c8202a","#f4f4f4","#2a6ad0","#1a1a1a","#f2c14e"][i];ctx.fillStyle="rgba(0,0,0,.25)";ctx.fillRect(sx+1,sy+9,22,3);px(sx,sy+2,24,8,c);px(sx+5,sy-1,13,4,c);px(sx+(dir>0?13:6),sy,5,3,"#9fd0f0");px(sx+(dir>0?7:12),sy,5,3,"#9fd0f0");px(sx+3,sy+9,4,3,"#111");px(sx+17,sy+9,4,3,"#111");px(dir>0?sx+23:sx,sy+4,1,2,"#fff4a0")}
+  // la gaviota
+  if(GAV.st){const X=GAV.x*T+8-ox,Y=GAV.y*T+(GAV.st==="sit"?1:4)-oy-(GAV.st==="fly"?6:0);drawGull(X,Y,t,GAV.st==="fly",GAV.item)}
+  // atardecer
+  if(GSUN.on){const p=Math.min(1,(now()-GSUN.t0)/6000);ctx.save();const gr=ctx.createLinearGradient(0,0,0,SH);gr.addColorStop(0,`rgba(255,120,60,${.35*p})`);gr.addColorStop(.6,`rgba(255,80,120,${.25*p})`);gr.addColorStop(1,`rgba(80,40,120,${.3*p})`);ctx.fillStyle=gr;ctx.fillRect(0,0,SW,SH);
+    const sunY=17*T-oy-10+p*16,sunX=SW*.62;ctx.globalCompositeOperation="lighter";ctx.fillStyle=`rgba(255,200,80,${.5*p})`;ctx.beginPath();ctx.arc(sunX,sunY,22,0,7);ctx.fill();ctx.fillStyle=`rgba(255,230,150,${.8*p})`;ctx.beginPath();ctx.arc(sunX,sunY,12,0,7);ctx.fill();
+    ctx.globalCompositeOperation="source-over";ctx.fillStyle=`rgba(255,180,80,${.5*p})`;for(let i=0;i<6;i++)ctx.fillRect(sunX-20+Math.sin(t/300+i)*6,sunY+16+i*6,40-i*5,1);ctx.restore()}};
+
+// ---- Gente de la N-340 ----
+Object.assign(NPC_LOOK,{nguiris:{hs:0,ts:2,acc:{ag:3}},nsurf:{hs:1,ts:0},nmojito:{hs:3,ts:5},njubi:{hs:10,ts:7,acc:{ag:2}},paqui:{hs:9,ts:10},salvamir:{hs:3,ts:7,acc:{an:1}}});
+NPCS.push(
+ {id:"nguiris",map:"n340",x:34,y:6,dir:"down",sight:3,pal:{h:"#f2d14e",s:"#f8a8a0",e:"#222",c:"#e04a9a",z:"#f4f4f4",p:"#3a6ad0",k:"#f8c8a8"},hs:0,ts:2,spin:["down","left","down","right"],
+  trainer:tr4("Guiris de Furgoneta","Dave y Kev",[["heineken",28],["aguilalitro",29],["coronita",29]],300,["Guiri Dave: Oi oi! ¿Costa Cangrejo? ¡Nosotros ir a la fiesta de la espuma!","Guiri Kev: Pero antes… ¡FIGHT, mate! Mi Heineken está muy borracha. Como yo."],"Guiri Dave: Lovely jubbly… Kev, ¿dónde dejamos la furgo? Kev. KEV.")},
+ {id:"nsurf",map:"n340",x:18,y:14,dir:"up",sight:4,pal:{h:"#f2d14e",s:"#d8a070",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#e04a9a",k:"#d8a070"},hs:1,ts:0,spin:["up","left","up","right"],
+  trainer:tr4("Surfero Kike","Kike",[["coronita",28],["miller",29]],260,["Surfero Kike: Buah, tío, hoy no hay ni una ola. Llevo tres horas sentado en la tabla. Como un mueble.","Surfero Kike: Échame un combate, que por lo menos me muevo."],"Surfero Kike: Buah… me has hecho un tubo, tío. Respeto.")},
+ {id:"nmojito",map:"n340",x:31,y:12,dir:"left",sight:5,pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#f4f4f4",z:"#2a9a48",p:"#3a3a3a",k:"#f4f4f4"},hs:3,ts:5,
+  trainer:tr4("Vendedor Lucho","Lucho",[["tintoverano",28],["barrilete",29]],280,["Vendedor Lucho: ¡Mojito, mojito! ¡Cerveza fresquita! ¡Agua, coca-cola, mojito!","Vendedor Lucho: ¿No quieres? Pues pelea, que hoy no he vendido ni uno."],"Vendedor Lucho: Toma, un mojito de consolación. Para mí. Me lo tomo yo.")},
+ {id:"njubi",map:"n340",x:40,y:13,dir:"left",sight:4,pal:{h:"#d8d8d8",s:"#f1c27d",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#c8a070",k:"#5a3a1a"},hs:10,ts:7,
+  trainer:tr4("Jubilado del Detector","Anselmo",[["miller",29],["heinekenpack",30]],320,["Jubilado Anselmo: ¡Pi, pi, piiii! ¡El detector pita! … Ah, no, eres tú. Llevas muchas chapas.","Jubilado Anselmo: En 40 años he encontrado 3 relojes, 200 chapas y una dentadura. Que era mía."],"Jubilado Anselmo: Me has dejado como mi detector: sin pilas.")},
+ {id:"paqui",map:"n340",x:25,y:10,dir:"down",pal:{h:"#3a1a0a",s:"#e0a878",e:"#222",c:"#2a6ad0",z:"#f4f4f4",p:"#2a2a2a",k:"#f4f4f4"},hs:9,ts:10},
+ {id:"salvamir",map:"n340",x:-20,y:8,dir:"down",pal:{h:"#1a1a1a",s:"#c68642",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#3a1a4a",k:"#1a1a1a"},hs:3,acc:{an:1},cond:()=>false}
+);
+TALK2.paqui=async()=>{await sayAll([pick(["Paqui: ¡Bienvenido a El Náufrago! Sardinas, tinto de verano y tiritas para los Pedomones. Todo a buen precio.","Paqui: Aquí para todo el que va a Costa Cangrejo. Los guiris a la ida y las ambulancias a la vuelta.","Paqui: ¿Has visto a la gaviota de la Estrella? Me ha robado tres bocatas esta semana. Y un cuchillo."]),"Paqui: Siéntate, que te pongo a los bichos como nuevos."]);
+  S.team.forEach(m=>{m.hp=maxhp(m)});S.respawn=["n340",25,12];sfx("heal");save();await say("¡Tu equipo está como nuevo! (Si caes en combate, despertarás en el chiringuito.)")};
+
+// ---- Entrar en la N-340 (hace falta la medalla de Lolo) ----
+const _oemN=onEnterMap;onEnterMap=async function(){await _oemN();if(S.map!=="n340")return;
+  if(!S.flags.neon){await sayAll(["Un Guardia Civil te para en la salida de la ciudad: «Alto. La N-340 está cerrada para los que no tienen medalla de Ciudad Neón».","«Gánale a Lolo Gramos y vuelve. Y ponte el cinturón.»"]);await warp("neon",37,15,"left");return}
+  if(!S.flags.n340In){S.flags.n340In=true;save();
+    await sayAll(["LA N-340. A un lado, el acantilado. Al otro, el Mediterráneo, más azul que la factura de la luz.","Huele a crema solar, a sardinas y a gasolina. Al fondo, las torres de Costa Cangrejo.","📱 Mensaje del Chusta: «bro dicen q en costa cangrejo ha desaparecido el socorrista de la playa grande. y q el jefe del gimnasio es un guiri q siempre va pedo 🦀🍺»"])}};
+
+// ---- La gaviota ladrona (evento en directo) y el atardecer en el mirador ----
+const _stepN=onStep;onStep=async function(){const r=await _stepN();if(S.map!=="n340")return r;
+  if(!S.flags.gavRob&&S.y>=12&&S.x>=8&&S.x<=42){S.flags.gavRob=true;await gaviotaRoba();return r}
+  if(!S.flags.atardecer&&S.y<=9&&S.x>=50&&S.x<=54&&tileAt(S.x,S.y)==="é"){S.flags.atardecer=true;await atardecer();return r}
+  return r};
+async function gaviotaRoba(){cineOn();busy=true;GAV.st="fly";GAV.x=S.x+6;GAV.y=20;sfx("alert");await say("¡KIAAAAAAA! Una gaviota enorme se lanza en picado desde el mar…");
+  await flyGull(S.x,S.y-1,700);sfx("throw");flash("#ffffff",200);
+  let what;if((S.bag.rino||0)>0){S.bag.rino--;what={k:"rino",n:1,txt:"una Riñonera"}}else{const q=Math.min(80,S.money);S.money-=q;what={k:"money",n:q,txt:q+" pavos"}}
+  S.gavItem=what;GAV.item=what.k==="rino"?"#c8202a":"#f2c14e";save();
+  await say(`¡La gaviota te ha robado ${what.txt}! Se va volando hacia las rocas del final de la playa…`);await flyGull(45,15,1400);GAV.st="sit";busy=false;cineOff();
+  toast("🐦 La gaviota está en las rocas, al final de la playa")}
+function flyGull(tx,ty,ms){const fx=GAV.x,fy=GAV.y,t0=now();GAV.st="fly";return new Promise(r=>{const tk=()=>{const p=Math.min(1,(now()-t0)/ms);GAV.x=fx+(tx-fx)*p;GAV.y=fy+(ty-fy)*p-Math.sin(p*Math.PI)*2;if(p<1)requestAnimationFrame(tk);else r()};tk()})}
+// recolocar la gaviota al volver a la playa
+const _oemG=onEnterMap;onEnterMap=async function(){await _oemG();if(S.map==="n340"&&S.flags.gavRob&&!S.flags.gavDone){GAV.st="sit";GAV.x=45;GAV.y=15;GAV.item=S.gavItem&&S.gavItem.k==="rino"?"#c8202a":"#f2c14e"}else if(S.map==="n340"&&S.flags.gavDone)GAV.st=null};
+const _intN=interact;interact=async function(){if(S.map==="n340"&&GAV.st==="sit"&&!S.flags.gavDone){const[fx,fy]=facing();
+    if(Math.abs(fx-Math.round(GAV.x))<=1&&Math.abs(fy-Math.round(GAV.y))<=1){await sayAll(["La gaviota te mira con tu cosa en el pico. Hace «kiá». Sabe perfectamente lo que ha hecho.","¡La Gaviota Damm te ataca! Si la atrapas, te devolverá lo que robó."]);
+      GAV.st=null;await battle([newMon("gaviotadamm",27,true)],{});
+      if(S.team.some(m=>m.hp>0)){S.flags.gavDone=true;const it=S.gavItem||{};if(it.k==="rino")S.bag.rino=(S.bag.rino||0)+1;else if(it.k==="money")S.money+=it.n;save();sfx("quest");
+        await say(`La gaviota ha soltado ${it.txt||"lo que te robó"} en la arena. ¡Recuperado!${S.caught.gaviotadamm?" Y encima te la has quedado. Mediterráneamente.":" Se va volando, ofendida."}`)}else{GAV.st="sit"}return}}
+  if(S.map==="n340"&&S.flags.gavRob&&!S.flags.gavDone&&GAV.st!=="sit"){GAV.st="sit";GAV.x=45;GAV.y=15}
+  return _intN()};
+async function atardecer(){cineOn();busy=true;GSUN.on=true;GSUN.t0=now();sfx("quest");await sleep(1200);
+  await say("El sol empieza a hundirse en el mar. Todo se vuelve naranja. Durante un momento, hasta la N-340 se calla.");
+  const s=npcById("salvamir");s.cond=()=>true;s.x=50;s.y=8;s.dir="down";emote(s,"🔮",1500);await sleep(700);
+  await sayAll(["Salva: … Qué bonito, ¿eh? El sol se ahoga todos los días y nadie hace nada.","Salva: Las cartas me dijeron que vendrías. También me dijeron que me comprara un chubasquero. Ninguna de las dos cosas tenía sentido. Hasta hoy.",
+    "Salva: Ten cuidado en Costa Cangrejo. El socorrista de la playa grande sabía cosas. Y la gente que sabe cosas… a veces desaparece.","Salva: ¿Que qué hago yo aquí? Ver el atardecer. ¿Qué vas a hacer tú, si no?"]);
+  emote(s,"👋",1200);await npcWalk(s,[[49,8],[48,8],[48,7],[47,7],[46,7],[45,7]],210);s.cond=()=>false;
+  await sayAll(["En el banco donde estaba Salva ha quedado una servilleta del chiringuito El Náufrago.","Encima, dos porros apagados, cruzados en aspa.","… ¿La firma del Sumiller? ¿O a Salva se le ha olvidado la merienda?","¡Consigues la 🧻 Servilleta del mirador!"]);
+  S.keys.servilleta=true;save();GSUN.on=false;busy=false;cineOff()}
+
+// ---- Hierba alta (matorral de las dunas) ----
+const _gzN=grassZones;grassZones=function(){if(S.map==="n340")return[[ZONES.NA,"N-340 · dunas de la izquierda",S.x<26],[ZONES.NB,"N-340 · dunas de la derecha",S.x>=26]];return _gzN()};
+const _weN=wildEncounter;wildEncounter=async function(){if(S.map==="n340"){const z=S.x<26?ZONES.NA:ZONES.NB;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _weN()};
+
+/* ===================== COSTA CANGREJO (ciudad 4 · tipo Agua · Nigel «Mister Crab») ===================== */
+// Casillas: v paseo · P palmera · ł torre del socorrista · ç entrada de la cueva · (en la cueva) w roca, o suelo
+Object.assign(MAPNAME,{costa:"Costa Cangrejo",pension:"Pensión La Gamba Feliz",cueva:"Cueva del Cabo",paradise:"Hotel All-Inclusive Paradise"});
+Object.assign(KEYS_IT,{silbato:{n:"📯 Silbato del socorrista",d:"El silbato de Borja, con la cuerda arrancada. Estaba entre las rocas, cerca de la cueva."},costa:{n:"🦀 Medalla Quemadura",d:"La medalla de Nigel. Está roja, caliente y huele a after sun."}});
+MEDALS[3]={k:"costa",n:"Medalla Quemadura",ic:"🦀",lider:"Nigel «Mister Crab»",tipo:"agua",has:()=>!!S.flags.costa};
+Object.assign(KIND_UP,{hotel:72,pension:40,kiosko:12});
+(function(){const W=48,H=32,g=grid(W,H,"á");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(g[j]&&g[j][i]!==undefined)g[j][i]=ch};
+  R("í",0,0,W,2);R("a",0,2,W,2);R("v",0,4,W,10);R("ú",0,27,W,1);R("~",0,28,W,4);
+  [[3,13],[9,13],[15,13],[27,13],[33,13],[39,13],[45,13]].forEach(([x,y])=>g[y][x]="P");
+  // chiringuito Copacabana
+  R("ö",4,16,7,1);g[17][4]="ö";g[18][4]="ö";g[17][10]="ö";g[18][10]="ö";R("c",4,19,7,1);
+  // sombrillas y la torre del socorrista
+  [[14,17],[17,20],[13,23],[27,16],[33,21],[36,17],[26,24],[18,25],[31,25]].forEach(([x,y])=>g[y][x]="ü");g[19][22]="ł";g[18][22]="ł";
+  // el cabo con la cueva
+  R("í",42,14,6,13);R("í",44,27,4,5);g[24][42]="ç";[[40,25],[39,26],[41,26],[41,23]].forEach(([x,y])=>g[y][x]="ó");
+  const signs={"1,11":"COSTA CANGREJO. «Sol, playa y fiesta de la espuma.» Población: 3.000 vecinos y 90.000 guiris.","22,13":"↑ HOTEL ALL-INCLUSIVE PARADISE (gimnasio de Nigel) · ← Pensión La Gamba Feliz · → Bazar Chon y Espuma Party · ↓ Playa de Levante","41,13":"→ CABO DE LA CUEVA. Prohibido el paso de noche. (De día, también, pero se nota menos.)"};
+  Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
+  const builds=[
+    {id:"pension",kind:"pension",x:2,y:9,w:5,h:3,door:[4,11],wall:"#f4e0c0",roof:"#e06a3a",label:"LA GAMBA FELIZ",glow:"#e06a3a",to:"pension"},
+    {id:"torrecan",kind:"hotel",x:8,y:9,w:5,h:3,door:[10,11],wall:"#e8eef4",roof:"#2a6ad0",label:"TORRE CANGREJO",glow:"#2a6ad0",to:null},
+    {id:"paradise",kind:"hotel",x:15,y:9,w:10,h:3,door:[20,11],wall:"#fff4e0",roof:"#e23b2a",label:"ALL-INCLUSIVE PARADISE",glow:"#e23b2a",to:"paradise"},
+    {id:"solresaca",kind:"hotel",x:27,y:9,w:5,h:3,door:[29,11],wall:"#f8e8a0",roof:"#e08a2a",label:"SOL Y RESACA",glow:"#c86a1a",to:null},
+    {id:"chon",kind:"kiosko",x:34,y:10,w:4,h:2,door:[36,11],wall:"#f4f4f4",roof:"#2ad8c8",label:"BAZAR CHON",glow:"#1a8a8a",to:null},
+    {id:"espuma",kind:"hotel",x:39,y:9,w:6,h:3,door:[41,11],wall:"#3a2a5a",roof:"#ff4ad0",label:"ESPUMA PARTY",glow:"#ff4ad0",to:null}];
+  builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
+  MAPS.costa={w:W,h:H,g,outdoor:true,signs,builds,lamps:[],music:"costa",exits:{"0,12":["n340",58,7,"left"],"0,13":["n340",58,7,"left"]},
+    txt:{"ü":"Una sombrilla con una toalla de Benidorm 1987. Debajo, un guiri dormido del color de una gamba.","ó":"Una roca. Huele a erizo y a crema solar.","í":"El cabo. Paredes de roca llenas de nidos de gaviota.","P":"Una palmera. Tiene una pulsera de todo incluido atada al tronco.","ö":"El chiringuito Copacabana. Paredes de caña y un cartel: «HAY MOJITOS. NO HAY PREGUNTAS».","a":"La Avenida del Mediterráneo. Un coche pasa con la música tan alta que tiembla la arena."}};
+  blockDrawn("costa");
+  MAPS.n340.exits["59,6"]=["costa",1,12,"right"];MAPS.n340.exits["59,7"]=["costa",1,13,"right"];
+})();
+VUELO_DEST.push({map:"costa",n:"Costa Cangrejo",x:4,y:12,mx:330,my:185,ok:()=>!!S.flags.costaIn,ic:"🦀",land:"pension"});
+// interiores
+MAPS.pension={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"costa",g:rowsGrid(["wwwwwwwwww","wgmoooohgw","woooooooow","wtoooooopw","woooooooow","whooooooow","woooooooow","wwwweewwww"]),
+  exits:{"4,7":["costa",4,12,"down"],"5,7":["costa",4,12,"down"]},entry:[4,6,"up"],txt:{m:"Una tele con el telediario: «Ola de calor, ola de guiris y ola de robos de sombrillas».",h:"Un sofá con funda de plástico. Suena a croqueta al sentarse.",g:"Una palmera de plástico con lucecitas de Navidad. En agosto.",t:"Folletos: «Excursión en barco pirata con barra libre. Vuelta no garantizada».",p:"La Nevera de la pensión. Huele a sardinas, pero tus Pedomones no se quejan."}};
+MAPS.cueva={w:16,h:10,style:"casa",signs:{},builds:[],lamps:[],music:"fumigon",g:rowsGrid(["wwwwwwwwwwwwwwww","wwooooowwwoooooww","wooowooooooowooow","wooowwwwoowwwooow","woooooooooooooow","wwwooowwwwooowwww","wooooooooooooooow","woowwwooooowwoow","woooooooooooooow","wwwwwwwweewwwwww"].map(r=>r.slice(0,16))),
+  exits:{"8,9":["costa",41,24,"left"],"9,9":["costa",41,24,"left"]},entry:[8,8,"up"],txt:{w:"Roca húmeda. Alguien ha pintado con spray: «LEY SECA». Y debajo, más pequeño: «y la cerveza, caliente»."}};
+MAPS.paradise={w:16,h:14,style:"casa",signs:{},builds:[],lamps:[],music:"lolo",g:rowsGrid(["wwwwwwwwwwwwwwww","whgooooooooooghw","woooooooooooooow","woo~~~~~~~~~~oow","woo~~~~~~~~~~oow","woo~~~~~~~~~~oow","woooooooooooooow","woo~~~~~~~~~~oow","woo~~~~~~~~~~oow","woo~~~~~~~~~~oow","woooooooooooooow","wtoooooooooooopw","woooooooooooooow","wwwwwwweewwwwwww"]),
+  exits:{"7,13":["costa",20,12,"down"],"8,13":["costa",20,12,"down"]},entry:[7,12,"up"],txt:{"~":"La piscina del hotel. Hay más crema solar que agua. Y un flotador con forma de cangrejo.",h:"Una tumbona con una toalla puesta a las 6 de la mañana. Es de un alemán. Nadie la toca.",g:"Una palmera en maceta con una pulsera de todo incluido.",t:"La barra libre del hotel. Un cartel: «Prohibido rellenar la piscina con sangría (otra vez)».",p:"La Nevera del hotel."}};
+
+// ---- Dibujo de la ciudad ----
+KIND4.hotel=(b,ox,oy,t)=>{const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,U=b.up||72,big=b.id==="paradise";
+  px(x+3,y-U+3,w,h+U,"rgba(0,0,0,.18)");px(x,y-U,w,h+U,b.wall);px(x,y-U,2,h+U,"rgba(255,255,255,.4)");px(x+w-3,y-U,3,h+U,"rgba(0,0,0,.12)");
+  for(let fy=y-U+8;fy<y+h-18;fy+=10){px(x+1,fy+7,w-2,2,"#ffffff");px(x+1,fy+9,w-2,1,"rgba(0,0,0,.15)");for(let i=0;i<Math.floor((w-4)/7);i++){const lit=hash(b.x+i,fy)%5;px(x+3+i*7,fy,5,6,lit?"#7ac8e8":"#2a5a7a");px(x+3+i*7,fy,5,1,"rgba(255,255,255,.6)");if(hash(i,fy+b.x)%7===0)px(x+3+i*7,fy+6,5,2,["#e23b2a","#2a9a48","#f2c14e"][i%3])}}
+  px(x-2,y-U-5,w+4,6,b.roof);px(x-2,y-U-5,w+4,1,"rgba(255,255,255,.4)");
+  ctx.font=`bold ${big?7:5}px monospace`;ctx.textAlign="center";ctx.fillStyle="#ffffff";ctx.fillText(b.label,x+w/2+1,y-U-7);ctx.fillStyle=b.glow;ctx.fillText(b.label,x+w/2,y-U-8);
+  px(x,y+h-18,w,18,big?"#f4e8d0":hexShade(b.wall,.92));px(x,y+h-18,w,2,b.roof);for(let i=0;i<w;i+=8)px(x+i,y+h-16,4,3,"rgba(255,255,255,.5)");
+  const dx=b.door[0]*T-ox,dy=b.door[1]*T-oy;px(dx-2,dy-8,20,4,b.roof);for(let i=0;i<20;i+=4)px(dx-2+i,dy-4,2,2,b.roof);px(dx+1,dy-4,14,20,"#3a2a1a");px(dx+2,dy-3,12,19,"#9fd8f0");px(dx+8,dy-3,1,19,"#3a2a1a");
+  if(big){px(x+4,y+h-14,10,10,"#2a9a48");px(x+w-14,y+h-14,10,10,"#2a9a48");ctx.fillStyle="#e23b2a";ctx.beginPath();ctx.arc(x+w/2,y-U+16,7,0,7);ctx.fill();ctx.fillStyle="#ffffff";ctx.font="bold 8px monospace";ctx.fillText("🦀",x+w/2,y-U+19)}};
+KIND4.pension=(b,ox,oy,t)=>{b.up=40;KIND4.hotel(b,ox,oy,t)};
+KIND4.kiosko=(b,ox,oy,t)=>{const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T;px(x+2,y-10,w,h+10,"rgba(0,0,0,.18)");px(x,y-8,w,h+8,b.wall);
+  for(let i=0;i<w;i+=6)px(x+i,y-12,3,6,b.roof);px(x,y-12,w,1,"#1a8a8a");px(x+2,y-4,w-4,10,"#2a4a5a");
+  [["#f2c14e",4],["#e23b2a",12],["#2ad8c8",20],["#e04a9a",28],["#7aff6a",44]].forEach(([c,o])=>{if(o<w-4){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+o+3,y-1,3,0,7);ctx.fill();ctx.fillStyle="#2a4a5a";ctx.beginPath();ctx.arc(x+o+3,y-1,1.2,0,7);ctx.fill()}});
+  ctx.font="bold 5px monospace";ctx.textAlign="center";ctx.fillStyle="#1a8a8a";ctx.fillText(b.label,x+w/2,y-14);px(x,y+h-6,w,6,"#c8c8c8")};
+function cityTile(ch,x,y,sx,sy,t){const h=hash(x,y),m=MAP();
+  if(S.map==="costa"){
+    if(ch==="v"){px(sx,sy,T,T,(x+y)%2?"#e8d8c0":"#f0e2cc");if((x*3+y)%4===0){px(sx+4,sy+4,8,8,"#d8b890");px(sx+6,sy+6,4,4,"#e8d8c0")}px(sx,sy,T,1,"rgba(0,0,0,.05)");return true}
+    if(ch==="P"){cityTile("v",x,y,sx,sy,t);ctx.fillStyle="rgba(0,0,0,.18)";ctx.beginPath();ctx.ellipse(sx+10,sy+14,6,2,0,0,7);ctx.fill();px(sx+7,sy-6,3,21,"#a87a4a");for(let i=0;i<5;i++)px(sx+7,sy-4+i*4,3,1,"#7a5232");
+      const sw=Math.sin(t/800+x)*1.2;ctx.strokeStyle="#2a8a3a";ctx.lineWidth=2.5;for(const a of[-2.6,-2,-1.2,-.5,.1]){ctx.beginPath();ctx.moveTo(sx+8,sy-7);ctx.quadraticCurveTo(sx+8+Math.cos(a)*7,sy-12+Math.sin(a)*4,sx+8+Math.cos(a)*12+sw,sy-5+Math.sin(a)*6);ctx.stroke()}return true}
+    if(ch==="ł"){sandPx(sx,sy,h);if(y===19){ctx.fillStyle="rgba(0,0,0,.2)";ctx.beginPath();ctx.ellipse(sx+9,sy+14,8,2,0,0,7);ctx.fill();px(sx+2,sy-2,2,16,"#f4f4f4");px(sx+12,sy-2,2,16,"#f4f4f4");px(sx+2,sy+4,12,1,"#e23b2a");px(sx+2,sy+9,12,1,"#e23b2a");
+        px(sx,sy-14,16,4,"#e23b2a");px(sx+1,sy-10,14,8,"#f4f4f4");px(sx+3,sy-9,10,5,"#f2c14e");px(sx-2,sy-22,20,8,"#e23b2a");px(sx-2,sy-22,20,2,"#ff6a5a");px(sx+7,sy-26,1,5,"#8a8a8a");px(sx+8,sy-26,5,3,(S.q.costa||0)>=3?"#e23b2a":"#f2c14e");
+        if((S.q.costa||0)<3){px(sx+5,sy-8,6,1,"#3a2a1a");px(sx+5,sy-8,1,1,"#ff8a2a");px(sx+7,sy-10,1,5,"#f4f0e0");px(sx+5,sy-6,6,1,"#f4f0e0")}}return true}
+    if(ch==="ç"){costaTile("í",x,y,sx,sy,t);ctx.fillStyle="#1a1410";ctx.beginPath();ctx.ellipse(sx+6,sy+10,7,8,0,0,7);ctx.fill();px(sx+1,sy+15,10,1,"#3a2a1a");return true}
+    if(ch==="c"){return costaTile("c",x,y,sx,sy,t)||(()=>{sandPx(sx,sy,h);px(sx,sy+2,T,13,"#d8b878");px(sx,sy+1,T,3,"#8a6a3a");const it=x%3;if(it===0){px(sx+4,sy-5,4,7,"#f4f4f4");px(sx+5,sy-6,2,2,"#2a9a48")}if(it===1){px(sx+3,sy-3,5,5,"#f2c14e");px(sx+9,sy-4,3,6,"#e04a9a")}return true})()}}
+  if(S.map==="cueva"){if(ch==="w"){px(sx,sy,T,T,"#2a2420");px(sx+(h%10),sy+(h>>3)%10,5,4,"#3a322a");if(h%4===0)px(sx+(h>>4)%12,sy+12,3,2,"#1a1410");return true}
+    if(ch==="o"||ch==="e"){px(sx,sy,T,T,"#5a4a3a");if(h%3===0)px(sx+(h%13),sy+((h>>3)%13),2,1,"#6a5a48");if(h%9===0)px(sx+((h>>2)%12),sy+((h>>5)%12),1,1,"#8a7a62");if(ch==="e")px(sx,sy+8,T,8,"rgba(255,240,200,.25)");return true}}
+  if(S.map==="paradise"&&ch==="o"){px(sx,sy,T,T,(x+y)%2?"#f4f0e8":"#e8e2d6");px(sx,sy,T,1,"#d8d2c6");return true}
+  return false}
+const _dtCity=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if((S.map==="costa"||S.map==="cueva"||S.map==="paradise")&&cityTile(ch,x,y,sx,sy,t))return;return _dtCity(ch,x,y,sx,sy,t,style)};
+function drawCars(m,ox,oy,t,l1,l2,n){for(let i=0;i<n;i++){const dir=i%2?1:-1,sp=.04+(i%3)*.018,len=m.w*T+120;let X=((t*sp+i*197)%len);if(dir<0)X=len-X;X-=60;const Y=(dir>0?l2:l1)*T+3,sx=X-ox,sy=Y-oy;if(sx<-30||sx>SW+30)continue;
+  const c=["#c8202a","#f4f4f4","#2a6ad0","#f2c14e","#2ad8c8","#e04a9a"][i%6];ctx.fillStyle="rgba(0,0,0,.25)";ctx.fillRect(sx+1,sy+9,22,3);px(sx,sy+2,24,8,c);px(sx+5,sy-1,13,4,c);px(sx+(dir>0?13:6),sy,5,3,"#9fd0f0");px(sx+(dir>0?7:12),sy,5,3,"#9fd0f0");px(sx+3,sy+9,4,3,"#111");px(sx+17,sy+9,4,3,"#111")}}
+const _rwCity=renderWorld;renderWorld=function(t){_rwCity(t);if(S.map==="costa"){const[ox,oy]=camOf(MAPS.costa);drawCars(MAPS.costa,ox,oy,t,2,3,6);
+    // la cinta policial alrededor de la torre mientras no aparece Borja
+    if((S.q.costa||0)<3){const X=21*T-ox,Y=18*T-oy;ctx.strokeStyle="#f2d14e";ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.strokeRect(X-2,Y-2,3*T+4,2*T+20);ctx.setLineDash([])}}
+  if(S.map==="cueva"){ctx.save();const g=ctx.createRadialGradient(SW/2,SH/2,20,SW/2,SH/2,150);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,.75)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH);ctx.restore()}};
+
+// ---- Gente de Costa Cangrejo ----
+Object.assign(NPC_LOOK,{nigel:{hs:0,ts:2,acc:{ag:1}},nigel2:{hs:0,ts:2,acc:{ag:1}},maruchi:{hs:9,ts:7},chon:{hs:3,ts:5},wilson:{hs:3,ts:5},rosi:{hs:6,ts:10},borja:{hs:1,ts:0},borja2:{hs:1,ts:0},
+  cpasma1:{hs:2,ts:8,hat:"poli"},cpasma2:{hs:2,ts:8,hat:"poli",beard:"stache"},cguiri1:{hs:0,ts:2},cguiri2:{hs:9,ts:10},caqua:{hs:9,ts:0},cflota:{hs:0,ts:2}});
+const PAL_NIGEL={h:"#f2d14e",s:"#f08070",e:"#222",c:"#f4f4f4",z:"#e23b2a",p:"#e23b2a",k:"#f08070"};
+NPCS.push(
+ {id:"nigel",map:"costa",x:21,y:20,dir:"right",pal:PAL_NIGEL,hs:0,ts:2,fat:true,idle:true,cond:()=>(S.q.costa||0)<3},
+ {id:"maruchi",map:"pension",x:4,y:2,dir:"down",pal:{h:"#c87a3a",s:"#f1c27d",e:"#222",c:"#e06a3a",z:"#f4f4f4",p:"#3a3a3a",k:"#5a3a1a"},hs:9,ts:7},
+ {id:"chon",map:"costa",x:36,y:12,dir:"up",pal:{h:"#1a1a1a",s:"#f1c27d",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#2a2a2a",k:"#1a1a1a"},hs:3,ts:5},
+ {id:"wilson",map:"costa",x:7,y:18,dir:"down",pal:{h:"#1a1a1a",s:"#8a5a3a",e:"#222",c:"#f2c14e",z:"#2a9a48",p:"#2a2a2a",k:"#1a1a1a"},hs:3,ts:5},
+ {id:"rosi",map:"costa",x:30,y:18,dir:"down",pal:{h:"#6a2a1a",s:"#e0a878",e:"#222",c:"#e04a9a",z:"#f2c14e",p:"#2a6ad0",k:"#e0a878"},hs:6,ts:10,idle:true},
+ {id:"cguiri1",map:"costa",x:16,y:22,dir:"left",sight:4,pal:{h:"#f2d14e",s:"#f8a8a0",e:"#222",c:"#2a6ad0",z:"#f4f4f4",p:"#e23b2a",k:"#f8a8a0"},hs:0,ts:2,spin:["left","down","right"],
+  trainer:tr4("Guiri Gamba","Gary",[["coronita",30],["sangria",31]],330,["Guiri Gary: Ouch! ¡No toques mi espalda! Llevo seis horas al sol sin crema. ¡SIN CREMA!","Guiri Gary: Estoy más rojo que tu Pedomón. ¡Fight!"],"Guiri Gary: Necesito after sun. Y una cerveza. Y un médico.")},
+ {id:"cguiri2",map:"costa",x:35,y:23,dir:"up",sight:4,pal:{h:"#e8c86a",s:"#f8c8a8",e:"#222",c:"#e04a9a",z:"#f4f4f4",p:"#2a2a2a",k:"#f8c8a8"},hs:9,ts:10,spin:["up","left"],
+  trainer:tr4("Despedida de Soltera","Vane",[["tintoverano",30],["millerpack",31],["coronita",31]],360,["Vane: ¡SOMOS LA DESPEDIDA DE LA YESSI! ¡Y TÚ ERES NUESTRO RETO NÚMERO 14!","Vane: El reto es ganarte. El 15 es mejor no decírtelo."],"Vane: ¡Reto fallido! Chupito de castigo… para todas.")},
+ {id:"cpasma1",map:"cueva",x:4,y:4,dir:"right",sight:6,cond:()=>(S.q.costa||0)<3,pal:NPC_PAL.poli,hs:2,ts:8,
+  trainer:tr4("Agente Ruiz","Ruiz",[["bezoya5l",31],["cafemaquina",31],["donut",32]],380,["Agente Ruiz: ¿Quién anda ahí? ¡Esta cueva es zona de la Ley Seca!","Agente Ruiz: El jefe dijo que nadie pasa. Y el jefe da mucho miedo. Tú, poco."],"Agente Ruiz: Vale, vale… Yo solo vigilaba. Y me comía un donut.")},
+ {id:"cpasma2",map:"cueva",x:11,y:2,dir:"down",sight:5,cond:()=>(S.q.costa||0)<3,pal:NPC_PAL.poli,hs:2,ts:8,
+  trainer:tr4("Sargento Pons","Pons",[["cajadonuts",32],["solan",32],["bezoya5l",33]],420,["Sargento Pons: El socorrista vio lo que no tenía que ver. Y tú también lo vas a ver… de cerca.","Sargento Pons: ¡Por la Ley Seca y por el que manda!"],"Sargento Pons: Llévatelo. A mí el jefe me va a… No. No lo digo. Ni lo pienso.")},
+ {id:"borja",map:"cueva",x:13,y:1,dir:"down",pal:{h:"#f2d14e",s:"#d8a070",e:"#222",c:"#e23b2a",z:"#f2c14e",p:"#e23b2a",k:"#d8a070"},hs:1,ts:0,cond:()=>(S.q.costa||0)<3},
+ {id:"borja2",map:"costa",x:23,y:19,dir:"down",pal:{h:"#f2d14e",s:"#d8a070",e:"#222",c:"#e23b2a",z:"#f2c14e",p:"#e23b2a",k:"#d8a070"},hs:1,ts:0,cond:()=>(S.q.costa||0)>=3},
+ {id:"caqua",map:"paradise",x:2,y:6,dir:"right",sight:8,pal:{h:"#e8c86a",s:"#e0a878",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#2ad8c8",k:"#e0a878"},hs:9,ts:0,
+  trainer:tr4("Monitora de Aquagym","Jessi",[["miller",32],["heinekenpack",33]],400,["Monitora Jessi: ¡Y arriba, y abajo, y arriba! ¡Y ahora combate!","Monitora Jessi: Nadie entra a ver a Mister Crab sin sudar la gota gorda."],"Monitora Jessi: Y… estiramos. Yo me quedo estirada en el suelo, si no te importa.")},
+ {id:"cflota",map:"paradise",x:13,y:10,dir:"left",sight:8,pal:{h:"#f2d14e",s:"#f08070",e:"#222",c:"#f2c14e",z:"#e23b2a",p:"#2a6ad0",k:"#f08070"},hs:0,ts:2,
+  trainer:tr4("Guiri del Flotador","Terry",[["barrilblindado",33],["aguilalitro",33]],420,["Guiri Terry: I'm the champion of the swimming pool! Llevo aquí desde 2009. No salgo.","Guiri Terry: Mi flotador es un cangrejo. Mi Pedomón es un barril. ¡Come on!"],"Guiri Terry: … Me vuelvo a la piscina. Ahí nadie me gana.")},
+ {id:"nigel2",map:"paradise",x:8,y:1,dir:"down",pal:PAL_NIGEL,hs:0,ts:2,fat:true}
+);
+TRAINER_LOOK["Nigel «Mister Crab»"]="nigel2";
+TALK2.maruchi=async()=>{await sayAll([pick(["Maruchi: ¡Ay, otro que viene quemado! Siéntate, rey, que te curo a los bichos y te doy una sopita fría.","Maruchi: Llevo 40 años con la pensión. Antes venían familias. Ahora vienen despedidas de soltero. Prefiero las familias, que rompen menos.","Maruchi: El socorrista Borja era muy buen chico. Bueno, es. Es buen chico. Aparecerá, ¿verdad?"]),"Maruchi: Venga, que os dejo nuevos."]);
+  S.team.forEach(m=>{m.hp=maxhp(m)});S.respawn=["pension",4,4];sfx("heal");save();await say("¡Tu equipo está como nuevo! (Si caes en combate, despertarás en la pensión.) La Nevera está en la esquina.")};
+const CHON={n:"Chon",hi:"Chon: ¡Hola, hola! Bazar Chon. Primo de Chen, de Chan, de Chun y de Chin. Flotadores, gafas, chanclas y todo lo demás.",bye:"Chon: ¡Gracias! Ponte crema. Mucha crema.",lines:["Chon: El cangrejo del hotel compra aquí el after sun. Cajas enteras. No pregunto."]};
+TALK2.chon=async()=>{await shop(CHON)};
+TALK2.wilson=async()=>{const q=S.q.costa||0;
+  if(q===1&&!S.flags.clWilson){S.flags.clWilson=true;save();await sayAll(["Wilson: ¿Borja? Anoche estuvo aquí, en la barra. Discutiendo con un señor muy raro.","Wilson: Guantes blancos, sombrero de paja y una copa de vino en la mano. En un chiringuito. ¡Pidió un vino «con cuerpo y retrogusto»! Aquí solo hay tinto de verano.","Wilson: Le dijo a Borja: «Lo que has visto en el hotel no lo has visto». Y Borja se fue blanco como la arena.","🔍 Pista apuntada: el hombre de los guantes blancos."]);costaClues();return}
+  const i=await choose(pick(["Wilson: ¡Bienvenido al Copacabana, amigo! ¿Qué te pongo?","Wilson: Mojito, tinto de verano o agua. El agua es más cara, que la vigila La Pasma."]),[{label:"🍹 Tomar algo (cura a tu equipo)"},{label:"💬 Charlar"},{label:"👋 Nada"}],{cols:1});
+  if(i===0){if(S.money<15){await say("Wilson: Son 15 pavos, amigo. Aquí no se fía, que esto es la playa.");return}S.money-=15;S.team.forEach(m=>{m.hp=maxhp(m)});sfx("heal");save();await say("Te tomas un tinto de verano con limón mirando al mar. Tus Pedomones se tiran a la sombra. ¡Equipo curado! (-15 pavos)");return}
+  if(i===1)await say(pick(["Wilson: Nigel, el del hotel, viene todos los días a las 10 a por el primer gin-tonic. Desayuna de pie.","Wilson: Dicen que en la cueva del cabo se oyen ruidos de noche. Yo no voy. Yo sirvo mojitos.","Wilson: La señora de las trenzas lo ve todo. Lleva 30 años en la misma sombrilla."]))};
+TALK2.rosi=async()=>{const q=S.q.costa||0;
+  if(q===1&&!S.flags.clRosi){S.flags.clRosi=true;save();await sayAll(["Rosi: ¿Borja? Ay, mi niño. Ayer le hice unas trenzas de esas africanas, que me lo pidió para la fiesta de la espuma.","Rosi: Y a medianoche lo vi pasar con una linterna, para el cabo, hacia la cueva. Le grité «¡Borja, que se te deshacen las trenzas!». Ni me miró.","🔍 Pista apuntada: Borja fue a la cueva del cabo."]);costaClues();return}
+  const i=await choose("Rosi: ¡Trenzas, rastas, tatuajes de henna! ¿Qué te hago, cariño?",[{label:"💇 Cambiar de look"},{label:"💬 Charlar"},{label:"👋 Nada"}],{cols:1});
+  if(i===0){await skinEditor();pushPresence();await say(pick(["Rosi: ¡Mírate! Ahora sí pareces de vacaciones.","Rosi: Esto en Benidorm te lo cobran el doble. Y te dejan calvo.","Rosi: Precioso. Si se te deshace, vuelve, que te lo apaño."]));return}
+  if(i===1)await say(pick(["Rosi: Treinta años en esta sombrilla. He visto de todo. Una vez vi a un guiri bañarse con calcetines. Y con zapatos.","Rosi: Nigel era un chico majo cuando llegó. Luego descubrió el todo incluido.","Rosi: Si quieres saltar desde el acantilado, primero pregunta a los chavales del cabo. Y luego no lo hagas."]))};
+TALK2.nigel=async()=>{if((S.q.costa||0)>=3)return;await say(pick(["Nigel: Borja! My boy! ¿Dónde está? ¿Quién vigilar my swimming pool ahora? ¡Nadie hacer gimnasio sin socorrista!","Nigel: Yo pagar a Borja muy bien. En pulseras de todo incluido. Él decir que no le sirven para el alquiler. Weird.","Nigel: Encuentra a mi Borja y yo te dejo luchar. ¡Promise! Hic."]))};
+TALK2.borja2=async()=>{await say(pick(["Borja: ¡Gracias otra vez, tío! Ahora vigilo la playa con un ojo y la cueva con el otro.","Borja: El de los guantes blancos… no le vi la cara. Pero olía a vino caro y a algo más. A hierba quemada.","Borja: Si vas a saltar desde el cabo, avísame primero, que me tiro a por ti."]))};
+TALK2.borja=async()=>{if(!(S.beaten&&S.beaten.cpasma1&&S.beaten.cpasma2)){await say("Borja (atado y amordazado): ¡Mmmmf! ¡MMMMF! (Parece que dice: «¡cuidado con los de La Pasma!»)");return}
+  cineOn();await sayAll(["Le quitas la mordaza y las cuerdas al socorrista. Lleva unas trenzas preciosas, un poco deshechas.","Borja: ¡Tío, gracias! Llevaba dos días aquí. Comiendo galletas de La Pasma. Están rancias.","Borja: Vi algo en el hotel de Nigel: unos de La Pasma metiendo palés de agua embotellada en el sótano. Muchísimos. Para la Ley Seca.",
+    "Borja: Y con ellos estaba un señor con guantes blancos. Lo olía todo: el agua, el aire… a mí. Los polis le llamaban «el Sumiller».","Borja: Me pillaron mirando y me trajeron aquí. Antes de irse, el Sumiller dejó dos porros apagados, cruzados, encima de mi silla de socorrista. Como una firma.",
+    "Borja: Vámonos. Nigel tiene que saber lo que pasa en su hotel… si es que no lo sabe ya."]);
+  S.q.costa=3;sfx("quest");save();cineOff();await warp("costa",23,20,"down");await say("📜 Misión completada: «El socorrista desaparecido». Nigel ya abre su gimnasio en el Hotel All-Inclusive Paradise.")};
+function costaClues(){if(S.q.costa===1&&S.flags.clWilson&&S.flags.clRosi&&S.keys.silbato){S.q.costa=2;save();sfx("quest");toast("🔍 Ya tienes las 3 pistas: ¡a la cueva del cabo!")}}
+TALK2.nigel2=async()=>{
+  if(S.flags.costa){await say(pick(["Nigel: Tú ganar. Yo invitar a un gin-tonic. Bueno, invita el hotel. Bueno, el hotel invita a todo, it's all inclusive.","Nigel: ¿El sótano? ¿Qué sótano? Yo no saber nada del sótano. Hic. Pregunta a mi abogado. Mi abogado es esta piña colada."]));return}
+  await sayAll(["Nigel: Welcome to the Paradise! Yo ser Nigel. La gente llamarme «Mister Crab». Por el color, you know. Y por cómo ando de lado después de las 12.","Nigel: Has traído a Borja. Thank you, mate. Pero esto es un gimnasio, y en mi gimnasio se lucha… ¡con AGUA!","Nigel: Mis Pedomones beben más que yo. Y yo bebo MUCHO. ¡Let's go!"]);
+  const win=await battle([monMoves(newMon("sangria",33),["chorro","espumarajo","lataza","eructo"]),newMon("millerpack",34),newMon("barrilblindado",34),newMon("aguilareal",36)],
+    {trainer:{name:"Nigel «Mister Crab»",short:"Nigel",pal:PAL_NIGEL,hs:0,ts:2,fat:true,money:1000,leader:true,challenge:"¡Nigel «Mister Crab», el dueño del Paradise, te desafía!",lose:"Nigel: Oh my God… He perdido. Esto necesita otra piña colada."},music:"lolo"});
+  if(win){S.flags.costa=true;S.keys.costa=true;S.tms=S.tms||{};S.tms.mt18=(S.tms.mt18||0)+1;sfx("quest");save();
+    await sayAll(["¡Has ganado la 🦀 Medalla Quemadura!","Nigel: Take it, mate. Está caliente porque la tengo al sol. Como a mí.","Nigel: Y la MT18, Sifón. Para que tus Pedomones escupan con estilo.","Nigel: … Escucha. Lo del sótano. Yo solo alquilar el sótano. Un señor pagar en efectivo, con guantes blancos. Yo no hacer preguntas. Yo hacer piña coladas.","Nigel: Él decir que el siguiente sitio es Terrazalia. La terraza del mundo. Donde todos fumar. Hic. Ten cuidado, mate."])}};
+if(!MTS.find(m=>m.id==="mt18"))MTS.push({id:"mt18",mv:"sifon",price:0,types:null,reward:true});
+
+// ---- Puertas, intro del caso y pistas ----
+const _doorC=door;door=async function(b){
+  if(b.id==="torrecan"||b.id==="solresaca"){await say(pick(["Recepción: «Completo hasta 2031». Un guiri duerme en el sofá del hall. Lleva tres días ahí.","El portero del hotel te mira la muñeca: no llevas pulserita. «Sorry, no pulserita, no entrar»."]));return}
+  if(b.id==="espuma"){await say("ESPUMA PARTY. En la puerta: «HOY: FIESTA DE LA ESPUMA A LAS 00:00». Dentro huele a gel de baño y a malas decisiones.");return}
+  if(b.id==="chon"){await TALK2.chon();return}
+  if(b.id==="paradise"&&(S.q.costa||0)<3){await say("El recepcionista: «Lo siento. Mister Crab no recibe a nadie hasta que aparezca su socorrista. Ha cerrado el gimnasio. Y la barra libre. Bueno, la barra libre no»." );return}
+  return _doorC(b)};
+const _oemC=onEnterMap;onEnterMap=async function(){await _oemC();
+  if(S.map==="costa"&&!S.flags.costaIn){S.flags.costaIn=true;S.q.costa=S.q.costa||0;save();
+    await sayAll(["COSTA CANGREJO. Rascacielos de hoteles, un paseo de palmeras y una playa con más toallas que arena.","Huele a crema solar, a fritura y a sangría. Por los altavoces del paseo suena una canción del verano de hace diez años."]);
+    if((S.q.costa||0)===0){const n=npcById("nigel");cineOn();emote(n,"😱",2000);await sleep(600);
+      await sayAll(["Al fondo, junto a la torre del socorrista, hay una cinta amarilla y un corrillo de gente.","Un guiri calvo y rojo como una gamba grita: «¡BORJA! ¡MY BOY! ¿WHERE IS BORJA?»","Vecina: Es Nigel, el del hotel Paradise. Su socorrista, Borja, ha desaparecido esta mañana. Solo ha quedado su silla… con dos porros apagados encima. Cruzados.","… Dos porros cruzados en aspa. Como en la servilleta del mirador.","📜 Nueva misión: «El socorrista desaparecido». Busca pistas por la playa: pregunta en el chiringuito, a la señora de las trenzas, y mira por las rocas del cabo."]);
+      S.q.costa=1;save();cineOff()}}
+  if(S.map==="cueva"&&!S.flags.cuevaIn){S.flags.cuevaIn=true;save();await say("LA CUEVA DEL CABO. Oscura, húmeda y con olor a donut. Al fondo se oye: «¡Mmmmf!».")}};
+const _intC=interact;interact=async function(){const[fx,fy]=facing(),c=tileAt(fx,fy);
+  if(S.map==="costa"&&c==="ó"&&fx===40&&fy===25&&(S.q.costa||0)>=1&&!S.keys.silbato){S.keys.silbato=true;sfx("quest");save();await sayAll(["Entre las rocas brilla algo… ¡Es el silbato de Borja! Tiene la cuerda arrancada, como si alguien tirara de ella.","🔍 Pista apuntada: el 📯 Silbato del socorrista."]);costaClues();return}
+  if(S.map==="costa"&&c==="ç"){if((S.q.costa||0)>=2&&(S.q.costa||0)<3){await warp("cueva",8,8,"up");return}
+    await say((S.q.costa||0)>=3?"La cueva del cabo. Ahora está vacía. Solo quedan envoltorios de donut y una cuerda cortada.":"La entrada de una cueva. Está muy oscura. Sin una buena razón para entrar, mejor no.");return}
+  if(S.map==="costa"&&c==="ł"){await say((S.q.costa||0)>=3?"La torre del socorrista. Borja ha vuelto a su silla. Ha colgado la bandera roja: «hoy hay medusas y guiris».":"La torre del socorrista, vacía. En la silla, dos porros apagados cruzados en aspa. La firma del Sumiller.");return}
+  return _intC()};
+const _qlC=questLines;questLines=function(){const L=_qlC();const q=S.q.costa||0;if(q>=1&&q<3){L.push("🦀 El socorrista desaparecido:");L.push((S.flags.clWilson?"✅":"•")+" Preguntar a Wilson, el del chiringuito Copacabana");L.push((S.flags.clRosi?"✅":"•")+" Preguntar a Rosi, la señora de las trenzas");L.push((S.keys.silbato?"✅":"•")+" Buscar entre las rocas del cabo");if(q===2)L.push("• ¡Entra en la cueva del cabo y rescata a Borja!")}
+  else if(q>=3&&!S.flags.costa)L.push("🦀 Gánale a Nigel en la piscina del Hotel Paradise");return L};
+
+/*</B4COSTA>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

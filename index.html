@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="52 · Autovía de verdad";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="53 · Maripili a mano y guardería en Neón";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -6358,6 +6358,41 @@ renderWorld=function(t){_rwTraf(t);if(S.map!=="carretera")return;const m=MAPS.ca
   for(const v of TRAF.list){const X=v.x-ox,Y=v.lane*16+8-oy;if(X<-60||X>SW+60)continue;drawVeh(v,X,Y)}};
 
 /*</B4TRAFICO>*/
+/*<B4FIX5>*/
+/* ===================== ARREGLOS 5: Maripili siempre a mano y la Guardería en Ciudad Neón ===================== */
+// ---- Maripili, después del examen, se queda DELANTE de la barra (visible) para los turnos de cañas ----
+(function(){const m2=NPCS.find(n=>n.id==="camarera2");if(m2){m2.x=8;m2.y=3;m2.dir="left"}})();
+let MARI2_CALLED=false;
+const _oemM2=onEnterMap;onEnterMap=async function(){MARI2_CALLED=false;return _oemM2()};
+const _rwM2=renderWorld;renderWorld=function(t){_rwM2(t);if(S.map==="bar"&&S.flags.canas&&Math.floor(t/1600)%3===0){const m2=NPCS.find(n=>n.id==="camarera2");if(m2&&!(m2.emo&&now()-m2.emoAt<1500))emote(m2,"🍺",1400)}};
+const _stepM2=onStep;onStep=async function(){const r=await _stepM2();
+  if(S.map==="bar"&&S.flags.canas&&!MARI2_CALLED&&S.y<=6&&S.y>=3&&Math.abs(S.x-9)<=3){MARI2_CALLED=true;const m2=NPCS.find(n=>n.id==="camarera2");
+    if(m2&&npcVisible(m2)){emote(m2,"❗",1000);sfx("alert");await sleep(400);await say("Maripili: ¡Eh, campeón! Aquí, delante de la barra. ¿Te echas un turno tirando cañas? Pago bien.");await TALK2.camarera2(m2)}}return r};
+
+// ---- Guardería Pedomón: ahora es un edificio en Ciudad Neón (donde estaba el rascacielos pequeño) ----
+(function(){const m=MAPS.neon,b=m.builds.find(x=>x.id==="torre3");if(!b)return;
+  b.id="guarderia";b.kind="guarde";b.label="GUARDERÍA";b.wall="#f4d8e8";b.roof="#e04a9a";b.to="guarderia";b.up=22;
+  for(let y=18;y<=19;y++)for(let x=b.x;x<b.x+b.w;x++)if(m.g[y][x]==="H")m.g[y][x]="v";
+  // Mari Carmen se muda del parque a la guardería
+  const mc=NPCS.find(n=>n.id==="marican");if(mc){mc.map="guarderia";mc.x=4;mc.y=2;mc.dir="down"}})();
+KIND4.guarde=(b,ox,oy,t)=>{const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,U=22;
+  px(x,y-U,w,h+U,b.wall);for(let i=0;i<w;i+=8)px(x+i,y-U,4,h+U,"#fbe6f0");px(x-2,y-U-6,w+4,7,b.roof);for(let i=0;i<w;i+=6)px(x+i,y-U+1,3,3,["#ffd14a","#4ad8ff","#7aff6a","#ff8a3a"][(i/6)%4]);
+  px(x+3,y-12,10,8,"#8fd3f4");px(x+w-13,y-12,10,8,"#8fd3f4");px(x+7,y-12,1,8,"#fff");px(x+w-9,y-12,1,8,"#fff");
+  const dx=b.door[0]*T-ox,dy=b.door[1]*T-oy;px(dx+2,dy-6,12,22,"#e04a9a");px(dx+3,dy-5,10,21,"#ffb8d8");px(dx+7,dy-5,1,21,"#e04a9a");
+  // biberón gigante en la fachada
+  px(x+w/2-3,y-U-14,6,10,"#f4f4f4");px(x+w/2-2,y-U-17,4,3,"#ffb8d8");px(x+w/2-3,y-U-10,6,2,"#4ad8ff")};
+LIGHT4.guarde=(b,ox,oy,t)=>{const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T;neonText("GUARDERÍA",x+w/2,y-26,"#ff9ad0",6,t)};
+MAPS.guarderia={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"neon2",
+  g:rowsGrid(["wwwwwwwwww","wgmoooohgw","woooooooow","wtoooooopw","woooooooow","whooooooow","woooooooow","wwwweewwww"]),
+  exits:{"4,7":["neon",7,24,"down"],"5,7":["neon",7,24,"down"]},entry:[4,6,"up"],
+  txt:{m:"Una tele con dibujos animados a todo volumen. Tres Pedomones la miran sin pestañear.",h:"Un sofá lleno de babas de Pedomón. Mejor no sentarse.",g:"Una planta de plástico. Los Pedomones ya se comieron la de verdad.",t:"Una mesa con biberones de todos los tamaños. Uno pone «ORUJO». Esperemos que sea broma.",p:"La Nevera: aquí también puedes guardar y sacar tus Pedomones."}};
+MAPNAME.guarderia="Guardería Pedomón";
+// Pedomones de otros jugando por la guardería (de adorno)
+const _rwG=renderWorld;renderWorld=function(t){_rwG(t);if(S.map!=="guarderia")return;const m=MAPS.guarderia,mw=m.w*T,mh=m.h*T;const ox=-Math.round((SW-mw)/2),oy=-Math.round((SH-mh)/2);
+  [["steinburguito",2,4],["kushito",6,5],["westito",7,3]].forEach(([s,tx,ty],i)=>{if(!SP[s])return;const spr=monSprite(s);const hop=Math.abs(Math.sin(t/300+i))*3;ctx.drawImage(spr,tx*T-ox,ty*T-oy-hop,14,14)});
+  (S.guarde||[]).forEach((g,i)=>{const spr=monSprite(g.m.sp,null,g.m.shiny);const hop=Math.abs(Math.sin(t/260+i*2))*4;ctx.drawImage(spr,(3+i*2)*T-ox,4*T-oy-hop,16,16)})};
+
+/*</B4FIX5>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

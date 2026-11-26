@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="46 · Guardaespaldas arreglado y VIP con salas seguras";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="47 · Equipos a la vista y efectos visibles";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -5070,9 +5070,9 @@ function drawMonHD(mon,who,t){
   hx.save();const lift=Math.max(0,-float);HE(base.x+dx*.6,base.y,w*.32*(1-lift/14),3.2*(1-lift/14),"rgba(0,0,0,.35)");hx.restore();
   hx.save();if(pose.clip){hx.beginPath();hx.rect(0,0,240,base.y+2);hx.clip()}
   const flip=who==="p"&&!SP[spId].gen&&!SP[spId].vec;
-  const draw=(img,ax,ay,alpha)=>{hx.save();hx.globalAlpha=alpha;hx.imageSmoothingEnabled=!!SP[spId].vec;if(flip){hx.translate(ax+w,ay);hx.scale(-1,1);hx.drawImage(img,0,0,w,h)}else hx.drawImage(img,ax,ay,w,h);hx.restore()};
+  const vv=mon.v||{},deb=!!(vv.acc||vv.spd||vv.skip);const draw=(img,ax,ay,alpha,main)=>{hx.save();hx.globalAlpha=alpha;if(main&&deb)hx.filter="saturate(.4) brightness(.78)";hx.imageSmoothingEnabled=!!SP[spId].vec;if(flip){hx.translate(ax+w,ay);hx.scale(-1,1);hx.drawImage(img,0,0,w,h)}else hx.drawImage(img,ax,ay,w,h);hx.restore()};
   if(an&&an.type==="lunge"){draw(hd,x-dx*.45,y-(dy-pose.dy)*.3,.25);draw(hd,x-dx*.2,y,.4)}
-  draw(hd,x,y,an&&an.type==="faint"?pose.alpha:1);
+  draw(hd,x,y,an&&an.type==="faint"?pose.alpha:1,true);{const ic=[vv.skip&&"💫",vv.spd&&"🐌",vv.acc&&"🌀",vv.atk&&"🔥"].filter(Boolean).join("");if(ic){hx.save();hx.font="9px sans-serif";hx.textAlign="center";hx.globalAlpha=.8+.2*Math.sin(t/200);hx.fillText(ic,base.x+dx,Math.max(12,y-4));hx.restore()}}
   if(flash)draw(monSpriteHD(spId,"white"),x,y,.85);
   if(who==="e"&&B.cap&&B.cap.phase==="absorb")draw(monSpriteHD(spId,"white"),x,y,.85);
   hx.restore()}
@@ -5091,11 +5091,16 @@ renderBattle=function(t){
   if(B.cap){
     if(B.cap.phase==="throw"){const q=Math.min(1,(t-B.cap.start)/450);const x=PPOS.x+(EPOS.x-PPOS.x)*q,y=PPOS.y-30+(EPOS.y-30-(PPOS.y-30))*q-Math.sin(q*Math.PI)*40;drawBallIcon(B.cap.fam,x,y,q*12)}
     else{let rot=0;if(B.cap.wob){const q=(t-B.cap.wob)/320;if(q<1)rot=Math.sin(q*Math.PI*3)*.5}drawBallIcon(B.cap.fam,EPOS.x,EPOS.y-6,rot)}}
-  drawParts();ctx.restore();
+  drawParts();ctx.restore();partyDots();
   for(let i=B.pops.length-1;i>=0;i--){const p=B.pops[i],q=(t-p.start)/800;if(q>=1){B.pops.splice(i,1);continue}
     ctx.font="bold 10px monospace";ctx.textAlign="center";ctx.globalAlpha=1-Math.max(0,q-.6)/.4;ctx.fillStyle="#000";ctx.fillText(p.text,p.x+1,p.y-q*16+1);ctx.fillStyle=p.color;ctx.fillText(p.text,p.x,p.y-q*16);ctx.globalAlpha=1}
 };
 
+// bolitas con el equipo de cada uno (solo contra entrenadores): llenas = vivos, grises = debilitados, apagadas = con algún efecto
+function partyDots(){if(!B||!B.trainer)return;const row=(list,x0,y,dir,cur)=>{list.forEach((m,i)=>{const x=x0+dir*i*8,ko=m.hp<=0,v=m.v||{},deb=v.acc||v.spd||v.skip;
+    ctx.fillStyle="rgba(0,0,0,.55)";ctx.beginPath();ctx.arc(x,y,3.6,0,7);ctx.fill();ctx.fillStyle=ko?"#6a6a6a":deb?"#c89a5a":"#f4e7d4";ctx.beginPath();ctx.arc(x,y,2.6,0,7);ctx.fill();
+    if(!ko){ctx.fillStyle="#c8202a";ctx.fillRect(x-2.6,y-.5,5.2,1)}if(m===cur){ctx.strokeStyle="#ffd14a";ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,4.4,0,7);ctx.stroke()}})};
+  row(B.enemies||[B.e],10,36,1,B.e);row(S.team,SW-10,110,-1,B.p)}
 /*</B4BATTLE>*/
 /*<B4SPORTS2>*/
 /* ===================== APUESTAS 2.0 · Fútbol y boxeo simulados de verdad ===================== */
@@ -5783,16 +5788,14 @@ eMovePick=function(){if(!(B&&B.trainer&&B.trainer.leader)||rnd()<.15)return _emp
 const LEADER_TEAMS={
   // Lolo (Eléctrico) pierde con Planta, Tierra y Siniestro → lleva Volador y Fuego (anti-Planta), Hielo y Agua (anti-Tierra), Lucha y Fuego (anti-Siniestro)
   lolo:()=>[monMoves(newMon("modbox",26),["rascacielos","granizada","uppercut","recarga"]),monMoves(newMon("torito",27),["alasrojas","huracan","patadon","subidon"]),
-    monMoves(newMon("jagerbomb",27),["bombajager","mafia","quemazon","sifon"]),monMoves(newMon("nubarron",28),["nubegorda","huracan","granizada","recarga"]),
-    monMoves(newMon("monsterpack",30),["rascacielos","glaciar","desierto","punaltrapera"])],
+    monMoves(newMon("jagerbomb",27),["bombajager","mafia","quemazon","sifon"]),monMoves(newMon("monsterpack",29),["rascacielos","glaciar","desierto","punaltrapera"])],
   // Paco (Veneno) pierde con Agua, Psíquico y Tierra → Eléctrico y Planta (anti-Agua), Siniestro (anti-Psíquico), Agua/Hielo (anti-Tierra)
-  paco:()=>[monMoves(newMon("orujo",10),["orujazo","chispazo","eructo","tos"]),monMoves(newMon("absenta",11),["absentazo","cogollazo","mordisco","colocon"]),
-    monMoves(newMon("alcohol96",13),["desinfectante","chispazo","cubitazo","mordisco"])],
+  paco:()=>[monMoves(newMon("absenta",11),["absentazo","cogollazo","mordisco","colocon"]),monMoves(newMon("alcohol96",13),["desinfectante","chispazo","cubitazo","mordisco"])],
   // Bob (Planta) pierde con Fuego, Veneno y Volador → Agua y Tierra (anti-Fuego), Psíquico (anti-Veneno), Hielo (anti-Volador)
   bob:()=>[monMoves(newMon("pegamentin",17),["humoverde","bongazo","terronazo","pegamento"]),monMoves(newMon("northern",18),["granizada","humoverde","chorro","escarcha"]),
-    monMoves(newMon("ogkush",18),["canuto","terronazo","cubitazo","bajon"]),monMoves(newMon("kushecha",20),["canuto","bongazo","tercerojo","granizada"])]};
+    monMoves(newMon("kushecha",20),["canuto","bongazo","tercerojo","granizada"])]};
 const _battleLeader=battle;
-battle=async function(team,opts){const tr=opts&&opts.trainer;if(tr&&tr.leader){const k=tr.short==="Lolo"?"lolo":tr.short==="Paco"?"paco":tr.short==="Bob"?"bob":null;if(k)team=LEADER_TEAMS[k]()}return _battleLeader(team,opts)};
+battle=async function(team,opts){const tr=opts&&opts.trainer;if(tr&&tr.leader){const k=tr.short==="Lolo"?"lolo":tr.short==="Paco"?"paco":tr.short==="Bob"?"bob":null;if(k)team=LEADER_TEAMS[k]()}if(tr)setTimeout(()=>toast(`${tr.name} lleva ${team.length} Pedomón${team.length>1?"es":""}`),900);return _battleLeader(team,opts)};
 
 /*</B4FIX2>*/
 /*<B4CINE>*/

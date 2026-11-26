@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="63 · Pedomones con más variedad: el producto con vida";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="64 · Pixel art: toda La Carretera (Chippies guepardo, Argus cerveza)";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -7490,6 +7490,111 @@ if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=
 })();
 
 /*</B4PIXDES5>*/
+/*<B4PIXDES6>*/
+/* ===================== DISEÑOS EN PIXEL ART · tanda 6: La Carretera (2.ª parte) + arreglos de Chippies (guepardo) y Argus (cerveza) ===================== */
+(function(){const{soft,E,P,L,D,gloss,star,eye,mouth,fur,clawsDown,badgeS}=PIXLIB;const{make,face}=PIXO;const{biped,quad,sitter}=PIXB;
+const wingPair=(span,col="#f4ecd8",y=380)=>(x,v)=>{for(const k of[-1,1]){x.save();x.translate(350+k*95*span,y);x.scale(k,1);soft(x,c=>{c.moveTo(0,0);c.quadraticCurveTo(90*span,-100*span,150*span,-40*span);c.lineTo(126*span,-4);c.lineTo(150*span,26*span);c.lineTo(120*span,40*span);c.quadraticCurveTo(70*span,64*span,0,60*span);c.closePath()},col,[0,-100*span,150*span,64*span],{hi:.45,lo:.45,tex:x=>{x.strokeStyle="rgba(0,0,0,.15)";x.lineWidth=3;for(let i=1;i<4;i++){x.beginPath();x.moveTo(34*i*span,0);x.lineTo(40*i*span,50*span);x.stroke()}}});x.restore()}};
+const gloves=(col="#d8202a")=>(x,v,cx,top,bot,w)=>{if(v!=="front")return;for(const k of[-1,1]){const gx=cx+k*(w*.5+52),gy=top+(bot-top)*.5;soft(x,c=>c.ellipse(gx,gy,34,30,0,0,7),col,[gx-34,gy-30,gx+34,gy+30],{hi:.6,lo:.45,sa:.8});x.fillStyle="#f4f4f4";x.fillRect(gx-30,gy+18,60,10)}};
+const foamTop=(x,cx,top,w)=>{for(const[a,b,r]of[[-.3,0,.18],[0,-.06,.22],[.3,0,.18],[-.15,-.05,.15],[.17,-.07,.15]])soft(x,c=>c.arc(cx+a*w,top+b*w,r*w,0,7),"#fffbea",[cx+a*w-r*w,top+b*w-r*w,cx+a*w+r*w,top+b*w+r*w],{hi:.5,lo:.15,spec:false})};
+const txt=(x,s,cx,cy,size,col,font="Georgia",st="900")=>{x.font=`${st} ${size}px ${font}`;x.textAlign="center";x.textBaseline="middle";x.fillStyle=col;x.fillText(s,cx,cy)};
+
+// ---- ARREGLO: Argus es una CERVEZA (lata roja y blanca del Lidl con espuma), y la 1844 Black una botella negra ----
+PIXD.argus=make("can",{col:"#f4f0e8",band:"#c8202a",bandY:.5,limb:"#8a1a1a",shinyHue:200,face:{k:"star",m:"smile",iris:"#e6bc3a"},logo:(x,cx,cy,w)=>{txt(x,"ARGUS",cx,cy,w*.2,"#f4f0e8");star(x,cx,cy-w*.36,w*.08,"#e6bc3a")},extra:(x,v,cx,top,bot,w)=>foamTop(x,cx,top,w)});
+PIXD.argus1844=make("bottle",{sz:1.15,col:"#1a1a1e",lab:"#1a1a1e",cap:"#e6bc3a",limb:"#3a3a44",shinyHue:200,face:{k:"slit",m:"grin",mood:"angry",iris:"#e6bc3a"},armUp:true,
+  logo:(x,cx,cy,w)=>{x.strokeStyle="#e6bc3a";x.lineWidth=4;x.strokeRect(cx-w*.4,cy-w*.22,w*.8,w*.44);txt(x,"ARGUS",cx,cy-w*.06,w*.15,"#e6bc3a");txt(x,"1844 BLACK",cx,cy+w*.12,w*.09,"#e6bc3a","Arial")},extra:(x,v,cx,top)=>{if(v==="front")foamTop(x,cx,top-6,120)}});
+// ---- ARREGLO: Chippies es un GUEPARDO (su mascota): lata con manchas → guepardo con el pack ----
+const spots=(x,cx,cy,w,h,n=16)=>{x.fillStyle="#3a2410";for(let i=0;i<n;i++){const a=cx-w/2+((i*53)%w),b=cy-h/2+((i*37)%h);x.beginPath();x.ellipse(a,b,7,6,i,0,7);x.fill()}};
+PIXD.chippies=make("can",{col:"#f2c050",band:"#c8202a",bandY:.56,limb:"#c8902a",shinyHue:200,face:{k:"hard",m:"smile",iris:"#e8a020",mood:"angry",gap:.2},
+  logo:(x,cx,cy,w)=>txt(x,"CHIPPIES",cx,cy,w*.15,"#f2c050","Arial"),
+  extra:(x,v,cx,top,bot,w)=>{x.save();x.beginPath();x.roundRect(cx-w/2,top,w,bot-top,w*.12);x.clip();spots(x,cx,top+(bot-top)*.3,w,(bot-top)*.4,14);x.restore();
+    for(const k of[-1,1]){P(x,[[cx+k*w*.18,top+6],[cx+k*w*.34,top-40],[cx+k*w*.46,top+6]],"#f2c050",{hi:.4});P(x,[[cx+k*w*.25,top+4],[cx+k*w*.34,top-22],[cx+k*w*.41,top+4]],"#3a2410")}
+    x.strokeStyle="#f2c050";x.lineWidth=14;x.lineCap="round";x.beginPath();x.moveTo(cx+w*.4,bot-20);x.quadraticCurveTo(cx+w*.95,bot-10,cx+w*.85,bot-140);x.stroke();x.fillStyle="#3a2410";for(let i=0;i<4;i++){x.beginPath();x.arc(cx+w*(.6+i*.08),bot-20-i*30,6,0,7);x.fill()}}});
+const CHT={col:"#f2c050",belly:"#fff4dc",muzzle:"#fff4dc",head:"round",ears:"round",inner:"#3a2410",iris:"#e8a020",mood:"angry",tex:bb=>x=>spots(x,(bb[0]+bb[2])/2,(bb[1]+bb[3])/2,bb[2]-bb[0],bb[3]-bb[1],26),
+  mark:(x,cx,cy,s)=>{for(const k of[-1,1]){x.strokeStyle="#2a1408";x.lineWidth=6;x.beginPath();x.moveTo(cx+k*s*.3,cy+s*.05);x.quadraticCurveTo(cx+k*s*.32,cy+s*.3,cx+k*s*.18,cy+s*.46);x.stroke()}}};
+const cheetTail=(x,v)=>{const bx=v==="back"?350:420,by=540;x.strokeStyle="#f2c050";x.lineWidth=24;x.lineCap="round";x.beginPath();x.moveTo(bx,by);x.bezierCurveTo(bx+140,by+40,bx+170,by-60,bx+130,by-140);x.stroke();for(let i=0;i<5;i++){x.fillStyle="#2a1408";x.fillRect(bx+60+i*18,by+10-i*30,22,8)}};
+PIXD.chippiespack={shinyHue:200,front:x=>biped(x,"front",Object.assign({},CHT,{big:2,armPose:"flex",tail:cheetTail,claws:true,handClaws:true,chest:(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-80,cy-50,160,110,14),"#c8202a",[cx-80,cy-50,cx+80,cy+60],{hi:.4});txt(x,"CHIPPIES",cx,cy-14,30,"#f2c050","Arial");txt(x,"× 24",cx,cy+28,30,"#f4f0e8","Arial")}})),
+ back:x=>biped(x,"back",Object.assign({},CHT,{big:2,tail:cheetTail}))};
+
+// ===================== ÁGUILA SIN FILTRAR (agua/volador): lata alada → litrona alada → pájaro dorado y azul =====================
+const AGL="#2a5a2a",AGG="#e6bc3a",AGB="#2a6ad0";
+PIXD.aguila=make("can",{col:"#3a6a2a",band:"#e8d090",bandY:.54,limb:"#2a4a1a",shinyHue:200,face:{k:"wide",m:"smile"},behind:wingPair(.7,"#e8d090",400),logo:(x,cx,cy,w)=>txt(x,"ÁGUILA",cx,cy,w*.18,"#2a3a1a")});
+PIXD.aguilalitro=make("bottle",{sz:1.12,col:"#4a7a2a",lab:"#e8d090",cap:AGG,limb:"#2a4a1a",shinyHue:200,face:{k:"hard",m:"grin",iris:AGG,mood:"angry"},behind:wingPair(1,"#e8d090",330),logo:(x,cx,cy,w)=>{txt(x,"ÁGUILA",cx,cy-w*.06,w*.15,"#2a3a1a");txt(x,"sin filtrar",cx,cy+w*.12,w*.09,"#2a3a1a","Arial","700")}});
+const goldBird={col:AGG,belly:"#fff0b0",head:"bird",ears:"none",iris:AGB,mood:"angry",mark:(x,cx,cy,s)=>{soft(x,c=>{c.moveTo(cx-s*.26,cy+s*.12);c.quadraticCurveTo(cx,cy+s*.02,cx+s*.26,cy+s*.12);c.quadraticCurveTo(cx+s*.12,cy+s*.5,cx,cy+s*.75);c.quadraticCurveTo(cx-s*.12,cy+s*.5,cx-s*.26,cy+s*.12);c.closePath()},AGB,[cx-s*.26,cy,cx+s*.26,cy+s*.75],{hi:.55});for(let i=0;i<3;i++)P(x,[[cx-s*.2+i*s*.2,cy-s*.7],[cx-s*.1+i*s*.2,cy-s*1.25],[cx+i*s*.2,cy-s*.7]],AGB,{hi:.5})}};
+const blueWings=(x,v)=>{for(const k of[-1,1]){x.save();x.translate(350+k*120,320);x.scale(k,1);soft(x,c=>{c.moveTo(0,0);c.quadraticCurveTo(170,-150,240,-60);c.lineTo(214,-14);c.lineTo(244,24);c.lineTo(206,46);c.lineTo(226,96);c.quadraticCurveTo(130,120,0,110);c.closePath()},AGB,[0,-150,244,120],{hi:.45,lo:.5,tex:x=>{x.fillStyle=AGG;for(let i=0;i<4;i++)x.fillRect(170+i*14,-50+i*36,26,14)}});x.restore()}};
+PIXD.aguilareal={shinyHue:200,front:x=>biped(x,"front",Object.assign({},goldBird,{big:2,behind:blueWings,legCol:AGG,foot:"#e8a020",hand:AGG,claws:true,armCol:AGG,chest:(x,cx,cy)=>{soft(x,c=>c.arc(cx,cy,48,0,7),AGB,[cx-48,cy-48,cx+48,cy+48],{hi:.5});txt(x,"Á",cx,cy+4,52,AGG)}})),back:x=>biped(x,"back",Object.assign({},goldBird,{big:2,behind:blueWings}))};
+
+// ===================== MILLER (agua/volador): botella transparente → pelícano con el pack en el buche =====================
+PIXD.miller=make("bottle",{col:"#e8d898",lab:"#f4f4f4",cap:"#c0c8d0",limb:"#8a8a7a",shinyHue:200,face:{k:"wide",m:"o"},behind:wingPair(.75,"#f4f4f4",340),logo:(x,cx,cy,w)=>{txt(x,"MILLER",cx,cy-w*.06,w*.17,"#1a1a1a");txt(x,"genuine draft",cx,cy+w*.12,w*.09,"#c8202a","Arial","700")}});
+const PEL={col:"#f4f4f4",belly:"#f8f8f8",head:"bird",ears:"none",iris:"#3a2a1a",mark:(x,cx,cy,s)=>{soft(x,c=>{c.moveTo(cx-s*.22,cy+s*.1);c.lineTo(cx+s*.22,cy+s*.1);c.lineTo(cx+s*.12,cy+s*1.15);c.lineTo(cx-s*.12,cy+s*1.15);c.closePath()},"#f2a93b",[cx-s*.22,cy+s*.1,cx+s*.22,cy+s*1.15],{hi:.5})}};
+const pouch=(x,cx,cy)=>{soft(x,c=>c.ellipse(cx,cy,95,70,0,0,7),"#f8c890",[cx-95,cy-70,cx+95,cy+70],{hi:.4,lo:.45,sa:.5});for(let i=0;i<3;i++){soft(x,c=>c.roundRect(cx-60+i*44,cy-70,30,90,10),"#e8d898",[cx-60+i*44,cy-70,cx-30+i*44,cy+20],{hi:.6});x.fillStyle="#c0c8d0";x.fillRect(cx-56+i*44,cy-82,22,14)}};
+PIXD.millerpack={shinyHue:200,front:x=>biped(x,"front",Object.assign({},PEL,{big:2,behind:wingPair(1.4,"#f4f4f4",300),legCol:"#f2a93b",foot:"#f2a93b",hand:"#f4f4f4",chest:(x,cx,cy)=>pouch(x,cx,cy+40)})),back:x=>biped(x,"back",Object.assign({},PEL,{big:2,behind:wingPair(1.4,"#f4f4f4",300)}))};
+
+// ===================== VOLL-DAMM (agua/lucha): lata con guantes → litrona con cinta → canguro boxeador =====================
+PIXD.volldamm=make("can",{col:"#c8202a",band:"#e6bc3a",bandY:.54,limb:"#7a1010",shinyHue:200,face:{k:"hard",m:"grin",mood:"angry",iris:"#e6bc3a"},extra:gloves("#e6bc3a"),logo:(x,cx,cy,w)=>{txt(x,"VOLL-DAMM",cx,cy-w*.02,w*.13,"#7a1010","Arial");txt(x,"doble malta",cx,cy+w*.14,w*.08,"#7a1010","Arial","700")}});
+PIXD.volllitro=make("bottle",{sz:1.12,col:"#5a2a10",lab:"#c8202a",cap:"#e6bc3a",limb:"#5a1a0a",shinyHue:200,face:{k:"slit",m:"grin",mood:"angry",iris:"#e6bc3a"},extra:(x,v,cx,top,bot,w)=>{gloves("#c8202a")(x,v,cx,top+120,bot,w);if(v==="front"){x.fillStyle="#f4f4f4";x.fillRect(cx-w*.5,bot-230*1.12*.82-58,w,16)}},logo:(x,cx,cy,w)=>txt(x,"VOLL-DAMM",cx,cy,w*.14,"#e6bc3a","Arial")});
+const KAN={col:"#c8844a",belly:"#f2d8b0",muzzle:"#f2d8b0",head:"snout",ears:"point",inner:"#8a4a2a",iris:"#3a1a0a",mood:"angry",tex:bb=>fur(bb,"rgba(90,40,10,.25)",40)};
+const kTail=(x,v)=>{const bx=v==="back"?350:400,by=560;soft(x,c=>{c.moveTo(bx-20,by-40);c.quadraticCurveTo(bx+160,by,bx+220,by+60);c.quadraticCurveTo(bx+120,by+40,bx-10,by+10);c.closePath()},"#a8683a",[bx-20,by-40,bx+220,by+60],{hi:.4,lo:.45})};
+const boxGloves=(x,W)=>{for(const k of[-1,1])soft(x,c=>c.ellipse(350+k*165*W,330,54,48,0,0,7),"#c8202a",[350+k*165*W-54,282,350+k*165*W+54,378],{hi:.6,lo:.45,sa:.8})};
+PIXD.vollboxeo={shinyHue:200,front:x=>biped(x,"front",Object.assign({},KAN,{big:2,armPose:"flex",tail:kTail,legCol:"#c8844a",foot:"#8a4a2a",front:boxGloves,chest:(x,cx,cy,W)=>{x.fillStyle="#c8202a";x.fillRect(cx-120*W,cy+60,240*W,70);soft(x,c=>c.roundRect(cx-60,cy+50,120,44,10),"#e6bc3a",[cx-60,cy+50,cx+60,cy+94],{hi:.6});txt(x,"DOBLE MALTA",cx,cy+72,18,"#7a1010","Arial")},
+   top:(x,cx,cy,s)=>{for(const k of[-1,1])soft(x,c=>c.ellipse(cx+k*s*.5,cy-s*1.05,s*.2,s*.5,k*.25,0,7),"#c8844a",[cx-s,cy-s*1.6,cx+s,cy-s*.5],{hi:.4,lo:.45})}})),
+ back:x=>biped(x,"back",Object.assign({},KAN,{big:2,tail:kTail,legCol:"#c8844a",top:(x,cx,cy,s)=>{for(const k of[-1,1])soft(x,c=>c.ellipse(cx+k*s*.5,cy-s*1.05,s*.2,s*.5,k*.25,0,7),"#c8844a",[cx-s,cy-s*1.6,cx+s,cy-s*.5],{hi:.4,lo:.45})},backMark:(x,cx,cy)=>{x.fillStyle="#c8202a";x.fillRect(cx-150,cy+60,300,70)}}))};
+
+// ===================== AUSTIN (normal/lucha): cajetilla con muñequera → bulldog luchador =====================
+PIXD.austin=make("box",{col:"#2a4ab0",band:"#f4f0e8",cigs:true,limb:"#1a2a6a",shinyHue:30,face:{k:"hard",m:"flat",mood:"angry",iris:"#c8202a"},text:"AUSTIN",tc:"#2a4ab0",fs:34,extra:(x,v,cx,top,bot,w)=>{if(v==="front"){x.fillStyle="#c8202a";x.fillRect(cx-w*.5,top+24,w,18)}}});
+const BUL={col:"#e8dcc8",belly:"#f8f4ec",muzzle:"#f8f4ec",head:"pig",ears:"round",inner:"#8a6a5a",snout:"#e8b0a0",tusks:true,iris:"#3a2a1a",mood:"angry",tex:bb=>x=>{x.fillStyle="rgba(120,80,60,.35)";x.beginPath();x.ellipse(bb[0]+(bb[2]-bb[0])*.3,bb[1]+(bb[3]-bb[1])*.3,40,30,0,0,7);x.fill()}};
+PIXD.austincarton={shinyHue:30,front:x=>biped(x,"front",Object.assign({},BUL,{big:2,armPose:"flex",legCol:"#2a4ab0",foot:"#1a1a1a",claws:false,chest:(x,cx,cy,W)=>{soft(x,c=>c.roundRect(cx-120*W,cy+40,240*W,90,14),"#2a4ab0",[cx-120*W,cy+40,cx+120*W,cy+130],{hi:.4});soft(x,c=>c.roundRect(cx-60,cy+56,120,56,10),"#e6bc3a",[cx-60,cy+56,cx+60,cy+112],{hi:.6});txt(x,"AUSTIN",cx,cy+84,24,"#2a4ab0","Arial")},
+   top:(x,cx,cy,s)=>{x.fillStyle="#c8202a";x.fillRect(cx-s*.9,cy-s*.45,s*1.8,s*.16)}})),back:x=>biped(x,"back",Object.assign({},BUL,{big:2,legCol:"#2a4ab0",backMark:(x,cx,cy)=>txt(x,"AUSTIN",cx,cy+60,50,"#2a4ab0","Arial")}))};
+
+// ===================== ERISTOFF (hielo/siniestro): botella con orejas de lobo → el lobo de la marca =====================
+PIXD.eristoff=make("bottle",{col:"#e8eef4",lab:"#1a1a1a",cap:"#1a1a1a",limb:"#3a3a4a",shinyHue:280,face:{k:"slit",m:"fangs",mood:"angry",iris:"#c8202a"},logo:(x,cx,cy,w)=>{txt(x,"ERISTOFF",cx,cy,w*.16,"#c8202a","Georgia")},
+  extra:(x,v,cx,top)=>{for(const k of[-1,1])P(x,[[cx+k*16,top+40],[cx+k*46,top-10],[cx+k*40,top+60]],"#3a3a4a",{hi:.4})}});
+const WOLF={col:"#4a4a5a",belly:"#c8ccd8",muzzle:"#c8ccd8",head:"snout",ears:"point",inner:"#1a1a2a",iris:"#c8202a",mood:"angry",tex:bb=>fur(bb,"rgba(10,10,30,.35)",50)};
+const wolfTail=(x,v)=>{const bx=v==="back"?350:410,by=540;soft(x,c=>{c.moveTo(bx,by-20);c.quadraticCurveTo(bx+150,by-40,bx+190,by-150);c.quadraticCurveTo(bx+120,by+10,bx,by+20);c.closePath()},"#4a4a5a",[bx,by-150,bx+190,by+20],{hi:.4,lo:.5})};
+PIXD.loboeristoff={shinyHue:280,front:x=>quad(x,"front",Object.assign({},WOLF,{hs:115,hy:200,front:(x)=>{soft(x,c=>c.roundRect(280,310,140,60,10),"#1a1a1a",[280,310,420,370],{hi:.4});txt(x,"ERISTOFF",350,340,22,"#c8202a")}})),back:x=>quad(x,"back",Object.assign({},WOLF,{hs:115,hy:200,tail:wolfTail}))};
+
+// ===================== DESPERADOS (fuego/siniestro): botella bandida =====================
+PIXD.desperados=make("bottle",{sz:1.05,col:"#c8a040",lab:"#1a1a1a",cap:"#c8202a",limb:"#6a4a1a",shinyHue:300,face:{k:"hard",m:"grin",iris:"#c8202a",mood:"angry"},logo:(x,cx,cy,w)=>{txt(x,"DESPERADOS",cx,cy,w*.12,"#c8202a","Arial")},
+  extra:(x,v,cx,top,bot,w)=>{const y=bot-230*1.05*.82-10;if(v==="front"){x.fillStyle="#1a1a1a";x.fillRect(cx-w*.48,y-14,w*.96,26)}E(x,cx,top-10,w*.9,22,0,"#c8a040",{hi:.4,lo:.5});soft(x,c=>c.ellipse(cx,top-34,w*.34,40,0,Math.PI,0),"#c8a040",[cx-w*.34,top-74,cx+w*.34,top-34],{hi:.45});x.fillStyle="#c8202a";x.fillRect(cx-w*.34,top-40,w*.68,10)}});
+// ===================== HEINEKEN (agua): lata verde → rana con el barril =====================
+PIXD.heineken=make("can",{col:"#1a7a3a",band:"#f4f4f4",bandY:.55,limb:"#0a4a1a",shinyHue:150,face:{k:"dot",m:"smile",gap:.2},logo:(x,cx,cy,w)=>{star(x,cx,cy-w*.3,w*.1,"#c8202a");txt(x,"Heineken",cx,cy,w*.17,"#1a5a2a")}});
+const FROG={col:"#4aa83a",belly:"#e8f0a0",head:"round",ears:"none",iris:"#c8202a",eyeY:.55,eyeX:.45,mark:(x,cx,cy,s)=>{for(const k of[-1,1])E(x,cx+k*s*.45,cy-s*.55,s*.28,s*.26,0,"#4aa83a");mouth([[cx-s*.65,cy+s*.3],[cx,cy+s*.45],[cx+s*.65,cy+s*.3]])}};
+const keg=(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-120,cy-110,240,220,40),"#c0c8d0",[cx-120,cy-110,cx+120,cy+110],{hi:.65,lo:.45,sa:.9,tex:x=>{x.fillStyle="#1a7a3a";x.fillRect(cx-120,cy-30,240,60);x.fillStyle="#8a9098";x.fillRect(cx-120,cy-90,240,8);x.fillRect(cx-120,cy+80,240,8)}});star(x,cx-70,cy,18,"#c8202a");txt(x,"Heineken",cx+20,cy+2,30,"#f4f4f4")};
+PIXD.heinekenpack={shinyHue:150,front:x=>quad(x,"front",Object.assign({},FROG,{hs:130,hy:250,behind:(x,v)=>{if(v==="front")keg(x,350,260)}})),back:x=>quad(x,"back",Object.assign({},FROG,{hs:130,hy:250,backMark:(x,cx,cy)=>keg(x,cx,cy-60)}))};
+// ===================== SMIRNOFF (hielo) =====================
+PIXD.smirnoff=make("bottle",{sz:1.1,col:"#dceef8",lab:"#c8202a",cap:"#c8202a",limb:"#8aa0b8",shinyHue:200,face:{k:"sleepy",m:"flat",iris:"#4ab0ff"},logo:(x,cx,cy,w)=>{txt(x,"SMIRNOFF",cx,cy-w*.04,w*.14,"#f4f4f4");txt(x,"No. 21",cx,cy+w*.14,w*.09,"#e6bc3a","Arial")},
+  extra:(x,v,cx,top,bot,w)=>{for(const[a,b]of[[-.55,.4],[.6,.55],[-.6,.8]]){const X=cx+a*w,Y=top+b*(bot-top);P(x,[[X,Y-16],[X+10,Y],[X,Y+16],[X-10,Y]],"#bfe4ff",{hi:.6})}}});
+// ===================== TINTO DE VERANO (agua/fuego) → JARRA DE SANGRÍA =====================
+const glassCup=(o)=>({shinyHue:170,front:x=>{PIXLIB.ground(x,350,628,150);tinto(x,"front",o)},back:x=>{PIXLIB.ground(x,350,628,150);tinto(x,"back",o)}});
+function tinto(x,v,o){const big=o.big,w=big?260:190,h=big?300:250,cx=350,bot=555,top=bot-h;for(const k of[-1,1]){E(x,cx+k*w*.22,bot+24,w*.09,32,0,"#7a1a2a");E(x,cx+k*w*.25,bot+54,w*.13,15,0,"#4a0a1a")}
+  if(big){x.strokeStyle="#d8e8f0";x.lineWidth=26;x.beginPath();x.moveTo(cx+w*.45,top+50);x.quadraticCurveTo(cx+w*.85,top+120,cx+w*.45,top+200);x.stroke()}
+  soft(x,c=>{c.moveTo(cx-w/2,top);c.lineTo(cx+w/2,top);c.lineTo(cx+w*.42,bot);c.lineTo(cx-w*.42,bot);c.closePath()},"#e8f0f4",[cx-w/2,top,cx+w/2,bot],{hi:.65,lo:.35,sa:.9});
+  x.save();x.beginPath();x.moveTo(cx-w/2,top);x.lineTo(cx+w/2,top);x.lineTo(cx+w*.42,bot);x.lineTo(cx-w*.42,bot);x.closePath();x.clip();x.fillStyle="#9a1a3a";x.fillRect(cx-w/2,top+h*.18,w,h);
+  for(let i=0;i<(big?6:3);i++){const a=cx-w*.3+((i*71)%(w*.6)),b=top+h*.3+((i*43)%(h*.5));if(big&&i%2){E(x,a,b,22,22,0,"#f2a93b",{hi:.5})}else{x.fillStyle="rgba(220,240,255,.8)";x.fillRect(a-18,b-18,36,36)}}x.restore();
+  gloss(x,[[cx-w*.36,top+20],[cx-w*.3,bot-20]],w*.05);E(x,cx+w*.34,top+6,w*.16,w*.16,0,"#f2e84a",{hi:.5});E(x,cx+w*.34,top+6,w*.1,w*.1,0,"#fff8a0");
+  if(big){for(const[a,c]of[[-.3,"#f2a93b"],[0,"#c8202a"],[.25,"#4aa83a"]])E(x,cx+a*w,top-14,26,24,0,c,{hi:.5})}
+  if(v==="front"){face(x,cx,top+h*.42,w,{face:o.face})}}
+PIXD.tintoverano=glassCup({face:{k:"baby",m:"smile",r:.09}});
+PIXD.sangria=glassCup({big:true,face:{k:"hard",m:"grin",mood:"angry",iris:"#f2a93b",r:.06}});
+// ===================== LIBRILLO (normal): librillo → King Size → búho sabio =====================
+function booklet(x,v,o){const s=o.sz||1,w=150*s*(o.king?1.5:1),h=200*s,cx=350,bot=555,top=bot-h;for(const k of[-1,1]){E(x,cx+k*w*.25,bot+22,16,30,0,"#3a3a4a");E(x,cx+k*w*.28,bot+50,22,13,0,"#1a1a2a")}
+  for(let i=0;i<4;i++)soft(x,c=>c.roundRect(cx-w*.42+i*8,top-60-i*6,w*.8,70,6),"#fbfbf6",[cx-w*.42,top-80,cx+w*.42,top+10],{hi:.2,lo:.2,spec:false});
+  soft(x,c=>c.roundRect(cx-w/2,top,w,h,10),o.col,[cx-w/2,top,cx+w/2,bot],{hi:.45,lo:.5});x.fillStyle=o.band||"#c8202a";x.fillRect(cx-w/2,top+h*.62,w,h*.16);
+  if(v==="front"){txt(x,o.text||"SMOKING",cx,top+h*.7,w*.14,"#f4f4f4","Arial");if(o.king){soft(x,c=>{c.moveTo(cx-50,top-70);c.lineTo(cx-56,top-120);c.lineTo(cx-24,top-96);c.lineTo(cx,top-130);c.lineTo(cx+24,top-96);c.lineTo(cx+56,top-120);c.lineTo(cx+50,top-70);c.closePath()},"#e6bc3a",[cx-56,top-130,cx+56,top-70],{hi:.6})}face(x,cx,top+h*.35,w,{face:o.face})}}
+PIXD.librillo={shinyHue:200,front:x=>{PIXLIB.ground(x,350,610,140);booklet(x,"front",{col:"#1a1a2a",band:"#c8202a",face:{k:"dot",m:"wavy"}})},back:x=>{PIXLIB.ground(x,350,610,140);booklet(x,"back",{col:"#1a1a2a",band:"#c8202a"})}};
+PIXD.smokingking={shinyHue:200,front:x=>{PIXLIB.ground(x,350,610,180);booklet(x,"front",{king:true,sz:1.1,col:"#1a1a2a",band:"#e6bc3a",text:"KING SIZE",face:{k:"shades",m:"smile",gap:.16}})},back:x=>{PIXLIB.ground(x,350,610,180);booklet(x,"back",{king:true,sz:1.1,col:"#1a1a2a",band:"#e6bc3a"})}};
+const OWL={col:"#8a6a4a",belly:"#e8d8b8",head:"bird",ears:"none",iris:"#f2c14e",mark:(x,cx,cy,s)=>{for(const k of[-1,1]){E(x,cx+k*s*.42,cy-s*.08,s*.34,s*.34,0,"#e8d8b8");P(x,[[cx+k*s*.45,cy-s*.65],[cx+k*s*.85,cy-s*1.1],[cx+k*s*.75,cy-s*.5]],"#6a4a2a")}P(x,[[cx-s*.1,cy+s*.15],[cx+s*.1,cy+s*.15],[cx,cy+s*.42]],"#f2a93b",{hi:.5})}};
+const bigBook=(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-110,cy-80,220,150,12),"#1a1a2a",[cx-110,cy-80,cx+110,cy+70],{hi:.4});x.fillStyle="#fbfbf6";x.fillRect(cx-104,cy+56,208,12);txt(x,"PAPELAS",cx,cy-14,34,"#e6bc3a");txt(x,"tomo XXL",cx,cy+24,20,"#c8202a","Arial")};
+PIXD.librogordo={shinyHue:200,front:x=>biped(x,"front",Object.assign({},OWL,{big:2,behind:wingPair(1.1,"#8a6a4a",340),legCol:"#8a6a4a",foot:"#f2a93b",front:(x)=>bigBook(x,350,470),top:(x,cx,cy,s)=>{soft(x,c=>c.roundRect(cx-s*.55,cy-s*1.05,s*1.1,s*.2,4),"#1a1a2a",[cx-s*.55,cy-s*1.05,cx+s*.55,cy-s*.85],{hi:.4});soft(x,c=>c.roundRect(cx-s*.3,cy-s*1.4,s*.6,s*.4,4),"#1a1a2a",[cx-s*.3,cy-s*1.4,cx+s*.3,cy-s],{hi:.4})}})),
+ back:x=>biped(x,"back",Object.assign({},OWL,{big:2,behind:wingPair(1.1,"#8a6a4a",340),legCol:"#8a6a4a"}))};
+// ===================== NORTHERN LIGHTS (hielo/planta): cogollo escarchado con aurora =====================
+PIXD.northern={shinyHue:120,front:x=>{aurora(x);PIXLIB.ground(x,350,600,170);frostBud(x);face(x,350,400,260,{face:{k:"sleepy",m:"smile",iris:"#4af0c0"}})},back:x=>{aurora(x);PIXLIB.ground(x,350,600,170);frostBud(x)}};
+function aurora(x){for(const[c,y,a]of[["#4af0a0",200,.5],["#7a8aff",240,.45],["#c87aff",280,.4]]){x.save();x.globalAlpha=a;x.strokeStyle=c;x.lineWidth=26;x.lineCap="round";x.beginPath();x.moveTo(160,y);x.bezierCurveTo(260,y-60,440,y+40,540,y-30);x.stroke();x.restore()}}
+function frostBud(x){for(const k of[-1,1]){E(x,350+k*60,575,26,40,0,"#4a7a5a");E(x,350+k*62,605,36,16,0,"#2a4a3a")}for(let i=0;i<34;i++){const a=i*2.4,d=150*Math.sqrt(i/34),bx=350+Math.cos(a)*d*.9,by=420+Math.sin(a)*d*1.05;E(x,bx,by,46,40,a,i%4===0?"#7ac8b8":"#5a9a6a",{hi:.5,lo:.4})}
+  x.fillStyle="rgba(255,255,255,.9)";for(let i=0;i<70;i++)x.fillRect(220+((i*53)%260),280+((i*37)%270),5,5);x.strokeStyle="#bfe4ff";x.lineWidth=4;for(let i=0;i<14;i++){const a=i*1.7,bx=350+Math.cos(a)*110,by=420+Math.sin(a)*130;x.beginPath();x.moveTo(bx,by);x.lineTo(bx+Math.cos(a)*24,by+Math.sin(a)*24);x.stroke()}}
+if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=true;delete SP[id].vec;delete SP[id].gen}});
+})();
+
+/*</B4PIXDES6>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

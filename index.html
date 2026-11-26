@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="41 · Tienda con cantidades";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="42 · Equipos reales y comentarios grandes";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -5107,12 +5107,12 @@ betFutbol=async function(){const e=FUT_EQ.slice().sort(()=>rnd()-.5);const A=e[0
   const pk=await pickStake(`⚽ ${A[0]} vs ${Z[0]}`,opts);if(!pk)return;addF(-pk.stake);casinoPlayed();
   const ga=rpois(la),gb=rpois(lb),ev=[];for(let k=0;k<ga;k++)ev.push({m:ri(2,89),t:0});for(let k=0;k<gb;k++)ev.push({m:ri(2,89),t:1});ev.sort((a,b)=>a.m-b.m);
   const cards=Array.from({length:ri(1,3)},()=>({m:ri(5,88),t:ri(0,1)}));const cdist=(a,b2)=>{const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));const[u,v]=[p(a),p(b2)];return Math.hypot(u[0]-v[0],u[1]-v[1],u[2]-v[2])};
-  let Z2=Z;if(cdist(A[1],Z[1])<150){Z2=[Z[0],cdist(A[1],Z[2])>=150?Z[2]:(cdist(A[1],"#f4f4f4")>150?"#f4f4f4":"#1a1a1a"),Z[1],Z[3]]}const TM=[A,Z2];const tn=t=>TM[t][0];
+  let Z2=Z;if(cdist(A[1],Z[1])<150){Z2=[Z[0],cdist(A[1],Z[2])>=150?Z[2]:(cdist(A[1],"#f4f4f4")>150?"#f4f4f4":"#1a1a1a"),Z[1],Z[3],Z[4]]}const TM=[A,Z2];const tn=t=>TM[t][0];
   const L=liveOverlay(`⚽ ${A[0]} – ${Z[0]}`,320,200),x=L.c;
   const GOAL=[10,310],GY=100,fw=t=>t?-1:1,FORM=[[0,0],[55,-48],[55,48],[115,0],[170,-34],[170,34]],NAMES=["portero","lateral","lateral","pivote","delantero","delantero"];
   const P=[];for(let t=0;t<2;t++)for(let k=0;k<6;k++)P.push({t,k,x:0,y:0,ph:rnd()*6,mv:0,dec:.6});
   const ball={x:160,y:100,z:0,owner:null,fl:null};let kickTeam=0,min=0,acc=0,sc=[0,0],phase="kick",phT=1.2,kickT=0,lines=["¡Empieza el partido! Pita el árbitro."],pending=null,last=performance.now(),netShake=[0,0],gkDive=[0,0],flash=0;
-  const say2=s=>{lines.unshift(s);lines=lines.slice(0,3)};
+  const say2=s=>{lines.unshift(`${min}' · ${s}`);lines=lines.slice(0,5)};
   const home=(p,bx)=>{const g=GOAL[p.t],f=fw(p.t);if(p.k===0)return{x:g+f*7,y:Math.max(86,Math.min(114,GY+(ball.y-GY)*.5))};const sh=(bx-160)*.5;const att=ball.owner&&ball.owner.t===p.t?18:0;
     return{x:Math.max(16,Math.min(304,g+f*FORM[p.k][0]+sh+f*att)),y:GY+FORM[p.k][1]+(ball.y-GY)*.3}};
   function kickoff(t){P.forEach(p=>{const h=home(p,160);p.x=p.t===0?Math.min(h.x,150):Math.max(h.x,170);p.y=h.y});const c=P.find(p=>p.t===t&&p.k===3);c.x=160;c.y=100;ball.x=160;ball.y=100;ball.z=0;ball.fl=null;ball.owner=c;c.dec=.8;phase="play"}
@@ -5173,7 +5173,7 @@ betFutbol=async function(){const e=FUT_EQ.slice().sort(()=>rnd()-.5);const A=e[0
         x.fillStyle="#f1c27d";x.beginPath();x.arc(0,-6.5,2.6,0,7);x.fill();x.fillStyle="#3a2a1a";x.fillRect(-2.4,-9,4.8,1.6);x.restore();if(p===ball.owner){x.fillStyle="#ffd14a";x.beginPath();x.moveTo(p.x-2,p.y-13);x.lineTo(p.x+2,p.y-13);x.lineTo(p.x,p.y-11);x.fill()}};
       P.slice().sort((a,b)=>a.y-b.y).forEach(drawP);
       x.fillStyle="rgba(0,0,0,.35)";x.beginPath();x.ellipse(ball.x,ball.y+2,2.6,1.2,0,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(ball.x,ball.y-ball.z,2.4,0,7);x.fill();x.fillStyle="#111";x.fillRect(ball.x-.6,ball.y-ball.z-.6,1.2,1.2);
-      x.fillStyle="rgba(0,0,0,.75)";x.fillRect(80,0,160,13);x.fillStyle="#fff";x.font="bold 9px Arial";x.textAlign="center";x.fillText(`${A[0].split(" ").pop()} ${sc[0]} - ${sc[1]} ${Z[0].split(" ").pop()}   ${min}'`,160,10);
+      x.fillStyle="rgba(0,0,0,.75)";x.fillRect(80,0,160,13);x.fillStyle="#fff";x.font="bold 9px Arial";x.textAlign="center";x.fillText(`${(A[4]||A[0])} ${sc[0]} - ${sc[1]} ${(Z[4]||Z[0])}   ${min}'`,160,10);
       if(flash>0||phase==="goal"){x.save();x.globalAlpha=Math.min(1,phT);x.fillStyle="#ffd14a";x.font="900 30px Arial Black,Arial";x.lineWidth=4;x.strokeStyle="#1a1a1a";x.strokeText("¡GOOOL!",160,108);x.fillText("¡GOOOL!",160,108);x.restore()}
       if(phase==="half"){x.fillStyle="rgba(0,0,0,.6)";x.fillRect(100,88,120,24);x.fillStyle="#fff";x.font="bold 12px Arial";x.fillText("DESCANSO",160,104)}
       L.tick(lines.map(esc).join("<br>"));
@@ -5189,7 +5189,7 @@ betBoxeo=async function(){const b=BOXERS.slice().sort(()=>rnd()-.5).slice(0,2);l
   const L=liveOverlay(`🥊 ${b[0][0]} vs ${b[1][0]}`,320,200),x=L.c;
   const F=[0,1].map(i=>({i,x:i?205:115,hp:100,st:100,pts:0,act:null,actT:0,cd:.6+rnd()*.5,hurt:0,guard:1,down:0,knock:0,skin:["#f1c27d","#c8955a","#8a5a3a","#e0a878"][hash(i,b[i][0].length)%4],hair:["#1a1a1a","#3a2a1a","#c8a040","#8a3a1a"][hash(b[i][0].length,i)%4],ph:i*2}));
   let round=1,rT=0,state="fight",stT=0,count=0,last=performance.now(),lines=["🔔 ¡DING DING! Primer asalto."],fx=[],end=null,flash=0,refX=160;
-  const say2=s=>{lines.unshift(s);lines=lines.slice(0,3)};const MOVES={jab:{d:.24,dmg:[2,4],reach:40,acc:.7,n:"jab"},cross:{d:.32,dmg:[4,8],reach:42,acc:.55,n:"directo"},hook:{d:.38,dmg:[6,11],reach:32,acc:.45,n:"gancho"},upper:{d:.42,dmg:[8,14],reach:26,acc:.38,n:"uppercut"}};
+  const say2=s=>{lines.unshift(s);lines=lines.slice(0,5)};const MOVES={jab:{d:.24,dmg:[2,4],reach:40,acc:.7,n:"jab"},cross:{d:.32,dmg:[4,8],reach:42,acc:.55,n:"directo"},hook:{d:.38,dmg:[6,11],reach:32,acc:.45,n:"gancho"},upper:{d:.42,dmg:[8,14],reach:26,acc:.38,n:"uppercut"}};
   const skill=i=>b[i][2]/80;
   await new Promise(done=>{const step=nw=>{const dt=Math.min(.05,(nw-last)/1000)*L.speed();last=nw;flash=Math.max(0,flash-dt);
       if(state==="fight"){rT+=dt;
@@ -5673,6 +5673,19 @@ shop=async function(V){V=V||CHEN;await say(V.hi);let lc=0;
     while(true){const i=await choose(`${cats[c]} · Tienes ${S.money} pavos`,[...ks.map(k=>({label:ITEMS[k].n,sub:`${ITEMS[k].price} pavos · tienes ${S.bag[k]||0}`,disabled:S.money<ITEMS[k].price})),{label:"⬅️ Volver"}],{cols:1,start:li,info:i=>i<ks.length?ITEMS[ks[i]].d:""});
       if(i<0||i===ks.length)break;li=i;const k=ks[i];const q=await qtyPicker(k);
       if(q>0&&S.money>=q*ITEMS[k].price){S.money-=q*ITEMS[k].price;S.bag[k]=(S.bag[k]||0)+q;save();sfx("buy");toast(`+${q} ${ITEMS[k].n} · quedan ${S.money} pavos`)}}}};
+
+// ---- Apuestas: equipos reales y comentarios bien grandes ----
+FUT_EQ.splice(0,FUT_EQ.length,
+  ["Real Madrid","#f4f4f4","#c8a040",88,"R. Madrid"],["FC Barcelona","#a50044","#004d98",87,"Barça"],["Atlético de Madrid","#cb3524","#f4f4f4",83,"Atlético"],
+  ["Athletic Club","#ee2523","#f4f4f4",79,"Athletic"],["Real Sociedad","#0067b1","#f4f4f4",78,"R. Sociedad"],["Villarreal","#ffe667","#005187",77,"Villarreal"],
+  ["Real Betis","#00954c","#f4f4f4",76,"Betis"],["Sevilla FC","#f4f4f4","#d81920",74,"Sevilla"],["Valencia CF","#f4f4f4","#1a1a1a",72,"Valencia"],
+  ["Rayo Vallecano","#f4f4f4","#e53027",68,"Rayo"],["Celta de Vigo","#8ac3ee","#f4f4f4",69,"Celta"],["Getafe CF","#005999","#f4f4f4",67,"Getafe"]);
+(function(){const st=document.createElement("style");st.textContent=`.lvt{background:#140e0a;border:2px solid #5a4230;border-radius:10px;padding:8px 12px;margin-top:6px;min-height:120px;display:flex;flex-direction:column;gap:4px}
+.lvt div{font-size:15px;color:#c8b8a0;line-height:1.35}.lvt div.new{font-size:19px;font-weight:800;color:#ffd14a;animation:lvin .35s ease-out}@keyframes lvin{from{transform:translateX(-12px);opacity:0}to{transform:none;opacity:1}}`;document.head.appendChild(st)})();
+liveOverlay=function(title,W,H){overlay(`<div class="csn"><h2>${title}</h2><canvas id="lv-c" width="${W*3}" height="${H*3}" style="width:100%;max-width:860px;display:block;margin:6px auto;border-radius:12px;background:#0a0a12"></canvas>
+  <div id="lv-t" class="lvt"></div><div class="btns"><button class="big alt" type="button" id="lv-s">⏩ Acelerar</button></div></div>`,{onB:()=>{}});
+  const x=$("lv-c").getContext("2d");x.scale(3,3);let fast=1,lastT="";$("lv-s").onclick=()=>{fast=fast===1?3:1;$("lv-s").textContent=fast>1?"▶️ Normal":"⏩ Acelerar"};
+  return{c:x,speed:()=>fast,tick:t=>{if(t===lastT)return;lastT=t;const el=$("lv-t");if(!el)return;const ls=t.split("<br>").filter(Boolean).slice(0,5);el.innerHTML=ls.map((l,i)=>`<div class="${i?"":"new"}">${i?"":"🎙️ "}${l}</div>`).join("")}}};
 
 /*</B4DRUNK>*/
 /*B4END*/

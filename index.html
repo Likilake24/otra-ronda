@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="42 · Equipos reales y comentarios grandes";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="43 · Pantalla de carga";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -5686,6 +5686,46 @@ liveOverlay=function(title,W,H){overlay(`<div class="csn"><h2>${title}</h2><canv
   <div id="lv-t" class="lvt"></div><div class="btns"><button class="big alt" type="button" id="lv-s">⏩ Acelerar</button></div></div>`,{onB:()=>{}});
   const x=$("lv-c").getContext("2d");x.scale(3,3);let fast=1,lastT="";$("lv-s").onclick=()=>{fast=fast===1?3:1;$("lv-s").textContent=fast>1?"▶️ Normal":"⏩ Acelerar"};
   return{c:x,speed:()=>fast,tick:t=>{if(t===lastT)return;lastT=t;const el=$("lv-t");if(!el)return;const ls=t.split("<br>").filter(Boolean).slice(0,5);el.innerHTML=ls.map((l,i)=>`<div class="${i?"":"new"}">${i?"":"🎙️ "}${l}</div>`).join("")}}};
+
+// ---- Pantalla de carga al entrar al juego ----
+let SPLASHED=false;const _titleSplash=titleScreen;
+titleScreen=function(){if(SPLASHED)return _titleSplash();SPLASHED=true;mode="title";
+  overlay(`<div id="spl" style="position:fixed;inset:0;background:#0d0a08;cursor:pointer"><canvas id="spl-c" style="width:100%;height:100%;display:block"></canvas></div>`,{onB:()=>{}});
+  const c=$("spl-c"),x=c.getContext("2d");const dpr=Math.min(2,window.devicePixelRatio||1);let W=0,H=0;const fit=()=>{W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)};fit();addEventListener("resize",fit);
+  const TIPS=["Enfriando las cañas…","Despertando a Manolo…","Contando las fichas de Lolo…","Barriendo los charcos del bar…","Liando el primer porro de Bob…","Buscando el mechero (otra vez)…","Sobornando a La Pasma…","Encendiendo los neones…","¡Listo! ¿Otra ronda?"];
+  const mons=["steinburguito","westito","kushito","aguilawinston","jackdaniels","greygoose","vinofeliz","royallobo","alcapone"].filter(s=>SP[s]).map(s=>monSpriteHD(s,null,false,2));
+  const bub=Array.from({length:40},(_,i)=>({x:Math.random(),y:Math.random(),r:1+Math.random()*3,v:.05+Math.random()*.12}));
+  const t0=performance.now(),LOAD=3200;let ready=false,raf=0,go=false;
+  const start=()=>{if(!ready||go)return;go=true;sfx("door");cancelAnimationFrame(raf);removeEventListener("resize",fit);removeEventListener("keydown",kd,true);closeOverlay();_titleSplash()};
+  const kd=e=>{if(ready){e.preventDefault();start()}};addEventListener("keydown",kd,true);c.onclick=start;
+  const tick=nw=>{if(!c.isConnected){removeEventListener("keydown",kd,true);removeEventListener("resize",fit);return}const el=nw-t0,p=Math.min(1,el/LOAD);if(p>=1&&!ready){ready=true;sfx("quest")}
+    const g=x.createRadialGradient(W/2,H*.45,10,W/2,H*.45,Math.max(W,H)*.8);g.addColorStop(0,"#3a2412");g.addColorStop(1,"#0d0a08");x.fillStyle=g;x.fillRect(0,0,W,H);
+    // rayos de luz giratorios
+    x.save();x.translate(W/2,H*.42);x.rotate(el/6000);for(let i=0;i<16;i++){x.rotate(Math.PI/8);x.fillStyle="rgba(242,169,59,.05)";x.beginPath();x.moveTo(0,0);x.lineTo(Math.max(W,H),-60);x.lineTo(Math.max(W,H),60);x.fill()}x.restore();
+    // la caña llenándose
+    const S2=Math.min(W,H)/560,gx=W/2,gy=H*.47,gw=110*S2,gh=170*S2;const fill=Math.min(1,p*1.08);
+    x.save();x.beginPath();x.moveTo(gx-gw/2,gy-gh/2);x.lineTo(gx+gw/2,gy-gh/2);x.lineTo(gx+gw*.4,gy+gh/2);x.lineTo(gx-gw*.4,gy+gh/2);x.closePath();x.clip();
+    x.fillStyle="rgba(255,255,255,.06)";x.fillRect(gx-gw,gy-gh,gw*2,gh*2);const ly=gy+gh/2-gh*.82*fill;
+    let lg=x.createLinearGradient(0,ly,0,gy+gh/2);lg.addColorStop(0,"#ffcf4a");lg.addColorStop(1,"#c8780a");x.fillStyle=lg;x.fillRect(gx-gw,ly,gw*2,gh);
+    bub.forEach(b=>{b.y-=b.v*.02;if(b.y<0){b.y=1;b.x=Math.random()}const by=gy+gh/2-b.y*gh*.82*fill;if(by>ly){x.fillStyle="rgba(255,255,230,.6)";x.beginPath();x.arc(gx-gw*.38+b.x*gw*.76,by,b.r*S2,0,7);x.fill()}});
+    x.fillStyle="#fffaf0";const fy=ly-14*S2*Math.min(1,fill*2);for(let i=0;i<7;i++){x.beginPath();x.arc(gx-gw/2+i*gw/6,fy+Math.sin(el/300+i)*2*S2,14*S2,0,7);x.fill()}x.fillRect(gx-gw/2,fy,gw,ly-fy+2);x.restore();
+    x.strokeStyle="rgba(255,255,255,.7)";x.lineWidth=3*S2;x.beginPath();x.moveTo(gx-gw/2,gy-gh/2);x.lineTo(gx-gw*.4,gy+gh/2);x.lineTo(gx+gw*.4,gy+gh/2);x.lineTo(gx+gw/2,gy-gh/2);x.stroke();
+    x.fillStyle="rgba(255,255,255,.25)";x.fillRect(gx-gw*.36,gy-gh*.4,8*S2,gh*.75);
+    if(p>.9){for(let i=0;i<3;i++){const q=((el/900)+i/3)%1;x.fillStyle=`rgba(255,250,240,${.8*(1-q)})`;x.beginPath();x.arc(gx+gw*.45+q*14*S2,gy-gh/2+q*gh*.5,6*S2*(1-q*.5),0,7);x.fill()}}
+    // el logo cae con rebote
+    const lp=Math.min(1,el/900),bounce=lp<1?(1-Math.abs(Math.cos(lp*Math.PI*2.5))*(1-lp)):1;const ty=H*.16-(1-bounce)*H*.25;
+    x.save();x.textAlign="center";x.textBaseline="middle";x.font=`900 ${Math.round(58*S2+10)}px "Pixelify Sans","Arial Black",sans-serif`;x.lineWidth=8*S2;x.strokeStyle="#3a1a08";x.strokeText("¿OTRA RONDA?",W/2,ty);
+    x.shadowColor="#f2a93b";x.shadowBlur=24*S2;x.fillStyle="#f2a93b";x.fillText("¿OTRA RONDA?",W/2,ty);x.restore();
+    // desfile de Pedomones
+    mons.forEach((m,i)=>{const sz=56*S2+18,sp=(el/14+i*(W+200)/mons.length)%(W+200)-100;const hop=Math.abs(Math.sin(el/180+i))*14*S2;x.drawImage(m,sp-sz/2,H*.965-sz-hop,sz,sz);x.fillStyle="rgba(0,0,0,.3)";x.beginPath();x.ellipse(sp,H*.965,sz*.3,5,0,0,7);x.fill()});
+    // barra de carga y frases
+    const bw=Math.min(420,W*.7),bx=W/2-bw/2,byy=H*.69;x.fillStyle="#1a130e";x.fillRect(bx-3,byy-3,bw+6,22);x.fillStyle="#5a4230";x.fillRect(bx-3,byy-3,bw+6,2);
+    const bg2=x.createLinearGradient(bx,0,bx+bw,0);bg2.addColorStop(0,"#f2a93b");bg2.addColorStop(1,"#ffd14a");x.fillStyle=bg2;x.fillRect(bx,byy,bw*p,16);
+    for(let i=0;i<bw*p;i+=14){x.fillStyle="rgba(255,255,255,.18)";x.fillRect(bx+i+((el/20)%14),byy,5,16)}
+    x.textAlign="center";x.font=`700 ${Math.round(14*S2+6)}px Rubik,Arial,sans-serif`;x.fillStyle="#f4e7d4";
+    x.fillText(ready?(Math.floor(el/450)%2?"Toca la pantalla o pulsa una tecla para empezar":""):TIPS[Math.min(TIPS.length-2,Math.floor(p*(TIPS.length-1)))]+"  "+Math.round(p*100)+" %",W/2,byy+44);
+    x.font=`500 ${Math.round(10*S2+6)}px Rubik,Arial`;x.fillStyle="#8a7560";x.textAlign="right";x.fillText("v"+GAME_VER.split(" ")[0],W-12,18);
+    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)};
 
 /*</B4DRUNK>*/
 /*B4END*/

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="57 · Iniciales nuevos en pixel art";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="58 · El guiri del hotel ahora es Chuchi";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -6618,11 +6618,11 @@ async function atardecer(){const b=npcById("bartolo");cineOn();GSUN.on=true;GSUN
 const _gzN=grassZones;grassZones=function(){if(S.map==="n340")return[[ZONES.NA,"N-340 · dunas de la izquierda",S.x<26],[ZONES.NB,"N-340 · dunas de la derecha",S.x>=26]];return _gzN()};
 const _weN=wildEncounter;wildEncounter=async function(){if(S.map==="n340"){const z=S.x<26?ZONES.NA:ZONES.NB;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _weN()};
 
-/* ===================== COSTA CANGREJO (ciudad 4 · tipo Agua · Nigel «Mister Crab») ===================== */
+/* ===================== COSTA CANGREJO (ciudad 4 · tipo Agua · Chuchi «Mister Crab») ===================== */
 // Casillas: v paseo · P palmera · ł torre del socorrista · ç entrada de la cueva · (en la cueva) w roca, o suelo
 Object.assign(MAPNAME,{costa:"Costa Cangrejo",pension:"Pensión La Gamba Feliz",cueva:"Cueva del Cabo",paradise:"Hotel All-Inclusive Paradise"});
-Object.assign(KEYS_IT,{silbato:{n:"📯 Silbato del socorrista",d:"El silbato de Borja, con la cuerda arrancada. Estaba entre las rocas, cerca de la cueva."},costa:{n:"🦀 Medalla Quemadura",d:"La medalla de Nigel. Está roja, caliente y huele a after sun."}});
-MEDALS[3]={k:"costa",n:"Medalla Quemadura",ic:"🦀",lider:"Nigel «Mister Crab»",tipo:"agua",has:()=>!!S.flags.costa};
+Object.assign(KEYS_IT,{silbato:{n:"📯 Silbato del socorrista",d:"El silbato de Borja, con la cuerda arrancada. Estaba entre las rocas, cerca de la cueva."},costa:{n:"🦀 Medalla Quemadura",d:"La medalla de Chuchi. Está roja, caliente y huele a after sun."}});
+MEDALS[3]={k:"costa",n:"Medalla Quemadura",ic:"🦀",lider:"Chuchi «Mister Crab»",tipo:"agua",has:()=>!!S.flags.costa};
 Object.assign(KIND_UP,{hotel:72,pension:40,kiosko:12});
 (function(){const W=48,H=32,g=grid(W,H,"á");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(g[j]&&g[j][i]!==undefined)g[j][i]=ch};
   R("í",0,0,W,2);R("a",0,2,W,2);R("v",0,4,W,10);R("ú",0,27,W,1);R("~",0,28,W,4);
@@ -6633,7 +6633,7 @@ Object.assign(KIND_UP,{hotel:72,pension:40,kiosko:12});
   [[14,17],[17,20],[13,23],[27,16],[33,21],[36,17],[26,24],[18,25],[31,25]].forEach(([x,y])=>g[y][x]="ü");g[19][22]="ł";g[18][22]="ł";
   // el cabo con la cueva
   R("í",42,14,6,13);R("í",44,27,4,5);g[24][42]="ç";[[40,25],[39,26],[41,26],[41,23]].forEach(([x,y])=>g[y][x]="ó");
-  const signs={"1,11":"COSTA CANGREJO. «Sol, playa y fiesta de la espuma.» Población: 3.000 vecinos y 90.000 guiris.","22,13":"↑ HOTEL ALL-INCLUSIVE PARADISE (gimnasio de Nigel) · ← Pensión La Gamba Feliz · → Bazar Chon y Espuma Party · ↓ Playa de Levante","41,13":"→ CABO DE LA CUEVA. Prohibido el paso de noche. (De día, también, pero se nota menos.)"};
+  const signs={"1,11":"COSTA CANGREJO. «Sol, playa y fiesta de la espuma.» Población: 3.000 vecinos y 90.000 guiris.","22,13":"↑ HOTEL ALL-INCLUSIVE PARADISE (gimnasio de Chuchi) · ← Pensión La Gamba Feliz · → Bazar Chon y Espuma Party · ↓ Playa de Levante","41,13":"→ CABO DE LA CUEVA. Prohibido el paso de noche. (De día, también, pero se nota menos.)"};
   Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
   const builds=[
     {id:"pension",kind:"pension",x:2,y:9,w:5,h:3,door:[4,11],wall:"#f4e0c0",roof:"#e06a3a",label:"LA GAMBA FELIZ",glow:"#e06a3a",to:"pension"},
@@ -6719,7 +6719,7 @@ NPCS.push(
   trainer:tr4("Guiri del Flotador","Terry",[["barrilblindado",33],["aguilalitro",33]],420,["Guiri Terry: I'm the champion of the swimming pool! Llevo aquí desde 2009. No salgo.","Guiri Terry: Mi flotador es un cangrejo. Mi Pedomón es un barril. ¡Come on!"],"Guiri Terry: … Me vuelvo a la piscina. Ahí nadie me gana.")},
  {id:"nigel2",map:"paradise",x:8,y:1,dir:"down",pal:PAL_NIGEL,hs:0,ts:2,fat:true}
 );
-TRAINER_LOOK["Nigel «Mister Crab»"]="nigel2";
+TRAINER_LOOK["Chuchi «Mister Crab»"]="nigel2";
 TALK2.maruchi=async()=>{await sayAll([pick(["Maruchi: ¡Ay, otro que viene quemado! Siéntate, rey, que te curo a los bichos y te doy una sopita fría.","Maruchi: Llevo 40 años con la pensión. Antes venían familias. Ahora vienen despedidas de soltero. Prefiero las familias, que rompen menos.","Maruchi: El socorrista Borja era muy buen chico. Bueno, es. Es buen chico. Aparecerá, ¿verdad?"]),"Maruchi: Venga, que os dejo nuevos."]);
   S.team.forEach(m=>{m.hp=maxhp(m)});S.respawn=["pension",4,4];sfx("heal");save();await say("¡Tu equipo está como nuevo! (Si caes en combate, despertarás en la pensión.) La Nevera está en la esquina.")};
 const CHON={n:"Chon",hi:"Chon: ¡Hola, hola! Bazar Chon. Primo de Chen, de Chan, de Chun y de Chin. Flotadores, gafas, chanclas y todo lo demás.",bye:"Chon: ¡Gracias! Ponte crema. Mucha crema.",lines:["Chon: El cangrejo del hotel compra aquí el after sun. Cajas enteras. No pregunto."]};
@@ -6728,27 +6728,27 @@ TALK2.wilson=async()=>{const q=S.q.costa||0;
   if(q===1&&!S.flags.clWilson){S.flags.clWilson=true;save();await sayAll(["Wilson: ¿Borja? Anoche estuvo aquí, en la barra. Discutiendo con un señor muy raro.","Wilson: Guantes blancos, sombrero de paja y una copa de vino en la mano. En un chiringuito. ¡Pidió un vino «con cuerpo y retrogusto»! Aquí solo hay tinto de verano.","Wilson: Le dijo a Borja: «Lo que has visto en el hotel no lo has visto». Y Borja se fue blanco como la arena.","🔍 Pista apuntada: el hombre de los guantes blancos."]);costaClues();return}
   const i=await choose(pick(["Wilson: ¡Bienvenido al Copacabana, amigo! ¿Qué te pongo?","Wilson: Mojito, tinto de verano o agua. El agua es más cara, que la vigila La Pasma."]),[{label:"🍹 Tomar algo (cura a tu equipo)"},{label:"💬 Charlar"},{label:"👋 Nada"}],{cols:1});
   if(i===0){if(S.money<15){await say("Wilson: Son 15 pavos, amigo. Aquí no se fía, que esto es la playa.");return}S.money-=15;S.team.forEach(m=>{m.hp=maxhp(m)});sfx("heal");save();await say("Te tomas un tinto de verano con limón mirando al mar. Tus Pedomones se tiran a la sombra. ¡Equipo curado! (-15 pavos)");return}
-  if(i===1)await say(pick(["Wilson: Nigel, el del hotel, viene todos los días a las 10 a por el primer gin-tonic. Desayuna de pie.","Wilson: Dicen que en la cueva del cabo se oyen ruidos de noche. Yo no voy. Yo sirvo mojitos.","Wilson: La señora de las trenzas lo ve todo. Lleva 30 años en la misma sombrilla."]))};
+  if(i===1)await say(pick(["Wilson: Chuchi, el del hotel, viene todos los días a las 10 a por el primer gin-tonic. Desayuna de pie.","Wilson: Dicen que en la cueva del cabo se oyen ruidos de noche. Yo no voy. Yo sirvo mojitos.","Wilson: La señora de las trenzas lo ve todo. Lleva 30 años en la misma sombrilla."]))};
 TALK2.rosi=async()=>{const q=S.q.costa||0;
   if(q===1&&!S.flags.clRosi){S.flags.clRosi=true;save();await sayAll(["Rosi: ¿Borja? Ay, mi niño. Ayer le hice unas trenzas de esas africanas, que me lo pidió para la fiesta de la espuma.","Rosi: Y a medianoche lo vi pasar con una linterna, para el cabo, hacia la cueva. Le grité «¡Borja, que se te deshacen las trenzas!». Ni me miró.","🔍 Pista apuntada: Borja fue a la cueva del cabo."]);costaClues();return}
   const i=await choose("Rosi: ¡Trenzas, rastas, tatuajes de henna! ¿Qué te hago, cariño?",[{label:"💇 Cambiar de look"},{label:"💬 Charlar"},{label:"👋 Nada"}],{cols:1});
   if(i===0){await skinEditor();pushPresence();await say(pick(["Rosi: ¡Mírate! Ahora sí pareces de vacaciones.","Rosi: Esto en Benidorm te lo cobran el doble. Y te dejan calvo.","Rosi: Precioso. Si se te deshace, vuelve, que te lo apaño."]));return}
-  if(i===1)await say(pick(["Rosi: Treinta años en esta sombrilla. He visto de todo. Una vez vi a un guiri bañarse con calcetines. Y con zapatos.","Rosi: Nigel era un chico majo cuando llegó. Luego descubrió el todo incluido.","Rosi: Si quieres saltar desde el acantilado, primero pregunta a los chavales del cabo. Y luego no lo hagas."]))};
-TALK2.nigel=async()=>{if((S.q.costa||0)>=3)return;await say(pick(["Nigel: Borja! My boy! ¿Dónde está? ¿Quién vigilar my swimming pool ahora? ¡Nadie hacer gimnasio sin socorrista!","Nigel: Yo pagar a Borja muy bien. En pulseras de todo incluido. Él decir que no le sirven para el alquiler. Weird.","Nigel: Encuentra a mi Borja y yo te dejo luchar. ¡Promise! Hic."]))};
+  if(i===1)await say(pick(["Rosi: Treinta años en esta sombrilla. He visto de todo. Una vez vi a un guiri bañarse con calcetines. Y con zapatos.","Rosi: Chuchi era un chico majo cuando llegó. Luego descubrió el todo incluido.","Rosi: Si quieres saltar desde el acantilado, primero pregunta a los chavales del cabo. Y luego no lo hagas."]))};
+TALK2.nigel=async()=>{if((S.q.costa||0)>=3)return;await say(pick(["Chuchi: Borja! My boy! ¿Dónde está? ¿Quién vigilar my swimming pool ahora? ¡Nadie hacer gimnasio sin socorrista!","Chuchi: Yo pagar a Borja muy bien. En pulseras de todo incluido. Él decir que no le sirven para el alquiler. Weird.","Chuchi: Encuentra a mi Borja y yo te dejo luchar. ¡Promise! Hic."]))};
 TALK2.borja2=async()=>{await say(pick(["Borja: ¡Gracias otra vez, tío! Ahora vigilo la playa con un ojo y la cueva con el otro.","Borja: El de los guantes blancos… no le vi la cara. Pero olía a vino caro y a algo más. A hierba quemada.","Borja: Si vas a saltar desde el cabo, avísame primero, que me tiro a por ti."]))};
 TALK2.borja=async()=>{if(!(S.beaten&&S.beaten.cpasma1&&S.beaten.cpasma2)){await say("Borja (atado y amordazado): ¡Mmmmf! ¡MMMMF! (Parece que dice: «¡cuidado con los de La Pasma!»)");return}
-  cineOn();await sayAll(["Le quitas la mordaza y las cuerdas al socorrista. Lleva unas trenzas preciosas, un poco deshechas.","Borja: ¡Tío, gracias! Llevaba dos días aquí. Comiendo galletas de La Pasma. Están rancias.","Borja: Vi algo en el hotel de Nigel: unos de La Pasma metiendo palés de agua embotellada en el sótano. Muchísimos. Para la Ley Seca.",
+  cineOn();await sayAll(["Le quitas la mordaza y las cuerdas al socorrista. Lleva unas trenzas preciosas, un poco deshechas.","Borja: ¡Tío, gracias! Llevaba dos días aquí. Comiendo galletas de La Pasma. Están rancias.","Borja: Vi algo en el hotel de Chuchi: unos de La Pasma metiendo palés de agua embotellada en el sótano. Muchísimos. Para la Ley Seca.",
     "Borja: Y con ellos estaba un señor con guantes blancos. Lo olía todo: el agua, el aire… a mí. Los polis le llamaban «el Sumiller».","Borja: Me pillaron mirando y me trajeron aquí. Antes de irse, el Sumiller dejó dos porros apagados, cruzados, encima de mi silla de socorrista. Como una firma.",
-    "Borja: Vámonos. Nigel tiene que saber lo que pasa en su hotel… si es que no lo sabe ya."]);
-  S.q.costa=3;sfx("quest");save();cineOff();await warp("costa",23,20,"down");await say("📜 Misión completada: «El socorrista desaparecido». Nigel ya abre su gimnasio en el Hotel All-Inclusive Paradise.")};
+    "Borja: Vámonos. Chuchi tiene que saber lo que pasa en su hotel… si es que no lo sabe ya."]);
+  S.q.costa=3;sfx("quest");save();cineOff();await warp("costa",23,20,"down");await say("📜 Misión completada: «El socorrista desaparecido». Chuchi ya abre su gimnasio en el Hotel All-Inclusive Paradise.")};
 function costaClues(){if(S.q.costa===1&&S.flags.clWilson&&S.flags.clRosi&&S.keys.silbato){S.q.costa=2;save();sfx("quest");toast("🔍 Ya tienes las 3 pistas: ¡a la cueva del cabo!")}}
 TALK2.nigel2=async()=>{
-  if(S.flags.costa){await say(pick(["Nigel: Tú ganar. Yo invitar a un gin-tonic. Bueno, invita el hotel. Bueno, el hotel invita a todo, it's all inclusive.","Nigel: ¿El sótano? ¿Qué sótano? Yo no saber nada del sótano. Hic. Pregunta a mi abogado. Mi abogado es esta piña colada."]));return}
-  await sayAll(["Nigel: Welcome to the Paradise! Yo ser Nigel. La gente llamarme «Mister Crab». Por el color, you know. Y por cómo ando de lado después de las 12.","Nigel: Has traído a Borja. Thank you, mate. Pero esto es un gimnasio, y en mi gimnasio se lucha… ¡con AGUA!","Nigel: Mis Pedomones beben más que yo. Y yo bebo MUCHO. ¡Let's go!"]);
+  if(S.flags.costa){await say(pick(["Chuchi: Tú ganar. Yo invitar a un gin-tonic. Bueno, invita el hotel. Bueno, el hotel invita a todo, it's all inclusive.","Chuchi: ¿El sótano? ¿Qué sótano? Yo no saber nada del sótano. Hic. Pregunta a mi abogado. Mi abogado es esta piña colada."]));return}
+  await sayAll(["Chuchi: Welcome to the Paradise! Yo ser Chuchi. La gente llamarme «Mister Crab». Por el color, you know. Y por cómo ando de lado después de las 12.","Chuchi: Has traído a Borja. Thank you, mate. Pero esto es un gimnasio, y en mi gimnasio se lucha… ¡con AGUA!","Chuchi: Mis Pedomones beben más que yo. Y yo bebo MUCHO. ¡Let's go!"]);
   const win=await battle([monMoves(newMon("sangria",33),["chorro","espumarajo","lataza","eructo"]),newMon("millerpack",34),newMon("barrilblindado",34),newMon("aguilareal",36)],
-    {trainer:{name:"Nigel «Mister Crab»",short:"Nigel",pal:PAL_NIGEL,hs:0,ts:2,fat:true,money:1000,leader:true,challenge:"¡Nigel «Mister Crab», el dueño del Paradise, te desafía!",lose:"Nigel: Oh my God… He perdido. Esto necesita otra piña colada."},music:"lolo"});
+    {trainer:{name:"Chuchi «Mister Crab»",short:"Chuchi",pal:PAL_NIGEL,hs:0,ts:2,fat:true,money:1000,leader:true,challenge:"¡Chuchi «Mister Crab», el dueño del Paradise, te desafía!",lose:"Chuchi: Oh my God… He perdido. Esto necesita otra piña colada."},music:"lolo"});
   if(win){S.flags.costa=true;S.keys.costa=true;S.tms=S.tms||{};S.tms.mt18=(S.tms.mt18||0)+1;sfx("quest");save();
-    await sayAll(["¡Has ganado la 🦀 Medalla Quemadura!","Nigel: Take it, mate. Está caliente porque la tengo al sol. Como a mí.","Nigel: Y la MT18, Sifón. Para que tus Pedomones escupan con estilo.","Nigel: … Escucha. Lo del sótano. Yo solo alquilar el sótano. Un señor pagar en efectivo, con guantes blancos. Yo no hacer preguntas. Yo hacer piña coladas.","Nigel: Él decir que el siguiente sitio es Terrazalia. La terraza del mundo. Donde todos fumar. Hic. Ten cuidado, mate."])}};
+    await sayAll(["¡Has ganado la 🦀 Medalla Quemadura!","Chuchi: Take it, mate. Está caliente porque la tengo al sol. Como a mí.","Chuchi: Y la MT18, Sifón. Para que tus Pedomones escupan con estilo.","Chuchi: … Escucha. Lo del sótano. Yo solo alquilar el sótano. Un señor pagar en efectivo, con guantes blancos. Yo no hacer preguntas. Yo hacer piña coladas.","Chuchi: Él decir que el siguiente sitio es Terrazalia. La terraza del mundo. Donde todos fumar. Hic. Ten cuidado, mate."])}};
 if(!MTS.find(m=>m.id==="mt18"))MTS.push({id:"mt18",mv:"sifon",price:0,types:null,reward:true});
 
 // ---- Puertas, intro del caso y pistas ----
@@ -6762,7 +6762,7 @@ const _oemC=onEnterMap;onEnterMap=async function(){await _oemC();
   if(S.map==="costa"&&!S.flags.costaIn){S.flags.costaIn=true;S.q.costa=S.q.costa||0;save();
     await sayAll(["COSTA CANGREJO. Rascacielos de hoteles, un paseo de palmeras y una playa con más toallas que arena.","Huele a crema solar, a fritura y a sangría. Por los altavoces del paseo suena una canción del verano de hace diez años."]);
     if((S.q.costa||0)===0){const n=npcById("nigel");cineOn();emote(n,"😱",2000);await sleep(600);
-      await sayAll(["Al fondo, junto a la torre del socorrista, hay una cinta amarilla y un corrillo de gente.","Un guiri calvo y rojo como una gamba grita: «¡BORJA! ¡MY BOY! ¿WHERE IS BORJA?»","Vecina: Es Nigel, el del hotel Paradise. Su socorrista, Borja, ha desaparecido esta mañana. Solo ha quedado su silla… con dos porros apagados encima. Cruzados.","… Dos porros cruzados en aspa. Como en la servilleta del mirador.","📜 Nueva misión: «El socorrista desaparecido». Busca pistas por la playa: pregunta en el chiringuito, a la señora de las trenzas, y mira por las rocas del cabo."]);
+      await sayAll(["Al fondo, junto a la torre del socorrista, hay una cinta amarilla y un corrillo de gente.","Un guiri calvo y rojo como una gamba grita: «¡BORJA! ¡MY BOY! ¿WHERE IS BORJA?»","Vecina: Es Chuchi, el del hotel Paradise. Su socorrista, Borja, ha desaparecido esta mañana. Solo ha quedado su silla… con dos porros apagados encima. Cruzados.","… Dos porros cruzados en aspa. Como en la servilleta del mirador.","📜 Nueva misión: «El socorrista desaparecido». Busca pistas por la playa: pregunta en el chiringuito, a la señora de las trenzas, y mira por las rocas del cabo."]);
       S.q.costa=1;save();cineOff()}}
   if(S.map==="cueva"&&!S.flags.cuevaIn){S.flags.cuevaIn=true;save();await say("LA CUEVA DEL CABO. Oscura, húmeda y con olor a donut. Al fondo se oye: «¡Mmmmf!».")}};
 const _intC=interact;interact=async function(){const[fx,fy]=facing(),c=tileAt(fx,fy);
@@ -6772,7 +6772,7 @@ const _intC=interact;interact=async function(){const[fx,fy]=facing(),c=tileAt(fx
   if(S.map==="costa"&&c==="ł"){await say((S.q.costa||0)>=3?"La torre del socorrista. Borja ha vuelto a su silla. Ha colgado la bandera roja: «hoy hay medusas y guiris».":"La torre del socorrista, vacía. En la silla, dos porros apagados cruzados en aspa. La firma del Sumiller.");return}
   return _intC()};
 const _qlC=questLines;questLines=function(){const L=_qlC();const q=S.q.costa||0;if(q>=1&&q<3){L.push("🦀 El socorrista desaparecido:");L.push((S.flags.clWilson?"✅":"•")+" Preguntar a Wilson, el del chiringuito Copacabana");L.push((S.flags.clRosi?"✅":"•")+" Preguntar a Rosi, la señora de las trenzas");L.push((S.keys.silbato?"✅":"•")+" Buscar entre las rocas del cabo");if(q===2)L.push("• ¡Entra en la cueva del cabo y rescata a Borja!")}
-  else if(q>=3&&!S.flags.costa)L.push("🦀 Gánale a Nigel en la piscina del Hotel Paradise");return L};
+  else if(q>=3&&!S.flags.costa)L.push("🦀 Gánale a Chuchi en la piscina del Hotel Paradise");return L};
 
 /*</B4COSTA>*/
 /*<B4PIXMONS>*/

@@ -1545,7 +1545,7 @@ const WALK=new Set([".",",","=","F","o","e","d","v","A","Z","r","n","b"]);
 const MAP=()=>MAPS[S.map];
 
 /* ===================== ESTADO ===================== */
-const SAVE_KEY="barralibre_demo_v1";
+let SAVE_KEY="barralibre_demo_v1";
 let S=null;
 function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{rino:6,abre:3,mechero:3,grinder:2,agua:3},money:60,tms:{},repel:0,keys:{},
   flags:{starter:false,chusta:false,poli:false,started:false,barIn:false,gym:false},q:{gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},accU:{},beaten:{},seen:{},caught:{},rivalSp:null,respawn:["kebab",4,3]}}
@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="78 · Sala de máquinas, mascotas, 33 trofeos más, misión del machete, fiestas de Hoyales y escenas que se saltan";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="79 · Nueva pantalla de inicio: 3 partidas guardadas, resumen de cada una y frases aleatorias";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -3632,6 +3632,7 @@ addEventListener("resize",fit);
 
 /* ===================== INICIO ===================== */
 function titleScreen(){
+  if(typeof titleMain==="function")return titleMain();
   mode="title";const has=loadSave();updOnline();
   overlay(`<div class="title" style="display:flex;flex-direction:column;gap:18px;align-items:center;margin-top:6vh">
     <div class="sign">¿OTRA RONDA?</div><p style="font-family:var(--display);font-size:18px;color:var(--fg)">Demo 5 · Del Parque de Pichi a Ciudad Neón</p><p style="font-style:italic;color:var(--amber);margin-top:-8px">«Todo va bien. Hablé con Salva.»</p>
@@ -8851,6 +8852,53 @@ LOGROS.push({id:"fiestas4",n:"Hijo predilecto",d:"Gana las 4 pruebas de las fies
 const _drHo=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(ch==="ß"){px(sx,sy,T,T,"#c8b8a0");px(sx+7,sy-6,2,10,"#6a4a2a");px(sx+2,sy-8,12,3,"#6a4a2a");ctx.fillStyle="#d8a830";ctx.beginPath();ctx.moveTo(sx+3,sy+12);ctx.quadraticCurveTo(sx+8,sy-2,sx+13,sy+12);ctx.closePath();ctx.fill();px(sx+7,sy+11,2,3,"#8a6a1a");return}return _drHo(ch,x,y,sx,sy,t,style)};
 
 /*</B4HOYALES2>*/
+/*<B4INICIO>*/
+/* ===================== PANTALLA DE INICIO: 3 huecos de partida, frase aleatoria, resumen de cada partida ===================== */
+const SLOT_KEYS=["barralibre_demo_v1","barralibre_demo_v1_s2","barralibre_demo_v1_s3"];
+let SAVESLOT=(()=>{try{const v=parseInt(localStorage.getItem("otraronda_slot"));return v>=0&&v<3?v:0}catch(e){return 0}})();
+SAVE_KEY=SLOT_KEYS[SAVESLOT];
+const slotData=i=>{try{const t=localStorage.getItem(SLOT_KEYS[i]);return t?JSON.parse(t):null}catch(e){return null}};
+const useSlot=i=>{SAVESLOT=i;SAVE_KEY=SLOT_KEYS[i];try{localStorage.setItem("otraronda_slot",String(i))}catch(e){}};
+// ---------- tiempo jugado (solo cuenta mientras juegas y la pestaña está visible) ----------
+setInterval(()=>{if(mode!=="title"&&S&&S.flags&&S.flags.starter!==undefined&&!document.hidden&&S.name)S.playMs=(S.playMs||0)+1000},1000);
+const fmtTime=ms=>{const m=Math.floor((ms||0)/60000);return Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min"};
+// ---------- frases aleatorias ----------
+const TITLE_QUOTES=["Todo va bien. Hablé con Salva.","La última y nos vamos. (Mentira.)","Aquí no ha pasado nada, agente.","Si el kebab gira, la vida sigue.","Abdul dice que hoy invita la casa. Abdul miente.","El Chusta te debe 20 pavos desde 2019.","Lo que pasa en el Descampado, se queda en el Descampado.","Hidrátate. Con Bezoya, no con orujo.","Ningún Pedomón ha sido maltratado. Algunos sí han sido bebidos.","¿Otra ronda? Venga, va.","El Sumiller te observa. Y te cata.","Mañana empiezo el gimnasio. El de Paco, el del bar.","La Pasma no duerme. Pero sí echa la siesta.","Bob dice que la planta habla. Hoy no tiene el día.","No es una resaca. Es un estado de ánimo.","Tu madre ha llamado. Dice que comas algo.","Para los amigos, la casa. Para los enemigos, el carajillo.","La abuela Luna lo cura todo con manzanilla y gritos.","Manolo lleva desde el jueves en la misma barra.","Hoy he venido a jugar, no a hacer amigos. (Pero si invitan, bueno.)","El Rey de la Peña no duerme desde 1987.","Si suena la charanga, ya es tarde para irse.","Lolo Gramos nunca pierde. Solo «reinvierte».","Esta partida está patrocinada por nadie, por desgracia.","El que guarda, encuentra. El que no guarda, llora.","Izaskun ha cerrado su terraza tres veces. Las tres ha vuelto a abrir.","La gaviota de la Costa te ha robado el bocadillo. Otra vez.","Cuidado con el Escorpión Rubio. Pica y además canta.","Si ves dos porros cruzados en aspa, corre.","En Ciudad Neón son las 4:20 a todas horas.","El porrón no se mancha. Se mancha uno.","No hay mal que cien años dure, ni resaca que aguante un kebab.","El Piloto Borracho tiene carné. De socio del bar.","Chuchi «Mister Crab» se quemó en 2003 y sigue rojo.","Salva lo vio en las cartas. Y en la cámara del timbre.","Un Pedomón salvaje apareció. Tenía mala cara.","Prohibido dar de comer a la gaviota. Ella no lo sabe.","La vida es como una tómbola: tómbola, tómbola.","El Comisario no ha visto nada. Y si lo ha visto, lo ha olvidado.","Ganar está bien. Ganar con una Riñonera Gucci, mejor.","Ya no se hacen calimochos como los de antes.","Bienvenido al barrio. Las normas: no hay normas. Bueno, una: no tocar la tele del bar.","El 90 % de los combates se ganan con un buen mecherazo.","Hassan te hace precio. De amigo. De amigo de Hassan.","La Okupa no paga luz, pero tiene neones.","No corras por el mercadillo, que pisas los calcetines de Yoli.","Hoy toca subir de nivel. O de piso, que el ascensor no va.","Si la vida te da limones, pide tequila.","Steinburguito no está gordo: está fermentando.","Las máquinas de bolas no son ludopatía si te sale una gorra.","El Chusta dice «bro» 400 veces al día. Ya lleva 380.","Huele a pólvora, a churros y a sospechoso.","La que se avecina… es otra ronda.","Ni Pokémon ni Pokémonas: Pedomones.","En Hoyales las campanas suenan en orden. Casi nunca.","Si pierdes, dices que ha sido el lag.","Bartolo pinta acuarelas. Del mismo atardecer. Desde 1994.","Advertencia: este juego puede provocar ganas de kebab.","Recuerda: el Porrosor apunta todo en su libreta.","Cuanto más bebes del porrón, más se mueve el pueblo."];
+const pickQuote=()=>TITLE_QUOTES[Math.floor(Math.random()*TITLE_QUOTES.length)];
+// ---------- resumen de una partida ----------
+function slotSummary(d){const keep=S;let medals=[];try{S=Object.assign(freshState(),d);S.flags=Object.assign(freshState().flags,d.flags||{});medals=MEDALS.map(m=>({ic:m.ic,n:m.n,ok:!!m.has()}))}catch(e){}finally{S=keep}
+ const team=(d.team||[]).slice(0,6).map(m=>{let src="";try{const c=(typeof PIXLIB!=="undefined"&&PIXLIB.get)?PIXLIB.get(m.sp,"front"):monSpriteHD(m.sp,null,!!m.shiny,2);src=c.toDataURL()}catch(e){}return{src,n:(SP[m.sp]&&SP[m.sp].n)||m.sp,lvl:m.lvl}});
+ return{name:d.name||"Sin nombre",place:(typeof MAPNAME!=="undefined"&&MAPNAME[d.map])||d.map||"",time:fmtTime(d.playMs),money:d.money||0,team,medals,dex:Object.keys(d.caught||{}).length}}
+function titleMain(){mode="title";updOnline();
+ const card=i=>{const d=slotData(i);if(!d||!Array.isArray(d.team))return`<div class="slotc empty"><div class="slh">PARTIDA ${i+1}</div><div class="sle">— Hueco vacío —</div><button class="big" type="button" id="sl-new-${i}">✨ Nueva partida</button></div>`;
+  const s=slotSummary(d);
+  return`<div class="slotc"><div class="slh">PARTIDA ${i+1}${i===SAVESLOT?' <span class="sllast">· la última</span>':""}</div>
+   <div class="sln">${esc(s.name)}</div><div class="slp">📍 ${esc(s.place)}</div>
+   <div class="slt">${s.team.length?s.team.map(m=>`<div class="slm" title="${esc(m.n)}">${m.src?`<img src="${m.src}" alt="">`:"❔"}<span>Nv ${m.lvl}</span></div>`).join(""):'<i class="sle">Aún sin Pedomones</i>'}</div>
+   <div class="slmed">${s.medals.map(m=>`<span class="${m.ok?"ok":""}" title="${esc(m.n)}">${m.ok?m.ic:"◯"}</span>`).join("")}</div>
+   <div class="slst"><span>⏱ ${s.time}</span><span>💰 ${s.money}</span><span>📖 ${s.dex}</span></div>
+   <div class="btns" style="justify-content:center;margin:6px 0 0"><button class="big" type="button" id="sl-go-${i}">▶ Continuar</button><button class="big alt" type="button" id="sl-del-${i}" style="font-size:13px;padding:8px 12px">🗑 Borrar</button></div></div>`};
+ overlay(`<style>.slots{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;width:100%}.slotc{flex:1 1 250px;max-width:330px;background:linear-gradient(#2a1d12,#1a120a);border:2px solid #ffd14a55;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;text-align:center;box-shadow:0 6px 20px #0008}
+  .slotc.empty{border-style:dashed;justify-content:center;min-height:200px}.slh{font:900 12px Rubik,Arial;letter-spacing:2px;color:#ffd14a}.sllast{color:#7aff6a;letter-spacing:0}.sln{font:900 22px var(--display),Rubik,Arial;color:#fff}.slp{font-size:13px;opacity:.8}.sle{opacity:.6;font-size:13px}
+  .slt{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:64px}.slm{display:flex;flex-direction:column;align-items:center;width:52px}.slm img{width:48px;height:48px;image-rendering:pixelated}.slm span{font-size:10px;opacity:.8}
+  .slmed{display:flex;justify-content:center;gap:4px;font-size:18px}.slmed span{width:24px;opacity:.35}.slmed span.ok{opacity:1;filter:drop-shadow(0 0 4px #ffd14a)}.slst{display:flex;justify-content:space-around;font-size:13px}
+  .tquote{font-style:italic;color:var(--amber);margin-top:-8px;font-size:17px;max-width:640px;text-align:center}</style>
+  <div class="title" style="display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:4vh">
+  <div class="sign">¿OTRA RONDA?</div><p class="tquote">«${esc(pickQuote())}»</p>
+  <div class="slots">${[0,1,2].map(card).join("")}</div>
+  <p class="keys">Móvil: cruceta, A, B y el botón CORRER. Ordenador: flechas, Enter para hablar, X para volver y Espacio para correr.<br>Multijugador: abrid el juego a la vez y quedad en El Descampado.</p>
+  ${volSlider("t-vol")}<p class="keys" style="font-size:11px;max-width:560px">Música de Kevin MacLeod (incompetech.com). Licencia Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0/).</p><p class="keys" style="font-size:12px;color:var(--amber)">Versión ${GAME_VER}</p></div>`,{focusId:slotData(SAVESLOT)?"sl-go-"+SAVESLOT:"sl-new-"+SAVESLOT});
+ for(let i=0;i<3;i++){const d=slotData(i);
+  if(d&&Array.isArray(d.team)){
+   $("sl-go-"+i).onclick=async()=>{useSlot(i);const has=slotData(i);S=Object.assign(freshState(),has);S.bag=Object.assign({},has.bag||{});S.flags=Object.assign(freshState().flags,has.flags||{});S.q=Object.assign({gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},has.q||{});S.accU=has.accU||{};
+    S.keys=has.keys||{};S.beaten=has.beaten||{};S.skin=cleanSkin(has.skin);if(!MAPS[S.map])S.map="park";if(!Array.isArray(S.respawn)||S.respawn.length<3||!MAPS[S.respawn[0]])S.respawn=["kebab",4,3];
+    closeOverlay();if(!S.name)await nameScreen();start()};
+   const del=$("sl-del-"+i);let armed=false;del.onclick=()=>{if(!armed){armed=true;del.textContent="⚠️ ¿Seguro? Pulsa otra vez";del.style.background="#c8202a";del.style.color="#fff";setTimeout(()=>{if(del.isConnected){armed=false;del.textContent="🗑 Borrar";del.style.background="";del.style.color=""}},3000);return}
+    try{localStorage.removeItem(SLOT_KEYS[i])}catch(e){}sfx("weak");titleMain()}}
+  else $("sl-new-"+i).onclick=async()=>{useSlot(i);S=freshState();closeOverlay();await nameScreen();start()}}
+ bindVol("t-vol")}
+
+/*</B4INICIO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

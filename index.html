@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="45 · La sombra del Profe";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="46 · Guardaespaldas arreglado y VIP con salas seguras";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -5855,6 +5855,47 @@ TALK2.lolo=async n=>{const had=S.flags.neon;await _loloCut(n);if(!had&&S.flags.n
   await cutaway({scene:"office",title:"Mientras tanto, en un sitio que nadie conoce…",lines:["Pantallas. Decenas de pantallas. En todas, la misma Destiladex: la tuya.","Voz: Tres medallas. Paco, Bob y Lolo… fuera de juego. Tres rivales menos.","Voz: Cada Pedomón que ve el chaval, lo veo yo. Cada uno que captura… lo apunto yo.","Voz: (da una calada larga) Sigue, chaval. Sigue limpiándome el camino.","Voz: Cuando acabes, el país entero será mío. Todo lo que se bebe, se fuma y se lía… pasará por mí."]})}};
 
 /*</B4CINE>*/
+/*<B4FIX3>*/
+/* ===================== ARREGLOS 3: Pedomones sin ataques, guardaespaldas nuevo y Planta VIP con zonas seguras ===================== */
+// ---- Si un Pedomón aparece a un nivel en el que aún no sabe nada (evoluciones a nivel bajo), hereda los ataques de su forma anterior ----
+function preEvos(sp){const out=[];let cur=sp;for(let k=0;k<4;k++){const pre=Object.keys(SP).find(s=>SP[s].evo&&SP[s].evo[1]===cur);if(!pre)break;out.push(pre);cur=pre}return out}
+const _newMonFix=newMon;
+newMon=function(sp,lvl,canShiny){const m=_newMonFix(sp,lvl,canShiny);if(m.moves.length<4){const pool=[];
+    for(const s of[sp,...preEvos(sp)])for(const[l,mv]of SP[s].learn||[])if(l<=lvl&&MV[mv]&&!pool.includes(mv))pool.push(mv);
+    let mv=[...new Set([...m.moves,...pool.reverse()])];if(!mv.length)mv=(SP[sp].learn||[]).map(x=>x[1]).filter(x=>MV[x]);if(!mv.length)mv=["empujon"];m.moves=mv.slice(0,4)}return m};
+// el guardaespaldas Iván cambia de equipo: un Gorilón de portero de discoteca y un Toro Alado
+(function(){const g=NPCS.find(n=>n.id==="guarda");if(g)g.trainer.team=[["gorilon",24],["torito",25]];
+  g.trainer.pre=["Guardaespaldas Iván: El jefe está ocupado.","Guardaespaldas Iván: Llevo ocho años en la puerta de la VIP. Ocho. Nadie ha pasado sin que yo quiera. Mi Gorilón tampoco."]})();
+
+// ---- Planta VIP nueva: tres bandas de láser y, entre cada una, una sala segura donde te espera un aspirante ----
+MAPS.vip.g=rowsGrid([
+  "wwwwwwwwwwwwwwwww",
+  "wkoooooooooooooqw",   // Lolo
+  "wooooooooooooooow",
+  "wwwwwwwoowwwwwwww",
+  "w!!!!!!!!!!!!!!!w",   // banda A
+  "w!!!!!!!!!!!!!!!w",
+  "wwwwwwwwwwwwoowww",
+  "wooooooooooooooow",   // sala segura: guardaespaldas Iván
+  "wwwoowwwwwwwwwwww",
+  "w!!!!!!!!!!!!!!!w",   // banda B
+  "w!!!!!!!!!!!!!!!w",
+  "wwwwwwwwwwwwoowww",
+  "wooooooooooooooow",   // sala segura: crupier Vanesa
+  "wwwoowwwwwwwwwwww",
+  "w!!!!!!!!!!!!!!!w",   // banda C
+  "w!!!!!!!!!!!!!!!w",
+  "wwwwwwwwwwwwoowww",
+  "wooooooooooooooow",   // entrada segura: crupier Óscar
+  "wkoooooooooooooqw",
+  "wwwwwwweewwwwwwww"]);
+MAPS.vip.h=20;MAPS.vip.entry=[7,18,"up"];MAPS.vip.exits={"7,19":["casino",12,3,"down"],"8,19":["casino",12,3,"down"]};
+(function(){const P={crup2:[15,17,"left",10],crup1:[15,12,"left",10],guarda:[15,7,"left",10],lolo:[8,1,"down",0]};
+  for(const id in P){const n=NPCS.find(x=>x.id===id);if(!n)continue;const[x,y,d,s]=P[id];n.x=x;n.y=y;n.dir=d;if(s)n.sight=s}})();
+// todas las bandas se cruzan hacia la izquierda: el hueco seguro viaja hacia la izquierda a ritmo de ir andando
+laserOn=function(x,y,t){t=t===undefined?now():t;const band=y<=5?0:y<=10?1:2;const P=1.45+band*.12;const ph=((t/1000/P)+band*.31+x*.1)%1;return(ph+1)%1<.58};
+
+/*</B4FIX3>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

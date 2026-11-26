@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="71 · Parque acuático de Chuchi, MO Surf, Trenzas Rosi y Gaviota Ladrona";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="72 · Recreativa PASMA INVADERS en la Espuma Party";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8150,6 +8150,84 @@ function gullGame(){return new Promise(res=>{
     raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
 
 /*</B4COSTA3>*/
+/*<B4INVADERS>*/
+/* ===================== RECREATIVA «PASMA INVADERS» (Espuma Party, Costa Cangrejo) ===================== */
+// Mecánicas de matamarcianos clásico con arte propio: formación de polis que baja, disparos con pistola, barricadas, helicóptero de bonus y oleadas.
+(function(){const m=MAPS.espuma;if(m){m.g[1][10]="Ň";m.g[1][11]="Ň";m.txt=Object.assign(m.txt||{},{"Ň":"PASMA INVADERS: la recreativa más disparada de la costa."})}})();
+const _dtInv=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(ch==="Ň"){_dtInv("o",x,y,sx,sy,t,style);px(sx+2,sy-8,12,24,"#0a0a1a");px(sx+2,sy-8,12,3,"#2a6ad0");px(sx+3,sy-4,10,8,"#000");
+  const f=Math.floor(t/250)%2;for(let i=0;i<3;i++)px(sx+4+i*3,sy-3+f,2,2,"#4a8aff");px(sx+7,sy+2,2,2,"#7aff3a");px(sx+5,sy+6,6,3,"#2a2a3a");px(sx+6,sy+6,2,2,"#e23b2a");return}return _dtInv(ch,x,y,sx,sy,t,style)};
+const _intInv=interact;interact=async function(){const[fx,fy]=facing();if(tileAt(fx,fy)==="Ň"){await invMenu();return}return _intInv()};
+const INV_KEY="otraronda_pasmainv_v1";
+function invBoard(){try{return JSON.parse(localStorage.getItem(INV_KEY))||[]}catch(e){return[]}}
+function invAdd(e){const b=invBoard();const i=b.findIndex(q=>q.nm===e.nm&&q.ini===e.ini);if(i>=0){if(b[i].s>=e.s)return;b.splice(i,1)}b.push(e);b.sort((a,c)=>c.s-a.s);try{localStorage.setItem(INV_KEY,JSON.stringify(b.slice(0,15)))}catch(e){}}
+function hsPublishAll(){const st=S.stats||{},hs={};if(st.arcadeBest)hs.pasma=[st.arcadeBest.ini,st.arcadeBest.s];if(st.gullBest)hs.gaviota=[st.gullBest.ini,st.gullBest.s];if(st.invBest)hs.invaders=[st.invBest.ini,st.invBest.s];if(Object.keys(hs).length)try{setMP({hs})}catch(e){}}
+setInterval(()=>{try{for(const o of OTHERS.values()){const h=o.info&&o.info.pr&&o.info.pr.hs&&o.info.pr.hs.invaders;if(Array.isArray(h)&&typeof h[1]==="number"&&h[1]>0&&h[1]<1e7)invAdd({ini:String(h[0]||"???").replace(/[^A-Z0-9]/gi,"").slice(0,3).toUpperCase()||"???",s:Math.floor(h[1]),nm:cleanName(o.info.nm)||"Colega",friend:true})}}catch(e){}},4000);
+setTimeout(hsPublishAll,7000);
+async function invMenu(){while(true){const i=await choose("🕹️ PASMA INVADERS · 2 pavos. La Ley Seca baja en formación. Muévete, dispara con el AK y usa la RÁFAGA de 3 balas cuando esté cargada.",[{label:"▶️ Jugar",sub:"2 pavos",disabled:S.money<2},{label:"🏆 Récords"},{label:"❓ Cómo se juega"},{label:"👋 Dejarlo"}],{cols:1});
+  if(i===0){S.money-=2;save();await invGame()}else if(i===1)await invTop();else if(i===2)await sayAll(["◀ ▶ (o A/D, o tocar a los lados): moverte.  Z / Enter / botón 🔫: un disparo.  X / Espacio / botón 💥: RÁFAGA de 3 balas en abanico (se recarga sola).","Los polis bajan cada vez que tocan un borde y van más rápido cuanto menos quedan. Si llegan abajo, se acabó.","Escóndete detrás de las sombrillas y los barriles, pero se rompen. El helicóptero del Comisario da muchos puntos."]);else return}}
+function invTop(){return new Promise(res=>{const b=invBoard();const close=()=>{closeOverlay();res()};
+  overlay(`<div class="qbox" style="font-family:monospace"><h2 style="margin:0;color:#4a8aff;text-align:center">🏆 RÉCORDS · PASMA INVADERS</h2>
+   ${b.length?b.slice(0,10).map((e,i)=>`<div style="display:flex;justify-content:space-between;font-size:18px;color:${i===0?"#ffd14a":"#f4e7d4"}"><span>${i+1}. <b>${esc(e.ini)}</b> <small style="opacity:.65">${esc(e.nm)}${e.friend?" 👥":""}</small></span><b>${e.s}</b></div>`).join(""):'<p style="text-align:center">Nadie ha jugado todavía. Sé el primero.</p>'}
+   <p style="font-size:12px;text-align:center">👥 = puntuación de un colega (cuando estáis conectados a la vez).</p><div class="qrow"><button class="big" type="button" id="iv-x">Cerrar</button></div></div>`,{onB:close,focusId:"iv-x"});$("iv-x").onclick=close})}
+function invGame(){return new Promise(res=>{
+  overlay(`<div class="qbox" style="max-width:440px;margin:0 auto"><canvas id="iv-c" width="320" height="440" style="width:100%;border-radius:10px;background:#05060f;touch-action:none"></canvas>
+   <div class="qrow"><button class="big alt" type="button" id="iv-l">◀</button><button class="big" type="button" id="iv-f">🔫</button><button class="big" type="button" id="iv-b">💥</button><button class="big alt" type="button" id="iv-r">▶</button></div></div>`,{onB:()=>{}});
+  const c=$("iv-c"),x=c.getContext("2d");const W=320,H=440;
+  let px0=160,held=0,lives=3,score=0,wave=1,alive=true,last=performance.now(),raf=0,shots=[],ebul=[],fx=[],burst=1,dir=1,stepT=0,heli=null,heliT=12,cool=0,inv=0;
+  let cops=[],bunk=[];
+  const makeWave=()=>{cops=[];for(let r=0;r<5;r++)for(let k=0;k<8;k++)cops.push({r,k,x:40+k*32,y:60+r*26+Math.min(60,(wave-1)*10),alive:true,type:r===0?2:r<3?1:0});dir=1;
+    bunk=[];for(let b=0;b<4;b++)for(let i=0;i<6;i++)for(let j=0;j<3;j++)bunk.push({x:34+b*76+i*6,y:350+j*6,hp:2,b})};
+  makeWave();
+  const kd=e=>{const k=e.key;if(["ArrowLeft","a","A"].includes(k))held=-1;else if(["ArrowRight","d","D"].includes(k))held=1;else if(["z","Z","Enter"].includes(k))fire();else if(["x","X"," "].includes(k))fireBurst();else return;e.preventDefault();e.stopPropagation()};
+  const ku=e=>{if(["ArrowLeft","a","A","ArrowRight","d","D"].includes(e.key)){held=0;e.stopPropagation()}};
+  addEventListener("keydown",kd,true);addEventListener("keyup",ku,true);
+  const hold=d=>()=>{held=d};$("iv-l").onpointerdown=hold(-1);$("iv-r").onpointerdown=hold(1);for(const id of["iv-l","iv-r"]){$(id).onpointerup=$(id).onpointerleave=()=>{held=0}}
+  $("iv-f").onpointerdown=()=>fire();$("iv-b").onpointerdown=()=>fireBurst();
+  c.onpointerdown=e=>{const r=c.getBoundingClientRect(),xx=e.clientX-r.left;if(xx<r.width*.33)held=-1;else if(xx>r.width*.66)held=1;else fire()};c.onpointerup=()=>{held=0};
+  function fire(){if(!alive||cool>0)return;if(shots.filter(s=>!s.b).length>=2)return;shots.push({x:px0+10,y:H-58,vx:0,b:false});cool=.18;sfx("sel")}
+  function fireBurst(){if(!alive||burst<1)return;burst=0;for(const vx of[-90,0,90])shots.push({x:px0+10,y:H-58,vx,b:true});sfx("throw")}
+  const cop=(cx,cy,type,t)=>{const f=Math.floor(t/400+cx)%2;x.fillStyle=["#2a4ab0","#1a3a8a","#0a1a4a"][type];x.fillRect(cx-9,cy-4,18,14);x.fillStyle="#f1c27d";x.fillRect(cx-6,cy-12,12,9);
+    x.fillStyle=type===2?"#1a1a1a":"#0a1a4a";x.fillRect(cx-8,cy-16,16,5);x.fillStyle="#ffd14a";x.fillRect(cx-2,cy-15,4,3);x.fillStyle="#1a1a1a";x.fillRect(cx-4,cy-9,2,2);x.fillRect(cx+2,cy-9,2,2);
+    if(type===2){x.fillStyle="rgba(180,220,255,.6)";x.fillRect(cx-7,cy-11,14,4)}x.fillStyle="#0a0a1a";x.fillRect(cx-8,cy+10,6,f?5:3);x.fillRect(cx+2,cy+10,6,f?3:5);x.fillStyle="#3a3a3a";x.fillRect(cx+8,cy+2,6,3)};
+  const player=(cx,t)=>{const y=H-40;x.fillStyle="#f8a8a0";x.beginPath();x.arc(cx,y-14,8,0,7);x.fill();x.fillStyle="#3a2a1a";x.fillRect(cx-8,y-23,16,5);x.fillStyle=inv>0&&Math.floor(t/80)%2?"#ffffff":"#e23b2a";x.fillRect(cx-10,y-6,20,16);x.fillStyle="#2a4a8a";x.fillRect(cx-9,y+10,8,8);x.fillRect(cx+1,y+10,8,8);
+    x.fillStyle="#2a2a2a";x.fillRect(cx+6,y-20,4,22);x.fillStyle="#6a4a2a";x.fillRect(cx+5,y-2,6,8);x.fillStyle="#2a2a2a";x.fillRect(cx+9,y-12,6,6)};
+  const boom=(bx,by,cap)=>{for(let i=0;i<10;i++)fx.push({x:bx,y:by,vx:(Math.random()-.5)*160,vy:(Math.random()-.8)*160,l:.6,c:i%2?"#c8c8d0":"#ffd14a"});if(cap)fx.push({x:bx,y:by-10,vx:(Math.random()-.5)*60,vy:-140,l:1.1,cap:true});fx.push({x:bx,y:by,txt:"¡PUF!",l:.7,vx:0,vy:-30})};
+  const end=async()=>{alive=false;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);sfx("weak");const s=Math.floor(score);S.stats=S.stats||{};const pay=Math.min(20,Math.floor(s/300));if(pay)S.money+=pay;save();
+    let ini=(S.stats.invBest&&S.stats.invBest.ini)||(S.name||"YOU").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+    await new Promise(r2=>{overlay(`<div class="qbox" style="text-align:center"><h2 style="margin:0;color:#4a8aff">🚔 ¡LA LEY SECA TE HA PILLADO!</h2><p style="font-size:26px;color:#ffd14a;margin:0"><b>${s}</b> puntos · oleada ${wave}</p><p style="margin:0">${pay?`Te llevas ${pay} pavos.`:"Sin premio esta vez."}</p>
+      <p style="margin:0">Tus iniciales:</p><input class="qin" id="iv-i" maxlength="3" value="${esc(ini)}" style="width:120px;text-transform:uppercase"><div class="qrow"><button class="big" type="button" id="iv-ok">Guardar</button></div></div>`,{focusId:"iv-ok"});
+      const inp=$("iv-i");inp.onkeydown=e=>e.stopPropagation();$("iv-ok").onclick=()=>{ini=(inp.value||"???").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase()||"???";r2()}});
+    if(!S.stats.invBest||s>S.stats.invBest.s)S.stats.invBest={ini,s};else S.stats.invBest.ini=ini;save();invAdd({ini,s,nm:S.name||"Tú"});hsPublishAll();closeOverlay();await invTop();res()};
+  const tick=nw=>{const dt=Math.min(.05,(nw-last)/1000);last=nw;if(!c.isConnected){removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);res();return}
+    if(alive){px0=Math.max(16,Math.min(W-16,px0+held*170*dt));cool=Math.max(0,cool-dt);burst=Math.min(1,burst+dt/4);inv=Math.max(0,inv-dt);
+      const live=cops.filter(q=>q.alive);const speed=.55-.45*(1-live.length/40)-Math.min(.25,(wave-1)*.04);stepT+=dt;
+      if(stepT>Math.max(.06,speed)){stepT=0;let edge=false;for(const q of live){if((dir>0&&q.x>W-16)||(dir<0&&q.x<16))edge=true}
+        if(edge){dir*=-1;for(const q of live)q.y+=12}else for(const q of live)q.x+=dir*6;sfx("sel")}
+      // disparan los de abajo de cada columna
+      if(live.length&&Math.random()<dt*(1+wave*.35)){const cols={};for(const q of live)if(!cols[q.k]||cols[q.k].y<q.y)cols[q.k]=q;const sh=Object.values(cols)[Math.floor(Math.random()*Object.keys(cols).length)];ebul.push({x:sh.x+10,y:sh.y+4})}
+      heliT-=dt;if(!heli&&heliT<=0){heli={x:-30,v:70};heliT=14+Math.random()*8}if(heli){heli.x+=heli.v*dt;if(heli.x>W+30)heli=null}
+      for(const s of shots){s.y-=420*dt;s.x+=s.vx*dt}for(const b of ebul)b.y+=200*dt;
+      for(const s of shots){if(s.dead)continue;for(const q of live)if(Math.abs(s.x-q.x)<11&&Math.abs(s.y-q.y)<14){q.alive=false;s.dead=true;score+=[10,20,40][q.type]*wave;boom(q.x,q.y,true);sfx("hit");break}
+        if(!s.dead&&heli&&Math.abs(s.x-heli.x)<18&&Math.abs(s.y-30)<10){s.dead=true;score+=300;boom(heli.x,30,false);heli=null;sfx("quest")}
+        if(!s.dead)for(const k of bunk)if(k.hp>0&&Math.abs(s.x-k.x-3)<5&&Math.abs(s.y-k.y-3)<5){k.hp--;s.dead=true;break}}
+      for(const b of ebul){if(b.dead)continue;for(const k of bunk)if(k.hp>0&&Math.abs(b.x-k.x-3)<5&&Math.abs(b.y-k.y-3)<5){k.hp--;b.dead=true;break}
+        if(!b.dead&&inv<=0&&Math.abs(b.x-px0)<11&&b.y>H-62&&b.y<H-20){b.dead=true;lives--;inv=1.5;FX.shake=now()+200;sfx("weak");if(lives<=0){end();return}}}
+      shots=shots.filter(s=>!s.dead&&s.y>-10&&s.x>-10&&s.x<W+10);ebul=ebul.filter(b=>!b.dead&&b.y<H);
+      for(const q of live)if(q.alive&&q.y>H-80){end();return}
+      if(!cops.some(q=>q.alive)){wave++;score+=200;makeWave();sfx("quest");fx.push({x:W/2,y:H/2,txt:"¡OLEADA "+wave+"!",l:1.4,vx:0,vy:0})}}
+    // dibujo
+    x.fillStyle="#05060f";x.fillRect(0,0,W,H);for(let i=0;i<40;i++){x.fillStyle=i%3?"#2a2a4a":"#6a6a9a";x.fillRect((i*73)%W,(i*131+nw/40)%H,1,1)}
+    if(heli){const hx=heli.x;x.fillStyle="#2a4ab0";x.fillRect(hx-14,24,28,12);x.fillStyle="#9fd0f0";x.fillRect(hx+4,26,8,6);x.fillStyle="#1a1a1a";x.fillRect(hx-26,28,14,3);x.fillRect(hx-20,20+(Math.floor(nw/60)%2)*2,40,2);x.fillStyle=Math.floor(nw/150)%2?"#ff3a3a":"#3a6aff";x.fillRect(hx-4,22,8,3)}
+    for(const q of cops)if(q.alive)cop(q.x,q.y,q.type,nw);
+    for(const k of bunk)if(k.hp>0){x.fillStyle=k.hp>1?(k.b%2?"#c8202a":"#a8743a"):(k.b%2?"#7a1a1a":"#6a4a2a");x.fillRect(k.x,k.y,6,6)}
+    for(const s of shots){x.fillStyle=s.b?"#ff8a2a":"#ffe23a";x.fillRect(s.x-1,s.y,3,8)}for(const b of ebul){x.fillStyle="#7af0ff";x.fillRect(b.x-1,b.y,2,6)}
+    for(const f of fx){f.l-=dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=(f.cap?260:0)*dt;if(f.txt){x.fillStyle="#ffffff";x.font="bold 12px monospace";x.textAlign="center";x.fillText(f.txt,f.x,f.y)}else if(f.cap){x.fillStyle="#0a1a4a";x.fillRect(f.x-6,f.y-3,12,4);x.fillStyle="#ffd14a";x.fillRect(f.x-1,f.y-3,3,2)}else{x.fillStyle=f.c;x.fillRect(f.x,f.y,3,3)}}fx=fx.filter(f=>f.l>0);
+    player(px0,nw);x.fillStyle="#2a6ad0";x.fillRect(0,H-14,W,2);
+    x.fillStyle="#ffffff";x.font="bold 14px monospace";x.textAlign="left";x.fillText("PUNTOS "+Math.floor(score),8,16);x.textAlign="right";x.fillText("♥".repeat(Math.max(0,lives))+"  OLEADA "+wave,W-8,16);
+    x.fillStyle="#3a3a5a";x.fillRect(8,H-10,80,6);x.fillStyle=burst>=1?"#ff8a2a":"#a85a1a";x.fillRect(8,H-10,80*burst,6);x.fillStyle="#ffffff";x.font="9px monospace";x.textAlign="left";x.fillText(burst>=1?"RÁFAGA LISTA (X)":"cargando ráfaga…",92,H-4);
+    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+
+/*</B4INVADERS>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

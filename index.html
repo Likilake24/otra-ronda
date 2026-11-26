@@ -1654,11 +1654,11 @@ function say(text){
     dlg.onclick=()=>{if(pending&&pending.key)pending.key("a")};
   });
 }
-function choose(text,opts,{cancel=true,cols=2,info=null}={}){
+function choose(text,opts,{cancel=true,cols=2,info=null,start=-1}={}){
   return new Promise(res=>{
     dlg.hidden=false;dlg.classList.remove("wait");dlg.onclick=null;dlgText.textContent=text;dlgOpts.innerHTML="";dlgInfo.innerHTML="";
     dlgOpts.className=cols===1?"one":"";
-    let idx=opts.findIndex(o=>!o.disabled);if(idx<0)idx=0;
+    let idx=start>=0&&opts[start]&&!opts[start].disabled?start:opts.findIndex(o=>!o.disabled);if(idx<0)idx=0;
     const btns=opts.map((o,i)=>{const b=document.createElement("button");b.className="opt";b.type="button";b.id="opt-"+i;
       b.innerHTML=`<span class="l">${o.label}</span>${o.chip?chipH(o.chip):""}${o.sub?`<small class="${o.subCls||""}">${o.sub}</small>`:""}`;
       if(o.disabled)b.disabled=true;
@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="40 · Combates que no se cuelgan y chistes nuevos";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="41 · Tienda con cantidades";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -5641,6 +5641,38 @@ let STUCK=0;
 setInterval(async()=>{if(mode==="battle"&&!busy&&!pending&&ov.hidden){if(!STUCK)STUCK=now();else if(now()-STUCK>1500){STUCK=0;
     try{await battleOutro()}catch(e){}mode="world";closeDlg();if(S){S.team.forEach(m=>delete m.v);save()}
     toast("⚠️ El combate se había colgado y lo he cerrado. Vuelve a hablar con el entrenador."+(LAST_ERR?" (Error: "+LAST_ERR.slice(0,70)+")":""));LAST_ERR=null}}else STUCK=0},500);
+
+// ---- Tienda: elige cuántas unidades quieres (número editable) y el cursor se queda donde estaba ----
+(function(){const st=document.createElement("style");st.textContent=`#ov .in:has(.qbox){max-width:440px;margin-top:12vh}
+.qbox{background:linear-gradient(180deg,#2a1f17,#1a130e);border:3px solid #5a4230;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.qrow{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}.qrow button{min-width:48px}
+.qin{width:90px;font:800 26px Rubik,Arial;text-align:center;background:#120e0b;color:#ffd14a;border:2px solid #f2a93b;border-radius:10px;padding:4px}
+.qtot{text-align:center;font-size:18px;color:#f4e7d4}.qtot b{color:#ffd14a}`;document.head.appendChild(st)})();
+function qtyPicker(k){return new Promise(res=>{const it=ITEMS[k],max=Math.max(0,Math.floor(S.money/it.price));let q=Math.min(1,max);
+  const done=v=>{closeOverlay();res(v)};
+  overlay(`<div class="qbox"><h2 style="font-size:22px;margin:0">${esc(it.n)}</h2><p style="margin:0">${esc(it.d)}</p>
+    <p style="margin:0;font-size:13px">${it.price} pavos cada uno · tienes ${S.bag[k]||0} · te llega para ${max}</p>
+    <div class="qrow"><button class="big alt" type="button" id="q-m10">−10</button><button class="big alt" type="button" id="q-m1">−1</button>
+      <input class="qin" id="q-in" type="number" inputmode="numeric" min="1" max="${max}" value="${q}">
+      <button class="big alt" type="button" id="q-p1">+1</button><button class="big alt" type="button" id="q-p10">+10</button></div>
+    <div class="qtot" id="q-t"></div>
+    <div class="qrow"><button class="big" type="button" id="q-ok">🛒 Comprar</button><button class="big alt" type="button" id="q-max">Máximo</button><button class="big alt" type="button" id="q-x">Cancelar</button></div></div>`,{onB:()=>done(0),focusId:"q-ok"});
+  const inp=$("q-in");const upd=()=>{q=Math.max(max?1:0,Math.min(max,Math.floor(+q||0)));inp.value=q;$("q-t").innerHTML=`${q} × ${it.price} = <b>${q*it.price} pavos</b> · te quedan ${S.money-q*it.price}`;$("q-ok").disabled=!q};
+  const add=d=>{q=(+inp.value||0)+d;upd();sfx("sel")};
+  $("q-m10").onclick=()=>add(-10);$("q-m1").onclick=()=>add(-1);$("q-p1").onclick=()=>add(1);$("q-p10").onclick=()=>add(10);$("q-max").onclick=()=>{q=max;upd();sfx("sel")};
+  inp.oninput=()=>{q=inp.value;const v=Math.floor(+q||0);$("q-t").innerHTML=`${Math.min(v,max)} × ${it.price} = <b>${Math.min(v,max)*it.price} pavos</b>`};inp.onchange=()=>{q=inp.value;upd()};
+  inp.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){q=inp.value;upd();if(q)done(q)}};
+  $("q-ok").onclick=()=>{q=inp.value;upd();if(q)done(q)};$("q-x").onclick=()=>done(0);upd()})}
+shop=async function(V){V=V||CHEN;await say(V.hi);let lc=0;
+  while(true){const cats=Object.keys(SHOP);
+    const c=await choose(`${V.n}: ¿Qué necesitas? Tienes ${S.money} pavos.`,[...cats.map(k=>({label:k})),{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1,start:lc});
+    if(c>=0&&c<cats.length)lc=c;
+    if(c===cats.length){await say(V.lines?pick(V.lines):pick(["Chen: Richard y yo compartimos mostrador. Él pone el estilo, yo pongo la factura.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga en monedas de 5 céntimos. Contadas en el mostrador. Una a una. Delante de la cola."]));continue}
+    if(c<0||c===cats.length+1){await say(V.bye);return}
+    const ks=SHOP[cats[c]];let li=0;
+    while(true){const i=await choose(`${cats[c]} · Tienes ${S.money} pavos`,[...ks.map(k=>({label:ITEMS[k].n,sub:`${ITEMS[k].price} pavos · tienes ${S.bag[k]||0}`,disabled:S.money<ITEMS[k].price})),{label:"⬅️ Volver"}],{cols:1,start:li,info:i=>i<ks.length?ITEMS[ks[i]].d:""});
+      if(i<0||i===ks.length)break;li=i;const k=ks[i];const q=await qtyPicker(k);
+      if(q>0&&S.money>=q*ITEMS[k].price){S.money-=q*ITEMS[k].price;S.bag[k]=(S.bag[k]||0)+q;save();sfx("buy");toast(`+${q} ${ITEMS[k].n} · quedan ${S.money} pavos`)}}}};
 
 /*</B4DRUNK>*/
 /*B4END*/

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="75 · Evoluciones coherentes y 32 terceras fases nuevas";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="76 · Arreglos de la batería de pruebas";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8457,7 +8457,10 @@ const _ql5=questLines;questLines=function(){const L=_ql5();
 const _hassanAgain=TALK2.hassan;TALK2.hassan=async()=>{if(S.flags.marruecos&&!S.flags.profe){await invitacion();return}return _hassanAgain()};
 
 const _gz5=grassZones;grassZones=function(){if(S.map==="hoyales")return[[ZONES.HY,"Hoyales · las eras",true]];return _gz5()};
-const _we5=wildEncounter;wildEncounter=async function(){if(S.map==="hoyales"){const z=ZONES.HY;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _we5()};
+const _we5=wildEncounter;wildEncounter=async function(){if(S.map==="hoyales"){const z=ZONES.HY;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _we5()};// diálogos que faltaban (encontrados en la batería de pruebas)
+TALK2.bartolo=async()=>{await say(pick(["Bartolo el Pintor: Chsss… espera a que se ponga el sol. Acércate al mirador, que la luz buena dura poco.","Bartolo el Pintor: Pinto con vino. El agua es para los cobardes. Y para la Pasma."]))};
+for(const id of["tpoli1","tpoli2","tpoli3"])TALK2[id]=async()=>{await say(pick(["Agente: ¡Circule! Estamos requisando esta estufa por orden de la Ley Seca.","Agente: ¿Fumar en terraza? ¡Multa! ¿Respirar cerca de una terraza? ¡También multa!","Agente: Esta estufa no funciona. A ver si le doy al máximo…"]))};
+
 /*</B4ACTO5>*/
 /*<B4PIXEVO>*/
 /* ===================== EVOLUCIONES COHERENTES + TERCERAS FASES NUEVAS ===================== */

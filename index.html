@@ -19,21 +19,21 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 #screen{position:relative;border:3px solid var(--line);border-radius:8px;overflow:hidden;background:#000;font-family:var(--body);font-weight:500;font-variant-numeric:tabular-nums;font-size:var(--fs);flex:none;box-shadow:0 0 40px rgba(242,169,59,.08)}
 #cv{display:block;width:100%;height:100%;image-rendering:pixelated}
 [hidden]{display:none!important}
-#dlg{position:absolute;left:2%;right:2%;bottom:2.5%;background:var(--panel);border:3px solid var(--line);border-radius:6px;padding:.45em .7em .55em;line-height:1.3;min-height:31%;max-height:95%;display:flex;flex-direction:column;z-index:5}
+#dlg{position:absolute;left:2%;right:2%;bottom:2.5%;background:linear-gradient(180deg,rgba(42,31,23,.97),rgba(26,19,14,.97));border:3px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);padding:.45em .75em .55em;line-height:1.3;min-height:22%;max-height:95%;display:flex;flex-direction:column;z-index:5}
 #dlgText{white-space:pre-wrap;min-height:1.3em}
 #dlgInfo{font-size:.78em;color:var(--muted);line-height:1.25;margin-top:.15em}
 #dlgInfo:empty{display:none}
 #dlgInfo b{color:var(--amber);font-weight:500}
 #dlg.wait::after{content:"▼";position:absolute;right:.55em;bottom:.25em;color:var(--amber);animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
-#dlgOpts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.3em;margin-top:.35em;overflow:auto;max-height:calc(var(--sh) * .58)}
-#dlgOpts.one{grid-template-columns:1fr}
+#dlgOpts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.28em;margin-top:.35em;overflow:auto;max-height:calc(var(--sh) * .44)}
+#dlgOpts.one{grid-template-columns:1fr;width:min(100%,30em);margin-left:auto}
 #dlgOpts:empty{display:none}
-.opt{font:inherit;font-size:.86em;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:4px;padding:.18em .45em;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:.4em;align-items:center;min-width:0}
+.opt{font:inherit;font-size:.8em;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:8px;padding:.14em .5em;transition:transform .08s,background .08s;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:.4em;align-items:center;min-width:0}
 .opt span.l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
 .opt small{font-size:.8em;color:var(--muted);white-space:nowrap}
 .opt small.x2{color:var(--good)}.opt small.xh{color:var(--bad)}
-.opt.sel,.opt:focus-visible{border-color:var(--amber);outline:none;background:#3a2a1c}
+.opt.sel,.opt:focus-visible{border-color:var(--amber);outline:none;background:#4a321c;transform:translateX(3px)}.opt.sel span.l::before{content:"▶ ";color:var(--amber)}
 .opt[disabled]{opacity:.42}
 .tchip{font-size:.7em;padding:0 .45em;border-radius:99px;color:#1a120c;white-space:nowrap;font-family:var(--body);font-weight:700;line-height:1.5}
 .hud{position:absolute;background:rgba(31,23,18,.93);border:2px solid var(--line);border-radius:5px;padding:.2em .45em .3em;font-size:.76em;width:47%;z-index:3;transition:transform .4s ease-out}
@@ -54,7 +54,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);overf
 #ov{position:fixed;inset:0;z-index:30;background:rgba(13,10,8,.97);overflow:auto;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-top:calc(env(safe-area-inset-top,0px) + 20px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px)}
-#ov .in{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+#ov .in:has(.csn){max-width:1180px}#ov .in{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 #ov h2{font-family:var(--display);color:var(--amber);margin:0;font-size:28px;text-wrap:balance}
 #ov p{margin:0;color:var(--muted)}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -1158,12 +1158,15 @@ monSprite=function(spId,mode,shiny){const s=SP[spId];if(s&&s.vec)return vecSprit
 /*</B4MONS>*/
 const DEX_ORDER=Object.keys(SP);
 const ITEMS={
- abre:{n:"Abrebotellas",price:10,kind:"ball",fam:"bodega",mult:1,d:"Para capturar Copamones (bebidas)."},
- mechero:{n:"Mechero",price:10,kind:"ball",fam:"estanco",mult:1,d:"Para capturar Pitimones (tabaco)."},
- grinder:{n:"Grinder",price:10,kind:"ball",fam:"huerto",mult:1,d:"Para capturar Porromones (lo verde)."},
- abreoro:{n:"Abrebotellas de Oro",price:30,kind:"ball",fam:"bodega",mult:1.8,d:"Captura Copamones mucho más fácil."},
- zippo:{n:"Zippo",price:30,kind:"ball",fam:"estanco",mult:1.8,d:"Captura Pitimones mucho más fácil."},
- grinder4:{n:"Grinder de 4 pisos",price:30,kind:"ball",fam:"huerto",mult:1.8,d:"Captura Porromones mucho más fácil."},
+ rino:{n:"Riñonera",price:12,kind:"ball",fam:"*",mult:1,d:"Vale para capturar cualquier Pedomón: bebidas, tabaco y lo verde. Probabilidad normal (×1)."},
+ rinomarca:{n:"Riñonera de marca",price:35,kind:"ball",fam:"*",mult:1.5,d:"Riñonera buena, de las del Decathlon. Vale para todo. Probabilidad ×1,5."},
+ rinogucci:{n:"Riñonera Gucci",price:70,kind:"ball",fam:"*",mult:2,d:"Riñonera de lujo (o eso pone). Vale para todo. Probabilidad ×2."},
+ abre:{n:"Abrebotellas",price:10,kind:"ball",fam:"bodega",mult:1.5,d:"Solo para Copamones (bebidas), pero con ellos funciona mejor que una Riñonera: ×1,5."},
+ mechero:{n:"Mechero",price:10,kind:"ball",fam:"estanco",mult:1.5,d:"Solo para Pitimones (tabaco), pero con ellos funciona mejor que una Riñonera: ×1,5."},
+ grinder:{n:"Grinder",price:10,kind:"ball",fam:"huerto",mult:1.5,d:"Solo para Porromones (lo verde), pero con ellos funciona mejor que una Riñonera: ×1,5."},
+ abreoro:{n:"Abrebotellas de Oro",price:30,kind:"ball",fam:"bodega",mult:2.2,d:"Solo para Copamones. Lo mejor para bebidas: ×2,2."},
+ zippo:{n:"Zippo",price:30,kind:"ball",fam:"estanco",mult:2.2,d:"Solo para Pitimones. Lo mejor para tabaco: ×2,2."},
+ grinder4:{n:"Grinder de 4 pisos",price:30,kind:"ball",fam:"huerto",mult:2.2,d:"Solo para Porromones. Lo mejor para lo verde: ×2,2."},
  agua:{n:"Agua con limón",price:8,kind:"heal",amt:20,d:"Cura 20 PV."},
  caldito:{n:"Caldito de la abuela",price:20,kind:"heal",amt:60,d:"Cura 60 PV. Como en casa."},
  ibu:{n:"Ibuprofeno",price:45,kind:"heal",amt:9999,d:"Cura toda la vida. Mano de santo."},
@@ -1173,7 +1176,7 @@ const ITEMS={
 };
 const KEYS_IT={gorra:{n:"📸 Foto del Chusta",d:"Los maderos poniendo el precinto falso. El Chusta sale meando de fondo."},placa:{n:"🧾 Recibo de los precintos",d:"El Agente Pérez compró 40 precintos y donuts el día ANTES de la inspección."},
  walkie:{n:"📻 Walkie de La Pasma",d:"Se oye a los maderos diciendo que el precinto del bar es falso. Pillados."},chapa:{n:"🏅 Chapa del Bar de Paco",d:"La primera chapa. Has echado a La Pasma y le has ganado a Paco en su propio bar."}};
-const SHOP={"🥙 Curas":["agua","caldito","ibu","suero"],"🍾 Capturas":["abre","mechero","grinder","abreoro","zippo","grinder4"],"⚡ Especiales":["redbull","pino"]};
+const SHOP={"🥙 Curas":["agua","caldito","ibu","suero"],"🎒 Capturas":["rino","rinomarca","rinogucci","abre","mechero","grinder","abreoro","zippo","grinder4"],"⚡ Especiales":["redbull","pino"]};
 function statsOf(m){const b=SP[m.sp].b,L=m.lvl;return{hp:Math.floor(b[0]*2*L/100)+L+10,atk:Math.floor(b[1]*2*L/100)+5,def:Math.floor(b[2]*2*L/100)+5,spd:Math.floor(b[3]*2*L/100)+5}}
 function maxhp(m){return statsOf(m).hp}
 function toNext(L){return Math.floor(10+L*L*1.3+L*6)}   // cada nivel cuesta más que el anterior
@@ -1544,7 +1547,7 @@ const MAP=()=>MAPS[S.map];
 /* ===================== ESTADO ===================== */
 const SAVE_KEY="barralibre_demo_v1";
 let S=null;
-function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{abre:8,mechero:7,grinder:4,agua:3},money:60,tms:{},repel:0,keys:{},
+function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{rino:6,abre:3,mechero:3,grinder:2,agua:3},money:60,tms:{},repel:0,keys:{},
   flags:{starter:false,chusta:false,poli:false,started:false,barIn:false,gym:false},q:{gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},accU:{},beaten:{},seen:{},caught:{},rivalSp:null,respawn:["kebab",4,3]}}
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));return true}catch(e){return false}}
 function loadSave(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null}catch(e){return null}}
@@ -1660,7 +1663,7 @@ function choose(text,opts,{cancel=true,cols=2,info=null}={}){
       b.innerHTML=`<span class="l">${o.label}</span>${o.chip?chipH(o.chip):""}${o.sub?`<small class="${o.subCls||""}">${o.sub}</small>`:""}`;
       if(o.disabled)b.disabled=true;
       b.onclick=e=>{e.stopPropagation();if(!opts[i].disabled)done(i)};
-      b.onpointerenter=()=>{if(!opts[i].disabled){idx=i;mark(true)}};
+      b.onpointermove=e=>{if(e.pointerType==="mouse"&&!opts[i].disabled&&idx!==i){idx=i;mark(true)}};
       dlgOpts.appendChild(b);return b});
     function mark(quiet){btns.forEach((b,i)=>b.classList.toggle("sel",i===idx));if(btns[idx])btns[idx].scrollIntoView({block:"nearest"});if(info)dlgInfo.innerHTML=info(idx)||"";if(!quiet)sfx("sel")}
     mark(true);
@@ -1732,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="38 · Combates en HD, partidos de verdad y Ciudad Neón pulida";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="39 · Riñoneras, ruleta de verdad, barra de Paco y luz de día";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -2055,6 +2058,7 @@ async function interact(){
   if(t==="R"){await say(pick(["Una roca enorme. Alguien ha escrito con tiza: «Bob estuvo aquí. Y se quedó dormido».","Una roca gigante. No se puede escalar. Bueno, se puede, pero no con esas zapatillas de Saray."]));return}
   if(t==="j"){await say("Un escalón de tierra. Desde arriba se baja de un salto. Desde abajo no hay manera de subir.");return}
   if(t==="n"){await say("El Puente de los Suspiros. Cruje un poco. Bastante.");return}
+  if(t==="J"&&S.map==="bar"){await say("La gramola del bar. Al lado hay una placa dorada: «MONUMENTO AL BAR DE PACO. 37 años abiertos. 3 inspecciones. 0 multas pagadas. 1 cliente que entró en 1989 y todavía no se ha ido (Manolo)».");return}
   if(t==="J"){await say("El Monumento a la Hoja. En la placa pone: «A todos los que vinieron a Ganja Life a pasar un finde y se quedaron 30 años».");return}
   if(t==="P"){await say(pick(["Una palmera. Nadie sabe quién la plantó. Ni cómo sobrevive al invierno.","Una palmera con un coco… que resulta ser una pelota de fútbol pinchada."]));return}
   if(t==="S"){const s=m.signs[fx+","+fy];if(s==="TABLÓN"){await tablon();return}await say(s||"Un cartel ilegible.");return}
@@ -2133,9 +2137,9 @@ async function talk(n){
   if(TALK2[id]){await TALK2[id](n);return}
   if(id==="dealer"){
     if(!S.flags.starter){await intro();return}
-    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Que si el negocio va bien? Va de lujo. ¿Por qué? Porque hablé con Salva.","El Porrosor: ¿Has estado en la Ganja Life? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Ganja Life tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
+    if(S.flags.gym){await say(S.flags.comunaIn?pick(["El Porrosor: ¿Has estado en la Ganja Life? Saluda a Bob de mi parte. Me debe una semilla desde el 2003.","El Porrosor: Los Pedomones de hierba de La Senda son muy tranquilos. Atrápalos con el Grinder, con cariño."]):"El Porrosor: Has reabierto el Bar de Paco. Sabía que eras de fiar. Ahora los hippies de la Ganja Life tienen problemas con La Pasma: sigue la calle hacia la derecha, por La Senda.");return}
     if(S.flags.started&&!S.flags.poli){await sayAll(["El Porrosor: ¿El Bar de Paco precintado? Eso es un montaje de La Pasma como una casa.","El Porrosor: Busca pruebas por el barrio. Abdul, Richard y Saray siempre se enteran de todo.","El Porrosor: Lo tienes apuntado en el Menú, en Misiones. Yo no te he dicho nada, ¿eh?"]);return}
-    await say(pick(["El Porrosor: Yo antes vendía semillas y me iba fatal. Hablé con Salva y ahora soy el Porrosor. Todo va bien.","El Porrosor: Abrebotellas para las bebidas, Mechero para el tabaco y Grinder para lo verde. No me hagas repetírtelo.","El Porrosor: ¿Has visto al Chusta? Me debe 20 pavos. Y una disculpa.","El Porrosor: Hay un sitio al oeste, El Descampado. Ahí se juntan los chavales a pegarse… con Pedomones.","El Porrosor: La Abuela Remedios vive al lado del kebab. Si la ayudas, te da cosas buenas. Y caldito."]));return}
+    await say(pick(["El Porrosor: Abrebotellas para las bebidas, Mechero para el tabaco y Grinder para lo verde. No me hagas repetírtelo.","El Porrosor: ¿Has visto al Chusta? Me debe 20 pavos. Y una disculpa.","El Porrosor: Hay un sitio al oeste, El Descampado. Ahí se juntan los chavales a pegarse… con Pedomones.","El Porrosor: La Abuela Remedios vive al lado del kebab. Si la ayudas, te da cosas buenas. Y caldito."]));return}
   if(id==="chusta"){
     if(!S.flags.chusta){await chustaEvent();return}
     if(S.q.gorra===1){
@@ -2144,13 +2148,13 @@ async function talk(n){
       if(win){S.keys.gorra=true;S.q.gorra=2;sfx("quest");save();await sayAll(["¡Consigues la 📸 Foto del Chusta!","El Chusta: ¿Los kebabs de Abdul? Dile que el lunes. ¿Qué lunes? Uno."])}
       return}
     if(S.q.basura===1){S.q.basura=2;sfx("quest");save();await sayAll(["El Chusta: ¿Que mi madre dice qué? Uff… Vale, vale, bajo la basura.","El Chusta: Pero no se lo digas a nadie, bro, que tengo una reputación en este barrio."]);return}
-    await say(pick(["El Chusta: Bro, me va todo de lujo. ¿Sabes por qué? Hablé con Salva.","El Chusta: Ahora no, bro, que estoy liándome uno.","El Chusta: ¿Sabes que Chen nunca cierra? Ni en Navidad. Ese tío es un héroe. Ni yo me llamo Chusta, por cierto. Me llamo Jonathan.","El Chusta: Un día de estos le pago a Abdul. Un día de estos.","El Chusta: Mi madre vive enfrente del Bazar. Si la ves, no le digas que me has visto."]));return}
+    await say(pick(["El Chusta: Ahora no, bro, que estoy liándome uno.","El Chusta: ¿Sabes que Chen nunca cierra? Ni en Navidad. Ese tío es un héroe. Ni yo me llamo Chusta, por cierto. Me llamo Jonathan.","El Chusta: Un día de estos le pago a Abdul. Un día de estos.","El Chusta: Mi madre vive enfrente del Bazar. Si la ves, no le digas que me has visto."]));return}
   if(id==="poli"||id==="poli2"){
     if(!S.flags.starter){await say("Agente Pérez: Circule, chaval.");return}
     if(S.keys.gorra&&S.keys.placa&&S.keys.walkie){
       await sayAll(["Agente Pérez: ¿Qué traes ahí, chaval? ¿Una foto, un recibo y… una grabación?","Agente Gómez: Pérez… ¿esa no es tu voz en el walkie diciendo «ponemos el precinto falso y nos vamos a por donuts»?","Agente Pérez: ¡Silencio, Gómez! ¡Chaval, quedas detenido por… por… por listo!"]);
       const win=await battle([newMon("bezoya",7),newMon("cafetin",7),newMon("donut",8)],{trainer:PASMA_TR});
-      if(win){S.flags.poli=true;NPCS.filter(x=>x.id==="poli"||x.id==="poli2").forEach(x=>x.x=-10);save();
+      if(win){S.flags.poli=true;await pasmaFlee();save();
         await sayAll(["Los Agentes Pérez y Gómez salen corriendo y se dejan un donut a medias en el suelo.","Paco sale del bar con un cuchillo jamonero y arranca el precinto: «¡SE ACABÓ LA INSPECCIÓN!».","¡El Bar de Paco vuelve a abrir! Paco te espera dentro… para retarte."])}
       return}
     if(!S.flags.started){S.flags.started=true;sfx("quest");save();
@@ -2177,7 +2181,7 @@ async function trainerBattle(n){
   if(win){S.beaten[n.id]=true;save()}
 }
 async function pacoEvent(){
-  if(S.flags.gym){await say(pick(["Paco: La caja va como un tiro desde que hablé con Salva. Ese hombre es un genio. Y no paga las cañas, pero es un genio.","Paco: Que cierro a las tres, chaval. ¿Te pongo algo?","Paco: Desde que echaste a La Pasma, la caja va como un tiro. Te debo una caña. O doce.","Paco: Los hippies del Huerto dicen que La Pasma les está fumigando las plantas. Esa gente no para."]));return}
+  if(S.flags.gym){await say(pick(["Paco: Que cierro a las tres, chaval. ¿Te pongo algo?","Paco: Desde que echaste a La Pasma, la caja va como un tiro. Te debo una caña. O doce.","Paco: Los hippies del Huerto dicen que La Pasma les está fumigando las plantas. Esa gente no para."]));return}
   await sayAll(["Paco: ¡Hombre! Tú eres el chaval que ha echado a La Pasma de mi puerta. Te debo una caña.",
     "Paco: Pero aquí las cosas se hacen como siempre: si quieres mi chapa, tienes que ganarme. Llevo treinta años sirviendo veneno… digo, copas.",
     "Paco: ¡Prepárate, que esta ronda la pago yo… con tu derrota!"]);
@@ -2209,7 +2213,7 @@ function questLines(){
     else{L.push(S.flags.sendaCatch?"✅ 🌱 Atrapar un Pedomón en La Senda":"• 🌱 Atrapa un Pedomón en el césped de La Senda.");
       L.push(S.flags.snoopWin?"✅ 🌀 Ganar a Snoop Dogg":S.q.snoop===2?"• 🌀 ¡Has ganado el Concurso! Ahora gánale el combate a Snoop.":S.q.snoop===1?(S.flags.chustaFollow?"• 🌀 Vuelve con Snoop para el Concurso de Liar, con el Chusta.":"• 🌀 Busca compañero para el Concurso: el Chusta está en la plaza."):"• 🌀 Habla con Snoop Dogg, delante de su autocaravana (arriba a la derecha).");
       L.push(S.flags.fumigonWin?"✅ 🚔 Parar el cañón fumigador":S.flags.snoopWin?"• 🚔 Gana al Sargento Fumigón, al lado del cañón (abajo a la derecha).":"• 🚔 Para el cañón fumigador de La Pasma. (Su jefe llegará después de lo de Snoop.)");
-      if(S.flags.sendaCatch&&S.flags.snoopWin&&S.flags.fumigonWin)L.push(S.flags.hoja?"✅ 🍃 ¡Medalla La Hoja! Has ganado a Bob Marley. Parte 2 completada.":S.flags.bobTold?"• Entra en el Huerto de Bob: cruza el laberinto de humo, gana a sus hippies y reta a Bob al fondo.":"• Habla con Bob: ¡has pasado las tres pruebas!")}}
+      if(S.flags.sendaCatch&&S.flags.snoopWin&&S.flags.fumigonWin)L.push(S.flags.hoja?"✅ 🍃 ¡Medalla Bob Marihuano! Has ganado a Bob Marley. Parte 2 completada.":S.flags.bobTold?"• Entra en el Huerto de Bob: cruza el laberinto de humo, gana a sus hippies y reta a Bob al fondo.":"• Habla con Bob: ¡has pasado las tres pruebas!")}}
   else{
     const g=S.q.gorra,p=S.q.placa,w=S.q.walkie;
     L.push("📜 EL PRECINTO FALSO: consigue tres pruebas de que la inspección de La Pasma es mentira.");
@@ -2248,7 +2252,7 @@ async function abdul(){
       S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["kebab",4,3];save();flash("#ffffff",600);sfx("heal");await sleep(700);
       await say("Tus Pedomones se comen un kebab y se recuperan del todo. 🥙");await say("Abdul: ¡Que aproveche, amego! Aquí tienes tu casa.");return;
     }else if(i===1){await say("Abdul: La Nevera del Porrosor está ahí, en la esquina. Puedes dejar y sacar Pedomones. Se mantienen fresquitos.");await pcMenu()}
-    else if(i===3){await say(pick(["Abdul: Desde que hablé con Salva, amego, el kebab gira solo. Todo va bien. Bien, bien.","Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
+    else if(i===3){await say(pick(["Abdul: Aquí viene todo el barrio a las 5 de la mañana. Yo lo he visto todo, amego. TODO.","Abdul: La Pasma también viene… pero piden sin cebolla. Gente rara.",
       "Abdul: Si un Pedomón está KO, un kebab con todo y como nuevo. Es ciencia.","Abdul: El Chusta me debe 14 kebabs. Si lo ves, díselo.","Abdul: Paco y yo somos vecinos desde hace 20 años. Él pone las copas y yo arreglo los estómagos.",
       "Abdul: ¿Sabes qué le gana a la resaca? Mi salsa picante. Y si no, el agua con limón de Chen.","Abdul: El Porrosor dice que vende Pedomones. Yo vendo kebabs. Los dos sabemos quién gana más."]))}
     else{await say("Abdul: ¡Vuelve cuando quieras, amego!");return}
@@ -2359,14 +2363,14 @@ async function pcMenu(){
 }
 const CHEN={n:"Chen",hi:"Chen: ¡Bienvenido al Bazar Chen! Alimentación, droguería, mecheros, chanclas y Abrebotellas. Si no lo tengo, no existe.",bye:"Chen: ¡Gracias! Vuelve cuando quieras, que aquí siempre está abierto."};
 const CHAN={n:"Chan",hi:"Chan: ¡Hola, hola! Bazar Chan. Soy el primo de Chen. Él vende en el barrio, yo vendo en Ganja Life. Mismo precio, más relajado.",bye:"Chan: ¡Paz y amor! Y vuelve, que mañana me llegan chanclas de cáñamo.",
-  lines:["Chan: Mi primo Chen y yo hablamos todos los días. Bueno, él habla. Yo asiento.","Chan: Aquí vendo lo mismo que Chen, pero con incienso. El incienso no se cobra.","Chan: ¿Negocio? Va de lujo. Hablé con Salva.","Chan: Los hippies pagan con trueque. Tengo 40 pulseras de hilo y ningún euro.","Chan: Contra los Pedomones de hierba, Fuego. Contra La Pasma, paciencia."]};
+  lines:["Chan: Mi primo Chen y yo hablamos todos los días. Bueno, él habla. Yo asiento.","Chan: Aquí vendo lo mismo que Chen, pero con incienso. El incienso no se cobra.","Chan: Los hippies pagan con trueque. Tengo 40 pulseras de hilo y ningún euro.","Chan: Contra los Pedomones de hierba, Fuego. Contra La Pasma, paciencia."]};
 async function shop(V){V=V||CHEN;
   await say(V.hi);
   while(true){
     const cats=Object.keys(SHOP);
     const c=await choose(`${V.n}: ¿Qué necesitas? Tienes ${S.money} pavos.`,[...cats.map(k=>({label:k})),{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
     if(c===cats.length&&V.lines){await say(pick(V.lines));continue}
-    if(c===cats.length){await say(pick(["Chen: Ventas suben, suben, suben. ¿Secreto? Hablé con Salva. Muy buen consejo. Muy barato.","Chen: El Comisario Paco compra aquí 40 Bezoyas a la semana. Y me debe tres meses.","Chen: Richard y yo llevamos 10 años compartiendo mostrador. Él pone la elegancia; yo, los precios.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga siempre en monedas de 5 céntimos. Contadas en el mostrador. Una a una."]));continue}
+    if(c===cats.length){await say(pick(["Chen: El Comisario Paco compra aquí 40 Bezoyas a la semana. Y me debe tres meses.","Chen: Richard y yo llevamos 10 años compartiendo mostrador. Él pone la elegancia; yo, los precios.","Chen: ¿Un consejo? Contra el agua de La Pasma, lo verde. Siempre lo verde.","Chen: Abro 365 días al año. El día que cierre, se acaba el barrio.","Chen: El Chusta me paga siempre en monedas de 5 céntimos. Contadas en el mostrador. Una a una."]));continue}
     if(c<0||c===cats.length+1){await say(V.bye);return}
     const ks=SHOP[cats[c]];
     while(true){
@@ -2420,8 +2424,8 @@ async function yoli(){
   while(true){
     const i=await choose("Saray: ¡Mira, mira, mira! ¡Ropa buena, bonita y barata! ¿Qué te pongo, payo?",[{label:"🛍️ Cambiar de look"},{label:"💬 Charlar"},{label:"👋 Nada, gracias"}],{cols:1});
     if(i<0)return;
-    if(i===0){await skinEditor();pushPresence();await say(pick(["Saray: ¡Ay, qué guapo! Ya me lo dijo Salva, que hoy vendía un look. Hablé con Salva, payo, y mira.","Saray: ¡Ay, que te has puesto guapo y to, payomierda! Ahora pareces de la familia.","Saray: Ese chándal es de marca, ¿eh? De marca… de la que sea.","Saray: ¡Olé! Con ese look en El Descampado te van a pedir hasta el número.","Saray: Te queda mejor que al maniquí. Y el maniquí no tiene cabeza, ojo."]))}
-    else if(i===1)await say(pick(["Saray: ¡Ay, payo! Que me va todo de maravilla. ¿Sabes por qué? Porque hablé con Salva. Ese hombre ve el futuro, el pasado y lo que llevas en el bolsillo.","Saray: Mi primo Raúl canta tan bien que Paco le invita a las cañas. A todas.","Saray: ¿Que si regateo? Aquí el precio lo pongo yo, y luego lo bajo porque me caes bien, payomierda.","Saray: El Chusta me debe un chándal. Y a Abdul 14 kebabs. Ese niño debe más que el Estado.","Saray: Chen y yo tenemos un trato: él no vende chándales y yo no vendo Abrebotellas. Respeto.","Saray: Si consigues cositas pa ponerte (gafas, cadenas, capas…), vente que te las pongo yo. ¡Gratis, que eres de la familia!"]));
+    if(i===0){await skinEditor();pushPresence();await say(pick(["Saray: ¡Ay, que te has puesto guapo y to, payomierda! Ahora pareces de la familia.","Saray: Ese chándal es de marca, ¿eh? De marca… de la que sea.","Saray: ¡Olé! Con ese look en El Descampado te van a pedir hasta el número.","Saray: Te queda mejor que al maniquí. Y el maniquí no tiene cabeza, ojo."]))}
+    else if(i===1)await say(pick(["Saray: Mi primo Raúl canta tan bien que Paco le invita a las cañas. A todas.","Saray: ¿Que si regateo? Aquí el precio lo pongo yo, y luego lo bajo porque me caes bien, payomierda.","Saray: El Chusta me debe un chándal. Y a Abdul 14 kebabs. Ese niño debe más que el Estado.","Saray: Chen y yo tenemos un trato: él no vende chándales y yo no vendo Abrebotellas. Respeto.","Saray: Si consigues cositas pa ponerte (gafas, cadenas, capas…), vente que te las pongo yo. ¡Gratis, que eres de la familia!"]));
     else{await say("Saray: ¡Anda con Dios, payomierda! Y vuelve, que mañana me llegan chándales nuevos.");return}
   }
 }
@@ -2453,7 +2457,7 @@ async function raul(){
         await say(`Raúl el Gitano: ¡Gracias, primo, que Dios te lo pague! Toma, pa ti: ${ITEMS[it].n}. Me lo encontré… en mi bolsillo.`)}
       else await say(pick(["Raúl el Gitano: ¡Olé! Con aplausos no se come, pero se canta mejor.","Raúl el Gitano: Aplaudes como un payo, primo, pero te lo perdono.","Raúl el Gitano: ¡Eso, eso! La próxima la cantamos a dúo."]));
     }else if(i===1){closeDlg();const sc=await palmas();await palmasPremio(sc)}
-    else if(i===2){await say(pick(["Raúl el Gitano: Antes desafinaba, primo. Hablé con Salva y ahora todo me sale bien. Hasta el fa sostenido.","Raúl el Gitano: Yo empecé cantando en las bodas. Ahora canto en el mercadillo. El año que viene, en El Descampado. Y luego, el mundo.",
+    else if(i===2){await say(pick(["Raúl el Gitano: Yo empecé cantando en las bodas. Ahora canto en el mercadillo. El año que viene, en El Descampado. Y luego, el mundo.",
       "Raúl el Gitano: Mi prima Saray te vende la ropa y yo te canto mientras te la pruebas. Servicio completo, primo.",
       "Raúl el Gitano: Cuando La Pasma precintó el bar de Paco, le canté una rumba al precinto. No se despegó, pero se puso triste.",
       "Raúl el Gitano: Si tu Pedomón está triste, tráemelo, que le canto una rumba y se le pasa to.",
@@ -2528,7 +2532,7 @@ function slotMachine(){
         if(o.s==="💰"&&!S.accU.ag2){S.accU.ag2=true;msg+=" ¡Y te llevas las 😍 Gafas de corazón! (Póntelas en el Mercadillo.)"}sfx("win")}
       else{const pi=r[0]===r[1]?r[0]:r[1]===r[2]?r[1]:r[0]===r[2]?r[0]:-1;
         if(pi>=0){const o=SLOT[pi];win=bet*o.x2;msg=o.x2>1?`Dos ${o.s}: ¡×${o.x2}!`:`Dos ${o.s}: recuperas lo apostado.`;sfx("buy")}
-        else{msg=pick(["Nada. El Borracho Manolo grita desde la barra: «¡Tienes que hablar con Salva antes de jugar, chaval!»","Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra.","Nada. La Loli te mira desde el taburete: «Esa máquina está trucada desde el 94»."]);sfx("weak")}}
+        else{msg=pick(["Nada. Paco se ríe por lo bajo.","Nada. La máquina hace un ruido raro, como de risa.","Nada. «La próxima es la buena», dice el Borracho Manolo desde la barra.","Nada. La Loli te mira desde el taburete: «Esa máquina está trucada desde el 94»."]);sfx("weak")}}
       lastWin=win;S.money+=win;if(win)msg+=` +${win} pavos.`;save();render()}
     function close(){if(spinning)return;closeOverlay();res()}
     render();
@@ -2546,8 +2550,8 @@ async function chustaTalk(){
   if(S.q.snoop===1&&!S.flags.chustaFollow){await sayAll(["El Chusta: ¿Un concurso de liar contra SNOOP DOGG? ¿Por parejas? Bro… BRO. Llevo toda la vida esperando este momento.","El Chusta: Yo pongo la boquilla. Tú pica y lía. Si algo sale mal, ha sido el viento.","¡El Chusta va contigo! Ahora te sigue. Ve a buscar a Snoop Dogg, delante de su autocaravana."]);S.flags.chustaFollow=true;placeFol();save();return}const f=S.fol;if(f&&folOn()){f.talkAt=now();f.emo=pick(["🤙","😎","🍻","💨","😂"]);f.dir={up:"down",down:"up",left:"right",right:"left"}[S.dir]}
   const L=[];
   if(S.map==="senda")L.push("El Chusta: Bro, los hippies de aquí llevan todo hierba. Con un Pedomón de Fuego o de Veneno te los meriendas.","El Chusta: ¿Has visto esas palmeras? Aquí no hay palmeras, bro. Algo raro le han echado al agua.","El Chusta: Atrapa algún Pedomón de por aquí, que dicen que a Bob le mola la gente que cuida a los bichos.");
-  if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: El Salva me echó las cartas una vez y me dijo que iba a ser rico. Todavía estoy esperando.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
-  L.push("El Chusta: Bro, tú tranquilo, que esto va a salir bien. Hablé con Salva.","El Chusta: ¿Que por qué estoy tan feliz? Hablé con Salva, bro. No te digo más.");
+  if(S.map==="comuna")L.push("El Chusta: Bro, aquí me quedo a vivir. Nadie me pregunta por los 14 kebabs.","El Chusta: Esos dos de la pancarta me han mirado el bocadillo de chorizo con un odio…","El Chusta: Snoop Dogg está de gira, pero vuelve pronto. Cuando vuelva, le reto. Bueno, le retas tú.");
+  L.push("El Chusta: Bro, tú tranquilo, que esto va a salir bien.");
   L.push("El Chusta: ¿Sabes que Abdul me ha bloqueado en WhatsApp? Por 14 kebabs, bro. CATORCE.","El Chusta: Mi madre dice que si no vuelvo antes de las 12 me cambia la cerradura. Otra vez.","El Chusta: Tú tranquilo, que yo te cubro la espalda. Desde atrás. Bastante atrás.");
   sfx("blip");await say(pick(L))}
 async function bobTalk(){
@@ -2555,11 +2559,11 @@ async function bobTalk(){
     await sayAll(["Bob Marley: Easy, easy, my friend… No te acerques mucho, que la cosa está tensa.","Bob Marley: Ese cañón de ahí es de La Pasma. Dicen que van a FUMIGAR mi huerto. Mis plantas… mis niñas…","Bob Marley: Es la «Ley Seca», man. Primero el bar de vuestro barrio, ahora mi huerto. Quieren que nadie disfrute de nada.","Bob Marley: Yo no abro el Huerto a cualquiera. Si quieres retarme, demuéstrame tres cosas:","Bob Marley: 🌱 Uno: que respetas a las criaturas. Atrapa un Pedomón en La Senda.","Bob Marley: 🌀 Dos: que tienes arte con las manos. Gana a Snoop Dogg en el Concurso de Liar. Cuando vuelva de gira, claro.","Bob Marley: 🚔 Tres: que tienes valor. Para a quien maneja ese cañón fumigador.","Bob Marley: One love, my friend. Y no corras. Aquí nadie corre."]);return}
   const p1=!!S.flags.sendaCatch,p2=!!S.flags.snoopWin,p3=!!S.flags.fumigonWin;
   await say(`Bob Marley: ¿Cómo va eso, my friend?\n${p1?"✅":"⬜"} 🌱 Atrapar un Pedomón en La Senda\n${p2?"✅":"⬜"} 🌀 Ganar a Snoop Dogg en el Concurso de Liar\n${p3?"✅":"⬜"} 🚔 Parar el cañón fumigador de La Pasma`);
-  if(p1&&p2&&p3){await sayAll(["Bob Marley: … Lo has conseguido, my friend. Las tres pruebas. El cañón apagado, Snoop vencido y mis niñas a salvo.","Bob Marley: Ahora sí: el Huerto está abierto para ti. Pero ojo: dentro hay humo, mucho humo. Es un laberinto entre mis niñas, y mis hippies vigilan los rincones.","Bob Marley: Yo te espero al fondo. Si llegas hasta mí, combatimos. One love. Y lo de Salva… sí, yo también hablé con él."]);S.flags.bobTold=true;save();return}
+  if(p1&&p2&&p3){await sayAll(["Bob Marley: … Lo has conseguido, my friend. Las tres pruebas. El cañón apagado, Snoop vencido y mis niñas a salvo.","Bob Marley: Ahora sí: el Huerto está abierto para ti. Pero ojo: dentro hay humo, mucho humo. Es un laberinto entre mis niñas, y mis hippies vigilan los rincones.","Bob Marley: Yo te espero al fondo. Si llegas hasta mí, combatimos. One love."]);S.flags.bobTold=true;save();return}
   if(p1&&!p2)await say("Bob Marley: Snoop ya ha vuelto de gira. Está delante de su autocaravana, arriba a la derecha. Te va a pedir que busques compañero.");
   else if(p1&&p2&&!p3)await say("Bob Marley: ¡Ahí está! El Sargento Fumigón ha llegado al cañón. Páralo, my friend. Es el del traje amarillo.");
   else if(!p1)await say("Bob Marley: Empieza por lo fácil, man. Ve a La Senda, pisa el césped y atrapa algo. Con cariño.");
-  else await say(pick(["Bob Marley: Everything's gonna be alright, man. Hablé con Salva.","Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
+  else await say(pick(["Bob Marley: Don't worry… about a thing. Bueno, del cañón sí, un poco.","Bob Marley: Every little thing… is gonna be alright. Cuando paremos a La Pasma."]))}
 async function marujaTalk(){
   const hoy=new Date().toDateString();
   await say("Salva el Tarotista: Pasa, pasa, cariño… Te estaba esperando. Lo he visto en las cartas. Bueno, y en la cámara del timbre.");
@@ -2629,7 +2633,7 @@ function caladasGame(){
       const L=$("cg-l"),Z=$("cg-z");if(L)L.style.height=lung+"%";if(Z){Z.style.bottom=(z-zw/2)+"%";Z.style.height=zw+"%"}
       tick.z=z;raf=requestAnimationFrame(tick)}
     function judge(){const z=tick.z||zc;if(lung>=z-zw/2&&lung<=z+zw/2){i++;sfx("buy");
-        if(i>=n){win();return}state="pause";const m=$("cg-msg");if(m)m.textContent=pick(["¡Calada perfecta! Se nota que has hablado con Salva.","¡Buena calada! Echas el humo en forma de aro.","¡Perfecta! El Maestro asiente despacio.","¡Toma ya! El Chusta aplaude desde la puerta.","Bien… pero empiezas a ver colores."]);setTimeout(startPuff,900)}
+        if(i>=n){win();return}state="pause";const m=$("cg-msg");if(m)m.textContent=pick(["¡Buena calada! Echas el humo en forma de aro.","¡Perfecta! El Maestro asiente despacio.","¡Toma ya! El Chusta aplaude desde la puerta.","Bien… pero empiezas a ver colores."]);setTimeout(startPuff,900)}
       else if(lung<z-zw/2)fail("Calada floja… Eso no cuenta. El Maestro niega con la cabeza.");else fail("¡COF! Te has pasado de la raya.")}
     function fail(t){state="end";cancelAnimationFrame(raf);sfx("weak");finish(false,t)}
     function win(){state="end";cancelAnimationFrame(raf);const prize=Math.floor(BETS2[bi]*CAL_MULT[n]);S.money+=prize;save();sfx("win");finish(true,`¡${n} caladas! El humo llena la cabaña. Ganas ${prize} pavos.`)}
@@ -2642,9 +2646,9 @@ function caladasGame(){
 async function abueloRastaTalk(){
   if(!S.flags.abueloGift){S.flags.abueloGift=true;["abre","mechero","grinder"].forEach(k=>S.bag[k]=(S.bag[k]||0)+2);save();sfx("quest");
     await sayAll(["Abuelo Rasta: Bienvenido, hijo. Siéntate, que aquí no se viene a estar de pie.","Abuelo Rasta: Yo llegué aquí en el 79, cuando esto ni se llamaba Ganja Life, con una furgoneta y una semilla. Mira ahora.","Abuelo Rasta: Toma, para que atrapes a los Pedomones con respeto. Con cariño, ¿eh? Nada de apretar.","¡El Abuelo Rasta te da 2 Abrebotellas, 2 Mecheros y 2 Grinders!"]);return}
-  await say(pick(["Abuelo Rasta: Noventa años y como un roble. ¿El secreto? Hablé con Salva en el 85 y desde entonces todo va bien.","Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: El Salva me leyó las cartas en el 85. Me dijo que viviría muchos años. Y aquí sigo, fastidiándola.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
+  await say(pick(["Abuelo Rasta: Bob es buen chaval. Un poco tranquilo de más, pero buen chaval.","Abuelo Rasta: En mis tiempos La Pasma también venía. Les dábamos un bizcocho y se iban muy contentos.","Abuelo Rasta: ¿Ves ese vídeo de la tele? Lo pongo desde 1981. Todavía no he visto el final."]))}
 async function inakiTalk(){
-  await say(pick(["Iñaki el Okupa: Antes nos echaban cada semana. Hablé con Salva y aquí seguimos, tío. Todo bien.","Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
+  await say(pick(["Iñaki el Okupa: Kaixo, tío. Esta casa es de quien la vive. Y ahora la vivo yo.","Iñaki el Okupa: ¿Vienes a jugar o a mirar? Aquí se viene a jugar."]));
   const i=await choose("Iñaki el Okupa: ¿Una de Chinita, Papel o Mechero? Al mejor de tres.",[{label:"🎲 ¡Venga!"},{label:"❓ ¿Cómo va eso?"},{label:"Paso"}],{cols:1});
   if(i===1){await sayAll(["Iñaki: Como piedra, papel o tijera, pero con estilo:","Iñaki: 🔥 El Mechero quema el Papel.  📄 El Papel envuelve la Chinita.  🟤 La Chinita… rompe el Mechero. Créeme, se puede.","Iñaki: Apuestas pavos. Al mejor de tres. Si ganas, doblas."]);return inakiTalk()}
   if(i!==0){await say("Iñaki el Okupa: Tú te lo pierdes. Como el alquiler.");return}
@@ -2676,7 +2680,7 @@ async function veganTalk(n){
   if(q===1){await say(pick(["Lucía: ¿Y el falafel? La revolución tiene hambre.","Bruno: Sin falafel no hay paz. Bueno, sí hay paz, pero con pancarta."]));return}
   if(q===2){S.q.falafel=3;S.accU.ac2=true;save();sfx("quest");
     await sayAll(["Lucía: ¡¿UN FALAFEL DE ABDUL?! ¡Bruno, mira!","Bruno: Está… está buenísimo. Abdul tenía un corazón vegano y no lo sabía.","Lucía: Toma, te lo has ganado: un poncho de lana de alpaca. Bueno, de acrílico. Las alpacas son nuestras amigas.","¡Consigues el 🧶 Poncho! (Póntelo en el Mercadillo, con Saray.)"]);return}
-  await say(pick(["Bruno: Antes discutíamos por todo. Hablamos con Salva y ahora solo discutimos con los demás. Todo va genial.","Lucía: ¿Sabías que el tofu tiene más proteína que… bueno, que algunas cosas?","Bruno: Ahora protestamos contra La Pasma. Fumigar plantas es violencia vegetal.","Lucía: Abdul ahora tiene falafel en la carta. Lo pone como «Kebab Triste». Pero es un avance.","Bruno: Mira, sin rencor: el chorizo del Chusta huele bien. Pero es asesinato."]))}
+  await say(pick(["Lucía: ¿Sabías que el tofu tiene más proteína que… bueno, que algunas cosas?","Bruno: Ahora protestamos contra La Pasma. Fumigar plantas es violencia vegetal.","Lucía: Abdul ahora tiene falafel en la carta. Lo pone como «Kebab Triste». Pero es un avance.","Bruno: Mira, sin rencor: el chorizo del Chusta huele bien. Pero es asesinato."]))}
 async function shaggyTalk(){
   const q=S.q.galletas||0;
   if(q===0){S.q.galletas=1;S.gallF={};save();sfx("quest");
@@ -2685,10 +2689,10 @@ async function shaggyTalk(){
     if(got>=3){S.q.galletas=2;S.accU.ag3=true;S.money+=50;save();sfx("quest");
       await sayAll(["Shaggy: ¡LAS GALLETAS! ¡Scooby, colega, estamos salvados!","Scooby: ¡Rí, rí! *ñam ñam ñam*","Shaggy: Toma, tío, mis gafas redondas y 50 pavos. Las galletas no valen tanto, pero el hambre sí.","¡Consigues las 🕶️ Gafas redondas hippies y 50 pavos! (Póntelas en el Mercadillo, con Saray.)"]);return}
     await say(`Shaggy: Llevas ${got} de 3 Scooby Galletas, tío. Busca por La Senda (un árbol en la meseta y otro al pie de la colina) y en alguna palmera de por aquí. Scooby las huele, pero le da pereza ir.`);return}
-  await say(pick(["Shaggy: Caray, tío, antes siempre nos perseguían fantasmas. Hablamos con Salva y ahora solo nos persiguen las galletas.","Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Ganja Life es lo más, tío. Nadie te dice que dejes de comer."]))}
+  await say(pick(["Shaggy: Scooby y yo vamos a abrir un food truck. Solo vende galletas. Y bocadillos de 40 pisos.","Shaggy: ¿Has visto algún fantasma por aquí? Normalmente es un señor con careta. Siempre lo es.","Shaggy: Ganja Life es lo más, tío. Nadie te dice que dejes de comer."]))}
 async function guardiaTalk(){
   if(S.flags.fumigonWin){await say("Agente de La Pasma: … Vale. Me voy. Pero que conste que yo solo cumplía órdenes. Del Sargento. Que cumplía órdenes del Comisario.");return}
-  await say(pick(["Agente de La Pasma: El Sargento dice que el plan va genial. Dice que habló con Salva. Yo de ese Salva no me fío.","Agente de La Pasma: Circule. Este cañón es para… desinfectar. Sí. Desinfectar la alegría.","Agente de La Pasma: El Sargento Fumigón viene enseguida a darle al botón. Con la Ley Seca no se juega, chaval.","Agente de La Pasma: ¿Que si fumigar plantas es legal? Pues… Lo que diga el Sargento. Circule."]))}
+  await say(pick(["Agente de La Pasma: Circule. Este cañón es para… desinfectar. Sí. Desinfectar la alegría.","Agente de La Pasma: El Sargento Fumigón viene enseguida a darle al botón. Con la Ley Seca no se juega, chaval.","Agente de La Pasma: ¿Que si fumigar plantas es legal? Pues… Lo que diga el Sargento. Circule."]))}
 async function lunaTalk(){
   await say(pick(["Abuela Luna: Bienvenido a mi yurta, criatura. Siento el aura de tus Pedomones… cansadita.","Abuela Luna: Pasa, pasa. Descálzate, que los cuarzos se ponen celosos."]));
   while(true){
@@ -2698,9 +2702,9 @@ async function lunaTalk(){
       S.team.forEach(m=>m.hp=maxhp(m));S.respawn=["yurta",3,4];save();flash("#e8b8ff",700);sfx("heal");await sleep(700);
       await say("Tus Pedomones se sienten renovados. Huelen a lavanda. 🌿");await say("Abuela Luna: Listo, criatura. Si te tumban por ahí, despertarás aquí, en mi yurta.");return}
     if(i===1){await say("Abuela Luna: La Nevera está en la esquina. El Porrosor me la dejó en el 2003. Aún no ha vuelto a por ella.");await pcMenu();continue}
-    await say(pick(["Abuela Luna: Tengo 93 años. El secreto: infusiones, siesta y hablar con Salva una vez al mes.","Abuela Luna: Bob era un crío cuando llegó. Le enseñé a plantar. Ahora planta mejor que yo, el muy…","Abuela Luna: Esa Pasma no sabe lo que hace. Fumigar plantas… Las plantas también sienten, criatura. Sobre todo las de Bob.","Abuela Luna: Shaggy viene cada día a por galletas de avena. Le digo que son para personas. Le da igual.","Abuela Luna: Los cuarzos curan. El kebab de Abdul también, me han dicho. Cada uno con su fe."]))}}
+    await say(pick(["Abuela Luna: Bob era un crío cuando llegó. Le enseñé a plantar. Ahora planta mejor que yo, el muy…","Abuela Luna: Esa Pasma no sabe lo que hace. Fumigar plantas… Las plantas también sienten, criatura. Sobre todo las de Bob.","Abuela Luna: Shaggy viene cada día a por galletas de avena. Le digo que son para personas. Le da igual.","Abuela Luna: Los cuarzos curan. El kebab de Abdul también, me han dicho. Cada uno con su fe."]))}}
 const RICARDITO={n:"Ricardito",hi:"Ricardito: ¡Hey, bro! Soy Ricardito, el hermano pequeño de Richard. Él vende MTs con estilo; yo, con flow. Mismas MTs, menos corbata.",
-  lines:["Ricardito: Mi hermano Richard dice que soy un hippie. Yo digo que él es un estirado. Los dos tenemos razón.","Ricardito: ¿Que por qué me va tan bien? Hablé con Salva, bro.","Ricardito: Richard me llama «la oveja verde de la familia». Me lo tomo como un cumplido.","Ricardito: Una MT a tiempo vale más que diez Calditos. Eso lo dice mi hermano. Yo digo que vale más que once."]};
+  lines:["Ricardito: Mi hermano Richard dice que soy un hippie. Yo digo que él es un estirado. Los dos tenemos razón.","Ricardito: Richard me llama «la oveja verde de la familia». Me lo tomo como un cumplido.","Ricardito: Una MT a tiempo vale más que diez Calditos. Eso lo dice mi hermano. Yo digo que vale más que once."]};
 /* ===================== BLOQUE 2: SNOOP DOGG, CONCURSO DE LIAR Y EL SARGENTO FUMIGÓN ===================== */
 const SNOOP_PAL={h:"#1a1a1a",s:"#6a4a2a",e:"#222",c:"#3a3a6a",z:"#f2c14e",p:"#1a1a1a",k:"#f4f4f4"};
 const FUMIGON_PAL={h:"#1d2a5a",s:"#f1c27d",e:"#222",c:"#e8d040",z:"#1a1a1a",p:"#e8d040",k:"#111"};
@@ -2721,7 +2725,7 @@ async function snoopTalk(){
     if(!win){await say("Snoop Dogg: Easy, homie. Vuelve cuando tus Pedomones hayan dormido la siesta.");return}
     S.q.snoop=3;S.flags.snoopWin=true;S.flags.chustaFollow=false;S.fol=null;S.accU.ag3=true;save();sfx("quest");
     await sayAll(["Snoop Dogg: Toma, homie. Las gafas redondas de mi gira del 98. Si ya tenías unas, ahora tienes unas de Snoop.","Snoop Dogg: Y dile a Bob que Snoop le respeta. Esa Pasma no va a tocar su huerto mientras yo esté aquí. Bueno, mientras tú estés aquí.","El Chusta: Bro, yo me vuelvo al banco de la plaza, que me ha dado el bajón. Ha sido el mejor día de mi vida.","✅ Prueba de Bob: ¡Snoop Dogg vencido!"]);return}
-  await say(pick(["Snoop Dogg: Fo shizzle, todo va bien, homie. Hablé con Salva.","Snoop Dogg: Gin and juice… y kebab de Abdul. Esa es mi dieta de gira.","Snoop Dogg: Ese Chusta tiene futuro, homie. Pero que deje de deber kebabs."]))}
+  await say(pick(["Snoop Dogg: Gin and juice… y kebab de Abdul. Esa es mi dieta de gira.","Snoop Dogg: Ese Chusta tiene futuro, homie. Pero que deje de deber kebabs."]))}
 // Concurso de Liar: 3 rondas (picar · boquilla del Chusta · liar y sellar), con explicación, cuenta atrás y efectos
 function liarContest(){
   return new Promise(res=>{
@@ -2777,11 +2781,11 @@ function liarContest(){
   });
 }
 async function fumigonTalk(){
-  await sayAll(["Sargento Fumigón: ¡ALTO! ¡Sargento Fumigón, de La Pasma, División Antialegría!","Sargento Fumigón: Por orden del Comisario y en aplicación de la Ley Seca, este huerto será fumigado. Con lejía. Y con aburrimiento.","Sargento Fumigón: ¿Que qué me ha hecho Bob? Nada. Pero está contento. Y eso, en este país, es sospechoso.","Sargento Fumigón: El plan va perfecto. Hablé con Salva y me dijo que hoy era mi día. ¡A por ti!"]);
+  await sayAll(["Sargento Fumigón: ¡ALTO! ¡Sargento Fumigón, de La Pasma, División Antialegría!","Sargento Fumigón: Por orden del Comisario y en aplicación de la Ley Seca, este huerto será fumigado. Con lejía. Y con aburrimiento.","Sargento Fumigón: ¿Que qué me ha hecho Bob? Nada. Pero está contento. Y eso, en este país, es sospechoso."]);
   const win=await battle([newMon("bezoya5l",17),newMon("cafemaquina",16),newMon("cajadonuts",18)],{music:"fumigon",trainer:{name:"Sargento Fumigón",short:"Fumigón",pal:FUMIGON_PAL,hs:2,fat:true,money:400,leader:true,
     challenge:"¡El Sargento Fumigón, de La Pasma, te corta el paso!",lose:"Sargento Fumigón: ¡Imposible! Salva me dijo que hoy era mi día… ¡Me ha engañado! ¡Retirada!"}});
   if(!win){await say("Sargento Fumigón: ¡Ja! La Ley Seca no se para con cuatro hippies y un chaval. Vuelve cuando tengas Pedomones de verdad.");return}
-  S.flags.fumigonWin=true;save();sfx("quest");
+  await fleeNPCs(["fumigon","guardia"],"😱");S.flags.fumigonWin=true;save();sfx("quest");
   await sayAll(["El Sargento Fumigón sale corriendo con el agente detrás. Se le cae la gorra. Y un donut.","El cañón fumigador se queda apagado. Alguien de Ganja Life le pone una maceta en el tubo.","✅ Prueba de Bob: ¡cañón fumigador parado!","Bob Marley (desde la verja): ¡Lo has hecho, my friend! Ven a hablar conmigo."])}
 /* ---- Bloque 3: Bob Marley, líder del Huerto (tipo Planta) ---- */
 async function bobGym(){
@@ -2792,7 +2796,7 @@ async function bobGym(){
     challenge:"¡Bob Marley, el líder del Huerto, te desafía!",lose:"Bob Marley: Ah… No woman, no cry. Me has ganado limpio, my friend."}});
   if(!win){await say("Bob Marley: Easy, easy. Respira, vuelve a la yurta de la Abuela Luna y lo intentas otra vez. El humo no se va a ningún sitio.");return}
   S.flags.hoja=true;S.keys.hoja=true;S.tms.mt13=true;S.money+=0;save();sfx("win");
-  await sayAll(["Bob Marley: Toma. La 🍃 Medalla La Hoja. Solo la tienen tres personas en el mundo: Snoop, yo… y ahora tú.","Bob Marley: Y la MT13, Bongazo. Agua de cachimba directa a la cara. Úsala con respeto.","¡Consigues la Medalla La Hoja y la MT13 Bongazo!","Bob Marley: La Pasma no va a parar aquí, my friend. Dicen que el Comisario tiene su cuartel en la Ciudad… y que allí manda un tal Lolo Gramos.","Bob Marley: Pero eso será otro día. Hoy… hoy se celebra. ¡One love!","✅ PARTE 2 COMPLETADA. La carretera hacia Ciudad Neón ya está abierta: sal por la derecha de Ganja Life."])}
+  await sayAll(["Bob Marley: Toma. La 🍃 Medalla Bob Marihuano. Solo la tienen tres personas en el mundo: Snoop, yo… y ahora tú.","Bob Marley: Y la MT13, Bongazo. Agua de cachimba directa a la cara. Úsala con respeto.","¡Consigues la Medalla Bob Marihuano y la MT13 Bongazo!","Bob Marley: La Pasma no va a parar aquí, my friend. Dicen que el Comisario tiene su cuartel en la Ciudad… y que allí manda un tal Lolo Gramos.","Bob Marley: Pero eso será otro día. Hoy… hoy se celebra. ¡One love!","✅ PARTE 2 COMPLETADA. La carretera hacia Ciudad Neón ya está abierta: sal por la derecha de Ganja Life."])}
 /* ---- Galletas de Scooby: se ven en el mapa y se recogen al pasar al lado ---- */
 async function checkGalletas(){if(S.q.galletas!==1)return;S.gallF=S.gallF||{};
   for(let i=0;i<GALLETAS.length;i++){const g=GALLETAS[i];if(g.map!==S.map||S.gallF[i])continue;if(Math.abs(g.x-S.x)+Math.abs(g.y-S.y)<=1){S.gallF[i]=1;sfx("quest");save();await say(GALLETAS[i].t+` (${Object.keys(S.gallF).length}/3)`+(Object.keys(S.gallF).length>=3?" ¡Ya las tienes todas! Llévaselas a Shaggy.":""))}}}
@@ -2800,10 +2804,10 @@ const TALK2={
   snoop:snoopTalk,fumigon:fumigonTalk,
   luna:lunaTalk,chan:()=>shop(CHAN),ricardito:()=>mtShop(RICARDITO),
   chusta2:chustaTalk,bobgym:bobGym,bob:bobTalk,guardia:guardiaTalk,shaggy:shaggyTalk,maruja:marujaTalk,maestro:maestroTalk,abuelorasta:abueloRastaTalk,inaki:inakiTalk,lucia:veganTalk,bruno:veganTalk,
-  scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Ralva! ¡Ralva rueno! (Scooby también ha hablado con Salva.)","Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
-  rasta1:async()=>say(pick(["Rasta: Todo bien, bredren. Hablé con Salva esta mañana. O ayer. O el martes.","Rasta: Bredren… ¿Sabes qué hora es? Las 4:20. Siempre son las 4:20.","Rasta: Llevo en este banco desde el martes. ¿Qué día es hoy?","Rasta: Dicen que Bob es el que mejor cultiva de toda España. Y de Jamaica, casi."])),
-  rasta2:async()=>say(pick(["Rasta: Me iba fatal hasta que hablé con Salva. Ahora me va regular, pero con buen rollo.","Rasta: Si La Pasma fumiga el huerto, ¿de dónde vamos a sacar la… inspiración?","Rasta: ¿Ves esas humaredas? Son nubes bajitas. Muy bajitas. Que no te líen.","Rasta: Tengo un Pedomón que se llama Pegamentín. No hay quien lo despegue del sofá. Como a mí."])),
-  fan:async()=>say(pick(["Fan de Snoop: Salva me dijo que Snoop vuelve pronto. Y si lo dice Salva, es verdad.","Fan de Snoop: Snoop Dogg está de gira. Pero vuelve pronto, me lo ha dicho su primo. Bueno, el primo de su primo.","Fan de Snoop: Dicen que Snoop lía el porro más rápido del mundo. Con los ojos cerrados. Y dormido.","Fan de Snoop: Llevo tres días esperando su firma. Me he traído bocadillos para una semana."]))
+  scooby:async()=>{sfx("blip");await say(pick(["Scooby: ¡Rooby-roo!","Scooby: ¿Ralletas? ¿Rienes ralletas?","Scooby: *te olisquea la mochila con mucho interés*","Scooby: ¡Ruh-roh! (Ha visto al agente de La Pasma.)"]))},
+  rasta1:async()=>say(pick(["Rasta: Bredren… ¿Sabes qué hora es? Las 4:20. Siempre son las 4:20.","Rasta: Llevo en este banco desde el martes. ¿Qué día es hoy?","Rasta: Dicen que Bob es el que mejor cultiva de toda España. Y de Jamaica, casi."])),
+  rasta2:async()=>say(pick(["Rasta: Si La Pasma fumiga el huerto, ¿de dónde vamos a sacar la… inspiración?","Rasta: ¿Ves esas humaredas? Son nubes bajitas. Muy bajitas. Que no te líen.","Rasta: Tengo un Pedomón que se llama Pegamentín. No hay quien lo despegue del sofá. Como a mí."])),
+  fan:async()=>say(pick(["Fan de Snoop: Snoop Dogg está de gira. Pero vuelve pronto, me lo ha dicho su primo. Bueno, el primo de su primo.","Fan de Snoop: Dicen que Snoop lía el porro más rápido del mundo. Con los ojos cerrados. Y dormido.","Fan de Snoop: Llevo tres días esperando su firma. Me he traído bocadillos para una semana."]))
 };
 /* ---- 🎤 Batalla de gallos (El Descampado) ---- */
 // Cada ronda: verso de MC Litrona y tres respuestas: [texto, puntos] → 3 = rima buena, 1 = rima floja, 0 = ni rima
@@ -2869,7 +2873,7 @@ async function abuela(){
     await sayAll(["Abuela Remedios: ¡MICHI! ¡Ay, mi niño, que hueles a Mahou!","Abuela Remedios: Toma, hijo: las gafas de sol de mi marido. Eran de un concierto de Camilo Sesto del 78.","¡Consigues las 🕶️ Gafas de sol! (Póntelas en el Mercadillo, con Saray.)"]);return}
   const hoy=new Date().toDateString();
   if(S.q.michi>=3&&S.lastCaldito!==hoy){S.lastCaldito=hoy;S.bag.caldito=(S.bag.caldito||0)+1;save();sfx("heal");await say("Abuela Remedios: ¿Has comido? Toma un caldito, que estás muy delgado. (Te da un Caldito de la abuela. Vuelve mañana a por otro.)");return}
-  await say(pick(["Abuela Remedios: Ay, hijo, desde que hablé con Salva no me duele la rodilla. Bueno, un poco. Pero menos.","Abuela Remedios: Mi Paco, el mío, sí que sabía pelear Pedomones. En sus tiempos se capturaban con abrebotellas de madera.","Abuela Remedios: La Pasma vino a preguntar si tenía Pedomones sin papeles. Les di un caldito y se fueron llorando.","Abuela Remedios: ¿Tienes novia? ¿Novio? ¿Algo? Ay, hijo, que se te pasa el arroz.","Abuela Remedios: Michi se ha vuelto a comer una lata entera. Ese gato es del Chusta en otra vida."]));
+  await say(pick(["Abuela Remedios: Mi Paco, el mío, sí que sabía pelear Pedomones. En sus tiempos se capturaban con abrebotellas de madera.","Abuela Remedios: La Pasma vino a preguntar si tenía Pedomones sin papeles. Les di un caldito y se fueron llorando.","Abuela Remedios: ¿Tienes novia? ¿Novio? ¿Algo? Ay, hijo, que se te pasa el arroz.","Abuela Remedios: Michi se ha vuelto a comer una lata entera. Ese gato es del Chusta en otra vida."]));
 }
 async function madreChusta(){
   if(S.q.basura===0){S.q.basura=1;sfx("quest");save();
@@ -2877,7 +2881,7 @@ async function madreChusta(){
   if(S.q.basura===1){await say("La madre del Chusta: ¿Se lo has dicho ya? Es que no me coge el teléfono. Dice que se le ha roto. Lo lleva en la mano.");return}
   if(S.q.basura===2){S.q.basura=3;S.accU.an1=true;sfx("quest");save();
     await sayAll(["La madre del Chusta: ¡Ha bajado la basura! ¡Es un milagro! Voy a llamar a mi hermana.","La madre del Chusta: Toma esta cadena de oro. Me la regaló su padre. Es de imitación, pero brilla que da gusto.","¡Consigues la 📿 Cadena de oro! (Póntela en el Mercadillo, con Saray.)"]);return}
-  await say(pick(["La madre del Chusta: Mi Jonathan se va a sacar el carnet. Lo ha dicho Salva. Hablé con él y todo va a ir bien.","La madre del Chusta: Mi Jonathan es muy bueno, ¿eh? Lo que pasa es que se junta con malas compañías. Como tú. Es broma, hijo.","La madre del Chusta: Le he dicho mil veces que pague a Abdul. Mil. Y nada.","La madre del Chusta: ¿Quieres croquetas? Son de ayer, pero de ayer de mi casa."]));
+  await say(pick(["La madre del Chusta: Mi Jonathan es muy bueno, ¿eh? Lo que pasa es que se junta con malas compañías. Como tú. Es broma, hijo.","La madre del Chusta: Le he dicho mil veces que pague a Abdul. Mil. Y nada.","La madre del Chusta: ¿Quieres croquetas? Son de ayer, pero de ayer de mi casa."]));
 }
 function skinEditor(){
   return new Promise(res=>{
@@ -3198,9 +3202,9 @@ async function throwBall(k){
   if(s.police){await say("¡Es de La Pasma! No se puede capturar.");return"noturn"}
   S.bag[k]--;
   await say(`¡Usas ${it.n} con ${s.n}!`);
-  sfx("throw");B.cap={fam:it.fam,phase:"throw",start:now()};await sleep(450);
-  if(it.fam!==s.fam){B.cap=null;burst("star",EPOS.x,EPOS.y-24,10);sfx("weak");
-    await say(`¡Pero eso no sirve con un ${FAM[s.fam].n}, tío! Para ${s.n} necesitas un ${ITEMS[FAM[s.fam].item].n}.`);return"fail"}
+  sfx("throw");B.cap={fam:it.fam==="*"?"*"+k:it.fam,phase:"throw",start:now()};await sleep(450);
+  if(it.fam!=="*"&&it.fam!==s.fam){B.cap=null;burst("star",EPOS.x,EPOS.y-24,10);sfx("weak");
+    await say(`¡Pero eso no sirve con un ${FAM[s.fam].n}, tío! Para ${s.n} usa una Riñonera, que vale para todo, o un ${ITEMS[FAM[s.fam].item].n}.`);return"fail"}
   flash("#ffffff",250);B.cap.phase="absorb";B.cap.start=now();await sleep(350);B.hideE=true;B.cap.phase="sit";B.cap.start=now();
   const r=e.hp/maxhp(e),chance=Math.min(0.97,(0.25+0.7*(1-r)-e.lvl*0.01)*it.mult);
   const shakes=rnd()<chance?3:ri(0,2);
@@ -3211,7 +3215,7 @@ async function throwBall(k){
   burst("star",EPOS.x,EPOS.y-10,30);sfx("catch");
   S.caught[e.sp]=1;delete e.v;if(S.map==="senda"&&!S.flags.sendaCatch){S.flags.sendaCatch=true;toast("🌱 Prueba de Bob: ¡hecha!")}
   if(e.shiny){S.shinies=(S.shinies||0)+1;S.shinySeen=S.shinySeen||{};S.shinySeen[e.sp]=1}await say(`¡Toma! ¡Has capturado a ${mName(e)}! 🎉`);
-  if(S.team.length<6)S.team.push(e);else{ensureBoxes();if(boxAdd(e))await say(`Tu equipo está lleno. ${mName(e)} se va a La Nevera del Porrosor (en el Kebab 24h).`);else await say(`La Nevera está llena… ${mName(e)} se vuelve al césped. Haz hueco, tío.`)}
+  if(S.team.length<6)S.team.push(e);else{ensureBoxes();if(boxAdd(e))await say(`Tu equipo está lleno. ${mName(e)} se va directo a La Nevera. Puedes sacarlo en cualquier sitio donde te curen.`);else await say(`La Nevera está llena… ${mName(e)} se vuelve al césped. Haz hueco, tío.`)}
   return"caught";
 }
 async function giveXp(enemy){
@@ -3484,9 +3488,9 @@ function renderWorld(t){
     if(Math.floor(t/300+i)%2){px(gx+6,gy-6,1,3,"#ffffff");px(gx+5,gy-5,3,1,"#ffffff")}});
   const list=NPCS.filter(n=>n.map===S.map&&npcVisible(n)).map(n=>({y:n.y,draw:()=>{const bob=n.idle&&Math.floor(t/700+n.x)%2?1:0;const nx=n.x*T-ox,ny=n.y*T-oy;
     if(n.dog){drawDog(nx,ny,n.dir,t);return}
-    const L=NPC_LOOK[n.id]||{};drawChar(n.pal,n.dir,nx,ny,0,bob,L.hs!==undefined?L.hs:n.hs,L.ts!==undefined?L.ts:n.ts,n.fat,L.acc||n.acc,L);
+    const L=NPC_LOOK[n.id]||{};if(n.emo&&now()-n.emoAt<(n.emoMs||2500))list.emo.push([n.emo,nx+8,ny-18]);drawChar(n.pal,n.dir,Math.round(nx),Math.round(ny),n.wk||0,n.wk?0:bob,L.hs!==undefined?L.hs:n.hs,L.ts!==undefined?L.ts:n.ts,n.fat,L.acc||n.acc,L);
     if(n.smoke)drawSmoke(nx,ny-7-bob,t,n.x);
-    if(n.pancarta){px(nx+15,ny-19,2,12,"#8a5a2b");px(nx-6,ny-31,44,12,"#f4f0e0");px(nx-6,ny-31,44,1,"#c8b8a0");px(nx-6,ny-20,44,1,"#a89880");ctx.font="bold 8px monospace";ctx.textAlign="center";ctx.fillStyle=Math.floor(t/700)%2?"#2a8a3a":"#c8202a";ctx.fillText(n.pancarta,nx+16,ny-22)}
+    if(n.pancarta){ctx.font="bold 7px monospace";const pw=Math.ceil(ctx.measureText(n.pancarta).width)+10,bx=Math.round(nx+16-pw/2),sw2=Math.round(Math.sin(t/500)*1);px(nx+7,ny-20,2,14,"#8a5a2b");px(nx+23,ny-20,2,14,"#8a5a2b");px(bx,ny-33+sw2,pw,13,"#f4f0e0");px(bx,ny-33+sw2,pw,2,"#6fcf5a");px(bx,ny-21+sw2,pw,1,"#a89880");ctx.textAlign="center";ctx.fillStyle=Math.floor(t/700)%2?"#2a8a3a":"#c8202a";ctx.fillText(n.pancarta,nx+16,ny-23+sw2)}
     if(n.guitar){px(nx+4,ny+6-bob,8,5,"#a8602a");px(nx+6,ny+7-bob,2,2,"#3a1a0a");px(nx+12,ny+5-bob,4,1,"#6a3a1a");px(nx+15,ny+4-bob,1,1,"#e8d8a0");const s=Math.floor(t/400)%3;if(s<2){ctx.fillStyle="#f2d14e";ctx.font="7px sans-serif";ctx.textAlign="center";ctx.fillText(s?"♪":"♫",nx+14+s*2,ny-11-s*2)}}}}));
   // otros jugadores
   for(const[k,o]of OTHERS){if(!o.info||o.info.map!==S.map)continue;o.rx+=(o.info.x-o.rx)*.2;o.ry+=(o.info.y-o.ry)*.2;
@@ -3501,19 +3505,19 @@ function renderWorld(t){
   const walk=P.moving?(P.prog<.5?(P.step?1:2):0):0;
   list.push({y:wy,draw:()=>{drawChar(skinPal(S.skin),S.dir,psx,psy,walk,P.moving&&P.prog>.25&&P.prog<.75?1:0,S.skin.hs,S.skin.ts,0,S.skin);
     if(OTHERS.size)nameTag(S.name||"Tú",psx+8,psy-10,"#ffd98a");if(MYEMO&&now()-MYEMO.at<2500)bubble(MYEMO.k,psx+8,psy-18)}});
-  list.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());
+  list.emo=[];list.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());list.emo.forEach(([k,x,y])=>bubble(k,x,y));
   if(m.outdoor&&tileAt(Math.round(wx),Math.round(wy))===","&&!P.moving){for(let i=0;i<4;i++){px(psx+1+i*4,psy+11,1,5,"#2a7a2a");px(psx+2+i*4,psy+12,1,4,"#6fcf5a")}}
   for(let i=worldParts.length-1;i>=0;i--){const p=worldParts[i];p.life++;p.x+=p.vx;p.y+=p.vy;p.vy+=.12;if(p.life>p.max){worldParts.splice(i,1);continue}px(Math.round(p.x-ox),Math.round(p.y-oy),1,1,p.c)}
   if(m.outdoor){
-    dctx.globalCompositeOperation="source-over";dctx.clearRect(0,0,SW,SH);dctx.fillStyle="rgba(8,10,38,.58)";dctx.fillRect(0,0,SW,SH);
+    const NA=m.neon?.58:m.urban?.26:0;if(NA>0){dctx.globalCompositeOperation="source-over";dctx.clearRect(0,0,SW,SH);dctx.fillStyle=m.neon?"rgba(8,10,38,.58)":"rgba(60,24,40,.26)";dctx.fillRect(0,0,SW,SH);
     dctx.globalCompositeOperation="destination-out";
     const hole=(x,y,r,a)=>{const g=dctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(0,0,0,${a})`);g.addColorStop(1,"rgba(0,0,0,0)");dctx.fillStyle=g;dctx.beginPath();dctx.arc(x,y,r,0,7);dctx.fill()};
     m.lamps.forEach(([lx,ly])=>hole(lx*T-ox+8,ly*T-oy+6,40+Math.sin(t/200+lx)*1.5,1));
     hole(psx+8,psy+8,30,.85);
     for(const o of OTHERS.values())if(o.info&&o.info.map===S.map)hole(o.rx*T-ox+8,o.ry*T-oy+8,22,.6);
     m.builds.forEach(b=>hole(b.x*T-ox+b.w*T/2,b.y*T-oy+b.h*T,b.w*T*.6,.7));
-    ctx.drawImage(dark,0,0);
-    m.lamps.forEach(([lx,ly])=>{ctx.globalAlpha=.12;ctx.fillStyle=m.dirt&&tileAt(lx,ly)==="Q"?"#ff9a4a":"#ffd98a";ctx.beginPath();ctx.arc(lx*T-ox+8,ly*T-oy+8,26,0,7);ctx.fill();ctx.globalAlpha=1;if(tileAt(lx,ly)==="L")px(lx*T-ox+5,ly*T-oy+3,6,2,"#fff4c8")});
+    ctx.drawImage(dark,0,0);}else dayLight(m,ox,oy,t);
+    if(NA>0)m.lamps.forEach(([lx,ly])=>{ctx.globalAlpha=.12;ctx.fillStyle=m.dirt&&tileAt(lx,ly)==="Q"?"#ff9a4a":"#ffd98a";ctx.beginPath();ctx.arc(lx*T-ox+8,ly*T-oy+8,26,0,7);ctx.fill();ctx.globalAlpha=1;if(tileAt(lx,ly)==="L")px(lx*T-ox+5,ly*T-oy+3,6,2,"#fff4c8")});
     m.builds.forEach(b=>drawBuildingLights(b,ox,oy,t));
     if(m.rasta){
       for(const yy of[6,19]){const gy=yy*T-oy-3;if(gy<-10||gy>SH+10)continue;ctx.strokeStyle="#3a2a1a";ctx.lineWidth=1;ctx.beginPath();for(let gx=T;gx<(m.w-1)*T;gx+=2){const sy2=gy+Math.sin(gx/24)*2;gx===T?ctx.moveTo(gx-ox,sy2):ctx.lineTo(gx-ox,sy2)}ctx.stroke();
@@ -3777,8 +3781,8 @@ function canasGame(opt={}){
 // ---- Medallero: los 8 gimnasios y la Liga ----
 const MEDALS=[
   {k:"chapa",n:"Chapa del Bar de Paco",ic:"🍺",lider:"Paco",tipo:"veneno",has:()=>!!S.flags.gym},
-  {k:"hoja",n:"Medalla La Hoja",ic:"🍃",lider:"Bob Marley",tipo:"planta",has:()=>!!S.flags.hoja},
-  {k:"neon",n:"Medalla Neón",ic:"⚡",lider:"Lolo Gramos",tipo:"electrico",has:()=>!!S.flags.neon},
+  {k:"hoja",n:"Medalla Bob Marihuano",ic:"🍃",lider:"Bob Marley",tipo:"planta",has:()=>!!S.flags.hoja},
+  {k:"neon",n:"Medalla Calambrazo",ic:"⚡",lider:"Lolo Gramos",tipo:"electrico",has:()=>!!S.flags.neon},
   {k:"m4",n:"???",ic:"❔",lider:"???",tipo:null,has:()=>false},{k:"m5",n:"???",ic:"❔",lider:"???",tipo:null,has:()=>false},
   {k:"m6",n:"???",ic:"❔",lider:"???",tipo:null,has:()=>false},{k:"m7",n:"???",ic:"❔",lider:"???",tipo:null,has:()=>false},{k:"m8",n:"???",ic:"❔",lider:"???",tipo:null,has:()=>false}];
 function medallero(){return new Promise(res=>{const close=()=>{closeOverlay();res()};const got=MEDALS.filter(m=>m.has()).length;
@@ -3816,7 +3820,7 @@ async function typeSearch(){const K=Object.keys(TYPES);const i=await choose("¿Q
 ["l","u","!"].forEach(c=>WALK.add(c));
 Object.assign(MAPNAME,{carretera:"La Carretera",gasolinera:"Gasolinera 24H",neon:"Ciudad Neón",hostal:"Hostal La Estrella",tienda24:"24H Chin",casino:"Gran Casino Gramos",comisaria:"Comisaría Central",vip:"Planta VIP"});
 
-// ---- Ganja Life: la carretera sale por la derecha (cortada hasta tener la Medalla La Hoja) ----
+// ---- Ganja Life: la carretera sale por la derecha (cortada hasta tener la Medalla Bob Marihuano) ----
 (function(){const g=MAPS.comuna.g;for(let x=24;x<36;x++)if(g[12][x]!=="H"&&g[12][x]!=="D")g[12][x]="r";g[12][35]="r";MAPS.comuna.exits["35,12"]=["carretera",1,10,"right"];
   MAPS.comuna.signs["34,11"]="→ LA CARRETERA DEL POLÍGONO · Ciudad Neón (Casino · Lolo Gramos)";g[11][34]="S"})();
 NPC_LOOK.obrero={hs:2,ts:9};
@@ -3944,7 +3948,7 @@ NPCS.push(
  {id:"cguiri",map:"carretera",x:55,y:11,dir:"up",sight:5,pal:{h:"#f2d14e",s:"#f8c8a8",e:"#222",c:"#e04a9a",z:"#f4f4f4",p:"#3a6ad0",k:"#f8c8a8"},hs:0,ts:2,spin:["up","left","down"],trainer:tr4("Guiri Steve","Steve",[["coronita",19],["heineken",19],["aguilalitro",20]],230,["Guiri Steve: Hello! ¿Casino? ¿Dónde casino? ¡Yo perder todo mi money!","Guiri Steve: Yo pelear por el último money. ¡Fight!"],"Guiri Steve: No money, no casino… ¡Sangría para olvidar!")},
  {id:"cvecina",map:"carretera",x:49,y:9,dir:"down",pal:{h:"#c8c8c8",s:"#f1c27d",e:"#222",c:"#8a4a6a",z:"#f4f4f4",p:"#3a3a3a",k:"#5a3a1a"},hs:9,ts:5}
 );
-TALK2.cvecina=async()=>{await say(pick(["Vecina: Ciudad Neón antes era un pueblo. Luego llegó Lolo con su casino y ahora no duerme nadie.","Vecina: Mi marido entró en el casino en 1998. Todavía no ha salido. Le mando tuppers.","Vecina: A Lolo lo protege el Comisario. Eso lo sabe todo el mundo. Pero nadie lo dice. Yo tampoco. Yo no he dicho nada.","Vecina: Yo estaba fatal de los nervios, pero hablé con Salva por teléfono y ahora todo va bien."]))};
+TALK2.cvecina=async()=>{await say(pick(["Vecina: Ciudad Neón antes era un pueblo. Luego llegó Lolo con su casino y ahora no duerme nadie.","Vecina: Mi marido entró en el casino en 1998. Todavía no ha salido. Le mando tuppers.","Vecina: A Lolo lo protege el Comisario. Eso lo sabe todo el mundo. Pero nadie lo dice. Yo tampoco. Yo no he dicho nada."]))};
 // gasolinera
 NPCS.push({id:"chun",map:"gasolinera",x:5,y:1,dir:"down",pal:NPC_PAL.chen||{h:"#1a1a1a",s:"#f1c27d",e:"#222",c:"#c8202a",z:"#f4f4f4",p:"#2a2a2a",k:"#1a1a1a"},hs:0,ts:5},
   {id:"mari",map:"gasolinera",x:8,y:3,dir:"down",pal:{h:"#6a2a1a",s:"#f1c27d",e:"#222",c:"#2a8a3a",z:"#f4f4f4",p:"#2a2a2a",k:"#1a1a1a"},hs:3,ts:10});
@@ -3969,7 +3973,7 @@ NPCS.push(
 );
 TALK2.puri=async()=>{await sayAll(["Doña Puri: Bienvenido al Hostal La Estrella. Una estrella, sí. La otra se la llevó el viento en 2004.","Doña Puri: Échate un rato, que te curo a los bichos."]);
   S.team.forEach(m=>{m.hp=maxhp(m)});S.respawn=["hostal",4,4];sfx("heal");save();await say("¡Tu equipo está como nuevo! (Si caes en combate, despertarás en el hostal.) La Nevera está en la esquina.")};
-const CHIN={n:"Chin",hi:"Chin: ¡Hola! 24H Chin. Prima de Chen, de Chan y de Chun. Abierto siempre. Siempre. SIEMPRE.",bye:"Chin: Gracias. Vuelve. Siempre abierto. SIEMPRE.",lines:["Chin: Lolo compra aquí el papel de fumar. Cajas enteras. No pregunto.","Chin: Mi primo Chen dice que hablaste con Salva. Yo también. Ahora vendo el doble."]};
+const CHIN={n:"Chin",hi:"Chin: ¡Hola! 24H Chin. Prima de Chen, de Chan y de Chun. Abierto siempre. Siempre. SIEMPRE.",bye:"Chin: Gracias. Vuelve. Siempre abierto. SIEMPRE.",lines:["Chin: Lolo compra aquí el papel de fumar. Cajas enteras. No pregunto."]};
 TALK2.chin=async()=>{await shop(CHIN)};
 const RICHI={n:"Richi",hi:"Richi: ¿Qué pasa, máquina? Soy Richi, primo de Richard y de Ricardito. Yo vendo las Mezclas Técnicas de ciudad. Las caras.",lines:["Richi: Picado, Uppercut y Navajazo: lo último en ciudad. Lo demás es de pueblo.","Richi: Mi primo Richard vende con estilo. Yo vendo con precio. Caro, pero precio."]};
 TALK2.richi=async()=>{await mtShop(RICHI)};
@@ -3983,7 +3987,7 @@ TALK2.nchusta=async()=>{
       "El Chusta: Pero el gorila de la puerta no deja subir a nadie. Y el Comisario de La Pasma le cubre las espaldas. Ese es el que mandaba a Pérez y a Gómez, ¿te acuerdas?",
       "El Chusta: Si destapamos el chanchullo, el gorila no podrá pararte. Necesitas tres pruebas: el Libro de Cuentas del Contable (está en el callejón), una ficha trucada del casino y el Expediente del Comisario.",
       "📜 Nueva misión: «El chanchullo del casino». La tienes en el Menú, en Misiones."]);S.q.casino=1;save();return}
-  await say(pick(["El Chusta: Tres pruebas, bro: el Libro de Cuentas, la ficha trucada y el Expediente del Comisario. Yo vigilo la entrada. Bueno, vigilo un piti.","El Chusta: He apostado 5 pavos a la ruleta y he perdido 20. No sé cómo, bro.","El Chusta: Todo va a salir bien. Hablé con Salva antes de venir. Me dijo: «cuidado con el número 17». No sé qué significa."]))};
+  await say(pick(["El Chusta: Tres pruebas, bro: el Libro de Cuentas, la ficha trucada y el Expediente del Comisario. Yo vigilo la entrada. Bueno, vigilo un piti.","El Chusta: He apostado 5 pavos a la ruleta y he perdido 20. No sé cómo, bro."]))};
 TALK2.trile=async()=>{await trileGame()};
 TALK2.portero=async()=>{const k=S.keys||{};
   if(S.flags.neon){await say("Portero: Señor. Adelante, señor. Lo que usted diga, señor.");return}
@@ -4020,7 +4024,7 @@ TALK2.lolo=async()=>{
     {trainer:{name:"Lolo Gramos",short:"Lolo",pal:{h:"#1a1a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#f2c14e",p:"#2a2a2a",k:"#f2c14e"},hs:4,ts:11,money:900,leader:true,
       challenge:"¡Lolo Gramos, el dueño del Gran Casino, te desafía!",lose:"Lolo Gramos: … La casa ha perdido. Apúntalo, que no pasa nunca."},music:"lolo"});
   if(win){S.flags.neon=true;S.keys.neon=true;S.tms=S.tms||{};S.tms.mt17=(S.tms.mt17||0)+1;S.flags.vuelo=true;S.fichas=(S.fichas||0)+500;sfx("quest");save();
-    await sayAll(["¡Has ganado la ⚡ Medalla Neón!","Lolo Gramos: Toma, te la has ganado. Y llévate también esto: la MO VUELO. Tus Pedomones podrán llevarte volando a cualquier ciudad que hayas visitado.",
+    await sayAll(["¡Has ganado la ⚡ Medalla Calambrazo!","Lolo Gramos: Toma, te la has ganado. Y llévate también esto: la MO VUELO. Tus Pedomones podrán llevarte volando a cualquier ciudad que hayas visitado.",
       "Lolo Gramos: Y la MT17, Golpe de Neón. Y 500 fichas para el casino, que sé que volverás.","🕊️ ¡Ya puedes usar VUELO desde el menú!",
       "Lolo Gramos: Una cosa más… el Comisario tenía un jefe. Alguien mucho más arriba. Dicen que está detrás de la Ley Seca. Si sigues tirando del hilo… te veo en la siguiente ciudad."])}};
 MTS.push({id:"mt17",mv:"rascacielos",price:0,types:null,reward:true});
@@ -4188,12 +4192,12 @@ const _ql4=questLines;
 questLines=function(){const L=_ql4();if(S.flags.hoja&&!S.flags.neonIn)L.push("🛣️ Sigue la carretera a la derecha de la Ganja Life hasta Ciudad Neón.");
   if(S.q.casino&&!S.flags.neon){const k=S.keys;L.push(`🎰 El chanchullo del casino: ${k.libro?"✅":"⬜"} Libro de Cuentas (callejón) · ${k.ficha?"✅":"⬜"} Ficha trucada (juega en el casino) · ${k.expediente?"✅":"⬜"} Expediente (comisaría).`);
     if(k.libro&&k.ficha&&k.expediente)L.push(S.flags.vipOpen?"⚡ ¡Sube a la Planta VIP y reta a Lolo Gramos!":"⚡ Enséñale las tres pruebas al portero del casino.")}
-  if(S.flags.neon)L.push("✅ Medalla Neón conseguida. Usa VUELO desde el menú para viajar.");return L};
+  if(S.flags.neon)L.push("✅ Medalla Calambrazo conseguida. Usa VUELO desde el menú para viajar.");return L};
 // el Contable suelta el libro al perder
 const _tb4=trainerBattle;
 trainerBattle=async function(n){const r=await _tb4(n);if(n.id==="contable"&&S.beaten.contable&&!S.keys.libro){S.keys.libro=true;sfx("quest");save();await sayAll(["Al Contable se le cae un libro gordo de tapas negras: «CUENTAS B — NO ABRIR».","¡Consigues el 📒 Libro de Cuentas!"])}return r};
 Object.assign(KEYS_IT,{libro:{n:"📒 Libro de Cuentas",d:"Las cuentas B del Gran Casino Gramos. Hay una columna que pone «Comisario» y muchos ceros."},ficha:{n:"🪙 Ficha trucada",d:"Una ficha del casino con un imán dentro. Así se paran las ruletas donde quiere la casa."},
-  expediente:{n:"📁 Expediente del Comisario",d:"Fotos del Comisario cobrando sobres de Lolo. En una guiña un ojo a la cámara."},neon:{n:"⚡ Medalla Neón",d:"La medalla de Lolo Gramos. Brilla en la oscuridad. Y da un poco de calambre."}});
+  expediente:{n:"📁 Expediente del Comisario",d:"Fotos del Comisario cobrando sobres de Lolo. En una guiña un ojo a la cámara."},neon:{n:"⚡ Medalla Calambrazo",d:"La medalla de Lolo Gramos. Brilla en la oscuridad. Y da un poco de calambre."}});
 
 /*</B4CITY>*/
 /*<B4CASINO>*/
@@ -4208,10 +4212,12 @@ Object.assign(KEYS_IT,{libro:{n:"📒 Libro de Cuentas",d:"Las cuentas B del Gra
 .rbd .r{background:#b81c22}.rbd .k{background:#141414}.rbd .z{background:#1a8a3a}.rbd .o{background:#0d4a26;font-size:11px}
 .rbd .hit{box-shadow:0 0 0 3px #ffd14a inset,0 0 14px #ffd14a}
 .rbd .ch{position:absolute;right:-4px;top:-6px;min-width:20px;height:20px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;border:2px dashed #fff;z-index:2;box-shadow:0 2px 0 #000}
-.pcard{display:inline-flex;flex-direction:column;justify-content:space-between;width:46px;height:66px;border-radius:6px;background:linear-gradient(160deg,#fff,#e8e4dc);color:#111;font-weight:900;font-size:15px;padding:3px 4px;margin:2px;box-shadow:0 3px 6px rgba(0,0,0,.5);animation:cdeal .35s ease-out both;position:relative}
+.pcard{font-family:"Rubik","Arial",sans-serif;display:inline-flex;flex-direction:column;justify-content:space-between;width:64px;height:92px;border-radius:8px;background:linear-gradient(160deg,#fff,#e8e4dc);color:#111;font-weight:900;font-size:19px;padding:4px 6px;margin:3px;box-shadow:0 4px 8px rgba(0,0,0,.5);position:relative;vertical-align:top}
+.pcard.new{animation:cdeal .38s ease-out both}.pcard.flip{animation:cflip .45s ease-out both}.pcard .mid{top:26px!important;font-size:34px!important}
+@keyframes cflip{0%{transform:rotateY(90deg)}100%{transform:none}}
 .pcard.red{color:#c8141c}.pcard .bs{align-self:flex-end;transform:rotate(180deg)}.pcard .mid{position:absolute;left:0;right:0;top:20px;text-align:center;font-size:24px}
 .pcard.back{background:repeating-linear-gradient(45deg,#8a1a2a 0 4px,#a8243a 4px 8px);border:3px solid #fff}
-.pcard.sm{width:34px;height:48px;font-size:11px}.pcard.sm .mid{font-size:16px;top:14px}
+.pcard.sm{width:42px;height:60px;font-size:13px}.pcard.sm .mid{font-size:20px!important;top:17px!important}
 @keyframes cdeal{from{transform:translate(60px,-80px) rotate(25deg);opacity:0}to{transform:none;opacity:1}}
 .felt{background:radial-gradient(ellipse at center,#1f8a4a 0%,#0e5a2c 70%,#0a3a1c 100%);border:8px solid #5a3414;border-radius:120px/70px;box-shadow:inset 0 0 30px rgba(0,0,0,.6),0 6px 0 #2a1408;padding:14px;position:relative}
 .seat{background:rgba(0,0,0,.55);border-radius:10px;padding:4px 6px;font-size:12px;text-align:center;min-width:86px}
@@ -4253,13 +4259,13 @@ TALK2.rocio=async()=>{
   if(S.q.casino&&!S.keys.ficha){if((S.casinoN||0)>=5){S.keys.ficha=true;sfx("quest");save();
       await sayAll(["Rocío: Oye… tú eres el que va a por Lolo, ¿no? Me lo ha dicho el Chusta. Bueno, se lo ha dicho a todo el casino.","Rocío: Toma. La encontré limpiando la ruleta: una ficha con un imán dentro. Con eso paran la bola donde quieren.","¡Consigues la 🪙 Ficha trucada!","Rocío: Yo no te he dado nada. Yo solo pongo copas."]);return}
     await say(`Rocío: ¿Quieres saber cosas del casino? Primero juega un poco, que si no, el de seguridad sospecha. (Partidas jugadas: ${S.casinoN||0}/5)`);return}
-  await say(pick(["Rocío: ¿Qué te pongo? Aquí las copas son gratis… si estás jugando. Si no, son 18 pavos.","Rocío: El de la mesa de póker lleva tres días sin dormir. Dice que está «a una mano» de recuperarlo todo.","Rocío: Las tragaperras de la derecha están más sueltas. Las de abajo, no. No le digas a nadie que te lo he dicho.","Rocío: Yo antes perdía en la ruleta. Hablé con Salva y ahora solo apuesto al 17. Sigo perdiendo, pero con fe."]))};
+  await say(pick(["Rocío: ¿Qué te pongo? Aquí las copas son gratis… si estás jugando. Si no, son 18 pavos.","Rocío: El de la mesa de póker lleva tres días sin dormir. Dice que está «a una mano» de recuperarlo todo.","Rocío: Las tragaperras de la derecha están más sueltas. Las de abajo, no. No le digas a nadie que te lo he dicho."]))};
 TALK2.cajera=async()=>{await caja()};
 TALK2.canjero=async()=>{await canje()};
 TALK2.crupr=async()=>{await ruleta()};
 TALK2.crupb=async()=>{await blackjack()};
 TALK2.jug1=async()=>{await say(pick(["Ludópata Fermín: Rojo. Siempre rojo. Desde 1987. Algún día saldrá rojo diez veces seguidas y me forraré.","Ludópata Fermín: La ruleta tiene memoria. Yo no, pero ella sí."]))};
-TALK2.jug2=async()=>{await say(pick(["Turista: OMG, ¡he ganado 35 a 1 en el pleno al 17! ¡Gracias, Salva!","Turista: El crupier me ha dicho que el cero es de la casa. ¿Qué casa? ¿La suya?"]))};
+TALK2.jug2=async()=>{await say(pick(["Turista: El crupier me ha dicho que el cero es de la casa. ¿Qué casa? ¿La suya?"]))};
 TALK2.jug3=async()=>{await say(pick(["Jugador de póker: All in. Siempre all in. Es mi estilo. También es mi problema.","Jugador de póker: Si tienes colegas conectados, sentaos juntos en la mesa de póker. Yo os relleno la mesa. Y os desplumo."]))};
 TALK2.jug4=async()=>{await say(pick(["Señora de las tragaperras: Tres diamantes… tres diamantes… ¡casi! Dos diamantes y un limón. El limón me odia.","Señora de las tragaperras: Si salen tres estrellas, te dan tiradas gratis. Y las gratis pagan doble."]))};
 TALK2.jug5=async()=>{await say(pick(["Apostador: He apostado 200 fichas al Atlético Botellón. Van perdiendo 0-3 al descanso. Confío.","Apostador: En los galgos, el de las cuotas altas a veces gana. A veces. Una vez. En 2011."]))};
@@ -4367,7 +4373,7 @@ function ruleta(){return new Promise(async res=>{if(!await needFichas(1)){res();
 /* ===================== BLACKJACK ===================== */
 const SUITS=["♠","♥","♦","♣"],RANKS=["","","2","3","4","5","6","7","8","9","10","J","Q","K","A"];
 function newShoe(n){const d=[];for(let k=0;k<n;k++)for(let s=0;s<4;s++)for(let r=2;r<=14;r++)d.push({r,s});for(let i=d.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
-const cardH=(c,sm,hide)=>hide?`<span class="pcard back${sm?" sm":""}"></span>`:`<span class="pcard${c.s===1||c.s===2?" red":""}${sm?" sm":""}"><span>${RANKS[c.r]}</span><span class="mid">${SUITS[c.s]}</span><span class="bs">${RANKS[c.r]}</span></span>`;
+const cardH=(c,sm,hide)=>{let an="";if(c&&typeof c==="object"){if(!c._r){c._r=1;an=" new"}else if(c._h&&!hide)an=" flip";c._h=!!hide}return hide?`<span class="pcard back${sm?" sm":""}${an}"></span>`:`<span class="pcard${c.s===1||c.s===2?" red":""}${sm?" sm":""}${an}"><span>${RANKS[c.r]}</span><span class="mid">${SUITS[c.s]}</span><span class="bs">${RANKS[c.r]}</span></span>`};
 function bjVal(h){let v=0,a=0;for(const c of h){v+=c.r===14?11:c.r>=10?10:c.r;if(c.r===14)a++}while(v>21&&a){v-=10;a--}return v}
 function blackjack(){return new Promise(async res=>{if(!await needFichas(5)){res();return}
   let shoe=newShoe(6),bet=10,state="bet",P=[],D=[],msg="",npcs=[{nm:"Fermín",h:[]},{nm:"Doña Rosi",h:[]}],doubled=false;
@@ -4381,23 +4387,23 @@ function blackjack(){return new Promise(async res=>{if(!await needFichas(5)){res
     ${state==="bet"?`<div class="btns" style="justify-content:center">${[5,10,25,100].map(v=>`<button class="big alt" type="button" data-b="${v}"${v===bet?' style="outline:2px solid #ffd14a"':""}>${v}</button>`).join("")}</div>
       <div class="btns"><button class="big" type="button" id="bj-d"${fichas()<bet?" disabled":""}>🃏 Repartir</button><button class="big alt" type="button" id="bj-x">Salir</button></div>`:
      state==="play"?`<div class="btns"><button class="big" type="button" id="bj-h">➕ Pedir</button><button class="big" type="button" id="bj-s">✋ Plantarse</button><button class="big alt" type="button" id="bj-2"${P.length!==2||fichas()<bet?" disabled":""}>✖2 Doblar</button></div>`:
-     state==="done"?`<div class="btns"><button class="big" type="button" id="bj-n">Otra mano</button><button class="big alt" type="button" id="bj-x">Salir</button></div>`:""}</div>`,{onB:()=>{if(state==="bet"||state==="done")exit()}});
+     state==="done"?`<div class="btns"><button class="big" type="button" id="bj-n">Otra mano</button><button class="big alt" type="button" id="bj-x">Salir</button></div>`:`<div class="btns"><button class="big alt" type="button" disabled>⏳ Espera…</button></div>`}</div>`,{onB:()=>{if(state==="bet"||state==="done")exit()},keepScroll:true});
     ov.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{bet=+b.dataset.b;sfx("sel");render()});
     const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};on("bj-d",deal);on("bj-x",exit);on("bj-h",hit);on("bj-s",stand);on("bj-2",dbl);on("bj-n",()=>{state="bet";P=[];D=[];npcs.forEach(n=>n.h=[]);msg="";doubled=false;render()})}
-  async function deal(){if(fichas()<bet)return;addF(-bet);casinoPlayed();state="deal";P=[];D=[];doubled=false;npcs.forEach(n=>n.h=[]);msg="Repartiendo…";
+  async function deal(){if(state!=="bet"||fichas()<bet)return;addF(-bet);casinoPlayed();state="deal";P=[];D=[];doubled=false;npcs.forEach(n=>n.h=[]);msg="Repartiendo…";
     for(let r=0;r<2;r++){for(const n of npcs){n.h.push(draw());render();sfx("blip");await sleep(220)}P.push(draw());render();sfx("blip");await sleep(260);D.push(draw());render();sfx("blip");await sleep(260)}
     if(bjVal(P)===21){state="dealer";msg="¡BLACKJACK!";render();await sleep(500);return settle()}state="play";msg="¿Pides o te plantas?";render()}
-  async function hit(){P.push(draw());sfx("blip");if(bjVal(P)>21){state="dealer";msg="Te has pasado… 💥";render();await sleep(500);return settle()}if(bjVal(P)===21)return stand();render()}
-  async function dbl(){if(fichas()<bet)return;addF(-bet);bet*=2;doubled=true;P.push(draw());sfx("blip");render();await sleep(400);stand()}
-  async function stand(){state="dealer";msg="Turno de los demás…";render();
+  async function hit(){if(state!=="play")return;state="hit";P.push(draw());sfx("blip");if(bjVal(P)>21){state="dealer";msg="Te has pasado… 💥";render();await sleep(500);return settle()}if(bjVal(P)===21){state="play";return stand()}state="play";render()}
+  async function dbl(){if(state!=="play"||P.length!==2||fichas()<bet)return;state="dbl";addF(-bet);bet*=2;doubled=true;P.push(draw());sfx("blip");render();await sleep(400);state="play";stand()}
+  async function stand(){if(state!=="play")return;state="dealer";msg="Turno de los demás…";render();
     for(const n of npcs){while(bjVal(n.h)<(n.nm==="Fermín"?17:15)){await sleep(350);n.h.push(draw());sfx("blip");render()}}
     msg="El crupier destapa…";render();await sleep(500);
     if(bjVal(P)<=21)while(bjVal(D)<17){await sleep(500);D.push(draw());sfx("blip");render()}settle()}
-  function settle(){const p=bjVal(P),d=bjVal(D),bj=p===21&&P.length===2,dbj=d===21&&D.length===2;let pay=0,txt;
+  function settle(){if(state==="done")return;const p=bjVal(P),d=bjVal(D),bj=p===21&&P.length===2,dbj=d===21&&D.length===2;let pay=0,txt;
     if(p>21)txt="Te has pasado. Pierdes.";else if(bj&&!dbj){pay=Math.floor(bet*2.5);txt=`¡Blackjack! Cobras ${pay} fichas.`}
     else if(dbj&&!bj)txt="El crupier tiene blackjack. Pierdes.";else if(d>21){pay=bet*2;txt=`El crupier se pasa (${d}). ¡Ganas ${pay}!`}
     else if(p>d){pay=bet*2;txt=`${p} contra ${d}. ¡Ganas ${pay} fichas!`}else if(p===d){pay=bet;txt=`Empate a ${p}. Recuperas tu apuesta.`}else txt=`${p} contra ${d}. La casa gana.`;
-    if(pay)addF(pay);sfx(pay>bet?"quest":pay?"sel":"weak");if(doubled)bet=bet/2;state="done";msg=txt;render()}
+    if(pay)addF(pay);sfx(pay>bet?"quest":pay?"sel":"weak");const won=pay>bet?pay:0;if(doubled)bet=bet/2;state="done";msg=txt;render();if(won)casinoWin(won,bj?"¡BLACKJACK!":"¡GANAS!")}
   function exit(){closeOverlay();save();res()}
   render()})}
 
@@ -4453,7 +4459,7 @@ function slots(){return new Promise(async res=>{if(!await needFichas(1)){res();r
     const step=nw=>{let all=true;for(let r=0;r<5;r++){const stopT=900+r*330;const el=nw-t0;if(el<stopT){off[r]=(el/38)%30;all=false}else if(off[r]!==null){const b=el-stopT;if(b<160){off[r]=-0.25*Math.sin(b/160*Math.PI);all=false}else{off[r]=null;G[r]=res2[r];sfx("hit")}}}
       paint(nw);if(!all){raf=requestAnimationFrame(step);return}spinning=false;const ev=slEval(G,bet/10*(isFree?2:1));lastWin=ev;let msg;
       if(ev.win){addF(Math.round(ev.win));msg=`¡Premio! +${Math.round(ev.win)} fichas en ${ev.lines.length} línea${ev.lines.length>1?"s":""}.`;sfx(ev.win>=bet*15?"quest":"sel")}else msg=pick(["Nada esta vez.","Casi…","Uy, por poco.","La máquina se ríe de ti."]);
-      if(ev.stars>=3){free+=8;msg+=` ⭐ ¡${ev.stars} estrellas! +8 tiradas gratis.`;sfx("quest")}lastWin.win=Math.round(ev.win);render(msg);cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)};
+      if(ev.stars>=3){free+=8;msg+=` ⭐ ¡${ev.stars} estrellas! +8 tiradas gratis.`;sfx("quest")}lastWin.win=Math.round(ev.win);render(msg);if(ev.win>=bet*5)casinoWin(Math.round(ev.win),ev.win>=bet*15?"¡GRAN PREMIO!":"¡PREMIO!");else if(ev.stars>=3)casinoWin(0,"⭐ ¡TIRADAS GRATIS!");cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)};
     raf=requestAnimationFrame(step)}
   function exit(){cancelAnimationFrame(raf);closeOverlay();save();res()}
   render();raf=requestAnimationFrame(loop)})}
@@ -4940,15 +4946,15 @@ function grassBlades(y0,y1,n,c1,c2,t,seed){for(let i=0;i<n;i++){const x=rr(i,see
 function groundBands(y0,y1,c1,c2,n){for(let i=0;i<n;i++){const p0=i/n,p1=(i+.5)/n;const a=y0+(y1-y0)*p0*p0,b=y0+(y1-y0)*p1*p1;HR(0,a,240,b-a,i%2?c1:c2)}}
 
 const SCENES={
- park(t){cached("park",()=>{const X=HXP;X.fillStyle=LG(0,HY,[[0,"#151238"],[.45,"#4a2a5e"],[.8,"#c0607a"],[1,"#f0a070"]]);X.fillRect(0,0,240,HY);
-     X.fillStyle=RG(70,HY-6,2,40,[[0,"rgba(255,220,140,.9)"],[1,"rgba(255,160,100,0)"]]);X.fillRect(20,10,100,HY);X.fillStyle="#ffd98a";X.beginPath();X.arc(70,HY-6,11,0,7);X.fill();
-     skyline(-4,HY+1,24,11,"#3a2a52",null,0,10,34,7,16);skyline(-10,HY+2,30,29,"#261a3a",["#ffd98a","#ffb86a","#cfe6ff"],0,6,26,6,13);
-     X.fillStyle=LG(HY,176,[[0,"#3f7a3a"],[1,"#1e4a22"]]);X.fillRect(0,HY,240,176-HY);
+ park(t){cached("park",()=>{const X=HXP;X.fillStyle=LG(0,HY,[[0,"#3a8ee0"],[.6,"#8ccaf2"],[1,"#d8f0ff"]]);X.fillRect(0,0,240,HY);
+     X.fillStyle=RG(196,14,2,40,[[0,"rgba(255,250,210,.95)"],[1,"rgba(255,250,210,0)"]]);X.fillRect(150,0,90,60);X.fillStyle="#fffbe0";X.beginPath();X.arc(196,14,8,0,7);X.fill();
+     skyline(-4,HY+1,24,11,"#9ab0c8",null,0,10,34,7,16);skyline(-10,HY+2,30,29,"#7088a4",["#cfe6ff","#a8c0d8"],0,6,26,6,13);
+     X.fillStyle=LG(HY,176,[[0,"#5aa04a"],[1,"#2f6a2c"]]);X.fillRect(0,HY,240,176-HY);
      for(let i=0;i<9;i++){const a=HY+(176-HY)*Math.pow(i/9,2),b=HY+(176-HY)*Math.pow((i+.5)/9,2);X.fillStyle="rgba(120,200,100,.10)";X.fillRect(0,a,240,b-a)}
-     for(let i=0;i<14;i++){const x=i*19-6+rr(i,3)*6;treeBall(x,HY-2,7+rr(i,1)*4,"#1c3a2c","#2a5a3a")}});
-   for(let i=0;i<5;i++){const x=((t/90*(.4+i*.12)+i*70)%340)-50;cloud(x,10+i*8,.8+i*.15,i%2?"#f6b0a8":"#d890b0",.45)}
-   for(let i=0;i<3;i++){const lx=30+i*90;HR(lx,HY-26,1.4,30,"#1a1424");HR(lx-3,HY-28,7,2,"#1a1424");glow(lx,HY-25,14,"rgba(255,214,140,.55)");HC(lx+.7,HY-26,1.4,"#ffe9b0")}
-   grassBlades(HY+4,176,120,"#4a9a3e","#2a6a2c",t,1);
+     for(let i=0;i<14;i++){const x=i*19-6+rr(i,3)*6;treeBall(x,HY-2,7+rr(i,1)*4,"#2f6a3a","#4a9a4a")}});
+   for(let i=0;i<5;i++){const x=((t/90*(.4+i*.12)+i*70)%340)-50;cloud(x,10+i*8,.8+i*.15,"#ffffff",.8)}
+   for(let i=0;i<3;i++){const lx=30+i*90;HR(lx,HY-26,1.4,30,"#3a3a44");HR(lx-3,HY-28,7,2,"#3a3a44")}
+   grassBlades(HY+4,176,120,"#6aba4e","#3f8a3a",t,1);
    for(let i=0;i<14;i++){const x=(rr(i,9)*240+Math.sin(t/1300+i)*12),y=HY+10+rr(9,i)*60+Math.cos(t/900+i)*5;if(Math.sin(t/260+i*2)>.1)glow(x,y,3,"rgba(230,255,140,.9)")}},
  nature(t){cached("nature",()=>{const X=HXP;X.fillStyle=LG(0,HY,[[0,"#3a8ee0"],[.7,"#9ad0f4"],[1,"#d8f0ff"]]);X.fillRect(0,0,240,HY);
      const mount=(base,amp,seed,col)=>{X.fillStyle=col;X.beginPath();X.moveTo(0,HY+2);for(let x=0;x<=240;x+=4){const y=base-amp*(.5+.5*Math.sin(x/23+seed)*Math.cos(x/41+seed*2))-rr(x,seed)*2;X.lineTo(x,y)}X.lineTo(240,HY+2);X.fill()};
@@ -5018,13 +5024,13 @@ const SCENES={
      for(let j=0;j<10;j++){const y=HY+Math.pow(j/10,2)*114;X.fillStyle="rgba(60,64,72,.5)";X.fillRect(0,y,240,.5)}for(let i=-14;i<=14;i++){X.strokeStyle="rgba(60,64,72,.5)";X.lineWidth=.5;X.beginPath();X.moveTo(120+i*8,HY);X.lineTo(120+i*34,176);X.stroke()}});
    const ph=Math.floor(t/350)%2;for(let w=0;w<3;w++){const x=20+w*76;hx.save();hx.globalAlpha=.35;hx.fillStyle=ph?"#3a6aff":"#ff3a3a";for(let k=0;k<11;k++)hx.fillRect(x,10.6+k*3,50,1.4);hx.restore()}
    glow(ph?40:200,30,90,ph?"rgba(60,100,255,.18)":"rgba(255,60,60,.18)")},
- lot(t){cached("lot",()=>{const X=HXP;X.fillStyle=LG(0,HY,[[0,"#0a0c1e"],[1,"#2a2440"]]);X.fillRect(0,0,240,HY);
-     skyline(-4,HY-14,26,3,"#141226",["#ffd98a"],0,8,24,8,16);
+ lot(t){cached("lot",()=>{const X=HXP;X.fillStyle=LG(0,HY,[[0,"#5aa8e8"],[1,"#d0ecfa"]]);X.fillRect(0,0,240,HY);
+     skyline(-4,HY-14,26,3,"#8a9ab0",null,0,8,24,8,16);
      X.fillStyle="#4a4448";X.fillRect(0,HY-16,240,16);const tags=[["#ff4ad0","PEDO"],["#4ad8ff","BARRIO"],["#f2d14e","SALVA"]];X.font="bold 8px Arial Black,Arial";X.textAlign="center";
      tags.forEach(([c,s],i)=>{X.save();X.translate(40+i*80,HY-5);X.rotate(-.08+i*.06);X.fillStyle="#111";X.fillText(s,1,1);X.fillStyle=c;X.fillText(s,0,0);X.restore()});
      X.strokeStyle="rgba(170,180,190,.55)";X.lineWidth=.4;for(let i=0;i<120;i++){X.beginPath();X.moveTo(i*2,HY-34);X.lineTo(i*2+8,HY-18);X.moveTo(i*2+8,HY-34);X.lineTo(i*2,HY-18);X.stroke()}X.fillStyle="#6a6a72";for(let i=0;i<9;i++)X.fillRect(i*30,HY-36,1.4,20);
      X.fillStyle=LG(HY,176,[[0,"#7a6a4a"],[1,"#3a3020"]]);X.fillRect(0,HY,240,176-HY);for(let i=0;i<60;i++){X.fillStyle=i%2?"#5a4a32":"#8a7a5a";X.fillRect(rr(i,4)*240,HY+rr(4,i)*110,1+rr(i,1)*2,1)}});
-   for(let i=0;i<30;i++)if(Math.sin(t/500+i*1.7)>-.3)HR(rr(i,8)*240,rr(8,i)*30,.6,.6,"#ffffff");
+   for(let i=0;i<3;i++)cloud(((t/80*(.5+i*.2)+i*100)%330)-45,10+i*8,.8,"#ffffff",.85);
    const bx=212,by=HY+4;HR(bx-6,by-10,12,12,"#3a2a2a");HR(bx-6,by-7,12,1,"#5a4a4a");glow(bx,by-12,40,"rgba(255,140,40,.35)");
    for(let i=0;i<12;i++){const p=((t/600)+i/12)%1,x=bx+Math.sin(t/120+i*3)*(4-p*3),y=by-10-p*16;hx.save();hx.globalAlpha=1-p;HC(x,y,2.4*(1-p)+.4,p<.4?"#ffe070":p<.7?"#ff8a2a":"#c8302a");hx.restore()}
    for(let i=0;i<5;i++){const p=((t/2000)+i/5)%1;hx.save();hx.globalAlpha=.3*(1-p);HC(bx+Math.sin(t/700+i)*4+p*10,by-26-p*30,2+p*6,"#5a5260");hx.restore()}}
@@ -5260,6 +5266,370 @@ betBoxeo=async function(){const b=BOXERS.slice().sort(()=>rnd()-.5).slice(0,2);l
   await payOut(end.w===pk.i,pk.stake,opts[pk.i].odds,`Gana ${b[end.w][0]} ${end.how==="KO"?"por K.O.":"a los puntos."}`)};
 
 /*</B4SPORTS2>*/
+/*<B4CASINO2>*/
+/* ===================== CASINO 2.0 · Ruleta de verdad, celebraciones y ambiente que no te deja salir ===================== */
+(function(){const st=document.createElement("style");st.textContent=`
+.cwin{position:fixed;inset:0;pointer-events:none;z-index:60;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
+.cwin .ttl{font:900 clamp(30px,7vw,64px) "Arial Black",Arial,sans-serif;color:#ffd14a;text-shadow:0 0 18px #ffb400,0 0 40px #ff4ad0,0 4px 0 #6a3a00;animation:cwpop .5s cubic-bezier(.2,1.6,.4,1) both;letter-spacing:1px;text-align:center}
+.cwin .amt{font:900 clamp(26px,6vw,54px) "Arial Black",Arial,sans-serif;color:#fff;text-shadow:0 0 14px #ffd14a,0 3px 0 #6a3a00;animation:cwpop .6s .1s cubic-bezier(.2,1.6,.4,1) both}
+.cwin .fl{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,230,140,.55),rgba(255,74,208,.15) 50%,transparent 75%);animation:cwfl 1.4s ease-out both}
+.cwin .coin{position:absolute;top:-40px;font-size:28px;animation:cwfall linear both}
+.cwin .ray{position:absolute;left:50%;top:50%;width:1400px;height:1400px;margin:-700px;background:repeating-conic-gradient(rgba(255,220,120,.16) 0 10deg,transparent 10deg 20deg);animation:cwspin 4s linear both;border-radius:50%}
+@keyframes cwpop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes cwfl{0%{opacity:1}100%{opacity:0}}
+@keyframes cwfall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(115vh) rotate(720deg)}}
+@keyframes cwspin{0%{transform:rotate(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:rotate(80deg);opacity:0}}
+.rl2{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.rlhist{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}.rlhist b{min-width:24px;padding:2px 4px;border-radius:5px;color:#fff;text-align:center;font-size:13px;box-shadow:0 2px 0 rgba(0,0,0,.4)}
+.rlhist b:first-child{transform:scale(1.25);box-shadow:0 0 10px #ffd14a}
+.rbd.big div{min-height:40px;font-size:16px}.rbd div{font-family:"Rubik","Arial",sans-serif!important;font-weight:800!important}
+.rbd .pv{box-shadow:0 0 0 3px #4ad8ff inset,0 0 12px #4ad8ff;z-index:1}.rbd .gs{box-shadow:0 0 0 3px #ffd14a inset}.rbd .gb{outline:2px dashed #ffd14a;outline-offset:-4px}
+.mdb{font:700 13px Rubik,Arial;border-radius:99px;border:2px solid #6a4a1a;background:#1a0f08;color:#f4e8d0;padding:5px 12px;cursor:pointer}.mdb.on{background:#ffd14a;color:#1a0f08;border-color:#ffd14a;box-shadow:0 0 12px rgba(255,209,74,.6)}
+.marq{overflow:hidden;white-space:nowrap;background:#1a0610;border:2px solid #c8a040;border-radius:8px;color:#ffd14a;font-weight:800;padding:3px 0;box-shadow:0 0 12px rgba(255,209,74,.35) inset}
+.marq span{display:inline-block;padding-left:100%;animation:mq 14s linear infinite}@keyframes mq{to{transform:translateX(-100%)}}
+`;document.head.appendChild(st)})();
+
+// ---- Musiquita de premio (arpegio) ----
+function jingle(big){if(!AC||muted)return;const t0=AC.currentTime+.02;const notes=big?[523,659,784,1047,784,1047,1319]:[523,659,784,1047];
+  notes.forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=i%2?"square":"triangle";o.frequency.value=f;g.gain.setValueAtTime(0,t0+i*.09);g.gain.linearRampToValueAtTime(.09*Math.max(.3,MUSV*3),t0+i*.09+.01);g.gain.exponentialRampToValueAtTime(.001,t0+i*.09+.25);o.connect(g);g.connect(AC.destination);o.start(t0+i*.09);o.stop(t0+i*.09+.3)})}
+// ---- Celebración de premio: rayos, destello, lluvia de monedas y contador ----
+function casinoWin(amount,title){const big=amount>=200;const d=document.createElement("div");d.className="cwin";
+  d.innerHTML=`<div class="fl"></div>${big?'<div class="ray"></div>':""}<div class="ttl">${esc(title||"¡PREMIO!")}</div>${amount?`<div class="amt">+<span>0</span> 🪙</div>`:""}`;
+  const n=big?46:22;for(let i=0;i<n;i++){const c=document.createElement("span");c.className="coin";c.textContent=i%7===0?"💎":i%5===0?"💰":"🪙";c.style.left=(Math.random()*100)+"%";c.style.animationDuration=(1.4+Math.random()*1.4)+"s";c.style.animationDelay=(Math.random()*.8)+"s";c.style.fontSize=(20+Math.random()*20)+"px";d.appendChild(c)}
+  document.body.appendChild(d);jingle(big);sfx("quest");
+  if(amount){const sp=d.querySelector(".amt span");const t0=performance.now(),D=Math.min(1800,500+amount*2);const tk=nw=>{const p=Math.min(1,(nw-t0)/D);sp.textContent=Math.round(amount*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tk)};requestAnimationFrame(tk)}
+  setTimeout(()=>d.remove(),big?3200:2300)}
+// apuestas deportivas: también se celebra
+const _payOut2=payOut;payOut=async function(win,stake,odds,txt){if(win)casinoWin(Math.floor(stake*odds),"¡APUESTA GANADA!");return _payOut2(win,stake,odds,txt)};
+
+/* ---- RULETA EUROPEA REAL: cilindro de madera, pista de la bola, diamantes, torreta, bola que rebota y cae ---- */
+const GRP={n:{nm:"Pleno",pay:"35 a 1"},s:{nm:"Caballo · 2 números",pay:"17 a 1"},t:{nm:"Calle · 3 números",pay:"11 a 1"},q:{nm:"Cuadro · 4 números",pay:"8 a 1"},6:{nm:"Seisena · 6 números",pay:"5 a 1"}};
+function grpNums(k){const[t,v]=k.split(":");if(t==="s")return v.split("-").map(Number);const a=+v;if(t==="t")return[a,a+1,a+2];if(t==="q")return[a,a+1,a+3,a+4];if(t==="6")return[a,a+1,a+2,a+3,a+4,a+5];return[]}
+const _rWins0=rWins;rWins=function(key,n){const t=key.split(":")[0];const P2={s:18,t:12,q:9,6:6}[t];if(P2&&key.includes(":"))return grpNums(key).includes(n)?P2:0;return _rWins0(key,n)};
+function betName(k){if(k.includes(":"))return GRP[k[0]].nm.split(" ·")[0]+" "+grpNums(k).join("-");return RB_NAME[k]||"Pleno al "+k.slice(1)}
+ruleta=function(){return new Promise(async res=>{if(!await needFichas(1)){res();return}
+  let mode="n",selA=null,bets={},prevBets=null,chip=5,last=null,hist=S.rHist||[],spinning=false,raf=0,rot=0,ball=null,npcB=[],winGlow=0,phaseTxt="¡Hagan juego, señores!";const NPCN=["Fermín","La turista","El del puro","Doña Rosi","El guiri"];
+  const tot=()=>Object.values(bets).reduce((a,b)=>a+b,0);
+  function npcBets(){npcB=[];const n=ri(2,4);for(let i=0;i<n;i++){const ks=["red","black","even","odd","d1","d2","d3","n"+ri(0,36),"n17","low","high","c1","c2","c3"];npcB.push({nm:NPCN[i%NPCN.length],k:pick(ks),v:pick([5,10,25,100])})}}
+  npcBets();
+  const cell=(k,label,cls,span)=>{const v=bets[k];const nb=npcB.find(b=>b.k===k);return `<div class="${cls||"o"}${last!==null&&rWins(k,last)?" hit":""}" data-k="${k}" ${span?`style="grid-column:${span}"`:""}>${label}${v?`<span class="ch" style="background:${CHIP_COL[v>=100?100:v>=25?25:v>=10?10:v>=5?5:1]};color:${v<5?"#111":"#fff"}">${v}</span>`:""}${nb&&!v?`<span class="ch" style="background:#6a3a8a;opacity:.85">${nb.v}</span>`:""}</div>`};
+  function board(){let h=`<div class="rbd big">`;h+=`<div class="z${last===0?" hit":""}" data-k="n0" style="grid-row:1/4">0${bets.n0?`<span class="ch" style="background:#c8202a">${bets.n0}</span>`:""}</div>`;
+    for(let r=0;r<3;r++){for(let c=0;c<12;c++){const n=c*3+(3-r);h+=cell("n"+n,n,rCol(n)+(last===n?" hit":""),`${c+2}`)}h+=cell("c"+(3-r),"2:1","o",`14`)}
+    h+=`<div style="grid-column:1;background:none;border:none"></div>`+cell("d1","1ª 12","o","2/6")+cell("d2","2ª 12","o","6/10")+cell("d3","3ª 12","o","10/14")+`<div style="grid-column:14;background:none;border:none"></div>`;
+    h+=`<div style="grid-column:1;background:none;border:none"></div>`+cell("low","1-18","o","2/4")+cell("even","PAR","o","4/6")+cell("red","◆","r","6/8")+cell("black","◆","k","8/10")+cell("odd","IMPAR","o","10/12")+cell("high","19-36","o","12/14");
+    return h+`</div>`}
+  const hot=()=>{const c={};hist.slice(-30).forEach(n=>c[n]=(c[n]||0)+1);return Object.keys(c).sort((a,b)=>c[b]-c[a]).slice(0,3)};
+  function render(msg){const H=hist.slice(-12).reverse();overlay(`<div class="csn rl2"><h2 style="margin:0">🎡 Ruleta europea</h2>
+    <div class="marq"><span>🎡 PLENO PAGA 35 A 1 · 🔥 CALIENTES: ${hot().join(" · ")||"—"} · 🎉 ¡ESTA NOCHE LA RULETA ESTÁ QUE ARDE! · ${npcB.map(b=>b.nm+" juega "+b.v+" a "+betName(b.k)).join(" · ")}</span></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between">${FCH()}<span>Apostado: <b>${tot()}</b></span></div>
+    <div class="rlhist">${H.map(n=>`<b style="background:${n===0?"#1a8a3a":RED.has(n)?"#b81c22":"#141414"}">${n}</b>`).join("")||'<span style="opacity:.6;font-size:12px">Sin tiradas todavía</span>'}</div>
+    <canvas id="rl-c" width="1040" height="620" style="width:100%;display:block;border-radius:14px;background:#0d2a16"></canvas>
+    <p id="rl-m" style="text-align:center;min-height:22px;margin:0;font-size:15px">${msg||"Elige ficha y pincha en el tapete. Pleno 35 a 1 · docenas y columnas 2 a 1 · el resto 1 a 1. El 0 es de la casa."}</p>
+    <div class="btns" style="justify-content:center;gap:6px">${["n","s","t","q","6"].map(k=>`<button type="button" class="mdb${mode===k?" on":""}" data-md="${k}">${GRP[k].nm} <small style="opacity:.75">(${GRP[k].pay})</small></button>`).join("")}</div>
+    <p style="text-align:center;font-size:12px;margin:0;color:#ffd14a">${mode==="n"?"Pincha un número, o las casillas de color, par, docenas…":mode==="s"?(selA!==null?"Ahora pincha un número pegado al "+selA:"Pincha el primer número del caballo"):"Pincha un número: se apuesta a todo el grupo que se ilumina en azul"}</p>
+    ${board()}
+    ${Object.keys(bets).some(k=>k.includes(":"))?`<p style="text-align:center;font-size:13px;margin:0">Tus apuestas de grupo: ${Object.keys(bets).filter(k=>k.includes(":")).map(k=>`<b style="color:#ffd14a">${betName(k)}</b>: ${bets[k]}`).join(" · ")}</p>`:""}
+    <div class="btns" style="justify-content:center;gap:6px">${[1,5,10,25,100].map(v=>chipBtn(v,v===chip)).join("")}</div>
+    <div class="btns"><button class="big" type="button" id="rl-go"${!tot()||spinning?" disabled":""}>🎡 ¡No va más! Girar</button><button class="big alt" type="button" id="rl-rep"${spinning||!prevBets||tot()?" disabled":""}>🔁 Repetir apuesta</button><button class="big alt" type="button" id="rl-cl"${spinning?" disabled":""}>Borrar</button><button class="big alt" type="button" id="rl-x"${spinning?" disabled":""}>Salir</button></div></div>`,{onB:()=>{if(!spinning)exit()},keepScroll:true});
+    ov.querySelectorAll("[data-chip]").forEach(b=>b.onclick=()=>{chip=+b.dataset.chip;sfx("sel");render()});
+    ov.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{mode=b.dataset.md;selA=null;sfx("sel");render()});
+    const grpOf=num=>{if(mode==="n"||mode==="s")return null;if(num<1)return null;const st=3*Math.floor((num-1)/3)+1;if(mode==="t")return"t:"+st;if(mode==="6")return"6:"+Math.min(31,st);let b=num%3===0?num-1:num;if(b>32)b-=3;return"q:"+b};
+    const cells=[...ov.querySelectorAll(".rbd [data-k]")];const cellOf=k=>cells.find(c=>c.dataset.k===k);
+    Object.keys(bets).filter(k=>k.includes(":")).forEach(k=>grpNums(k).forEach(nn=>{const c=cellOf("n"+nn);if(c)c.classList.add("gb")}));if(selA!==null){const c=cellOf("n"+selA);if(c)c.classList.add("gs")}
+    cells.forEach(d=>{const k=d.dataset.k;const num=k[0]==="n"?+k.slice(1):null;
+      d.onpointerenter=()=>{cells.forEach(c=>c.classList.remove("pv"));if(num===null)return;const g=grpOf(num);if(g)grpNums(g).forEach(nn=>{const c=cellOf("n"+nn);if(c)c.classList.add("pv")})};
+      d.onclick=()=>{if(spinning)return;if(fichas()<tot()+chip){toast("No tienes fichas suficientes");return}let key=k;
+        if(num!==null&&mode==="s"){if(selA===null){selA=num;sfx("sel");render();return}const a=Math.min(selA,num),b=Math.max(selA,num);const ok=a!==b&&((b-a===3&&a>0)||(b-a===1&&a>0&&Math.ceil(a/3)===Math.ceil(b/3))||(a===0&&b<=3));if(!ok){toast("Tienen que ser dos números pegados");selA=null;render();return}key="s:"+a+"-"+b;selA=null}
+        else if(num!==null&&mode!=="n"){const g=grpOf(num);if(!g){toast("El 0 solo va a pleno o caballo");return}key=g}
+        bets[key]=(bets[key]||0)+chip;last=null;sfx("blip");render()}});
+    $("rl-go").onclick=spin;$("rl-cl").onclick=()=>{bets={};render()};$("rl-x").onclick=exit;
+    $("rl-rep").onclick=()=>{if(!prevBets)return;const t=Object.values(prevBets).reduce((a,b)=>a+b,0);if(fichas()<t){toast("No tienes fichas suficientes");return}bets=Object.assign({},prevBets);last=null;sfx("blip");render()}}
+  // ---- dibujo del cilindro en perspectiva ----
+  const W=520,Hh=310,cx=200,cy=158,K=.56,R1=150,RT=132,RN=112,RP=96,RC=62,SEG=Math.PI*2/37;
+  const P=(a,r)=>[cx+Math.cos(a)*r,cy+Math.sin(a)*r*K];
+  function ring(x,r0,r1,a0,a1,fill){x.beginPath();const n=Math.max(3,Math.ceil((a1-a0)/.05));for(let i=0;i<=n;i++){const[px,py]=P(a0+(a1-a0)*i/n,r1);i?x.lineTo(px,py):x.moveTo(px,py)}for(let i=n;i>=0;i--){const[px,py]=P(a0+(a1-a0)*i/n,r0);x.lineTo(px,py)}x.closePath();x.fillStyle=fill;x.fill()}
+  function draw(nw){const c=$("rl-c");if(!c)return false;const x=c.getContext("2d");x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,W,Hh);
+    // tapete y luz cenital
+    let g=x.createRadialGradient(cx,cy-40,20,cx,cy,420);g.addColorStop(0,"#1f6a38");g.addColorStop(1,"#08200f");x.fillStyle=g;x.fillRect(0,0,W,Hh);
+    // bombillas alrededor (más rápidas cuando gira o se gana)
+    for(let i=0;i<40;i++){const a=i/40*Math.PI*2;const[lx,ly]=P(a,R1+16);const sp=spinning?60:winGlow>0?45:220;const on=(i+Math.floor(nw/sp))%4===0||(winGlow>0&&Math.floor(nw/90)%2);x.fillStyle=on?"#fff2a0":"#6a4a1a";x.beginPath();x.arc(lx,ly,2.6,0,7);x.fill();if(on){x.save();x.globalAlpha=.35;x.fillStyle="#ffd14a";x.beginPath();x.arc(lx,ly,7,0,7);x.fill();x.restore()}}
+    // sombra y cuenco de madera
+    x.fillStyle="rgba(0,0,0,.45)";x.beginPath();x.ellipse(cx+6,cy+18,R1+6,(R1+6)*K,0,0,7);x.fill();
+    g=x.createLinearGradient(0,cy-R1*K,0,cy+R1*K+20);g.addColorStop(0,"#8a4a1e");g.addColorStop(.5,"#5a2a0e");g.addColorStop(1,"#2a1206");x.fillStyle=g;x.beginPath();x.ellipse(cx,cy+10,R1,R1*K,0,0,7);x.fill();
+    x.fillStyle="#3a1a08";x.fillRect(cx-R1,cy,R1*2,10);
+    g=x.createLinearGradient(0,cy-R1*K,0,cy+R1*K);g.addColorStop(0,"#b0703a");g.addColorStop(1,"#6a3412");x.fillStyle=g;x.beginPath();x.ellipse(cx,cy,R1,R1*K,0,0,7);x.fill();
+    x.strokeStyle="#e8b060";x.lineWidth=1.5;x.beginPath();x.ellipse(cx,cy,R1-1,(R1-1)*K,0,0,7);x.stroke();
+    // pista de la bola
+    g=x.createLinearGradient(0,cy-RT*K,0,cy+RT*K);g.addColorStop(0,"#d8a868");g.addColorStop(1,"#8a5a2a");x.fillStyle=g;x.beginPath();x.ellipse(cx,cy,RT+6,(RT+6)*K,0,0,7);x.fill();
+    x.fillStyle="#3a1c0a";x.beginPath();x.ellipse(cx,cy,RN+4,(RN+4)*K,0,0,7);x.fill();
+    // diamantes
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.2;const[dx,dy]=P(a,RT-6);x.fillStyle="#f4f0e0";x.beginPath();x.moveTo(dx,dy-3);x.lineTo(dx+4,dy);x.lineTo(dx,dy+3);x.lineTo(dx-4,dy);x.closePath();x.fill();x.strokeStyle="#a88a50";x.lineWidth=.6;x.stroke()}
+    // anillo de números y casillas (giran con el rotor)
+    for(let i=0;i<37;i++){const n=RW[i],a0=rot+i*SEG-Math.PI/2-SEG/2,col=n===0?"#1a9a3a":RED.has(n)?"#c41c24":"#161616";
+      ring(x,RP,RN,a0,a0+SEG,col);ring(x,RC+4,RP,a0,a0+SEG,n===0?"#127a2a":RED.has(n)?"#9a141c":"#0e0e0e");
+      const am=a0+SEG/2,[tx,ty]=P(am,(RP+RN)/2);const sc=.75+.25*Math.max(0,Math.sin(am));x.save();x.translate(tx,ty);x.scale(sc,sc*K*1.4);x.rotate(am+Math.PI/2);x.fillStyle="#fff";x.font="bold 9px Arial";x.textAlign="center";x.textBaseline="middle";x.fillText(n,0,0);x.restore();
+      const[f0x,f0y]=P(a0,RC+4),[f1x,f1y]=P(a0,RN);x.strokeStyle="#e8c870";x.lineWidth=.9;x.beginPath();x.moveTo(f0x,f0y);x.lineTo(f1x,f1y);x.stroke()}
+    if(last!==null&&!spinning&&winGlow>0){const i=RW.indexOf(last),a0=rot+i*SEG-Math.PI/2-SEG/2;x.save();x.globalAlpha=.45+.35*Math.sin(nw/120);ring(x,RC+4,RN,a0,a0+SEG,"#ffd14a");x.restore()}
+    x.strokeStyle="#c8a040";x.lineWidth=1.4;for(const r of[RN,RP,RC+4]){x.beginPath();x.ellipse(cx,cy,r,r*K,0,0,7);x.stroke()}
+    // cono central y torreta
+    g=x.createRadialGradient(cx-14,cy-14,4,cx,cy,RC);g.addColorStop(0,"#ffe9a0");g.addColorStop(.5,"#c8902a");g.addColorStop(1,"#6a4a10");x.fillStyle=g;x.beginPath();x.ellipse(cx,cy,RC,RC*K,0,0,7);x.fill();
+    for(let i=0;i<4;i++){const a=rot*1+i*Math.PI/2;const[ex,ey]=P(a,RC-8);x.strokeStyle="#f8e0a0";x.lineWidth=3;x.beginPath();x.moveTo(cx,cy-10);x.lineTo(ex,ey-6);x.stroke();x.fillStyle="#fff2c0";x.beginPath();x.arc(ex,ey-6,3.4,0,7);x.fill()}
+    x.fillStyle="#e8c060";x.fillRect(cx-3,cy-24,6,16);x.fillStyle="#fff2c0";x.beginPath();x.arc(cx,cy-25,5,0,7);x.fill();
+    // bola
+    if(ball){const[bx,by]=P(ball.a,ball.r);const lift=ball.h||0;x.fillStyle="rgba(0,0,0,.4)";x.beginPath();x.ellipse(bx+2,by+2,4.5,2.6,0,0,7);x.fill();
+      g=x.createRadialGradient(bx-1.5,by-lift-2,.5,bx,by-lift,5);g.addColorStop(0,"#ffffff");g.addColorStop(1,"#b8bcc4");x.fillStyle=g;x.beginPath();x.arc(bx,by-lift,4.6,0,7);x.fill()}
+    // panel derecho: crupier y resultado
+    const PX=370;x.fillStyle="rgba(0,0,0,.35)";x.beginPath();x.roundRect?x.roundRect(PX,20,136,270,12):x.rect(PX,20,136,270);x.fill();
+    x.fillStyle="#3a2a1a";x.beginPath();x.arc(PX+68,74,20,0,7);x.fill();x.fillStyle="#f1c27d";x.beginPath();x.arc(PX+68,78,15,0,7);x.fill();x.fillStyle="#1a1a1a";x.fillRect(PX+40,94,56,40);x.fillStyle="#f4f4f4";x.fillRect(PX+60,94,16,22);x.fillStyle="#c8202a";x.fillRect(PX+64,96,8,6);
+    x.fillStyle="#222";x.fillRect(PX+62,76,3,2);x.fillRect(PX+71,76,3,2);
+    x.fillStyle="#ffd14a";x.font="bold 12px Arial";x.textAlign="center";x.fillText(phaseTxt,PX+68,154);
+    if(last!==null&&!spinning){const col=last===0?"#1a9a3a":RED.has(last)?"#c41c24":"#161616";const pul=1+Math.max(0,winGlow)*.08*Math.sin(nw/90);x.save();x.translate(PX+68,212);x.scale(pul,pul);x.fillStyle=col;x.beginPath();x.arc(0,0,40,0,7);x.fill();x.strokeStyle="#ffd14a";x.lineWidth=4;x.stroke();
+      x.fillStyle="#fff";x.font="900 40px Arial Black,Arial";x.textBaseline="middle";x.fillText(last,0,2);x.restore();x.textBaseline="alphabetic";x.fillStyle="#fff";x.font="bold 13px Arial";x.fillText(last===0?"VERDE":RED.has(last)?"ROJO":"NEGRO",PX+68,272)}
+    else if(spinning){x.fillStyle="#fff";x.font="bold 14px Arial";x.fillText("🎡 …",PX+68,212)}
+    return true}
+  // animación continua (el rotor siempre gira despacio, como en un casino)
+  let lastT=performance.now(),spinS=null;
+  function loop(nw){const dt=Math.min(.05,(nw-lastT)/1000);lastT=nw;winGlow=Math.max(0,winGlow-dt*.25);
+    if(spinS){const S2=spinS,el=(nw-S2.t0)/1000;
+      const w=S2.w0*Math.exp(-el/S2.tau);rot+=w*dt;
+      if(S2.ph==="orbit"){S2.bw=S2.bw0*Math.exp(-el/S2.btau);ball.a-=S2.bw*dt;ball.r=RT-2;if(nw-S2.click>Math.max(60,900/S2.bw)){S2.click=nw}
+        if(S2.bw<2.4){S2.ph="drop";S2.dt0=nw;S2.r0=ball.r;phaseTxt="¡No va más!"}}
+      else if(S2.ph==="drop"){const q=Math.min(1,(nw-S2.dt0)/900);S2.bw*=Math.pow(.4,dt);ball.a-=S2.bw*dt;ball.r=S2.r0-(S2.r0-(RP+RN)/2)*q;ball.h=Math.abs(Math.sin(q*Math.PI*3))*(1-q)*6;
+        if(q>=1){S2.ph="bounce";S2.bt0=nw;S2.hops=ri(2,4)}}
+      else if(S2.ph==="bounce"){const q=(nw-S2.bt0)/1000;const target=rot+RW.indexOf(S2.win)*SEG-Math.PI/2;let d=((target-ball.a)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI;
+        const k=Math.min(1,q/1.2);ball.a+=d*Math.min(1,dt*(3+k*8));ball.h=Math.abs(Math.sin(q*Math.PI*S2.hops))*(1-k)*5;if(Math.floor(q*S2.hops*2)!==S2.lb){S2.lb=Math.floor(q*S2.hops*2);sfx("blip")}
+        if(q>1.4){ball.a=target;ball.h=0;S2.ph="rest";finish(S2.win)}}
+      else if(S2.ph==="rest"){ball.a=rot+RW.indexOf(S2.win)*SEG-Math.PI/2;if(el>30)spinS=null}}
+    else{rot+=dt*.35;if(ball&&last!==null)ball.a=rot+RW.indexOf(last)*SEG-Math.PI/2}
+    if(!draw(nw))return;raf=requestAnimationFrame(loop)}
+  function spin(){if(spinning||!tot())return;if(fichas()<tot()){toast("No tienes fichas suficientes");return}addF(-tot());prevBets=Object.assign({},bets);spinning=true;casinoPlayed();phaseTxt="La bola está en juego…";render("Gira la bola… 🎡");sfx("throw");
+    const win=ri(0,36);ball={a:rnd()*Math.PI*2,r:RT-2,h:0};spinS={t0:performance.now(),w0:2.6,tau:6,bw0:15+rnd()*3,btau:1.5,ph:"orbit",win,click:0}}
+  function finish(n){const pleno=Object.keys(bets).some(k=>k[0]==="n"&&rWins(k,n));last=n;hist.push(n);S.rHist=hist.slice(-40);let pay=0;for(const k in bets)pay+=bets[k]*rWins(k,n);const bet=tot();
+    if(pay)addF(pay);spinning=false;winGlow=pay>bet?6:2;phaseTxt=pay>bet?"¡Enhorabuena!":"¡Hagan juego!";const npcW=npcB.filter(b=>rWins(b.k,n)).map(b=>b.nm);sfx(pay>bet?"quest":pay?"sel":"weak");
+    const msg=`<b style="font-size:20px">${n} ${n===0?"🟢":RED.has(n)?"🔴":"⚫"}</b> · ${pay?`¡Ganas <b>${pay}</b> fichas!`:"La casa gana."}${npcW.length?" · También gana: "+npcW.join(", "):""}`;
+    bets={};npcBets();render(msg);if(pay>bet)casinoWin(pay,pleno?"¡PLENO!":"¡GANAS!")}
+  function exit(){cancelAnimationFrame(raf);closeOverlay();save();res()}
+  render();raf=requestAnimationFrame(loop)})};
+
+/* ---- Ambiente del casino en el mapa: focos que barren, destellos y premios de otros jugadores ---- */
+let CAS_EV={next:0,fx:[]};
+const _rwCas=renderWorld;
+renderWorld=function(t){_rwCas(t);if(S.map!=="casino")return;const m=MAPS.casino;let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+  const ox=Math.round(Math.max(0,Math.min(m.w*T-SW,wx*T+8-SW/2))),oy=Math.round(Math.max(0,Math.min(m.h*T-SH,wy*T+8-SH/2)));
+  ctx.save();ctx.globalCompositeOperation="lighter";
+  for(let i=0;i<3;i++){const sx=(Math.sin(t/(1700+i*500)+i*2)*.5+.5)*m.w*T-ox,c=["rgba(255,74,208,.10)","rgba(74,216,255,.10)","rgba(255,209,74,.12)"][i];ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(sx,-oy);ctx.lineTo(sx-46,m.h*T-oy);ctx.lineTo(sx+46,m.h*T-oy);ctx.fill()}
+  ctx.restore();
+  // premios de la gente: cada poco, alguien canta premio en una máquina
+  if(t>CAS_EV.next){CAS_EV.next=t+9000+Math.random()*9000;const slots=[];for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++)if(m.g[y][x]==="4")slots.push([x,y]);const[sx,sy]=pick(slots);
+    for(let k=0;k<26;k++)CAS_EV.fx.push({x:sx*T+8,y:sy*T,vx:(Math.random()-.5)*60,vy:-40-Math.random()*60,t:0,c:pick(["#ffd14a","#fff2a0","#ff4ad0","#4ad8ff"])});
+    if(Math.abs(sx-S.x)+Math.abs(sy-S.y)<14&&mode==="world"&&!busy)toast(pick(["🎰 ¡Premio en las tragaperras! +"+ri(80,900)+" fichas","🎉 ¡Alguien ha cantado línea de diamantes!","💰 ¡TRES SIETES! La máquina no para de soltar fichas"]))}
+  const dt=1/60;CAS_EV.fx.forEach(p=>{p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=120*dt;ctx.globalAlpha=Math.max(0,1-p.t/1.4);ctx.fillStyle=p.c;ctx.fillRect(Math.round(p.x-ox),Math.round(p.y-oy),2,2)});ctx.globalAlpha=1;CAS_EV.fx=CAS_EV.fx.filter(p=>p.t<1.4)};
+
+/*</B4CASINO2>*/
+/*<B4POLISH>*/
+/* ===================== BLOQUE 4 · PULIDO: rótulos nítidos, brillo al curar, Monumento a la Hoja y pancarta ===================== */
+// ---- Ganja Life: el Monumento a la Hoja, ahora enorme (3×4 casillas) ----
+(function(){const g=MAPS.comuna.g;for(let y=10;y<=13;y++)for(let x=17;x<=19;x++)g[y][x]="J";
+  const br=NPCS.find(n=>n.id==="bruno");if(br){br.x=15;br.y=11}})();
+const _dtMon=drawTile;
+drawTile=function(ch,x,y,sx,sy,t,style){if(ch==="J"&&S.map==="comuna"){_dtMon("r",x,y,sx,sy,t,style);return}return _dtMon(ch,x,y,sx,sy,t,style)};
+const _rwMon=renderWorld;
+renderWorld=function(t){_rwMon(t);if(S.map!=="comuna")return;const m=MAPS.comuna;let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+    const ox=Math.round(Math.max(0,Math.min(m.w*T-SW,wx*T+8-SW/2))),oy=Math.round(Math.max(0,Math.min(m.h*T-SH,wy*T+8-SH/2)));
+    const X=17*T-ox,Y=10*T-oy,cxm=X+24;if(X>SW+10||X<-60||Y>SH+10||Y<-80)return;
+    // el jugador y la gente que estén justo detrás (filas de arriba) quedan tapados; los de delante se vuelven a pintar encima
+    {
+    // escalinata
+    ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(cxm+2,Y+60,25,3,0,0,7);ctx.fill();
+    px(X+1,Y+52,46,10,"#8a8480");px(X+1,Y+52,46,2,"#c8c0b8");px(X+5,Y+46,38,7,"#9a9490");px(X+5,Y+46,38,2,"#d8d0c8");
+    // pedestal con placa
+    let gr=ctx.createLinearGradient(X+10,0,X+38,0);gr.addColorStop(0,"#b8b0a8");gr.addColorStop(.5,"#e0d8d0");gr.addColorStop(1,"#8a8480");ctx.fillStyle=gr;ctx.fillRect(X+11,Y+26,26,21);
+    px(X+9,Y+24,30,3,"#d8d0c8");px(X+13,Y+31,22,10,"#c8a040");px(X+14,Y+32,20,8,"#8a6a20");
+    ctx.font="bold 4px monospace";ctx.textAlign="center";ctx.fillStyle="#ffe9a0";ctx.fillText("A LA",cxm,Y+35.5);ctx.fillText("HOJA",cxm,Y+39.5);
+    // la hoja gigante, de bronce verde y oro, se mece un poco
+    const sw=Math.sin(t/1400)*.05;ctx.save();ctx.translate(cxm,Y+24);ctx.rotate(sw);
+    const glow=.25+Math.sin(t/600)*.1;ctx.globalAlpha=glow;ctx.fillStyle="#f2d14e";ctx.beginPath();ctx.arc(0,-20,24,0,7);ctx.fill();ctx.globalAlpha=1;
+    const L=[[0,30,5.5],[-.42,25,5],[.42,25,5],[-.85,19,4.3],[.85,19,4.3],[-1.25,12,3.4],[1.25,12,3.4]];
+    for(const[a,len,w]of L){ctx.save();ctx.rotate(a);const g2=ctx.createLinearGradient(0,0,0,-len);g2.addColorStop(0,"#1f6a2a");g2.addColorStop(.6,"#3faa4a");g2.addColorStop(1,"#c8e070");ctx.fillStyle=g2;
+      ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(w,-len*.5,0,-len);ctx.quadraticCurveTo(-w,-len*.5,0,0);ctx.fill();ctx.strokeStyle="rgba(20,60,20,.6)";ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-len+2);ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,.25)";ctx.beginPath();ctx.ellipse(-w*.25,-len*.55,w*.18,len*.18,0,0,7);ctx.fill();ctx.restore()}
+    px(-1,-2,2,6,"#5a3a1a");ctx.restore();
+    // macetas con flores y lucecitas
+    for(const[fx,c]of[[X+3,"#e04a9a"],[X+43,"#f2d14e"]]){px(fx-2,Y+44,6,6,"#a8773e");ctx.fillStyle=c;for(let k=0;k<3;k++){ctx.beginPath();ctx.arc(fx+1+(k-1)*2,Y+42-(k%2),1.6,0,7);ctx.fill()}}
+    for(let i=0;i<6;i++){const on=(i+Math.floor(t/350))%3===0;ctx.fillStyle=on?"#fff2a0":"#8a7a3a";ctx.fillRect(X+4+i*8,Y+51,2,2)}
+    // humito de incienso
+    for(let k=0;k<3;k++){const ph=((t/2200)+k/3)%1;ctx.globalAlpha=.25*(1-ph);ctx.fillStyle="#e8e8e0";ctx.beginPath();ctx.arc(X+3+Math.sin(t/700+k)*2,Y+40-ph*22,1.5+ph*3,0,7);ctx.fill()}ctx.globalAlpha=1;
+    }};
+
+// ---- Rótulos y textos del mapa en alta resolución (x3), con contorno para que se lean sobre cualquier fondo ----
+const WHD=(function(){const c=document.createElement("canvas");c.id="whd";c.width=720;c.height=528;
+  c.style.cssText="position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none";const el=$("cv");el.parentNode.insertBefore(c,el.nextSibling);return c})();
+const whx=WHD.getContext("2d");let TXTCAP=false;
+const _ctxFill=ctx.fillText.bind(ctx),_ctxStroke=ctx.strokeText.bind(ctx);
+function txtState(){const m=ctx.getTransform();whx.setTransform(m.a*3,m.b*3,m.c*3,m.d*3,m.e*3,m.f*3);
+  whx.font=ctx.font.replace(/(\d+(?:\.\d+)?)px monospace/,(a,n)=>`${n}px "Rubik","Arial",sans-serif`);whx.textAlign=ctx.textAlign;whx.textBaseline=ctx.textBaseline;
+  whx.fillStyle=ctx.fillStyle;whx.strokeStyle=ctx.strokeStyle;whx.lineWidth=ctx.lineWidth;whx.globalAlpha=ctx.globalAlpha;whx.shadowColor=ctx.shadowColor;whx.shadowBlur=ctx.shadowBlur*3;whx.lineJoin="round"}
+function lum(c){if(typeof c!=="string")return 0;let r,g,b;if(c[0]==="#"){const h=c.length===4?c.slice(1).split("").map(v=>v+v).join(""):c.slice(1,7);r=parseInt(h.slice(0,2),16);g=parseInt(h.slice(2,4),16);b=parseInt(h.slice(4,6),16)}
+  else{const m=c.match(/\d+(\.\d+)?/g);if(!m)return 0;[r,g,b]=m.map(Number)}return(r*.3+g*.59+b*.11)/255}
+ctx.fillText=function(t,x,y,mw){if(!TXTCAP)return _ctxFill(t,x,y,mw);txtState();
+  if(!ctx.shadowBlur&&lum(ctx.fillStyle)>.45&&whx.globalAlpha>.5){whx.save();whx.strokeStyle="rgba(10,6,4,.85)";whx.lineWidth=1.6;whx.strokeText(t,x,y,mw);whx.restore()}
+  mw===undefined?whx.fillText(t,x,y):whx.fillText(t,x,y,mw)};
+ctx.strokeText=function(t,x,y,mw){if(!TXTCAP)return _ctxStroke(t,x,y,mw);txtState();mw===undefined?whx.strokeText(t,x,y):whx.strokeText(t,x,y,mw)};
+const _rwTxt=renderWorld;
+renderWorld=function(t){whx.setTransform(1,0,0,1,0,0);whx.clearRect(0,0,720,528);TXTCAP=true;try{_rwTxt(t)}finally{TXTCAP=false}
+  let op=1;if(FX.fade){const p=Math.min(1,(t-FX.fade.start)/FX.fade.dur);op=1-(FX.fade.from+(FX.fade.to-FX.fade.from)*p)}if(FX.trans)op=0;WHD.style.opacity=op;WHD.style.display="block"};
+setInterval(()=>{if(mode!=="world"&&WHD.style.display!=="none")WHD.style.display="none"},100);
+
+// ---- Al curar: la pantalla brilla, anillos de luz y chispitas que suben ----
+(function(){const st=document.createElement("style");st.textContent=`#screen.healglow{animation:hglow 1.4s ease-out}@keyframes hglow{0%{box-shadow:0 0 0 rgba(255,240,170,0)}25%{box-shadow:0 0 60px 14px rgba(255,240,170,.75)}100%{box-shadow:0 0 40px rgba(242,169,59,.08)}}`;document.head.appendChild(st)})();
+let HEALT=-1e9;const _sfxHeal=sfx;
+sfx=function(k){if(k==="heal"&&mode==="world"){HEALT=now();const sc=$("screen");if(sc){sc.classList.remove("healglow");void sc.offsetWidth;sc.classList.add("healglow")}}return _sfxHeal.apply(this,arguments)};
+const _rwHeal=renderWorld;
+renderWorld=function(t){_rwHeal(t);const p=(now()-HEALT)/1700;if(p<0||p>=1)return;
+  const m=MAP();let wx=S.x,wy=S.y;const mw=m.w*T,mh=m.h*T;const ox=mw<=SW?-Math.round((SW-mw)/2):Math.round(Math.max(0,Math.min(mw-SW,wx*T+8-SW/2))),oy=mh<=SH?-Math.round((SH-mh)/2):Math.round(Math.max(0,Math.min(mh-SH,wy*T+8-SH/2)));
+  const cx=wx*T-ox+8,cy=wy*T-oy+4;ctx.save();ctx.globalCompositeOperation="lighter";
+  const a=p<.15?p/.15:1-(p-.15)/.85;const g=ctx.createRadialGradient(cx,cy,4,cx,cy,170);g.addColorStop(0,`rgba(255,250,215,${.75*a})`);g.addColorStop(.45,`rgba(255,220,140,${.35*a})`);g.addColorStop(1,"rgba(255,200,120,0)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH);
+  for(let k=0;k<3;k++){const q=p*1.6-k*.22;if(q<0||q>1)continue;ctx.strokeStyle=`rgba(255,245,190,${(1-q)*.8})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(cx,cy+8,10+q*70,(10+q*70)*.45,0,0,7);ctx.stroke()}
+  for(let i=0;i<28;i++){const ang=i*2.39,r=8+(i%7)*7,sp=.6+(i%5)*.12;const yy=cy+10-p*90*sp-(i%3)*6,xx=cx+Math.cos(ang)*r*(1+p*.5);const s=1+(i%3);const al=Math.max(0,(1-p)*(.6+.4*Math.sin(t/80+i)));
+    ctx.fillStyle=`rgba(255,255,220,${al})`;ctx.fillRect(xx-s/2,yy-s*1.5,s,s*3);ctx.fillRect(xx-s*1.5,yy-s/2,s*3,s)}
+  ctx.restore()};
+
+
+/*</B4POLISH>*/
+/*<B4STORY>*/
+/* ===================== BLOQUE 4 · HISTORIA VIVA: escenas con franjas de cine, gente que camina, reacciona y celebra; luz de día ===================== */
+// ---- Luz de día: sol cálido y sombras de nubes que pasan (el barrio, La Senda y Ganja Life ya no son de noche) ----
+function dayLight(m,ox,oy,t){ctx.save();ctx.globalCompositeOperation="soft-light";ctx.fillStyle="rgba(255,236,190,.35)";ctx.fillRect(0,0,SW,SH);ctx.restore();
+  ctx.save();ctx.globalAlpha=.09;ctx.fillStyle="#1a2a3a";for(let i=0;i<4;i++){const cx=((t/60*(0.5+i*.13)+i*230)%(m.w*T+300))-150-ox,cy=(hash(i,4)%(m.h*T))-oy;ctx.beginPath();ctx.ellipse(cx,cy,60+i*10,22+i*4,0,0,7);ctx.ellipse(cx+40,cy+8,40,16,0,0,7);ctx.fill()}ctx.restore();
+  const g=ctx.createLinearGradient(0,0,SW,SH);g.addColorStop(0,"rgba(255,240,180,.16)");g.addColorStop(.5,"rgba(255,240,180,0)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH)}
+
+// ---- Cine: franjas negras arriba y abajo ----
+const CINE={on:false,t:0};function cineOn(){CINE.on=true;CINE.t=now()}function cineOff(){CINE.on=false;CINE.t=now()}
+const _rwCine=renderWorld;
+renderWorld=function(t){_rwCine(t);const p=Math.min(1,(now()-CINE.t)/350),h=Math.round(18*(CINE.on?p:1-p));if(h>0){ctx.fillStyle="#000";ctx.fillRect(0,0,SW,h);ctx.fillRect(0,SH-h,SW,h)}
+  // vida en la calle: de vez en cuando alguien reacciona a algo
+  if(mode==="world"&&!busy&&t>(renderWorld.nx||0)){renderWorld.nx=t+2600+Math.random()*2600;const vis=NPCS.filter(n=>n.map===S.map&&npcVisible(n)&&!n.trainer&&!n.dog&&Math.abs(n.x-S.x)<9&&Math.abs(n.y-S.y)<6);
+    if(vis.length){const n=pick(vis);const set=MAP().neon?["🎰","💸","🍸","😎","🎶"]:S.map==="bar"?["🍺","😂","🍻","🎶","💬"]:MAP().rasta?["🌿","🎶","☮️","😌","💨"]:["💬","😂","🎶","☀️","🍻"];emote(n,pick(set),1800)}}};
+function emote(n,k,ms){if(!n)return;n.emo=k;n.emoAt=now();n.emoMs=ms||2200}
+const npcById=id=>NPCS.find(n=>n.id===id);
+// camina casilla a casilla (con animación de pasos)
+function npcWalk(n,path,ms){ms=ms||200;return new Promise(async r=>{for(const[tx,ty]of path){const fx=n.x,fy=n.y;n.dir=tx>fx?"right":tx<fx?"left":ty>fy?"down":"up";const t0=now();
+      await new Promise(rr=>{const tk=()=>{const p=Math.min(1,(now()-t0)/ms);n.x=fx+(tx-fx)*p;n.y=fy+(ty-fy)*p;n.wk=p<.5?1:2;if(p<1)requestAnimationFrame(tk);else rr()};tk()})}n.wk=0;r()})}
+// salen corriendo lejos del jugador
+async function fleeNPCs(ids,emo){const ns=ids.map(npcById).filter(n=>n&&n.map===S.map&&npcVisible(n));if(!ns.length)return;cineOn();sfx("weak");
+  ns.forEach(n=>emote(n,emo||"😱",1400));await sleep(700);
+  await Promise.all(ns.map(n=>{const dx=Math.sign(n.x-S.x)||1,dy=Math.sign(n.y-S.y)||1;const path=[];let x=n.x,y=n.y;for(let i=0;i<8;i++){if(i%3===2)y+=dy;else x+=dx;path.push([x,y])}return npcWalk(n,path,95)}));
+  ns.forEach(n=>{n.x=-10;n.y=-10;n.wk=0});await sleep(200);cineOff()}
+async function pasmaFlee(){const p=npcById("poli");if(p&&p.map===S.map)for(let i=0;i<10;i++)worldParts.push({x:p.x*T+8,y:p.y*T+8,vx:(Math.random()-.5)*2,vy:-Math.random()*2-1,life:0,max:40,c:pick(["#e8a0c8","#f2d14e","#c87a3a"])});
+  await fleeNPCs(["poli","poli2"],"😱");NPCS.filter(n=>n.id==="poli"||n.id==="poli2").forEach(n=>n.x=-10)}
+// confeti y gente celebrando
+function confetti(n,cols){for(let i=0;i<(n||60);i++)worldParts.push({x:S.x*T+8+(Math.random()-.5)*120,y:S.y*T-60-Math.random()*40,vx:(Math.random()-.5)*1.6,vy:-Math.random()*1.5,life:0,max:70+Math.random()*50,c:pick(cols||["#ffd14a","#ff4ad0","#4ad8ff","#7aff6a","#ffffff"])})}
+function celebrate(){const cols=MAP().rasta||S.map==="huertoin"?["#3faa4a","#7ad08a","#f2d14e","#d23a2e"]:MAP().neon||S.map==="vip"?["#ffd14a","#4ad8ff","#ff4ad0","#ffffff"]:["#f2a93b","#ffd14a","#ffffff","#c8202a"];
+  confetti(80,cols);flash("#fff2c0",500);NPCS.filter(n=>n.map===S.map&&npcVisible(n)).forEach((n,i)=>setTimeout(()=>emote(n,pick(["🎉","👏","🍻","🙌","😮"]),2600),i*150))}
+const _battleStory=battle;
+battle=async function(team,opts){const r=await _battleStory(team,opts);if(r&&opts&&opts.trainer&&opts.trainer.leader)setTimeout(celebrate,50);return r};
+
+// ---- Escenas concretas ----
+// Maripili aprueba tu caña: se aparta, salta detrás de la barra y te deja pasar
+const _camStory=TALK2.camarera;
+TALK2.camarera=async n=>{const had=S.flags.canas;const mp=npcById("camarera"),oc=mp.cond;mp.cond=()=>true;try{await _camStory(n)}finally{}
+  if(!had&&S.flags.canas){cineOn();emote(mp,"😄",1500);await sleep(500);await npcWalk(mp,[[7,3],[8,3],[8,2],[8,1],[9,1],[10,1],[11,1]],170);mp.dir="down";emote(mp,"🍺",1200);await sleep(700);cineOff()}
+  mp.cond=oc;mp.x=7;mp.y=4};
+// el portero ve las pruebas y se aparta
+const _portStory=TALK2.portero;
+TALK2.portero=async n=>{const had=S.flags.vipOpen;const pt=npcById("portero"),oc=pt.cond;pt.cond=()=>true;await _portStory(n);
+  if(!had&&S.flags.vipOpen){cineOn();emote(pt,"😰",1200);await sleep(600);await npcWalk(pt,[[13,2],[14,2],[14,3]],180);pt.dir="left";emote(pt,"🙏",1500);await sleep(800);cineOff();pt.x=-10}
+  pt.cond=oc};
+// el Comisario suelta el expediente y se queda blanco
+const _comStory=TALK2.comisario;
+TALK2.comisario=async n=>{const had=S.keys.expediente;await _comStory(n);if(!had&&S.keys.expediente){const c=npcById("comisario");emote(c,"😰",2500);["agente1","agente2"].map(npcById).forEach(a=>emote(a,"😳",2500))}};
+// Lolo pierde: se le van las luces del casino un momento
+const _loloStory=TALK2.lolo;
+TALK2.lolo=async n=>{const had=S.flags.neon;await _loloStory(n);if(!had&&S.flags.neon){const l=npcById("lolo");emote(l,"💸",3000);for(let i=0;i<4;i++){flash(i%2?"#000000":"#ffd14a",160);await sleep(180)}}};
+// el Contable sale disparado al perder el libro
+const _tbStory=trainerBattle;
+trainerBattle=async function(n){const r=await _tbStory(n);if(n.id==="contable"&&S.keys.libro){emote(n,"😱",1500)}return r};
+// al llegar a Ciudad Neón, el Chusta te ve y se acerca saludando
+const _oemStory=onEnterMap;
+onEnterMap=async function(){const had=S.flags.neonIn;await _oemStory();
+  if(S.map==="neon"&&!had&&S.flags.neonIn){const c=npcById("nchusta");if(c&&npcVisible(c)){cineOn();emote(c,"❗",900);await sleep(700);c.dir="left";emote(c,"👋",1800);await sleep(900);cineOff()}}};
+
+// ---- Riñoneras: la "Pokéball" de este juego (vale para todo) ----
+const _ballIcon=drawBallIcon;
+drawBallIcon=function(fam,x,y,rot){if(!fam||fam[0]!=="*")return _ballIcon(fam,x,y,rot);const k=fam.slice(1);
+  const C={rino:["#2a2a32","#4a4a56","#c0c8d0"],rinomarca:["#2a4ab8","#c8202a","#f4f4f4"],rinogucci:["#c8a040","#2a8a3a","#c8202a"]}[k]||["#2a2a32","#4a4a56","#c0c8d0"];
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot||0);px(-9,-1,18,2,"#1a1a1a");ctx.fillStyle=C[0];ctx.beginPath();ctx.ellipse(0,1,7,5,0,0,7);ctx.fill();
+  px(-6,-1,12,2,C[1]);if(k==="rinogucci"){px(-6,-1,12,1,C[1]);px(-6,0,12,1,C[2])}px(-1,-3,2,7,C[2]);px(-4,3,8,1,"rgba(255,255,255,.35)");ctx.restore()};
+// partidas antiguas: Chen os regala unas riñoneras para estrenar el sistema nuevo
+const _startRino=start;start=function(){if(S&&S.bag&&S.bag.rino===undefined){S.bag.rino=5;setTimeout(()=>toast("🎒 Chen te regala 5 Riñoneras: valen para capturar cualquier Pedomón"),1500)}return _startRino()};
+
+/*</B4STORY>*/
+/*<B4DRUNK>*/
+/* ===================== BLOQUE 4 · LA BARRA DE PACO: cañas, borrachera y el easter egg de la Gran Potada ===================== */
+const DRUNK_TXT=["","😊 Contentillo","😄 Alegre","🥴 Piripi","🤪 Borracho","😵 Muy borracho","💀 Al borde del coma"];
+function drunk(){return S&&S.drunk||0}
+function addDrunk(n){S.drunk=Math.min(9,drunk()+n);S.drunkT=Date.now();save();toast(`🍺 ${DRUNK_TXT[Math.min(6,S.drunk)]||"💀"} (nivel ${S.drunk})`)}
+// cada minuto se te pasa un nivel
+setInterval(()=>{if(!S||!S.drunk)return;if(Date.now()-(S.drunkT||0)>=60000){S.drunk--;S.drunkT=Date.now();save();if(mode==="world")toast(S.drunk?`💧 Se te pasa un poco: ${DRUNK_TXT[Math.min(6,S.drunk)]}`:"💧 Ya estás sereno. Más o menos.")}},1000);
+
+// ---- Paco, ya vencido, te pone algo ----
+const _pacoEv=pacoEvent;
+pacoEvent=async function(){if(!S.flags.gym)return _pacoEv();
+  while(true){const d=drunk();
+    const i=await choose(d>=5?"Paco: Chaval, tú ya vas fino, ¿eh? ¿Seguro que quieres otra?":`Paco: ¿Qué te pongo, campeón? Tienes ${S.money} pavos.`,[{label:"🍺 Una caña",sub:"3 pavos",disabled:S.money<3},{label:"🥃 Un chupito de orujo",sub:"5 pavos · pega fuerte",disabled:S.money<5},{label:"🍷 Un kalimotxo",sub:"4 pavos",disabled:S.money<4},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1,info:()=>d?`Ahora mismo: <b>${DRUNK_TXT[Math.min(6,d)]}</b>. Se te pasa un nivel cada minuto.`:"Cada bebida sube tu borrachera. Se te pasa un nivel cada minuto. Si te pasas… a saber dónde acabas."});
+    if(i<0||i===4){await say(pick(["Paco: Venga, que te vaya bonito.","Paco: Cuidado al salir, que el escalón se mueve. Bueno, el escalón no. Tú.","Paco: Aquí estaré. Llevo 37 años aquí. No me voy a ir ahora."]));return}
+    if(i===3){await say(pick(["Paco: La caja va como un tiro desde que echaste a La Pasma. Te debo una caña. O doce.","Paco: Que cierro a las tres, chaval. Bueno, eso dice el cartel.","Paco: Los hippies del Huerto dicen que La Pasma les está fumigando las plantas. Esa gente no para.","Paco: ¿Sabes que Manolo entró aquí en 1989 y no ha salido? Le cobro alquiler."]));continue}
+    const D=[{p:3,n:1,t:["Paco te pone una caña con dos dedos de espuma. Perfecta. Maripili asiente desde la barra.","Paco: Una cañita. Que no se diga.","Paco: Marchando. Esta es de las buenas, de barril nuevo."]},{p:5,n:2,t:["Paco te sirve un orujo de Galicia. Te arde hasta el alma.","Paco: Orujo de mi pueblo. Ojo, que esto levanta muertos.","Te lo bebes de un trago. Ves a Manolo aplaudir en cámara lenta."]},{p:4,n:1,t:["Paco: Kalimotxo, como en las fiestas. Vino del malo y Coca-Cola de la buena.","Te pone un kalimotxo en vaso de tubo. Sabe a verbena."]}][i];
+    S.money-=D.p;sfx("heal");await say(pick(D.t));addDrunk(D.n);
+    if(drunk()>=4&&drunk()<6)await say(pick(["Todo se mueve un poquito. Paco tiene un hermano gemelo. No, espera, es el mismo Paco dos veces.","Le dices a Manolo que le quieres mucho. Manolo llora.","Te ríes de un posavasos durante 30 segundos."]));
+    if(drunk()>=6){await granPotada();return}}};
+
+// ---- Efectos en el mapa: doble visión, balanceo y pasos torcidos ----
+const DRK=document.createElement("canvas");DRK.width=SW;DRK.height=SH;const dkx=DRK.getContext("2d");
+const _rwDrunk=renderWorld;
+renderWorld=function(t){_rwDrunk(t);const d=drunk();if(!d)return;
+  dkx.clearRect(0,0,SW,SH);dkx.drawImage(cv,0,0);const a=Math.min(1,d/5);
+  ctx.save();ctx.globalAlpha=.18+.2*a;ctx.drawImage(DRK,Math.sin(t/430)*(2+d*1.4),Math.cos(t/610)*(1+d*.6));ctx.restore();
+  if(d>=3){ctx.save();ctx.translate(SW/2,SH/2);ctx.rotate(Math.sin(t/900)*.012*d);ctx.globalAlpha=.25;ctx.drawImage(DRK,-SW/2,-SH/2);ctx.restore()}
+  const g=ctx.createRadialGradient(SW/2,SH/2,40,SW/2,SH/2,170);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,`rgba(${d>=4?"90,20,60":"40,20,10"},${.15+a*.35})`);ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH);
+  ctx.font="bold 8px monospace";ctx.textAlign="left";ctx.fillStyle="#ffd98a";ctx.fillText(DRUNK_TXT[Math.min(6,d)],4,SH-4)};
+const _smDrunk=startMove;
+startMove=function(nx,ny){const d=drunk();if(d>=2&&mode==="world"&&rnd()<d*.07){const opts=[["up",0,-1],["down",0,1],["left",-1,0],["right",1,0]].filter(([k,dx,dy])=>canWalk(S.x+dx,S.y+dy));if(opts.length){const[k,dx,dy]=pick(opts);S.dir=k;if(rnd()<.3)toast(pick(["🥴 *hip*","🥴 Ups…","🥴 ¿Quién ha movido el suelo?"]));return _smDrunk(S.x+dx,S.y+dy)}}return _smDrunk(nx,ny)};
+// en combate, borracho pegas peor y vas más lento
+const _effDrunk=eff;
+eff=function(m,k){const v=_effDrunk(m,k);if(typeof B!=="undefined"&&B&&m===B.p&&drunk()>=2&&(k==="atk"||k==="spd"))return v*(1-Math.min(.35,drunk()*.06));return v};
+
+// ---- EASTER EGG: la Gran Potada. Alucinación y despertar entre los cubos de basura del Kebab 24h ----
+function granPotada(){return new Promise(async res=>{
+  await say("Paco: Chaval… chaval, ¿me oyes? Maripili, trae un cubo. ¡UN CUBO!");sfx("weak");closeDlg();
+  const lines=["Las luces del bar se derriten como helado de vainilla…","Steinburguito te ofrece un kebab con alas. Lo aceptas.","Paco flota sobre una nube de espuma y canta flamenco en alemán.","Una Bezoya de 5 litros te dice que eres agua. Que todos somos agua.","Bailas con Manolo un vals por encima de la barra.","Los Pedomones forman una conga infinita… y tú vas el primero.","Todo da vueltas. Todo. Hasta las vueltas dan vueltas."];
+  overlay(`<div style="position:fixed;inset:0;background:#000"><canvas id="gp-c" style="width:100%;height:100%;display:block"></canvas><p id="gp-t" style="position:absolute;left:0;right:0;bottom:12%;text-align:center;font:800 clamp(18px,3.4vw,32px) Rubik,Arial;color:#fff;text-shadow:0 0 12px #ff4ad0,0 2px 0 #000;padding:0 20px"></p></div>`,{onB:()=>{}});
+  const c=$("gp-c"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const W=c.width,H=c.height;
+  const mons=["steinburguito","aguilawinston","kushito","jackdaniels","greygoose","westito","vinofeliz","royallobo"].filter(s=>SP[s]).map(s=>monSpriteHD(s,null,false,3));
+  const t0=performance.now();let li=-1,end=false;
+  await new Promise(done=>{const tk=nw=>{const el=(nw-t0)/1000;
+      for(let i=0;i<14;i++){const r=(14-i)*Math.max(W,H)/12;x.fillStyle=`hsl(${(el*80+i*28)%360},90%,${i%2?40:55}%)`;x.beginPath();for(let k=0;k<=60;k++){const a=k/60*Math.PI*2;const rr=r*(1+.08*Math.sin(a*6+el*3+i));const px2=W/2+Math.cos(a+el*.4*(i%2?1:-1))*rr,py2=H/2+Math.sin(a+el*.4*(i%2?1:-1))*rr*.8;k?x.lineTo(px2,py2):x.moveTo(px2,py2)}x.fill()}
+      mons.forEach((s,i)=>{const a=el*.9+i/mons.length*Math.PI*2,rad=Math.min(W,H)*.32*(1+.2*Math.sin(el*2+i));const sz=Math.min(W,H)*.16*(1+.25*Math.sin(el*4+i));x.save();x.translate(W/2+Math.cos(a)*rad,H/2+Math.sin(a)*rad*.8);x.rotate(Math.sin(el*3+i)*.6);x.drawImage(s,-sz/2,-sz/2,sz,sz);x.restore()});
+      x.fillStyle=`rgba(255,255,255,${.1+.1*Math.sin(el*9)})`;x.fillRect(0,0,W,H);
+      const nli=Math.min(lines.length-1,Math.floor(el/1.6));if(nli!==li){li=nli;$("gp-t").textContent=lines[li];sfx("blip")}
+      if(el>lines.length*1.6+.6){x.fillStyle="#000";x.fillRect(0,0,W,H);done();return}requestAnimationFrame(tk)};requestAnimationFrame(tk)});
+  $("gp-t").textContent="…";await sleep(1200);closeOverlay();
+  // despertar detrás del Kebab 24h
+  const spot=kebabBins();S.drunk=0;S.drunkT=Date.now();const lost=Math.min(S.money,ri(10,30));S.money-=lost;
+  S.map="park";S.x=spot[0];S.y=spot[1];S.dir="down";P.moving=false;FX.fade={from:1,to:0,start:now(),dur:1600};pushPresence();
+  await sleep(1700);
+  await sayAll(["…","Te despiertas entre los cubos de basura de detrás del Kebab 24h. Hueles a kebab, a orujo y a vergüenza.","Abdul: ¡Amego! Has estado TODA la noche potando aquí detrás. Te he guardado una servilleta. Y un vaso de agua.",
+    lost?`Miras la cartera: te faltan ${lost} pavos. No tienes ni idea de en qué.`:"Miras la cartera: está vacía. Como tu memoria."]);
+  if(!S.keys.potada){S.keys.potada=true;sfx("quest");await sayAll(["🏆 LOGRO SECRETO: «La Gran Potada».","¡Consigues la 🧻 Servilleta de Abdul! (Objeto clave. No sirve para nada. Pero es tuya.)"])}
+  save();res()})}
+Object.assign(KEYS_IT,{potada:{n:"🧻 Servilleta de Abdul",d:"Recuerdo de la Gran Potada. Abdul te la dio la mañana después. Tiene una mancha con forma de Paco."}});
+function kebabBins(){const m=MAPS.park;const cand=[[1,4],[1,5],[7,5],[1,3],[2,5],[3,5]];for(const[x,y]of cand)if(m.g[y]&&WALK.has(m.g[y][x])&&!npcAt(x,y))return[x,y];return[4,5]}
+// los cubos de basura de detrás del kebab
+const _rwBins=renderWorld;
+renderWorld=function(t){_rwBins(t);if(S.map!=="park")return;const m=MAPS.park;const[bx,by]=kebabBins();let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
+  const ox=Math.round(Math.max(0,Math.min(m.w*T-SW,wx*T+8-SW/2))),oy=Math.round(Math.max(0,Math.min(m.h*T-SH,wy*T+8-SH/2)));const bt=bx>1?bx-1:bx+1,X=bt*T-ox+1,Y=by*T-oy-2;if(X<-20||X>SW)return;for(const[dx,c]of[[0,"#2a7a3a"],[7,"#3a5a8a"]]){px(X+dx,Y+3,6,9,c);px(X+dx-1,Y+2,8,2,hexShade(c,.7));px(X+dx+1,Y+5,1,6,hexShade(c,1.3))}};
+
+/*</B4DRUNK>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

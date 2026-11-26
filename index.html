@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="70 · Línea Marlboro que evoluciona de verdad";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="71 · Parque acuático de Chuchi, MO Surf, Trenzas Rosi y Gaviota Ladrona";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8025,6 +8025,131 @@ if(typeof SP!=="undefined")["marlboro","marlborocarton","vaquero"].forEach(id=>{
 })();
 
 /*</B4PIXLINES>*/
+/*<B4COSTA3>*/
+/* ===================== COSTA CANGREJO 3: parque acuático de Chuchi, Trenzas Rosi, pisos con escaleras y la recreativa «Gaviota Ladrona» ===================== */
+["ʌ","ʋ"].forEach(c=>WALK.add(c));
+Object.assign(MAPNAME,{paradise:"Parque Acuático Paradise",rosishop:"Trenzas Rosi",pension2:"Pensión · habitaciones",torrecan2:"Torre Cangrejo · azotea",solresaca0:"Sol y Resaca · sótano"});
+Object.assign(KEYS_IT,{surf:{n:"🏄 MO Surf",d:"Te la dio Chuchi. Con ella tus Pedomones de agua te llevarán nadando. (Se usará en las zonas con agua que vienen.)"}});
+// ---------- el gimnasio: parque acuático con corrientes ----------
+MAPS.paradise={w:15,h:16,style:"casa",signs:{},builds:[],lamps:[],music:"lolo",g:rowsGrid([
+ "wwwwwwwwwwwwwww","wŤoooooooooooow","wwwwwwwwwwwowww","wbbbbƒbbbbbbobw","wbbƒbbbbbbbbbbw","wbbbbbbbbobbbbw","wbbbbbbbbbbbbbw","wƒbbbbbbbbbbbbw","wbbbbbƒbbbbƒbbw","wbƒbbbbbbbbbbbw","wbbbbbbbbbƒbbbw","wbbbbbbƒbbbbbbw","wbbbbbbbbbbbbbw","wooooooooooooow","wgoooooooooootw","wwwwwwweewwwwww"]),
+ exits:{"7,15":["costa",20,12,"down"],"8,15":["costa",20,12,"down"]},entry:[7,14,"up"],
+ txt:{"ƒ":"Un flotador gigante con forma de cangrejo. Las corrientes chocan contra él.","Ť":"El tobogán de vuelta: te lleva abajo, a la entrada de la piscina.",t:"La barra del parque acuático: «Prohibido rellenar la piscina con sangría (otra vez)».",g:"Una palmera de plástico con una pulsera de todo incluido."}};
+(function(){const mv=(id,x,y,d)=>{const n=NPCS.find(q=>q.id===id);if(n){n.x=x;n.y=y;n.dir=d}};mv("caqua",7,13,"down");mv("cflota",12,3,"left");mv("nigel2",7,1,"down");
+ const a=NPCS.find(q=>q.id==="caqua");if(a)a.sight=1;const c=NPCS.find(q=>q.id==="cflota");if(c)c.sight=1})();
+NPC_LOOK.cbomba={hs:1,ts:0};
+NPCS.push({id:"cbomba",map:"paradise",x:9,y:5,dir:"left",sight:1,pal:{h:"#3a1a0a",s:"#e0a878",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#e23b2a",k:"#e0a878"},hs:1,ts:0,
+ trainer:tr4("Rey de las Bombas","Tolo",[["coronita",32],["volllitro",33]],400,["Tolo: ¡Eh! Esta isla es mía. Desde aquí me tiro las mejores bombas del hotel.","Tolo: Si quieres pasar, tendrás que salpicarme más que yo."],"Tolo: ¡Plof! Vale, me has empapado. Pasa, pasa.")});
+const _oemPar=onEnterMap;onEnterMap=async function(){await _oemPar();if(S.map==="paradise"&&!S.flags.parqueIn){S.flags.parqueIn=true;save();
+  await sayAll(["EL PARQUE ACUÁTICO PARADISE. Toboganes, flotadores gigantes y una piscina con CORRIENTES que te arrastran hasta que chocas con algo.","Chuchi te espera arriba, en su plataforma. Para llegar, déjate llevar por las corrientes… y elige bien hacia dónde nadas.","Si te lías, el tobogán de arriba a la izquierda te devuelve a la entrada."])}};
+const _stepPar=onStep;onStep=async function(){if(S.map==="paradise"&&tileAt(S.x,S.y)==="Ť"){sfx("throw");await say("¡Uiiiiiii! Te tiras por el tobogán y caes al principio de la piscina.");S.x=1;S.y=13;S.dir="down";pushPresence();return}return _stepPar()};
+TALK2.nigel2=async()=>{
+  if(S.flags.costa){await say(pick(["Chuchi: Tú ganar. Yo invitar a un gin-tonic. Bueno, invita el hotel. It's all inclusive.","Chuchi: Con la MO Surf tus Pedomones de agua te llevarán nadando. Cuidado con las medusas. Y con los alemanes.","Chuchi: ¿El sótano? ¿Qué sótano? Yo no saber nada del sótano. Hic."]));return}
+  await sayAll(["Chuchi: Welcome to my parque acuático! Yo ser Chuchi, «Mister Crab». Calvo, rojo y con chanclas. Llevo 20 años al sol y ni una gota de crema.","Chuchi: Has cruzado mis corrientes. Muy bien, mate. Pero mis Pedomones conocen tus trucos.","Chuchi: ¿Planta? ¿Eléctrico? Ya, ya… Mis chicos traen fuego y tierra para eso. ¡Let's go!"]);
+  const win=await battle([monMoves(newMon("sangria",33),["chorro","mecherazo","espumarajo","lataza"]),monMoves(newMon("millerpack",34),["chorro","picado","terronazo","huracan"]),
+    monMoves(newMon("barrilblindado",34),["sifon","terronazo","espumarajo","chorro"]),monMoves(newMon("aguilareal",36),["sifon","desierto","picado","terronazo"])],
+    {trainer:{name:"Chuchi «Mister Crab»",short:"Chuchi",pal:PAL_NIGEL,hs:0,ts:2,fat:true,money:1000,leader:true,challenge:"¡Chuchi «Mister Crab», el dueño del Paradise, te desafía!",lose:"Chuchi: Oh my God… He perdido. Esto necesita otra piña colada."},music:"lolo"});
+  if(win){S.flags.costa=true;S.keys.costa=true;S.keys.surf=true;S.flags.surf=true;S.tms=S.tms||{};S.tms.mt18=(S.tms.mt18||0)+1;sfx("quest");save();
+    await sayAll(["¡Has ganado la 🦀 Medalla Quemadura!","Chuchi: Take it, mate. Y esto también: la MO SURF. Tus Pedomones de agua te llevarán nadando por el mar.","🏄 ¡Consigues la MO Surf! (La podrás usar en las zonas con agua que vienen.)","Chuchi: Y la MT18, Chorro de Sifón.",
+      "Chuchi: … Lo del sótano. Yo solo alquilar el sótano. Un señor pagar en efectivo, con guantes blancos. Él decir que el siguiente sitio es Terrazalia. Hic. Ten cuidado, mate."])}};
+function paraTile(ch,x,y,sx,sy,t){if(S.map!=="paradise")return false;
+  if(ch==="b"){const d=y<=7?(x<7?"#2aa0d8":"#2290c8"):"#2aa8e0";px(sx,sy,T,T,d);const o=Math.floor(t/200+x+y)%4;px(sx+2+o*3,sy+5,5,1,"rgba(255,255,255,.55)");px(sx+(o*5)%12,sy+11,4,1,"rgba(255,255,255,.4)");return true}
+  if(ch==="ƒ"){paraTile("b",x,y,sx,sy,t);ctx.fillStyle="#e23b2a";ctx.beginPath();ctx.arc(sx+8,sy+8,7,0,7);ctx.fill();ctx.fillStyle="#2aa0d8";ctx.beginPath();ctx.arc(sx+8,sy+8,3,0,7);ctx.fill();px(sx+3,sy+3,3,2,"#f4f4f4");px(sx+11,sy+11,3,2,"#f4f4f4");return true}
+  if(ch==="Ť"){px(sx,sy,T,T,"#e8e2d6");px(sx+2,sy+2,12,14,"#2ad8c8");px(sx+4,sy+4,8,12,"#4af0e0");px(sx+2,sy+2,12,2,"#e23b2a");return true}
+  if(ch==="o"&&x>=1&&x<=13&&(y===5||y===3)&&MAPS.paradise.g[y][x]==="o"&&(x===9||x===12)){paraTile("b",x,y,sx,sy,t);px(sx+1,sy+2,14,12,"#e8c890");px(sx+1,sy+2,14,2,"#f4dca8");return true}
+  return false}
+// ---------- Trenzas Rosi: la peluquería del paseo (Saray 2.0) ----------
+(function(){const m=MAPS.costa,g=m.g;for(let y=6;y<=11;y++)for(let x=45;x<=47;x++)g[y][x]="H";g[11][46]="D";
+  m.builds.push({id:"rosi",kind:"pension",x:45,y:9,w:3,h:3,door:[46,11],wall:"#ffd8e8",roof:"#e04a9a",label:"TRENZAS",glow:"#e04a9a",to:"rosishop",up:40});
+  const r=NPCS.find(n=>n.id==="rosi");if(r){r.map="rosishop";r.x=4;r.y=1;r.dir="down";r.idle=false}})();
+MAPS.rosishop={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"costa",g:rowsGrid(["wwwwwwwwww","wgoooooo%w","wocccccoow","woooooooow","whoooooohw","woooooooow","wtoooooogw","wwwweewwww"]),
+  exits:{"4,7":["costa",46,12,"down"],"5,7":["costa",46,12,"down"]},entry:[4,6,"up"],txt:{c:"El mostrador de Rosi: peines, gomas, cuentas de colores y un bote de henna que huele a vacaciones.",h:"Un sillón de peluquería con secador de casco. Dentro hay una señora dormida desde 1994.",t:"Revistas del corazón de hace tres veranos.",g:"Una palmera con trenzas. Rosi no perdona ni a las plantas."}};
+// ---------- pisos con escaleras ----------
+(function(){MAPS.pension.g[5][8]="ʌ";MAPS.torrecan.g[5][10]="ʌ";const s=MAPS.solresaca.g;s[1][1]="o";s[1][2]="o";s[7][10]="ʋ"})();
+MAPS.pension2={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"costa",g:rowsGrid(["wwwwwwwwww","wɓoooooɓow","wɓoooooɓow","woooooooow","wtooooooiw","woooooooʋw","wgooooooow","wwwwwwwwww"]),exits:{},entry:[7,5,"left"],
+  txt:{t:"Una mesita con un vaso de agua y una dentadura. La dentadura sonríe.",g:"Una planta que alguien ha regado con after sun."}};
+MAPS.torrecan2={w:12,h:9,style:"casa",signs:{},builds:[],lamps:[],music:"costa",g:rowsGrid(["wwwwwwwwwwww","w~~~~ooooogw","w~~~~oooooow","woooooooooow","whooooooohhw","woooooooooow","woooooioooʋw","woooooooooow","wwwwwwwwwwww"]),exits:{},entry:[9,6,"left"],
+  txt:{"~":"El jacuzzi de la azotea. Burbujea. No preguntes por qué.",h:"Tumbonas de la azotea con vistas a todo Costa Cangrejo.",g:"Una palmera que ha visto demasiados atardeceres."}};
+MAPS.solresaca0={w:12,h:9,style:"casa",signs:{},builds:[],lamps:[],music:"neon2",g:rowsGrid(["wwwwwwwwwwww","wĜĜĜoooooogw","woooooooooow","woooooooooow","whoooooooohw","woooooooooow","wtooooooooʌw","woooooooooow","wwwwwwwwwwww"]),exits:{},entry:[9,6,"left"],
+  txt:{h:"Un sofá con quemaduras de cigarro con forma de récord.",t:"Una mesa con fichas, una Coca-Cola caliente y un mando roto.",g:"Una planta de plástico a la que han hecho un récord: 3 años sin regar."}};
+const STAIRS={"pension,8,5":["pension2",7,5,"left","Subes a las habitaciones de la pensión."],"pension2,8,5":["pension",7,5,"left","Bajas a la recepción."],"torrecan,10,5":["torrecan2",9,6,"left","Subes a la azotea de la Torre Cangrejo."],"torrecan2,10,6":["torrecan",10,6,"down","Bajas al hall."],
+  "solresaca,10,7":["solresaca0",9,6,"left","Bajas al sótano del Sol y Resaca. Huele a palomitas y a récord."],"solresaca0,10,6":["solresaca",9,7,"left","Subes al salón."]};
+const _stepSt=onStep;onStep=async function(){const k=S.map+","+S.x+","+S.y;if(STAIRS[k]){const[m,x,y,d,tx]=STAIRS[k];sfx("door");await warp(m,x,y,d);toast(tx);return}return _stepSt()};
+Object.assign(PICKUPS,{pension2:{k:"rinomarca",n:3,t:"Debajo de una cama hay una bolsa de un guiri: 3 Riñoneras de marca y una chancla. Te quedas las riñoneras."},torrecan2:{k:"ibu",n:3,t:"En una tumbona de la azotea hay un neceser olvidado con 3 Ibuprofenos. Aquí arriba hace falta."}});
+Object.assign(PICK_AT,{"pension2,8,4":"pension2","torrecan2,6,6":"torrecan2"});
+NPC_LOOK.dave={hs:0,ts:2};NPC_LOOK.lucia={hs:6,ts:10};NPC_LOOK.jonathan={hs:4,ts:3,acc:{ag:2}};
+NPCS.push({id:"dave",map:"pension2",x:3,y:3,dir:"down",pal:{h:"#f2d14e",s:"#f8a8a0",e:"#222",c:"#2a6ad0",z:"#f4f4f4",p:"#e23b2a",k:"#f8a8a0"},hs:0,ts:2,idle:true},
+ {id:"lucia",map:"torrecan2",x:5,y:3,dir:"down",pal:{h:"#6a2a1a",s:"#f1c27d",e:"#222",c:"#f2c14e",z:"#1a1a1a",p:"#2a2a2a",k:"#f1c27d"},hs:6,ts:10},
+ {id:"jonathan",map:"solresaca0",x:6,y:3,dir:"up",pal:{h:"#1a1a1a",s:"#e0a878",e:"#222",c:"#1a1a1a",z:"#4af0ff",p:"#2a2a2a",k:"#f4f4f4"},hs:4,ts:3,idle:true});
+TALK2.dave=async()=>{await say(pick(["Guiri Dave: Zzz… ¿Qué hora es? ¿Martes? ¿De qué mes? Bueno, da igual. Zzz…","Guiri Dave: Vine a Costa Cangrejo un fin de semana. En 2019.","Guiri Dave: Si encuentras mi bolsa debajo de la cama, quédatela. Yo ya no me acuerdo de qué había dentro."]))};
+TALK2.lucia=async()=>{await sayAll([pick(["Fotógrafa Lucía: Desde aquí arriba se ve todo: la playa, el cabo, la cueva… y lo que no se debería ver.","Fotógrafa Lucía: Hago fotos de atardeceres. Y de cosas raras, cuando las hay."]),(S.q.costa||0)>=3?"Fotógrafa Lucía: La otra noche vi a un hombre con guantes blancos subir a un yate rumbo a Terrazalia. Le hice una foto… pero salió movida. Solo se le ve el sombrero de paja.":"Fotógrafa Lucía: Anoche vi una linterna moviéndose hacia la cueva del cabo. ¿Quién va a una cueva a medianoche?"])};
+TALK2.jonathan=async()=>{await say(pick(["Jonathan: La Gaviota Ladrona es la mejor recreativa de la costa. Mi récord es secreto. Bueno, está ahí puesto. Pero no lo mires.","Jonathan: Truco: no corras detrás de las gaviotas. Ponte debajo antes de que bajen.","Jonathan: Los récords se comparten con tus colegas cuando estáis conectados a la vez. Así que ya sabes: humíllalos."]))};
+// ---------- un solo sitio de curar por ciudad: Wilson y el camarero ya no curan ----------
+TALK2.wilson=async()=>{const q=S.q.costa||0;
+  if(q===1&&!S.flags.clWilson){S.flags.clWilson=true;save();await sayAll(["Wilson: ¿Borja? Anoche estuvo aquí, en la barra. Discutiendo con un señor muy raro.","Wilson: Guantes blancos, sombrero de paja y una copa de vino en la mano. En un chiringuito. Pidió un vino «con cuerpo y retrogusto». Aquí solo hay tinto de verano.","Wilson: Le dijo a Borja: «Lo que has visto en el hotel no lo has visto». Y Borja se fue blanco como la arena.","🔍 Pista apuntada: el hombre de los guantes blancos.",`Wilson: Y si quieres saber más, pregunta a Rosi: tiene la peluquería «Trenzas» al final del paseo. 🔍 Pistas: ${[S.flags.clWilson,S.flags.clRosi,S.keys.silbato].filter(Boolean).length}/3`]);costaClues();return}
+  await say(pick(["Wilson: ¡Bienvenido al Copacabana, amigo! Mojito, tinto de verano o agua. El agua es más cara, que la vigila La Pasma.","Wilson: Chuchi, el del hotel, viene todos los días a las 10 a por el primer gin-tonic. Desayuna de pie.","Wilson: Si te dejan KO, ve a la pensión La Gamba Feliz. Maruchi te cura a los bichos y te da sopa fría."]))};
+TALK2.camaresaca=async()=>{await say(pick(["Camarero: Bienvenido al Sol y Resaca. Abajo, en el sótano, está la recreativa nueva: la Gaviota Ladrona. Arriba, las máquinas de bolas.","Camarero: El señor de los guantes blancos vino una noche. Pidió un vino «de añada». Le di un tinto de verano. No volvió.","Camarero: ¿Curar? Para eso está la pensión de Maruchi. Yo solo pongo cañas y escucho penas."]))};
+// ---------- dibujo de las casillas nuevas ----------
+const _dtC3=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(paraTile(ch,x,y,sx,sy,t))return;
+  if(ch==="ʌ"||ch==="ʋ"){_dtC3("o",x,y,sx,sy,t,style);for(let i=0;i<4;i++){const yy=ch==="ʌ"?sy+12-i*4:sy+1+i*4;px(sx+2,yy,12,3,i%2?"#a8784a":"#c8945a");px(sx+2,yy,12,1,"#e8c090")}px(sx+1,sy,1,T,"#6a4a2a");px(sx+14,sy,1,T,"#6a4a2a");
+    ctx.fillStyle="#ffd14a";ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText(ch==="ʌ"?"▲":"▼",sx+8,sy+(ch==="ʌ"?-1:20));return}
+  if(ch==="ɓ"){_dtC3("o",x,y,sx,sy,t,style);px(sx+1,sy+1,14,14,"#8a5a2a");px(sx+2,sy+2,12,12,"#f4f0e8");px(sx+2,sy+2,12,4,"#ffffff");px(sx+2,sy+7,12,7,"#4a8ad0");return}
+  if(ch==="Ĝ"){_dtC3("o",x,y,sx,sy,t,style);px(sx+2,sy-8,12,24,"#1a3a5a");px(sx+2,sy-8,12,3,"#ffd14a");px(sx+3,sy-4,10,8,"#3aa0e8");px(sx+3,sy+1,10,3,"#f2dca0");const f=Math.floor(t/180)%4;px(sx+4+f*2,sy-3,3,2,"#f4f4f4");px(sx+5,sy+6,6,3,"#2a2a3a");px(sx+7,sy+6,2,2,"#e23b2a");return}
+  return _dtC3(ch,x,y,sx,sy,t,style)};
+const _intC3=interact;interact=async function(){const[fx,fy]=facing();if(tileAt(fx,fy)==="Ĝ"){await gullMenu();return}return _intC3()};
+// ---------- recreativa «GAVIOTA LADRONA» (récords compartidos con los colegas) ----------
+const GULL_KEY="otraronda_gaviota_v1";
+function gullBoard(){try{return JSON.parse(localStorage.getItem(GULL_KEY))||[]}catch(e){return[]}}
+function gullAdd(e){const b=gullBoard();const i=b.findIndex(q=>q.nm===e.nm&&q.ini===e.ini);if(i>=0){if(b[i].s>=e.s)return;b.splice(i,1)}b.push(e);b.sort((a,c)=>c.s-a.s);try{localStorage.setItem(GULL_KEY,JSON.stringify(b.slice(0,15)))}catch(e){}}
+function gullPublish(){const p=S.stats&&S.stats.arcadeBest,g=S.stats&&S.stats.gullBest;const hs={};if(p)hs.pasma=[p.ini,p.s];if(g)hs.gaviota=[g.ini,g.s];if(g)try{setMP({hs})}catch(e){}}
+setInterval(()=>{try{for(const o of OTHERS.values()){const h=o.info&&o.info.pr&&o.info.pr.hs&&o.info.pr.hs.gaviota;if(Array.isArray(h)&&typeof h[1]==="number"&&h[1]>0&&h[1]<1e6)gullAdd({ini:String(h[0]||"???").replace(/[^A-Z0-9]/gi,"").slice(0,3).toUpperCase()||"???",s:Math.floor(h[1]),nm:cleanName(o.info.nm)||"Colega",friend:true})}}catch(e){}},4000);
+setTimeout(gullPublish,6000);
+async function gullMenu(){while(true){const i=await choose("🕹️ GAVIOTA LADRONA · 2 pavos. Protege tus cañas y tus bocatas de las gaviotas de la playa. Ponte debajo y ¡zas!",[{label:"▶️ Jugar",sub:"2 pavos",disabled:S.money<2},{label:"🏆 Récords"},{label:"👋 Dejarlo"}],{cols:1});
+  if(i===0){S.money-=2;save();await gullGame()}else if(i===1)await gullTop();else return}}
+function gullTop(){return new Promise(res=>{const b=gullBoard();const close=()=>{closeOverlay();res()};
+  overlay(`<div class="qbox" style="font-family:monospace"><h2 style="margin:0;color:#ffd14a;text-align:center">🏆 RÉCORDS · GAVIOTA LADRONA</h2>
+   ${b.length?b.slice(0,10).map((e,i)=>`<div style="display:flex;justify-content:space-between;font-size:18px;color:${i===0?"#ffd14a":"#f4e7d4"}"><span>${i+1}. <b>${esc(e.ini)}</b> <small style="opacity:.65">${esc(e.nm)}${e.friend?" 👥":""}</small></span><b>${e.s}</b></div>`).join(""):'<p style="text-align:center">Nadie ha jugado todavía. Sé el primero.</p>'}
+   <p style="font-size:12px;text-align:center">👥 = puntuación de un colega (cuando estáis conectados a la vez).</p><div class="qrow"><button class="big" type="button" id="gl-x">Cerrar</button></div></div>`,{onB:close,focusId:"gl-x"});$("gl-x").onclick=close})}
+function gullGame(){return new Promise(res=>{
+  overlay(`<div class="qbox" style="max-width:420px;margin:0 auto"><canvas id="gl-c" width="320" height="440" style="width:100%;border-radius:10px;background:#3aa0e8;touch-action:none"></canvas>
+   <div class="qrow"><button class="big alt" type="button" id="gl-l">◀</button><button class="big alt" type="button" id="gl-r">▶</button></div></div>`,{onB:()=>{}});
+  const c=$("gl-c"),x=c.getContext("2d");let pxx=160,score=0,combo=0,alive=true,last=performance.now(),spawn=1.2,gulls=[],raf=0,held=0,lvl=1,flash=0;
+  const snacks=[{x:70,n:"🍺",ok:true},{x:160,n:"🥪",ok:true},{x:250,n:"🍟",ok:true}];
+  const kd=e=>{if(["ArrowLeft","a","A"].includes(e.key)){held=-1;e.preventDefault();e.stopPropagation()}else if(["ArrowRight","d","D"].includes(e.key)){held=1;e.preventDefault();e.stopPropagation()}};
+  const ku=e=>{if(["ArrowLeft","a","A","ArrowRight","d","D"].includes(e.key)){held=0;e.stopPropagation()}};
+  addEventListener("keydown",kd,true);addEventListener("keyup",ku,true);
+  const hold=d=>()=>{held=d};$("gl-l").onpointerdown=hold(-1);$("gl-r").onpointerdown=hold(1);$("gl-l").onpointerup=$("gl-r").onpointerup=$("gl-l").onpointerleave=$("gl-r").onpointerleave=()=>{held=0};
+  c.onpointerdown=e=>{const r=c.getBoundingClientRect();held=e.clientX-r.left<r.width/2?-1:1};c.onpointerup=()=>{held=0};
+  const gull=(gx,gy,t,carry)=>{const f=Math.sin(t/70)*6;x.fillStyle="#f4f4f4";x.beginPath();x.ellipse(gx,gy,13,8,0,0,7);x.fill();x.beginPath();x.arc(gx+10,gy-5,6,0,7);x.fill();x.fillStyle="#9aa0a8";
+    x.beginPath();x.moveTo(gx-4,gy-2);x.lineTo(gx-22,gy-10-f);x.lineTo(gx+2,gy-2);x.fill();x.beginPath();x.moveTo(gx,gy-2);x.lineTo(gx+18,gy-12-f);x.lineTo(gx+8,gy);x.fill();x.fillStyle="#f2c14e";x.fillRect(gx+15,gy-6,7,3);x.fillStyle="#1a1a1a";x.fillRect(gx+11,gy-7,2,2);
+    if(carry){x.font="14px sans-serif";x.textAlign="center";x.fillText(carry,gx+18,gy+10)}};
+  const end=async()=>{alive=false;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);sfx("weak");const s=Math.floor(score);
+    S.stats=S.stats||{};const pay=Math.min(15,Math.floor(s/120));if(pay)S.money+=pay;save();let ini=(S.stats.gullBest&&S.stats.gullBest.ini)||(S.name||"YOU").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+    await new Promise(r2=>{overlay(`<div class="qbox" style="text-align:center"><h2 style="margin:0;color:#ff4a4a">🐦 ¡TE HAN DEJADO SIN MERIENDA!</h2><p style="font-size:26px;color:#ffd14a;margin:0"><b>${s}</b> puntos</p><p style="margin:0">${pay?`Te llevas ${pay} pavos.`:"Sin premio esta vez."}</p>
+      <p style="margin:0">Tus iniciales:</p><input class="qin" id="gl-i" maxlength="3" value="${esc(ini)}" style="width:120px;text-transform:uppercase"><div class="qrow"><button class="big" type="button" id="gl-ok">Guardar</button></div></div>`,{focusId:"gl-ok"});
+      const inp=$("gl-i");inp.onkeydown=e=>e.stopPropagation();$("gl-ok").onclick=()=>{ini=(inp.value||"???").replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase()||"???";r2()}});
+    if(!S.stats.gullBest||s>S.stats.gullBest.s)S.stats.gullBest={ini,s};else S.stats.gullBest.ini=ini;save();gullAdd({ini,s,nm:S.name||"Tú"});gullPublish();closeOverlay();await gullTop();res()};
+  const tick=nw=>{const dt=Math.min(.05,(nw-last)/1000);last=nw;if(!c.isConnected){removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);res();return}
+    if(alive){score+=dt*3;lvl=1+score/150;pxx=Math.max(24,Math.min(296,pxx+held*260*dt));spawn-=dt;
+      if(spawn<=0){const live=snacks.filter(s=>s.ok);if(live.length){const tg=live[Math.floor(Math.random()*live.length)];gulls.push({x:20+Math.random()*280,y:-20,tg,sp:70+lvl*22+Math.random()*30,st:"dive"})}spawn=Math.max(.45,1.5-lvl*.12)}
+      for(const g of gulls){if(g.st==="dive"){const dx=g.tg.x-g.x,dy=400-g.y,dd=Math.hypot(dx,dy)||1;g.x+=dx/dd*g.sp*dt;g.y+=dy/dd*g.sp*dt;
+          if(Math.abs(g.x-pxx)<26&&Math.abs(g.y-352)<22){g.st="hit";combo++;score+=10*Math.min(5,combo);sfx("hit");flash=.15}
+          else if(g.y>=392){if(g.tg.ok){g.tg.ok=false;g.carry=g.tg.n;combo=0;sfx("weak")}g.st="away"}}
+        else{g.y-=160*dt;g.x+=(g.st==="hit"?-1:1)*120*dt}}
+      gulls=gulls.filter(g=>g.y>-40&&g.x>-40&&g.x<360);if(!snacks.some(s=>s.ok)){end();return}}
+    // dibujo
+    x.fillStyle="#7ac8f0";x.fillRect(0,0,320,160);x.fillStyle="#fff4c0";x.beginPath();x.arc(270,40,20,0,7);x.fill();x.fillStyle="#2a8ad0";x.fillRect(0,160,320,60);x.fillStyle="rgba(255,255,255,.6)";for(let i=0;i<6;i++)x.fillRect((nw/30+i*60)%340-20,176+(i%3)*12,24,2);
+    x.fillStyle="#f2dca0";x.fillRect(0,220,320,220);x.fillStyle="#e23b2a";x.fillRect(30,396,260,26);x.fillStyle="#f4f4f4";for(let i=0;i<13;i++)x.fillRect(30+i*20,396,10,26);
+    x.font="26px sans-serif";x.textAlign="center";for(const s of snacks)if(s.ok)x.fillText(s.n,s.x,418);
+    for(const g of gulls)gull(g.x,g.y,nw,g.carry);
+    // el guiri con la raqueta
+    x.fillStyle="#f8a8a0";x.beginPath();x.arc(pxx,330,12,0,7);x.fill();x.fillStyle="#f2d14e";x.fillRect(pxx-12,318,24,6);x.fillStyle="#2a6ad0";x.fillRect(pxx-14,342,28,26);x.fillStyle="#e23b2a";x.fillRect(pxx-14,358,28,10);
+    x.strokeStyle="#8a5a2a";x.lineWidth=4;x.beginPath();x.moveTo(pxx+12,345);x.lineTo(pxx+22,322);x.stroke();x.fillStyle="#c8202a";x.beginPath();x.ellipse(pxx+26,314,12,9,0,0,7);x.fill();
+    if(flash>0){flash-=dt;x.fillStyle="rgba(255,255,255,.35)";x.fillRect(0,0,320,440)}
+    x.fillStyle="#1a1a1a";x.font="bold 18px monospace";x.textAlign="left";x.fillText("PUNTOS "+Math.floor(score),10,26);if(combo>1){x.fillStyle="#c8202a";x.fillText("COMBO x"+Math.min(5,combo),10,48)}
+    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+
+/*</B4COSTA3>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

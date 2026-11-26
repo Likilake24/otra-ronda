@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="60 · Pixel art: todo el Parque de Pichi";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="61 · Pixel art: La Carretera (1.ª parte)";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -7200,6 +7200,84 @@ if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=
 })();
 
 /*</B4PIXDES3>*/
+/*<B4PIXDES4>*/
+/* ===================== DISEÑOS EN PIXEL ART · tanda 4: La Carretera (1.ª parte) ===================== */
+(function(){const{soft,E,P,L,D,fur,gloss,star,badgeS,eye,mouth,clawsDown,scales}=PIXLIB;const{sitter,biped,quad}=PIXB;
+const beak=(col="#f2c14e",hook)=>(x,cx,cy,s)=>{soft(x,c=>{c.moveTo(cx-s*.28,cy+s*.12);c.quadraticCurveTo(cx,cy+s*.02,cx+s*.28,cy+s*.12);c.quadraticCurveTo(cx+s*.12,cy+s*.5,cx,cy+s*(hook?.72:.6));c.quadraticCurveTo(cx-s*.12,cy+s*.5,cx-s*.28,cy+s*.12);c.closePath()},col,[cx-s*.28,cy,cx+s*.28,cy+s*.72],{hi:.55,lo:.4})};
+const wings=(col,span=1,tip)=>(x,v)=>{for(const k of[-1,1]){x.save();x.translate(350+k*110,330);x.scale(k,1);soft(x,c=>{c.moveTo(0,0);c.quadraticCurveTo(160*span,-120*span,220*span,-40*span);c.lineTo(200*span,10);c.lineTo(230*span,40*span);c.lineTo(190*span,60);c.lineTo(210*span,110*span);c.quadraticCurveTo(120*span,120,0,120);c.closePath()},col,[0,-120*span,230*span,120*span],{hi:.45,lo:.5,tex:x=>{x.strokeStyle="rgba(0,0,0,.18)";x.lineWidth=4;for(let i=1;i<5;i++){x.beginPath();x.moveTo(40*i*span,10);x.lineTo(50*i*span,100);x.stroke()}}});if(tip){x.fillStyle=tip;x.beginPath();x.moveTo(200*span,10);x.lineTo(230*span,40*span);x.lineTo(190*span,60);x.lineTo(210*span,110*span);x.lineTo(160*span,100);x.closePath();x.fill()}x.restore()}};
+const antennae=(col)=>(x,cx,cy,s)=>{x.strokeStyle=col;x.lineWidth=6;x.lineCap="round";for(const k of[-1,1]){x.beginPath();x.moveTo(cx+k*s*.25,cy-s*.7);x.quadraticCurveTo(cx+k*s*.5,cy-s*1.5,cx+k*s*1.0,cy-s*1.35);x.stroke()}};
+const horns=(col,big)=>(x,cx,cy,s)=>{for(const k of[-1,1])soft(x,c=>{c.moveTo(cx+k*s*.35,cy-s*.6);c.quadraticCurveTo(cx+k*s*(big?.9:.7),cy-s*(big?1.1:.9),cx+k*s*(big?.75:.55),cy-s*(big?1.5:1.2));c.quadraticCurveTo(cx+k*s*.5,cy-s*.95,cx+k*s*.15,cy-s*.72);c.closePath()},col,[cx-s,cy-s*1.5,cx+s,cy-s*.6],{hi:.5,lo:.45})};
+const mane=(col)=>(x,cx,cy,s)=>{for(let i=0;i<6;i++)soft(x,c=>c.ellipse(cx-s*.05+((i%2)*s*.1),cy-s*.95+i*s*.16,s*.16,s*.12,.3,0,7),col,[cx-s*.3,cy-s*1.1,cx+s*.3,cy],{hi:.4,lo:.45,spec:false})};
+
+// ===================== MARLBORO (fuego): potro → caballo → Vaquero Marlboro =====================
+const MB="#a8582a",MBR="#d8202a",MBW="#f8f4ec";
+const chevron=(x,cx,cy,w,h)=>{soft(x,c=>c.roundRect(cx-w/2,cy-h/2,w,h,8),MBW,[cx-w/2,cy-h/2,cx+w/2,cy+h/2],{hi:.25,lo:.3});P(x,[[cx-w/2,cy-h/2],[cx,cy+h*.05],[cx+w/2,cy-h/2],[cx+w/2,cy-h*.1],[cx,cy+h*.35],[cx-w/2,cy-h*.1]],MBR,{hi:.4,lo:.4})};
+const MBO={col:MB,belly:"#e8c8a0",muzzle:"#e8c8a0",head:"snout",ears:"point",inner:"#5a2a10",iris:"#3a1a0a",tex:bb=>fur(bb,"rgba(60,20,5,.25)",30),mark:(x,cx,cy,s)=>{mane("#3a1a0a")(x,cx,cy,s);P(x,[[cx-s*.12,cy-s*.4],[cx+s*.12,cy-s*.4],[cx,cy+s*.05]],MBW)}};
+const horseTail=(x,v)=>{const bx=v==="back"?350:410,by=v==="back"?520:520;for(let i=0;i<4;i++){x.strokeStyle=i%2?"#3a1a0a":"#5a2a10";x.lineWidth=16;x.lineCap="round";x.beginPath();x.moveTo(bx,by);x.quadraticCurveTo(bx+60+i*8,by+30,bx+50+i*14,by+100);x.stroke()}};
+PIXD.marlboro={shinyHue:180,front:x=>sitter(x,"front",Object.assign({},MBO,{tail:horseTail,neck:(x,cx,cy)=>chevron(x,cx,cy+40,90,60)})),back:x=>sitter(x,"back",Object.assign({},MBO,{tail:horseTail,backMark:(x,cx,cy)=>chevron(x,cx,cy-20,120,80)}))};
+PIXD.marlborocarton={shinyHue:180,front:x=>quad(x,"front",Object.assign({},MBO,{hs:100,hy:150,mood:"angry",front:(x)=>{chevron(x,350,330,170,90)}})),back:x=>quad(x,"back",Object.assign({},MBO,{hs:100,hy:150,tail:horseTail,backMark:(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-100,cy-70,200,90,12),"#6a3a1a",[cx-100,cy-70,cx+100,cy+20],{hi:.4});chevron(x,cx,cy-25,140,70)}}))};
+const hatV=(x,cx,cy,s,back)=>{const y=cy-s*.72;E(x,cx,y+s*.2,s*1.4,s*.3,0,"#f4ecd8",{hi:.4,lo:.5});soft(x,c=>{c.moveTo(cx-s*.72,y+s*.2);c.quadraticCurveTo(cx-s*.8,y-s*.66,cx-s*.3,y-s*.6);c.quadraticCurveTo(cx,y-s*.38,cx+s*.3,y-s*.6);c.quadraticCurveTo(cx+s*.8,y-s*.66,cx+s*.72,y+s*.2);c.closePath()},"#f4ecd8",[cx-s*.8,y-s*.66,cx+s*.8,y+s*.2],{hi:.45,lo:.5});x.fillStyle=MBR;x.fillRect(cx-s*.72,y,s*1.44,s*.16)};
+PIXD.vaquero={shinyHue:180,front:x=>biped(x,"front",Object.assign({},MBO,{big:2,mood:"angry",iris:"#c81818",armPose:"flex",top:hatV,tail:horseTail,legCol:"#3a4a7a",foot:"#4a2a12",
+   chest:(x,cx,cy,W)=>{soft(x,c=>{c.moveTo(cx-120*W,cy-120);c.lineTo(cx+120*W,cy-120);c.lineTo(cx+100*W,cy+120);c.lineTo(cx-100*W,cy+120);c.closePath()},MBW,[cx-120*W,cy-120,cx+120*W,cy+120],{hi:.3,lo:.35});chevron(x,cx,cy-20,150,110);x.fillStyle="#4a2a12";x.fillRect(cx-130*W,cy+95,260*W,20);soft(x,c=>c.roundRect(cx-24,cy+90,48,30,6),"#e6bc3a",[cx-24,cy+90,cx+24,cy+120],{hi:.6})}})),
+ back:x=>biped(x,"back",Object.assign({},MBO,{big:2,top:hatV,tail:horseTail,legCol:"#3a4a7a",backMark:(x,cx,cy)=>chevron(x,cx,cy-30,200,140)}))};
+
+// ===================== COLILLA (veneno): cucaracha → escarabajo-cenicero =====================
+const CL="#6a4a2a";
+const cig=(x,cx,cy,len,w,ang)=>{x.save();x.translate(cx,cy);x.rotate(ang);soft(x,c=>c.roundRect(0,-w/2,len*.45,w,w*.3),"#e8a040",[0,-w/2,len*.45,w/2],{hi:.4});soft(x,c=>c.roundRect(len*.45,-w/2,len*.55,w,w*.3),"#f4f0e8",[len*.45,-w/2,len,w/2],{hi:.3});x.fillStyle="#5a5a5a";x.fillRect(len*.92,-w/2,len*.08,w);x.restore()};
+const CLO={col:CL,belly:"#a8885a",muzzle:"#8a6a4a",head:"round",ears:"none",iris:"#e8c040",mark:antennae("#3a2a1a")};
+PIXD.colilla={shinyHue:100,front:x=>{sitter(x,"front",Object.assign({},CLO,{neck:(x,cx,cy)=>cig(x,cx-70,cy+40,140,26,-.15)}))},back:x=>sitter(x,"back",Object.assign({},CLO,{backMark:(x,cx,cy)=>{soft(x,c=>c.ellipse(cx,cy-10,110,80,0,0,7),"#4a2a14",[cx-110,cy-90,cx+110,cy+70],{hi:.6,lo:.45,sa:.8});x.fillStyle="#2a1408";x.fillRect(cx-3,cy-90,6,160);cig(x,cx-60,cy+20,120,22,-.2)},backMarkHead:antennae("#3a2a1a")}))};
+const ashtray=(x,cx,cy,r)=>{soft(x,c=>c.ellipse(cx,cy,r,r*.55,0,0,7),"#7a7a8a",[cx-r,cy-r*.55,cx+r,cy+r*.55],{hi:.65,lo:.45,sa:.9});E(x,cx,cy-r*.05,r*.75,r*.35,0,"#4a4a52",{hi:.2,lo:.3});for(const a of[0,2.1,4.2])E(x,cx+Math.cos(a)*r*.88,cy+Math.sin(a)*r*.48,r*.12,r*.07,a,"#5a5a62");cig(x,cx-r*.5,cy-r*.05,r*.9,r*.12,-.2);cig(x,cx+r*.1,cy+r*.05,r*.6,r*.11,.4);x.fillStyle="rgba(200,200,200,.7)";for(let i=0;i<12;i++)x.fillRect(cx-r*.5+((i*37)%(r)),cy-r*.1+((i*17)%(r*.3)),6,4)};
+PIXD.cenicero={shinyHue:100,front:x=>quad(x,"front",Object.assign({},CLO,{col:"#3a2a1a",hs:95,hy:300,mood:"angry",iris:"#ff3a1a",behind:(x,v)=>{if(v==="front")ashtray(x,350,240,230)},front:()=>{} })),back:x=>quad(x,"back",Object.assign({},CLO,{col:"#3a2a1a",hs:95,hy:300,backMark:(x,cx,cy)=>ashtray(x,cx,cy-90,230)}))};
+
+// ===================== HELL (fuego): diablillo =====================
+const HL="#d8302a";
+const devilTail=(x,v)=>{const bx=v==="back"?350:400,by=520;x.strokeStyle="#7a1010";x.lineWidth=12;x.lineCap="round";x.beginPath();x.moveTo(bx,by);x.bezierCurveTo(bx+120,by+40,bx+150,by-80,bx+110,by-150);x.stroke();P(x,[[bx+80,by-140],[bx+110,by-200],[bx+140,by-140],[bx+110,by-160]],"#7a1010")};
+PIXD.hell={shinyHue:200,front:x=>biped(x,"front",{col:HL,belly:"#f8b080",muzzle:"#f8b080",head:"round",ears:"point",inner:"#7a1010",iris:"#ffe23a",mood:"angry",tail:devilTail,top:horns("#2a1a1a"),
+   chest:(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-55,cy-60,110,120,20),"#1a1a1a",[cx-55,cy-60,cx+55,cy+60],{hi:.5,lo:.4});x.font="900 46px Arial";x.textAlign="center";x.textBaseline="middle";x.fillStyle=HL;x.fillText("HELL",cx,cy);P(x,[[cx-30,cy+30],[cx,cy+50],[cx+30,cy+30]],"#ffb020")}}),
+ back:x=>biped(x,"back",{col:HL,head:"round",ears:"point",tail:devilTail,top:horns("#2a1a1a"),backMark:(x,cx,cy)=>{for(const k of[-1,1])P(x,[[cx+k*30,cy-90],[cx+k*150,cy-150],[cx+k*120,cy-40],[cx+k*160,cy+10],[cx+k*40,cy+20]],"#3a1a1a",{hi:.4,lo:.5})}})};
+// ===================== BURN (fuego): salamandra =====================
+const BN="#2a2a32",BNO="#ff7a1a";
+const flameTail=(x,v)=>{const bx=v==="back"?350:410,by=540;x.strokeStyle=BN;x.lineWidth=36;x.lineCap="round";x.beginPath();x.moveTo(bx,by);x.quadraticCurveTo(bx+130,by+30,bx+170,by-60);x.stroke();for(const[r,c]of[[50,"#ff7a1a"],[32,"#ffd23a"]])soft(x,cc=>{cc.moveTo(bx+170-r*.6,by-60);cc.quadraticCurveTo(bx+170-r,by-60-r*1.4,bx+170+r*.2,by-60-r*2.2);cc.quadraticCurveTo(bx+170+r,by-60-r,bx+170+r*.6,by-60);cc.closePath()},c,[bx+170-r,by-60-r*2.2,bx+170+r,by-60],{hi:.6,lo:.2,spec:false})};
+PIXD.burn={shinyHue:160,front:x=>biped(x,"front",{col:BN,belly:"#ff9a3a",muzzle:"#3a3a44",head:"round",ears:"none",iris:"#ff7a1a",mood:"angry",tail:flameTail,tex:bb=>x=>{x.fillStyle="rgba(255,122,26,.55)";for(let i=0;i<14;i++){x.beginPath();x.ellipse(bb[0]+((i*61)%(bb[2]-bb[0])),bb[1]+((i*43)%(bb[3]-bb[1])),12,8,0,0,7);x.fill()}},
+   chest:(x,cx,cy)=>{x.font="900 italic 44px Arial";x.textAlign="center";x.textBaseline="middle";x.fillStyle="#1a1a1a";x.fillText("BURN",cx,cy+10)}}),
+ back:x=>biped(x,"back",{col:BN,head:"round",ears:"none",tail:flameTail,tex:bb=>x=>{x.fillStyle="rgba(255,122,26,.6)";for(let i=0;i<16;i++){x.beginPath();x.ellipse(bb[0]+((i*61)%(bb[2]-bb[0])),bb[1]+((i*43)%(bb[3]-bb[1])),14,9,0,0,7);x.fill()}}})};
+
+// ===================== ARGUS (eléctrico): pavo real (como el faisán Argus) =====================
+const AG="#2a8ad0",AGN="#4af0ff";
+const peacockFan=(col1,col2,big)=>(x,v)=>{const n=big?11:7,R=big?260:190,cy=v==="back"?380:360;for(let i=0;i<n;i++){const a=-Math.PI+(i+.5)*Math.PI/n;x.save();x.translate(350,cy);x.rotate(a+Math.PI/2);soft(x,c=>c.ellipse(0,-R*.55,R*.14,R*.55,0,0,7),col1,[-R*.14,-R*1.1,R*.14,0],{hi:.45,lo:.45,spec:false});
+  E(x,0,-R*.92,R*.09,R*.11,0,col2,{hi:.6});E(x,0,-R*.92,R*.045,R*.055,0,"#1a1a3a");x.restore()}};
+const AGO={col:AG,belly:"#bfe4ff",head:"bird",ears:"none",iris:"#ffe23a",mark:(x,cx,cy,s)=>{beak("#f2c14e")(x,cx,cy,s);for(const k of[-1,0,1]){x.strokeStyle="#1a4a8a";x.lineWidth=4;x.beginPath();x.moveTo(cx+k*s*.12,cy-s*.75);x.lineTo(cx+k*s*.25,cy-s*1.15);x.stroke();E(x,cx+k*s*.25,cy-s*1.18,s*.07,s*.07,0,AGN,{hi:.6})}}};
+PIXD.argus={shinyHue:300,front:x=>sitter(x,"front",Object.assign({},AGO,{tail:(x,v)=>peacockFan("#2a9a6a",AGN)(x,"front")})),back:x=>sitter(x,"back",Object.assign({},AGO,{tail:(x,v)=>{if(v==="back")peacockFan("#2a9a6a",AGN)(x,"back")}}))};
+PIXD.argus.back=x=>{peacockFan("#2a9a6a",AGN)(x,"back");sitter(x,"back",AGO)};
+PIXD.argus1844={shinyHue:300,front:x=>biped(x,"front",Object.assign({},AGO,{col:"#2a2a3a",belly:"#4a4a5a",mood:"angry",iris:"#4af0ff",behind:(x,v)=>{if(v==="front")peacockFan("#1a1a2a","#e6bc3a",1)(x,"front")},
+   chest:(x,cx,cy)=>{badgeS(x,cx,cy,50,"1844","#e6bc3a","#1a1a2a","#e6bc3a")}})),back:x=>{peacockFan("#1a1a2a","#e6bc3a",1)(x,"back");biped(x,"back",Object.assign({},AGO,{col:"#2a2a3a"}))}};
+
+// ===================== CHIPPIES (veneno): sapo =====================
+const CH="#8aa83a",CHY="#f2d14e";
+const TO={col:CH,belly:"#e8e8a0",head:"round",ears:"none",iris:"#e8a020",eyeY:.5,eyeX:.45,tex:bb=>x=>{x.fillStyle="rgba(60,80,20,.35)";for(let i=0;i<20;i++){x.beginPath();x.arc(bb[0]+((i*53)%(bb[2]-bb[0])),bb[1]+((i*37)%(bb[3]-bb[1])),8,0,7);x.fill()}},
+  mark:(x,cx,cy,s)=>{for(const k of[-1,1])E(x,cx+k*s*.45,cy-s*.5,s*.26,s*.24,0,CH);mouth([[cx-s*.6,cy+s*.3],[cx,cy+s*.42],[cx+s*.6,cy+s*.3]])}};
+const chipLabel=(x,cx,cy,w)=>{soft(x,c=>c.roundRect(cx-w/2,cy-w*.3,w,w*.6,10),CHY,[cx-w/2,cy-w*.3,cx+w/2,cy+w*.3],{hi:.4,lo:.4});x.font=`900 ${w*.2}px Arial`;x.textAlign="center";x.textBaseline="middle";x.fillStyle="#c8202a";x.fillText("CHIPPIES",cx,cy)};
+PIXD.chippies={shinyHue:200,front:x=>sitter(x,"front",Object.assign({},TO,{neck:(x,cx,cy)=>chipLabel(x,cx,cy+50,110)})),back:x=>sitter(x,"back",Object.assign({},TO,{backMark:(x,cx,cy)=>chipLabel(x,cx,cy-20,130)}))};
+const crate=(x,v)=>{const y=v==="back"?300:250;soft(x,c=>c.roundRect(170,y,360,190,16),"#c8202a",[170,y,530,y+190],{hi:.45,lo:.5});for(let i=0;i<6;i++)for(let j=0;j<2;j++)soft(x,c=>c.roundRect(185+i*57,y-40+j*0,44,60,10),"#d8c890",[185+i*57,y-40,229+i*57,y+20],{hi:.5,lo:.4,spec:false});chipLabel(x,350,y+110,190)};
+PIXD.chippiespack={shinyHue:200,front:x=>quad(x,"front",Object.assign({},TO,{hs:120,hy:250,mood:"angry",behind:(x,v)=>{if(v==="front")crate(x,"front")}})),back:x=>quad(x,"back",Object.assign({},TO,{hs:120,hy:250,backMark:(x,cx,cy)=>crate(x,"back")}))};
+
+// ===================== WINSTON (normal/volador): aguilucho → Águila Winston con traje rojo =====================
+const WN="#a8784a",WNR="#c8202a",WNG="#e6bc3a";
+const WO={col:WN,belly:"#f2e0c0",head:"bird",ears:"none",iris:"#e8a020",mark:beak("#f2c14e",1)};
+const winBand=(x,cx,cy,w)=>{soft(x,c=>c.roundRect(cx-w/2,cy-18,w,36,10),WNR,[cx-w/2,cy-18,cx+w/2,cy+18],{hi:.4});x.font=`900 ${w*.18}px Georgia`;x.textAlign="center";x.textBaseline="middle";x.fillStyle=WNG;x.fillText("WINSTON",cx,cy+2)};
+PIXD.winston={shinyHue:200,front:x=>sitter(x,"front",Object.assign({},WO,{neck:(x,cx,cy)=>winBand(x,cx,cy,170),tail:(x)=>wings(WN,.5)(x)})),back:x=>{wings(WN,.5)(x);sitter(x,"back",Object.assign({},WO,{backMark:(x,cx,cy)=>winBand(x,cx,cy-40,180)}))}};
+PIXD.winstoncarton={shinyHue:200,front:x=>biped(x,"front",Object.assign({},WO,{mood:"angry",behind:wings(WN,.8),chest:(x,cx,cy)=>{soft(x,c=>c.roundRect(cx-60,cy-70,120,140,10),WNR,[cx-60,cy-70,cx+60,cy+70],{hi:.4});x.font="900 70px Georgia";x.textAlign="center";x.fillStyle=WNG;x.fillText("W",cx,cy+24)},hand:"#f2c14e",claws:true})),
+ back:x=>biped(x,"back",Object.assign({},WO,{behind:wings(WN,.8)}))};
+const suit=(x,cx,cy,W)=>{soft(x,c=>{c.moveTo(cx-120*W,cy-130);c.lineTo(cx+120*W,cy-130);c.lineTo(cx+110*W,cy+130);c.lineTo(cx-110*W,cy+130);c.closePath()},WNR,[cx-120*W,cy-130,cx+120*W,cy+130],{hi:.4,lo:.5});
+  P(x,[[cx-40,cy-130],[cx+40,cy-130],[cx+20,cy+20],[cx,cy+40],[cx-20,cy+20]],"#f8f4ec");P(x,[[cx-12,cy-120],[cx+12,cy-120],[cx+8,cy],[cx,cy+16],[cx-8,cy]],WNG);for(const k of[-1,1])P(x,[[cx+k*40,cy-130],[cx+k*95,cy-100],[cx+k*20,cy+20]],D(WNR,.25));
+  for(let i=0;i<3;i++)E(x,cx,cy+50+i*30,7,7,0,WNG,{hi:.6})};
+PIXD.aguilawinston={shinyHue:200,front:x=>biped(x,"front",Object.assign({},WO,{big:2,col:"#f4ecd8",belly:"#f4ecd8",mood:"angry",iris:"#c81818",behind:wings("#8a5a2a",1.05,WNG),armCol:WNR,legCol:"#1a1a1a",foot:"#f2c14e",hand:"#f2c14e",claws:true,chest:suit,
+   mark:(x,cx,cy,s)=>{beak("#f2c14e",1)(x,cx,cy,s);cig(x,cx+s*.1,cy+s*.45,s*.6,s*.09,.25)}})),
+ back:x=>biped(x,"back",Object.assign({},WO,{big:2,col:"#f4ecd8",behind:wings("#8a5a2a",1.05,WNG),armCol:WNR,legCol:"#1a1a1a",backMark:(x,cx,cy,W)=>{soft(x,c=>c.roundRect(cx-120,cy-130,240,260,20),WNR,[cx-120,cy-130,cx+120,cy+130],{hi:.4,lo:.5});x.font="900 120px Georgia";x.textAlign="center";x.fillStyle=WNG;x.fillText("W",cx,cy+40)}}))};
+if(typeof SP!=="undefined")Object.keys(PIXD).forEach(id=>{if(SP[id]){SP[id].pix=true;delete SP[id].vec;delete SP[id].gen}});
+})();
+
+/*</B4PIXDES4>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

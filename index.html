@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="80 · Espuma Party en la playa, 5 máquinas, mascotas con habilidad, peinados locos, experiencia repartida, equipo 3+3";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="81 · Bahía nueva con rocas y barcos, Terrazalia rehecha, Isla del Faro, gimnasio de Izaskun en 3 salas, toboganes de Chuchi más difíciles";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8033,18 +8033,18 @@ if(typeof SP!=="undefined")["marlboro","marlborocarton","vaquero"].forEach(id=>{
 Object.assign(MAPNAME,{paradise:"Parque Acuático Paradise",rosishop:"Trenzas Rosi",pension2:"Pensión · habitaciones",torrecan2:"Torre Cangrejo · azotea",solresaca0:"Sol y Resaca · sótano"});
 Object.assign(KEYS_IT,{surf:{n:"🏄 MO Surf",d:"Te la dio Chuchi. Con ella tus Pedomones de agua te llevarán nadando. (Se usará en las zonas con agua que vienen.)"}});
 // ---------- el gimnasio: parque acuático con corrientes ----------
-MAPS.paradise={w:15,h:16,style:"casa",signs:{},builds:[],lamps:[],music:"lolo",g:rowsGrid([
- "wwwwwwwwwwwwwww","wŤoooooooooooow","wwwwwwwwwwwowww","wbbbbƒbbbbbbobw","wbbƒbbbbbbbbbbw","wbbbbbbbbobbbbw","wbbbbbbbbbbbbbw","wƒbbbbbbbbbbbbw","wbbbbbƒbbbbƒbbw","wbƒbbbbbbbbbbbw","wbbbbbbbbbƒbbbw","wbbbbbbƒbbbbbbw","wbbbbbbbbbbbbbw","wooooooooooooow","wgoooooooooootw","wwwwwwweewwwwww"]),
- exits:{"7,15":["costa",20,12,"down"],"8,15":["costa",20,12,"down"]},entry:[7,14,"up"],
+MAPS.paradise={w:15,h:18,style:"casa",signs:{},builds:[],lamps:[],music:"lolo",g:rowsGrid([
+ "wwwwwwwwwwwwwww","wŤoooooooooooow","wwwwwwwwwwwowww","wbbbbbbbbbbbobw","wbƒƒƒbbbbbbbbbw","wbbƒƒbbƒbbbƒbƒw","wbbbbbbbbbbobbw","wƒƒbbbƒbbbbbbbw","wbbbbbbbbbbbbbw","wƒbbƒƒbbbbƒbbbw","wbbbbbbbbbbbbbw","wƒbbbƒbbbbbbbbw","wbbƒbbbbbbbbƒbw","wbbbbbbƒƒƒbbƒƒw","wbbbbbbbbbbƒbbw","wooooooooooooow","wgoooooooooootw","wwwwwwweewwwwww"]),
+ exits:{"7,17":["costa",20,12,"down"],"8,17":["costa",20,12,"down"]},entry:[7,16,"up"],
  txt:{"ƒ":"Un flotador gigante con forma de cangrejo. Las corrientes chocan contra él.","Ť":"El tobogán de vuelta: te lleva abajo, a la entrada de la piscina.",t:"La barra del parque acuático: «Prohibido rellenar la piscina con sangría (otra vez)».",g:"Una palmera de plástico con una pulsera de todo incluido."}};
-(function(){const mv=(id,x,y,d)=>{const n=NPCS.find(q=>q.id===id);if(n){n.x=x;n.y=y;n.dir=d}};mv("caqua",7,13,"down");mv("cflota",12,3,"left");mv("nigel2",7,1,"down");
+(function(){const mv=(id,x,y,d)=>{const n=NPCS.find(q=>q.id===id);if(n){n.x=x;n.y=y;n.dir=d}};mv("caqua",5,15,"down");mv("cflota",12,3,"left");mv("cbomba",11,6,"right");mv("nigel2",7,1,"down");
  const a=NPCS.find(q=>q.id==="caqua");if(a)a.sight=1;const c=NPCS.find(q=>q.id==="cflota");if(c)c.sight=1})();
 NPC_LOOK.cbomba={hs:1,ts:0};
-NPCS.push({id:"cbomba",map:"paradise",x:9,y:5,dir:"left",sight:1,pal:{h:"#3a1a0a",s:"#e0a878",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#e23b2a",k:"#e0a878"},hs:1,ts:0,
+NPCS.push({id:"cbomba",map:"paradise",x:11,y:6,dir:"right",sight:1,pal:{h:"#3a1a0a",s:"#e0a878",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#e23b2a",k:"#e0a878"},hs:1,ts:0,
  trainer:tr4("Rey de las Bombas","Tolo",[["coronita",32],["volllitro",33]],400,["Tolo: ¡Eh! Esta isla es mía. Desde aquí me tiro las mejores bombas del hotel.","Tolo: Si quieres pasar, tendrás que salpicarme más que yo."],"Tolo: ¡Plof! Vale, me has empapado. Pasa, pasa.")});
 const _oemPar=onEnterMap;onEnterMap=async function(){await _oemPar();if(S.map==="paradise"&&!S.flags.parqueIn){S.flags.parqueIn=true;save();
   await sayAll(["EL PARQUE ACUÁTICO PARADISE. Toboganes, flotadores gigantes y una piscina con CORRIENTES que te arrastran hasta que chocas con algo.","Chuchi te espera arriba, en su plataforma. Para llegar, déjate llevar por las corrientes… y elige bien hacia dónde nadas.","Si te lías, el tobogán de arriba a la izquierda te devuelve a la entrada."])}};
-const _stepPar=onStep;onStep=async function(){if(S.map==="paradise"&&tileAt(S.x,S.y)==="Ť"){sfx("throw");await say("¡Uiiiiiii! Te tiras por el tobogán y caes al principio de la piscina.");S.x=1;S.y=13;S.dir="down";pushPresence();return}return _stepPar()};
+const _stepPar=onStep;onStep=async function(){if(S.map==="paradise"&&tileAt(S.x,S.y)==="Ť"){sfx("throw");await say("¡Uiiiiiii! Te tiras por el tobogán y caes al principio de la piscina.");S.x=1;S.y=16;S.dir="down";pushPresence();return}return _stepPar()};
 TALK2.nigel2=async()=>{
   if(S.flags.costa){await say(pick(["Chuchi: Tú ganar. Yo invitar a un gin-tonic. Bueno, invita el hotel. It's all inclusive.","Chuchi: Con la MO Surf tus Pedomones de agua te llevarán nadando. Cuidado con las medusas. Y con los alemanes.","Chuchi: ¿El sótano? ¿Qué sótano? Yo no saber nada del sótano. Hic."]));return}
   await sayAll(["Chuchi: Welcome to my parque acuático! Yo ser Chuchi, «Mister Crab». Calvo, rojo y con chanclas. Llevo 20 años al sol y ni una gota de crema.","Chuchi: Has cruzado mis corrientes. Muy bien, mate. Pero mis Pedomones conocen tus trucos.","Chuchi: ¿Planta? ¿Eléctrico? Ya, ya… Mis chicos traen fuego y tierra para eso. ¡Let's go!"]);
@@ -8058,7 +8058,7 @@ function paraTile(ch,x,y,sx,sy,t){if(S.map!=="paradise")return false;
   if(ch==="b"){const d=y<=7?(x<7?"#2aa0d8":"#2290c8"):"#2aa8e0";px(sx,sy,T,T,d);const o=Math.floor(t/200+x+y)%4;px(sx+2+o*3,sy+5,5,1,"rgba(255,255,255,.55)");px(sx+(o*5)%12,sy+11,4,1,"rgba(255,255,255,.4)");return true}
   if(ch==="ƒ"){paraTile("b",x,y,sx,sy,t);ctx.fillStyle="#e23b2a";ctx.beginPath();ctx.arc(sx+8,sy+8,7,0,7);ctx.fill();ctx.fillStyle="#2aa0d8";ctx.beginPath();ctx.arc(sx+8,sy+8,3,0,7);ctx.fill();px(sx+3,sy+3,3,2,"#f4f4f4");px(sx+11,sy+11,3,2,"#f4f4f4");return true}
   if(ch==="Ť"){px(sx,sy,T,T,"#e8e2d6");px(sx+2,sy+2,12,14,"#2ad8c8");px(sx+4,sy+4,8,12,"#4af0e0");px(sx+2,sy+2,12,2,"#e23b2a");return true}
-  if(ch==="o"&&x>=1&&x<=13&&(y===5||y===3)&&MAPS.paradise.g[y][x]==="o"&&(x===9||x===12)){paraTile("b",x,y,sx,sy,t);px(sx+1,sy+2,14,12,"#e8c890");px(sx+1,sy+2,14,2,"#f4dca8");return true}
+  if(ch==="o"&&((x===11&&y===6)||(x===12&&y===3))){paraTile("b",x,y,sx,sy,t);px(sx+1,sy+2,14,12,"#e8c890");px(sx+1,sy+2,14,2,"#f4dca8");return true}
   return false}
 // ---------- Trenzas Rosi: la peluquería del paseo (Saray 2.0) ----------
 (function(){const m=MAPS.costa,g=m.g;for(let y=6;y<=11;y++)for(let x=45;x<=47;x++)g[y][x]="H";g[11][46]="D";
@@ -9085,6 +9085,286 @@ const _dtT1=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){
  return _dtT1(ch,x,y,sx,sy,t,style)};
 
 /*</B4TANDA1>*/
+/*<B4MAR>*/
+/* ===================== TANDA 2: el mar de verdad, Terrazalia nueva, la Isla del Faro y el gimnasio de Izaskun en 3 salas ===================== */
+["ȼ","ʙ"].forEach(c=>WALK.add(c));if(typeof NEWMAPS!=="undefined"&&!NEWMAPS.includes("faro"))NEWMAPS.push("faro");
+const SEA=new Set(["bahia","faro","terrazalia"]);
+// el surf vale en todos los mares
+const _cwMar=canWalk;canWalk=function(x,y){if(SEA.has(S.map)&&tileAt(x,y)==="~")return!!S.flags.surf&&!npcAt(x,y);return _cwMar(x,y)};
+// los entrenadores del mar ven por encima del agua
+const _tsMar=trainerSees;trainerSees=function(){if(SEA.has(S.map)&&!WALK.has("~")){WALK.add("~");try{return _tsMar()}finally{WALK.delete("~")}}return _tsMar()};
+// entrenadores que giran (miran a distintos sitios: se pueden esquivar, pero cuesta)
+setInterval(()=>{if(!S||mode!=="world")return;const t=Math.floor(performance.now()/1500);for(const n of NPCS)if(n.spin&&n.map===S.map&&!(S.beaten&&S.beaten[n.id]))n.dir=n.spin[(t+n.x)%n.spin.length];
+ if(!busy&&!P.moving){let tr=null;try{tr=trainerSees()}catch(e){}if(tr&&tr.spin)run(()=>trainerBattle(tr))}},250);
+// ---------- salto de la tabla a tierra firme (y de tierra a la tabla) ----------
+let HOP=null,BOARDS=[];
+const _smMar=startMove;startMove=function(nx,ny){const a=tileAt(S.x,S.y),b=tileAt(nx,ny);if(SEA.has(S.map)&&(a==="~")!==(b==="~")){HOP={toLand:a==="~",fx:S.x,fy:S.y,tx:nx,ty:ny,t0:performance.now()};sfx(a==="~"?"throw":"plop");
+  for(let i=0;i<8;i++)worldParts.push({x:S.x*T+8+ri(-6,6),y:S.y*T+14,vx:(rnd()-.5)*1.6,vy:-1-rnd()*1.2,life:0,max:20,c:pick(["#ffffff","#bfe6ff","#7ac8f0"])});
+  if(a==="~")BOARDS.push({map:S.map,x:S.x,y:S.y,t0:performance.now()})}return _smMar(nx,ny)};
+const _upMar=update;update=function(){const was=P.moving;const pp=P.prog;_upMar();if(HOP&&was&&P.moving)P.prog=pp+(P.prog-pp)*.4;if(HOP&&!P.moving)HOP=null};
+const _dcMar=drawChar;drawChar=function(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look){if(HOP&&acc===S.skin&&P.moving){y-=Math.round(Math.sin(Math.PI*Math.min(1,P.prog))*9);walk=0}return _dcMar(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look)};
+const _rwMar=renderWorld;renderWorld=function(t){_rwMar(t);const m=MAP();if(!m)return;const[ox,oy]=camOf(m);
+ // tablas que se quedan flotando al saltar a tierra
+ BOARDS=BOARDS.filter(b=>performance.now()-b.t0<1600);for(const b of BOARDS){if(b.map!==S.map)continue;const a=1-(performance.now()-b.t0)/1600,X=b.x*T-ox,Y=b.y*T-oy+Math.sin(t/200)*1;ctx.globalAlpha=a;ctx.fillStyle="#f2c14e";ctx.beginPath();ctx.ellipse(X+8,Y+13,11,3.5,0,0,7);ctx.fill();ctx.fillStyle="#e23b2a";ctx.fillRect(X+1,Y+12,14,1.5);ctx.globalAlpha=1}
+ // la tabla bajo el jugador en los mares nuevos (en la bahía ya la pinta otro módulo)
+ if((S.map==="faro"||S.map==="terrazalia")){let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}if(tileAt(Math.round(wx),Math.round(wy))==="~"&&!HOP){const X=wx*T-ox,Y=wy*T-oy,b=Math.sin(t/300)*1.2;ctx.fillStyle="#f2c14e";ctx.beginPath();ctx.ellipse(X+8,Y+13+b,11,3.5,0,0,7);ctx.fill();ctx.fillStyle="#e23b2a";ctx.fillRect(X+1,Y+12+b,14,1.5);ctx.fillStyle="rgba(42,138,200,.85)";ctx.fillRect(X-4,Y+15+b,24,3)}}
+ // carteles grandes en las salidas (el texto, en la capa nítida)
+ TXTCAP=true;try{for(const s of(BIGSIGNS[S.map]||[])){const X=s.x*T-ox,Y=s.y*T-oy;px(X+6,Y+8,3,10,"#6a4a2a");px(X+T*2-9,Y+8,3,10,"#6a4a2a");px(X-4,Y-10,T*2+8,20,"#7a5030");px(X-3,Y-9,T*2+6,18,"#c8945a");ctx.fillStyle="#2a1a0a";ctx.font="bold 6px Arial";ctx.textAlign="center";const L=s.txt.split("\n");L.forEach((l,i)=>ctx.fillText(l,X+T,Y-2+i*7-(L.length-1)*3))}}finally{TXTCAP=false}
+ if(S.map==="terrazalia")drawTerraFX(t,ox,oy);if(S.map==="faro")drawFaroFX(t,ox,oy)};
+const BIGSIGNS={};
+// ---------- dibujo de las casillas del mar y de Terrazalia ----------
+const paveT=(sx,sy,x,y)=>px(sx,sy,T,T,(x+y)%2?"#c87a5a":"#d48a68");
+const waterT=(sx,sy,x,y,t)=>{px(sx,sy,T,T,(x+y)%2?"#2a8ac8":"#2a90d0");const o=Math.floor(t/320+x*1.3+y)%6;px(sx+o*2,sy+5,4,1,"rgba(255,255,255,.45)");px(sx+((o+3)%6)*2,sy+12,4,1,"rgba(255,255,255,.3)")};
+const _dtMar=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){const m=MAP();
+ if(ch==="ŕ"){waterT(sx,sy,x,y,t);const h=hash(x,y);ctx.fillStyle="#6a6a72";ctx.beginPath();ctx.ellipse(sx+8,sy+9,7+(h%2),6,0,0,7);ctx.fill();ctx.fillStyle="#8a8a94";ctx.beginPath();ctx.ellipse(sx+6,sy+7,4,3,0,0,7);ctx.fill();px(sx+2,sy+14,12,2,"rgba(255,255,255,.5)");return}
+ if(ch==="ƀ"){waterT(sx,sy,x,y,t);const L=m.g[y][x-1]!=="ƀ",R=m.g[y][x+1]!=="ƀ",U=m.g[y-1]&&m.g[y-1][x]!=="ƀ",D=m.g[y+1]&&m.g[y+1][x]!=="ƀ";const bob=Math.round(Math.sin(t/500+x)*1);
+  px(sx+(L?3:0),sy+2+bob,T-(L?3:0)-(R?3:0),12,"#7a4a22");px(sx+(L?4:0),sy+3+bob,T-(L?4:0)-(R?4:0),9,"#c8945a");for(let i=0;i<T;i+=4)px(sx+i,sy+3+bob,1,9,"#a8784a");if(L)px(sx+1,sy+5+bob,2,6,"#7a4a22");if(R)px(sx+T-3,sy+5+bob,2,6,"#7a4a22");
+  if(U)px(sx,sy+2+bob,T,1,"#5a3214");if(D)px(sx,sy+13+bob,T,2,"#e8e8e8");if(m===MAPS.bahia&&x===28&&y===4){px(sx+7,sy-22,2,26,"#5a3214");px(sx-2,sy-20,20,12,"#f4f4f4");px(sx-1,sy-19,18,10,"#1a1a1a");ctx.fillStyle="#f4f4f4";ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText("☠",sx+8,sy-11)}return}
+ if(ch==="Ŧ"){paveT(sx,sy,x,y);px(sx+1,sy+6,14,9,"#8a5a2a");px(sx+1,sy+6,14,2,"#a8784a");ctx.fillStyle="#2a8a3a";ctx.beginPath();ctx.ellipse(sx+8,sy+5,7,4,0,0,7);ctx.fill();const h=hash(x,y);px(sx+3+(h%8),sy+3,2,2,["#e23b2a","#f2d14e","#ff9ad0"][h%3]);px(sx+9-(h%5),sy+5,2,2,"#ffffff");return}
+ if(ch==="ȓ"){if(S.map==="terrazalia"&&y>=21)waterT(sx,sy,x,y,t);else paveT(sx,sy,x,y);px(sx,sy+4,T,2,"#e8e8e8");px(sx,sy+9,T,1,"#c8c8c8");px(sx+1,sy+3,2,11,"#d8d8d8");px(sx+13,sy+3,2,11,"#d8d8d8");return}
+ if(ch==="ʉ"){if(m.style==="casa")_dtMar("o",x,y,sx,sy,t,style);else paveT(sx,sy,x,y);const lit=estufaLit(x,y);px(sx+7,sy-6,2,20,"#8a8a8a");px(sx+4,sy+12,8,3,"#5a5a5a");px(sx+2,sy-9,12,4,"#a8a8a8");
+  if(lit){const f=Math.floor(t/90)%3;ctx.fillStyle=["#ff9a2a","#ffd23a","#ff5a1a"][f];ctx.beginPath();ctx.ellipse(sx+8,sy-3,3,4+f,0,0,7);ctx.fill();ctx.globalAlpha=.25;ctx.fillStyle="#ffb03a";ctx.beginPath();ctx.arc(sx+8,sy-2,10,0,7);ctx.fill();ctx.globalAlpha=1}else px(sx+6,sy-4,4,3,"#3a3a3a");return}
+ if(ch==="ȼ"){_dtMar("o",x,y,sx,sy,t,style);ctx.fillStyle="#2a2a2a";ctx.beginPath();ctx.ellipse(sx+8,sy+9,7,5,0,0,7);ctx.fill();ctx.fillStyle="#0a0a0a";ctx.beginPath();ctx.ellipse(sx+8,sy+9,5,3,0,0,7);ctx.fill();px(sx+1,sy+7,14,2,"#5a3a2a");
+  for(let i=0;i<3;i++){const k=((t/600+i/3+x*.13)%1);ctx.globalAlpha=.5*(1-k);ctx.fillStyle="#9a9a9a";ctx.beginPath();ctx.arc(sx+8+Math.sin(k*6+i)*3,sy+6-k*14,2+k*3,0,7);ctx.fill()}ctx.globalAlpha=1;return}
+ if(ch==="ɸ"){_dtMar("o",x,y,sx,sy,t,style);for(let i=0;i<4;i++){const f=(Math.floor(t/100)+i+x)%3;ctx.fillStyle=["#ff5a1a","#ff9a2a","#ffd23a"][f];ctx.beginPath();ctx.moveTo(sx+i*4,sy+16);ctx.quadraticCurveTo(sx+i*4+2,sy+2-f*2,sx+i*4+4,sy+16);ctx.fill()}return}
+ if(ch==="ʙ"){_dtMar("o",x,y,sx,sy,t,style);px(sx+1,sy+1,14,14,"#5a2a1a");const on=burnOn(x,y,t);if(on){for(let i=0;i<3;i++){const f=(Math.floor(t/90)+i)%3;ctx.fillStyle=["#ff5a1a","#ff9a2a","#ffd23a"][f];ctx.beginPath();ctx.moveTo(sx+2+i*4,sy+15);ctx.quadraticCurveTo(sx+4+i*4,sy+1,sx+6+i*4,sy+15);ctx.fill()}}else{px(sx+3,sy+6,10,4,"#8a3a1a")}return}
+ if(ch==="ȶ"){if(m===MAPS.faro)sandPx(sx,sy,hash(x,y));else paveT(sx,sy,x,y);px(sx+1,sy+3,14,12,"#8a5a2a");px(sx+1,sy+3,14,2,"#a8784a");px(sx+1,sy+8,14,1,"#5a3214");px(sx+7,sy+3,1,12,"#5a3214");return}
+ if(ch==="ȷ"){sandPx(sx,sy,hash(x,y));if(!(S.keys&&S.keys.bombonas)){px(sx+2,sy+2,5,12,"#e86a1a");px(sx+9,sy+2,5,12,"#e86a1a");px(sx+3,sy,3,2,"#5a5a5a");px(sx+10,sy,3,2,"#5a5a5a");px(sx+2,sy+6,5,1,"#ffd23a");px(sx+9,sy+6,5,1,"#ffd23a")}return}
+ if(ch==="ȴ"){sandPx(sx,sy,hash(x,y));return}
+ if(ch==="i"&&SEA.has(S.map)){sandPx(sx,sy,hash(x,y));if(S.map==="terrazalia"){if(Math.floor(t/400)%3===0){px(sx+7,sy+4,2,6,"#fff8c0");px(sx+5,sy+6,6,2,"#fff8c0")}px(sx+6,sy+10,4,2,"#d8b040")}else{px(sx+4,sy+6,8,8,"#c8202a");px(sx+5,sy+4,6,2,"#8a1a1a");px(sx+7,sy+8,2,2,"#f2c14e")}return}
+ return _dtMar(ch,x,y,sx,sy,t,style)};
+// ====================================================================================
+// 1 · LA BAHÍA (Ruta 5): canales entre rocas, barcos con entrenadores, muelles en las dos puntas
+// ====================================================================================
+(function(){const[g,R]=mk(36,30,"ŕ");
+ R("é",5,0,1,3);R("~",4,3,3,9);R("~",4,9,20,3);R("~",19,9,3,14);R("~",19,20,13,3);R("é",32,20,4,3);
+ R("~",8,13,9,7);R("~",17,15,2,2);R("á",10,15,4,3);R("é",14,16,2,1);
+ R("~",24,2,10,8);R("ƀ",26,4,6,3);R("á",31,2,3,2);
+ g[6][7]="ƀ";g[6][8]="ƀ";g[8][13]="ƀ";g[8][14]="ƀ";g[15][22]="ƀ";g[15][23]="ƀ";g[23][28]="ƀ";g[23][29]="ƀ";g[15][10]="i";g[3][32]="i";
+ MAPS.bahia={w:36,h:30,g,outdoor:true,signs:{},builds:[],lamps:[],music:"bahia",entry:[5,1,"down"],
+  exits:{"5,0":["costa",30,30,"up"],"35,20":["terrazalia",1,12,"right"],"35,21":["terrazalia",1,12,"right"],"35,22":["terrazalia",1,12,"right"]},
+  txt:{"ŕ":"Rocas llenas de mejillones y de gaviotas que te miran mal. Por aquí no se pasa.","ƀ":"Una barca de excursión. Huele a sangría y a crema solar.","é":"Un pantalán de madera. Cruje como las rodillas de Paco.","á":"Un islote de arena con una sombrilla perdida."}};
+ MAPS.costa.exits["30,31"]=["bahia",5,1,"down"];
+ for(const k of Object.keys(PICK_AT))if(k.startsWith("bahia,"))delete PICK_AT[k];Object.assign(PICK_AT,{"bahia,10,15":"bahia1","bahia,32,3":"bahia2"});
+ BIGSIGNS.bahia=[{x:30,y:18,txt:"→ TERRAZALIA\n(muelle)"}];BIGSIGNS.costa=(BIGSIGNS.costa||[]).concat([{x:31,y:25,txt:"↓ RUTA 5\nBAHÍA (Surf)"}])})();
+(function(){const set=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};
+ set("toni",{x:12,y:16,dir:"down"});set("pirata1",{x:28,y:6,dir:"down",sight:3});set("pirata2",{x:28,y:23,dir:"up",sight:4});
+ NPC_LOOK.surf1={hs:5,ts:2};NPC_LOOK.surf2={hs:7,ts:10};NPC_LOOK.surf3={hs:0,ts:3};
+ NPCS.push({id:"surf1",map:"bahia",x:7,y:6,dir:"left",sight:3,spin:["left","up","left","down"],pal:{h:"#f2d14e",s:"#d8a070",e:"#222",c:"#2ad8c8",z:"#f4f4f4",p:"#2a6ad0",k:"#d8a070"},hs:5,ts:2,
+   trainer:tr4("Surfero Fumado","Kepa",[["coronita",33],["aguila",34]],430,["Kepa: ¡Ey, colega! ¿Has visto qué olas? Bueno, no hay olas. Pero ¿y si las hubiera?","Kepa: Pelea conmigo, que la tabla sola se aburre."],"Kepa: Me has hecho un revolcón, tío. Respeto.")},
+  {id:"surf2",map:"bahia",x:13,y:8,dir:"down",sight:4,pal:{h:"#1a1a1a",s:"#f1c27d",e:"#222",c:"#ff4ad0",z:"#f4f4f4",p:"#1a1a1a",k:"#f1c27d"},hs:7,ts:10,
+   trainer:tr4("Monitora de Pádel Surf","Jessi",[["gaviotadamm",34],["tintoverano",34],["barrilete",35]],460,["Jessi: ¡Quieto ahí! Este canal es mío: aquí doy clases de pádel surf a 40 euros la hora.","Jessi: Si no pagas, peleas."],"Jessi: Vale, pasa. Pero la clase no te la devuelvo.")},
+  {id:"surf3",map:"bahia",x:22,y:15,dir:"left",sight:4,spin:["left","down","left","up"],pal:{h:"#6a2a1a",s:"#e0a878",e:"#222",c:"#f2c14e",z:"#1a1a1a",p:"#e23b2a",k:"#e0a878"},hs:0,ts:3,
+   trainer:tr4("Pescador Furtivo","Tomás",[["heineken",35],["miller",35]],470,["Tomás: ¡Chssst! Me espantas los peces. Y las multas.","Tomás: Te voy a pescar a ti, chaval."],"Tomás: Se me ha escapado el pez y tú también.")})})();
+// ====================================================================================
+// 2 · TERRAZALIA nueva: plaza con varias terracitas, casas, puerto con ferry y rampa de surf
+// ====================================================================================
+(function(){const W=36,H=28;const[g,R]=mk(W,H,"v");
+ R("Ŧ",0,0,W,1);R("ȓ",0,0,1,22);R("ȓ",35,0,1,22);R("é",0,11,2,3);g[12][35]="v";g[13][35]="v";
+ R("~",0,22,W,6);R("ȓ",0,21,W,1);R("á",8,21,4,1);R("é",24,21,3,4);R("ƀ",27,22,7,3);R("ŕ",0,26,7,2);R("ŕ",12,26,24,2);R("ŕ",0,22,2,4);R("ŕ",34,22,2,4);
+ // terracitas, cada una con su nombre
+ R("Ŧ",6,7,6,1);[[7,8],[10,8],[7,10],[10,10]].forEach(([x,y])=>g[y][x]="ü");
+ R("Ŧ",24,7,6,1);[[25,8],[28,8],[25,10],[28,10]].forEach(([x,y])=>g[y][x]="ü");
+ R("Ŧ",14,8,7,1);g[10][17]="ʉ";g[10][15]="ü";g[10][19]="ü";
+ R("Ŧ",13,15,6,1);[[14,16],[17,16]].forEach(([x,y])=>g[y][x]="ü");
+ [[12,13],[23,13],[6,19],[29,19]].forEach(([x,y])=>g[y][x]="Ŧ");
+ const builds=[{id:"labrasa",kind:"pension",x:3,y:2,w:5,h:3,door:[5,4],wall:"#f4d8b0",roof:"#c8202a",label:"LA BRASA",glow:"#c8202a",to:"brasa"},
+  {id:"estancoT",kind:"kiosko",x:9,y:3,w:4,h:2,door:[10,4],wall:"#f4f4f4",roof:"#2a6ad0",label:"ESTANCO",glow:"#2a6ad0",to:null},
+  {id:"gym5",kind:"hotel",x:14,y:2,w:8,h:3,door:[17,4],wall:"#f8e0c0",roof:"#e8602a",label:"TERRAZA IZASKUN",glow:"#e8602a",to:"tgym1"},
+  {id:"policiaT",kind:"pension",x:24,y:2,w:6,h:3,door:[26,4],wall:"#d8dce4",roof:"#24346e",label:"POLICÍA LOCAL",glow:"#24346e",to:null},
+  {id:"tcasa1",kind:"pension",x:31,y:7,w:4,h:3,door:[32,9],wall:"#f8f0e0",roof:"#c86a3a",label:"",glow:"#c86a3a",to:"tcasa1"},
+  {id:"tcasa2",kind:"pension",x:2,y:14,w:4,h:3,door:[3,16],wall:"#e8f0f8",roof:"#3a7ac8",label:"",glow:"#3a7ac8",to:"tcasa2"},
+  {id:"tcasa3",kind:"pension",x:29,y:14,w:4,h:3,door:[30,16],wall:"#f8e8f0",roof:"#a84a8a",label:"",glow:"#a84a8a",to:"tcasa3"},
+  {id:"naviera",kind:"kiosko",x:20,y:18,w:4,h:2,door:[21,19],wall:"#f4f4f4",roof:"#1a5aa8",label:"NAVIERA",glow:"#1a5aa8",to:null}];
+ builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
+ const signs={"2,10":"TERRAZALIA. «Aquí se fuma en la terraza desde que se inventó la silla.»","6,9":"TERRAZA «EL PURO». Desde 1971. Prohibido no fumar.","24,9":"TERRAZA «LA COLILLA». Happy hour: todo el día. Ceniceros: no hay.","13,10":"TERRAZA «LA ESTUFA». La más calentita de la plaza.","17,6":"↑ LA TERRAZA DE IZASKUN (gimnasio, tipo Fuego) · ← Bar La Brasa (cura) · Estanco",
+  "12,20":"↓ RAMPA DE SURF. Al sur, la Isla del Faro. (Ojo: dicen que hay contrabandistas.)","18,20":"⛴ NAVIERA DEL ESTRECHO. Ferris a Tánger."};
+ Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
+ MAPS.terrazalia={w:W,h:H,g,outdoor:true,signs,builds,lamps:[],music:"terraza",entry:[2,12,"right"],
+  exits:{"0,11":["bahia",34,21,"left"],"0,12":["bahia",34,21,"left"],"0,13":["bahia",34,21,"left"],"35,12":["hoyales",1,12,"right"],"35,13":["hoyales",1,12,"right"],"8,27":["faro",11,1,"down"],"9,27":["faro",12,1,"down"],"10,27":["faro",13,1,"down"],"11,27":["faro",13,1,"down"]},
+  txt:{"ü":"Una mesa de terraza con sombrilla, cenicero y estufa. Resistencia fumadora.","Ŧ":"Una jardinera con geranios y colillas. Muchas colillas.","ȓ":"La barandilla del paseo. Al otro lado, el mar.","ƀ":"El ferry «Ciudad de Tánger». Huele a gasoil y a cuscús.","ŕ":"Rocas del espigón.","P":"Una palmera con una pulsera de todo incluido atada.","ʉ":"La estufa de la terraza «La Estufa». Tiene la rueda al máximo. Siempre.","é":"El muelle del ferry. Hay gaviotas haciendo cola."}};
+ MAPS.terrazalia.g[27].forEach((c,i)=>{if(i>=8&&i<=11)MAPS.terrazalia.g[27][i]="~"});
+ BIGSIGNS.terrazalia=[{x:32,y:11,txt:"→ RUTA 7\nHOYALES"},{x:9,y:19,txt:"↓ ISLA DEL\nFARO (Surf)"},{x:1,y:9,txt:"← RUTA 5\nBAHÍA"}];
+ blockDrawn("terrazalia");
+ if(MAPS.hoyales){MAPS.hoyales.exits["0,12"]=["terrazalia",34,12,"left"];MAPS.hoyales.exits["0,13"]=["terrazalia",34,13,"left"]}})();
+for(const d of VUELO_DEST||[])if(d.map==="terrazalia"&&!d.land){d.x=5;d.y=6}
+// vecinos de Terrazalia en su sitio nuevo
+(function(){const set=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};
+ set("hostelero",{x:9,y:12,dir:"down"});set("tpoli1",{x:16,y:12,dir:"up"});set("tpoli2",{x:17,y:12,dir:"up"});set("tpoli3",{x:18,y:12,dir:"up"});set("pons",{cond:()=>false});
+ set("tcam1",{map:"tgym1",x:9,y:2,dir:"down",sight:3});set("tcam2",{map:"tgym1",x:3,y:2,dir:"down",sight:3});set("izaskun",{map:"tgym3",x:6,y:1,dir:"down"});
+ NPC_LOOK.izaout={hs:9,ts:7};NPC_LOOK.turista={hs:0,ts:2,acc:{ag:1}};NPC_LOOK.abufuma={hs:9,ts:7};NPC_LOOK.taxista={hs:10,ts:5,beard:"stache"};
+ NPCS.push({id:"izaout",map:"terrazalia",x:17,y:5,dir:"down",pal:PAL_IZ,hs:9,ts:7,smoke:true,cond:()=>!S.flags.faroDone},
+  {id:"turista",map:"terrazalia",x:20,y:14,dir:"left",pal:{h:"#f2d14e",s:"#f8a8a0",e:"#222",c:"#f4f4f4",z:"#2a6ad0",p:"#e23b2a",k:"#f8a8a0"},hs:0,ts:2},
+  {id:"abufuma",map:"terrazalia",x:28,y:12,dir:"left",idle:true,smoke:true,pal:{h:"#d8d8d8",s:"#f1c27d",e:"#222",c:"#6a2a6a",z:"#f4f4f4",p:"#2a2a2a",k:"#111"},hs:9,ts:7},
+  {id:"taxista",map:"terrazalia",x:22,y:20,dir:"down",pal:{h:"#3a2a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#1a5aa8",p:"#1a1a1a",k:"#111"},hs:10,ts:5})})();
+TALK2.hostelero=async()=>{await say(pick(["Hostelero: ¡Resistencia! La Pasma quiere quitarnos las terrazas. Antes nos quitan el bigote.","Hostelero: Izaskun lleva la terraza más antigua de la ciudad. Ha sobrevivido a tres incendios. Los tres los empezó ella.","Hostelero: Cada terraza de la plaza es de una familia distinta. Nos odiamos todos. Pero a la Pasma, más."]))};
+TALK2.turista=async()=>{await say(pick(["Turista: Excuse me… ¿dónde está la terraza «sin humo»? … ¿No hay? … Oh.","Turista: El ferry a Tánger sale del muelle del puerto. Pero dicen que sin la medalla de Izaskun no te venden billete. Cosas de aquí.","Turista: He visto contrabandistas yendo en lancha a la Isla del Faro. Con bombonas naranjas. Muy sospechoso."]))};
+TALK2.abufuma=async()=>{if(!S.flags.abuFuma){S.flags.abuFuma=true;S.bag.mechero=(S.bag.mechero||0)+1;sfx("catch");save();await sayAll(["Abuela Fumadora: Llevo 60 años fumando en esta terraza. El médico me dijo que lo dejara. El médico ya no está. Yo sí.","Abuela Fumadora: Toma, un mechero. Que se te ve con cara de no tener fuego.","¡Consigues 1 Mechero!"]);return}
+ await say(pick(["Abuela Fumadora: Si vas a la terraza de Izaskun, no la mires a los ojos. Ni al puro.","Abuela Fumadora: Ese Sumiller… vino una vez a ofrecerme vino caro. Le eché el humo en la cara. Se fue tosiendo."]))};
+TALK2.taxista=async()=>{await say(S.flags.terraza?"Taquillero: Con la Medalla Colilla ya puedes coger el ferry a Tánger. Habla con la taquilla de la Naviera.":"Taquillero: El ferry a Tánger solo lleva a gente de confianza. Aquí la confianza la da Izaskun. Sin su medalla, ni billete.")};
+const _doorMar=door;door=async function(b){
+ if(b&&b.id==="naviera"){await say(S.flags.terraza?"NAVIERA DEL ESTRECHO: «Próxima salida a Tánger: ya mismo. Embarque por el muelle.»":"NAVIERA DEL ESTRECHO: «Billetes solo para clientes recomendados. Recomendación de Izaskun obligatoria.»");return}
+ if(b&&b.id==="gym5"&&!S.flags.faroDone){const n=npcById("izaout");if(n){await TALK2.izaout(n);return}}
+ if(b&&b.id==="gym5"){await warp("tgym1",6,9,"up");return}
+ if(b&&b.id==="tcasa1"){await warp("tcasa1",4,6,"up");return}if(b&&b.id==="tcasa2"){await warp("tcasa2",4,6,"up");return}if(b&&b.id==="tcasa3"){await warp("tcasa3",4,6,"up");return}
+ return _doorMar(b)};
+// ---------- la explosión de la estufa: ahora se VE ----------
+let FLYSTOVE=null;
+function drawTerraFX(t,ox,oy){if(!FLYSTOVE)return;const k=Math.min(1,(performance.now()-FLYSTOVE.t0)/2600);const X=17*T-ox+8,Y=10*T-oy-k*k*220;const s=1-k*.7;
+ ctx.save();ctx.translate(X,Y);ctx.scale(s,s);ctx.rotate(Math.sin(k*20)*.3);ctx.fillStyle="#8a8a8a";ctx.fillRect(-2,-18,4,24);ctx.fillStyle="#a8a8a8";ctx.fillRect(-7,-22,14,5);
+ for(const dx of[-12,0,12]){ctx.fillStyle="#24346e";ctx.fillRect(dx-4,-34,8,10);ctx.fillStyle="#f1c27d";ctx.beginPath();ctx.arc(dx,-38,4,0,7);ctx.fill();ctx.fillStyle="#1a2450";ctx.fillRect(dx-5,-43,10,3);ctx.fillStyle="#24346e";ctx.fillRect(dx-6,-32,2,6);ctx.fillRect(dx+4,-32,2,6)}
+ ctx.fillStyle="#ff9a2a";ctx.beginPath();ctx.moveTo(-6,6);ctx.lineTo(0,22+Math.random()*10);ctx.lineTo(6,6);ctx.fill();ctx.fillStyle="#ffd23a";ctx.beginPath();ctx.moveTo(-3,6);ctx.lineTo(0,14+Math.random()*6);ctx.lineTo(3,6);ctx.fill();ctx.restore();
+ for(let i=0;i<10;i++){const kk=Math.max(0,k-i*.05);ctx.globalAlpha=.4*(1-kk);ctx.fillStyle="#bcbcbc";ctx.beginPath();ctx.arc(X+Math.sin(i*2)*4,10*T-oy-kk*kk*220+20,4+i,0,7);ctx.fill()}ctx.globalAlpha=1;if(k>=1)FLYSTOVE=null}
+const _oemMar=onEnterMap;onEnterMap=async function(){
+ if(S.map==="terrazalia"&&!S.flags.estufaBoom){S.flags.terraIn=true;cineOn();const ps=["tpoli1","tpoli2","tpoli3"].map(npcById);
+  await say5("TERRAZALIA. Terrazas por todas partes, cada una de una familia. Huele a puro y a guerra.","En la terraza «La Estufa», tres agentes de la Pasma rodean la estufa: «¡Ley Seca! ¡Se acabó fumar en la calle! ¡Requisamos esta estufa!»");
+  ps.forEach(p=>emote(p,"😤",1500));await sleep(600);await npcWalk(ps[1],[[17,11]],260);await say5("Uno de los polis gira la rueda de la estufa al máximo «para ver si funciona»…");emote(ps[1],"❓",900);await sleep(500);
+  ps[0].x=16;ps[0].y=11;ps[2].x=18;ps[2].y=11;await sleep(300);emote(ps[1],"😰",700);FX.shake=now()+500;await sleep(700);
+  boomFX(1200);flash("#ffcf6a",400);FLYSTOVE={t0:performance.now()};for(const p of ps)p.x=-20;await sleep(2700);S.flags.estufaBoom=true;save();
+  await say5("¡¡BUUUUUUM!! La estufa sale disparada como un cohete con los tres polis agarrados. Se pierden entre las nubes haciendo «aaaaaaah».","Los hosteleros aplauden. Uno saca una bandeja de chupitos para celebrarlo.","📱 Chusta: «bro me han dicho q en terrazalia ha volao una estufa con 3 maderos 😂 y q el sargento pons lleva 2 dias desaparecio. ojo»");cineOff()}
+ return _oemMar()};
+// ---------- casas de Terrazalia: cada una sirve para algo ----------
+MAPS.tcasa1=room(["wwwwwwwwww","wgmooooʌgw","woooooooow","wtoooooohw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"terraza",txt:{m:"La tele: un concurso de cocina. Todos los platos llevan tabaco.",t:"Una mesa camilla con un brasero debajo. Huele a pies calentitos.",h:"Un sillón con la forma exacta de un abuelo.",g:"Un potus enorme. Tiene más años que la casa."}});
+setExit("tcasa1",["4,7","5,7"],["terrazalia",32,10,"down"]);
+MAPS.tcasa1b=room(["wwwwwwwwww","whhoooootw","woooooooow","woooooooow","wtoooooogw","woooooooʋw","woooooooow","wwwwwwwwww"],null,[7,5,"left"],{music:"terraza",txt:{h:"Literas con pegatinas de futbolistas.",t:"Un escritorio con deberes sin hacer y tres vasos de plástico boca abajo.",g:"Una planta de plástico con un chicle pegado."}});
+MAPS.tcasa2=room(["wwwwwwwwww","wgmoooohhw","woooooooow","wtoooooopw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"terraza",txt:{m:"Fotos de Ramiro con un mechero dorado en todas las fiestas desde 1980.",h:"Un sofá de escay con una manta de tigre.",t:"Una mesa llena de ceniceros de recuerdo de todo el mundo.",p:"La Nevera de la casa: cervezas y una fiambrera con lentejas de hace un mes."}});
+setExit("tcasa2",["4,7","5,7"],["terrazalia",3,17,"down"]);
+MAPS.tcasa3=room(["wwwwwwwwww","wgooooothw","woooooooow","wtooooooow","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"terraza",txt:{t:"Una mesa con cañas de pescar, anzuelos y un bocadillo de chorizo a medias.",h:"Una cama con una red de pesca por colcha.",g:"Una planta en una bota de agua."}});
+setExit("tcasa3",["4,7","5,7"],["terrazalia",30,17,"down"]);
+Object.assign(MAPNAME,{tcasa1:"Casa de la abuela Pura",tcasa1b:"Cuarto de Iker",tcasa2:"Casa de Ramiro",tcasa3:"Casa del pescador Jacinto",tgym1:"Terraza de Izaskun · Las chimeneas",tgym2:"Terraza de Izaskun · El concurso",tgym3:"Terraza de Izaskun · Las estufas",faro:"Isla del Faro"});
+Object.assign(STAIRS,{"tcasa1,7,1":["tcasa1b",7,4,"down",""],"tcasa1b,8,5":["tcasa1",7,2,"down",""]});
+NPC_LOOK.pura={hs:9,ts:7};NPC_LOOK.iker={hs:3,ts:10};NPC_LOOK.ramiro={hs:10,ts:5,beard:"stache"};NPC_LOOK.jacinto={hs:2,ts:0,beard:"full"};
+NPCS.push({id:"pura",map:"tcasa1",x:3,y:3,dir:"down",pal:{h:"#d8d8d8",s:"#f1c27d",e:"#222",c:"#2a6a4a",z:"#f4f4f4",p:"#2a2a2a",k:"#111"},hs:9,ts:7},
+ {id:"iker",map:"tcasa1b",x:3,y:3,dir:"down",pal:{h:"#3a2a1a",s:"#f1c27d",e:"#222",c:"#e23b2a",z:"#f4f4f4",p:"#2a6ad0",k:"#f4f4f4"},hs:3,ts:10},
+ {id:"ramiro",map:"tcasa2",x:5,y:3,dir:"down",smoke:true,pal:{h:"#8a8a8a",s:"#e0a878",e:"#222",c:"#f2c14e",z:"#1a1a1a",p:"#2a2a2a",k:"#111"},hs:10,ts:5},
+ {id:"jacinto",map:"tcasa3",x:4,y:3,dir:"down",pal:{h:"#f4f4f4",s:"#c8955a",e:"#222",c:"#2a6ad0",z:"#f4f4f4",p:"#f2c14e",k:"#1a1a1a"},hs:2,ts:0});
+TALK2.pura=async()=>{if(!S.flags.puraIbu){S.flags.puraIbu=true;S.bag.ibu=(S.bag.ibu||0)+2;sfx("catch");save();await sayAll(["Abuela Pura: ¡Ay, qué mozo! Pasa, pasa. ¿Has comido? Tienes cara de no haber comido desde la Expo del 92.","Abuela Pura: Toma, dos Ibuprofenos. En esta ciudad la resaca es obligatoria.","¡Consigues 2 Ibuprofenos!","Abuela Pura: Mi nieto Iker está arriba. Hace trucos con vasos. Sácale el dinero, que es un liante."]);return}
+ await say(pick(["Abuela Pura: Izaskun y yo íbamos juntas al colegio. Ya entonces quemaba las papeleras.","Abuela Pura: Al Sargento Pons lo vieron por última vez cogiendo una lancha hacia la Isla del Faro. De noche. Raro, raro."]))};
+TALK2.iker=async()=>{const i=await choose("Iker: ¡Eh! ¿Juegas al trile? Hay una canica debajo de un vaso. Si aciertas, te doblo la apuesta. (20 pavos)",[{label:"🥤 ¡Juego! (20 pavos)",disabled:S.money<20},{label:"👋 Paso"}],{cols:1});
+ if(i!==0)return;S.money-=20;const win=await vasosGame();if(win){S.money+=40;S.stats=S.stats||{};S.stats.trile=(S.stats.trile||0)+1;if(!S.flags.trileWin){S.flags.trileWin=true;S.bag.rinomarca=(S.bag.rinomarca||0)+1;await say("Iker: ¡Jo! ¡Me has pillado! Toma tus 40 pavos… y esta Riñonera de marca que le mangué a mi primo. No se lo digas.")}else await say("Iker: ¡Otra vez! Me vas a arruinar. Toma tus 40 pavos.")}else await say("Iker: ¡Jajaja! Estaba en el otro. Siempre está en el otro.");save()};
+TALK2.ramiro=async()=>{if(S.flags.mecheroOro){await say("Ramiro: Mi mechero de oro… Lo enciendo y vuelvo a tener 20 años. Y pelo.");return}
+ if(S.keys&&S.keys.mecheroOro){S.flags.mecheroOro=true;delete S.keys.mecheroOro;S.money+=400;sfx("quest");save();await sayAll(["Ramiro: ¡¡MI MECHERO!! ¡Lo has encontrado! ¡Llevaba 40 años conmigo!","Ramiro: Toma, 400 pavos. Y mi gratitud eterna. Eterna hasta que lo vuelva a perder.","¡Consigues 400 pavos!"]);return}
+ await sayAll(["Ramiro: Ay, chaval… He perdido mi mechero de oro. Me lo regaló mi difunta. Bueno, no está difunta, está en Benidorm con otro.","Ramiro: Creo que se me cayó en la rampa de surf, junto al agua, cuando fui a ver los barcos. Si lo encuentras, te recompenso."])};
+TALK2.jacinto=async()=>{if(S.flags.faroDone&&!S.flags.jacintoGift){S.flags.jacintoGift=true;S.bag.rinomarca=(S.bag.rinomarca||0)+2;sfx("catch");save();await sayAll(["Jacinto: Así que fuiste a la Isla del Faro y encontraste al pobre Pons… Dios mío.","Jacinto: Toma, dos Riñoneras de marca que me dejaron los contrabandistas a cambio de no chivarme. Ya no las quiero."]);return}
+ await say(pick(["Jacinto: La Isla del Faro está al sur. Con Surf se llega en un momento. Pero ahí acampan contrabandistas de butano.","Jacinto: El faro lleva apagado desde que lo compró un señor muy fino. Con guantes blancos, me dijeron.","Jacinto: Si coges la rampa del puerto, ve recto hacia el sur."]))};
+Object.assign(KEYS_IT,{mecheroOro:{n:"🔥 Mechero de oro",d:"El mechero de Ramiro. Lleva grabado: «Para mi Rami, que nunca te falte fuego»."},bombonas:{n:"🛢️ Bombonas de Izaskun",d:"Dos bombonas de butano naranjas. Pesan como un muerto."}});
+Object.assign(PICKUPS,{mecheroOro:{k:"rino",n:0,t:"Entre las piedras de la rampa brilla algo dorado… ¡Es el mechero de oro de Ramiro!"}});MAPS.terrazalia.g[21][11]="i";PICK_AT["terrazalia,11,21"]="mecheroOro";
+const _intMar0=interact;interact=async function(){const[fx,fy]=facing();if(S.map==="terrazalia"&&fx===11&&fy===21&&!(S.picked&&S.picked.mecheroOro)){S.picked=S.picked||{};S.picked.mecheroOro=1;S.keys.mecheroOro=true;sfx("quest");save();await say("Entre las piedras de la rampa brilla algo dorado… ¡Es el mechero de oro de Ramiro! (Llévaselo a su casa, al oeste de la plaza.)");return}return _intMar0()};
+// minijuego del trile
+function vasosGame(){return new Promise(res=>{overlay(`<div style="max-width:640px;margin:0 auto"><canvas id="tr-c" width="600" height="300" style="width:100%;border-radius:12px;background:#3a2a1a"></canvas><div class="btns" style="justify-content:center"><button class="big alt" type="button" id="tr-0">1</button><button class="big alt" type="button" id="tr-1">2</button><button class="big alt" type="button" id="tr-2">3</button></div></div>`,{onB:()=>{}});
+ const c=$("tr-c"),x=c.getContext("2d");let pos=[0,1,2],ball=Math.floor(Math.random()*3),phase="show",t0=performance.now(),swaps=[],cur=null,pick2=-1,done=false;for(let i=0;i<7;i++){const a=Math.floor(Math.random()*3);let b=(a+1+Math.floor(Math.random()*2))%3;swaps.push([a,b])}
+ const X=i=>150+i*150;const draw=nw=>{if(!c.isConnected)return;const k=(nw-t0)/1000;x.fillStyle="#5a3a1a";x.fillRect(0,0,600,300);x.fillStyle="#2a7a3a";x.fillRect(30,170,540,90);x.fillStyle="#f4e7d4";x.font="900 18px Rubik,Arial";x.textAlign="center";
+  x.fillText(phase==="show"?"Mira bien dónde está la canica…":phase==="mix"?"¡Iker mueve los vasos!":phase==="pick"?"¿Dónde está? Pulsa 1, 2 o 3":"",300,40);
+  let cx=[0,1,2].map(i=>X(pos[i]));if(phase==="mix"){const si=Math.floor(k/.45);if(si>=swaps.length){phase="pick"}else{const p=(k%.45)/.45,[a,b]=swaps[si];if(cur!==si){if(cur!==null){const[a0,b0]=swaps[cur];[pos[a0],pos[b0]]=[pos[b0],pos[a0]]}cur=si}cx=[0,1,2].map(i=>X(pos[i]));const xa=X(pos[a]),xb=X(pos[b]);cx[a]=xa+(xb-xa)*p;cx[b]=xb+(xa-xb)*p}}
+  if(phase==="pick"&&cur!==null){const[a0,b0]=swaps[cur];[pos[a0],pos[b0]]=[pos[b0],pos[a0]];cur=null;cx=[0,1,2].map(i=>X(pos[i]))}
+  for(let i=0;i<3;i++){const up=(phase==="show"&&k<1.6)||(phase==="end"&&(i===ball||i===pick2))?40:0;if(i===ball&&up){x.fillStyle="#e23b2a";x.beginPath();x.arc(cx[i],205,12,0,7);x.fill()}x.fillStyle="#e8e8f0";x.beginPath();x.moveTo(cx[i]-40,220-up);x.lineTo(cx[i]-28,130-up);x.lineTo(cx[i]+28,130-up);x.lineTo(cx[i]+40,220-up);x.fill();x.fillStyle="#c8c8d8";x.fillRect(cx[i]-30,140-up,60,8);
+   x.fillStyle="#f4e7d4";x.font="900 16px Rubik";x.fillText(String(pos[i]+1),cx[i],280)}
+  if(phase==="show"&&k>2){phase="mix";t0=nw}requestAnimationFrame(draw)};requestAnimationFrame(draw);
+ for(let j=0;j<3;j++)$("tr-"+j).onclick=()=>{if(phase!=="pick"||done)return;done=true;pick2=pos.indexOf(j);phase="end";const win=pick2===ball;sfx(win?"quest":"weak");setTimeout(()=>{closeOverlay();res(win)},1300)}})}
+// ====================================================================================
+// 3 · LA ISLA DEL FARO: la misión de Izaskun y el cadáver de Pons
+// ====================================================================================
+(function(){const[g,R]=mk(26,20,"ŕ");R("~",10,0,5,5);R("á",3,5,20,13);R("í",3,5,7,4);R("í",15,5,8,4);R("í",3,9,9,3);R("í",13,9,10,3);g[10][11]="á";
+ R("í",3,12,5,3);R("í",17,12,6,3);R("ȶ",9,13,7,1);g[12][7]="á";g[14][17]="á";R("í",3,15,20,1);g[15][12]="á";R("ú",3,18,20,1);R("~",3,19,20,1);
+ g[16][6]="ȷ";g[16][20]="ȴ";g[17][20]="ȴ";g[17][19]="ȴ";g[17][21]="ȴ";[[8,6],[16,6]].forEach(([x,y])=>g[y][x]="#");
+ MAPS.faro={w:26,h:20,g,outdoor:true,signs:{},builds:[],lamps:[],music:"bahia",entry:[12,1,"down"],exits:{"10,0":["terrazalia",9,26,"up"],"11,0":["terrazalia",9,26,"up"],"12,0":["terrazalia",10,26,"up"],"13,0":["terrazalia",10,26,"up"],"14,0":["terrazalia",10,26,"up"]},
+  txt:{"í":"Acantilados llenos de nidos de gaviota.","ȶ":"Cajas de contrabando: «BUTANO · NO TOCAR · ESTO NO ES BUTANO».","ȴ":"El faro. Apagado. En la puerta hay un cartel: «PROPIEDAD PRIVADA · Bodegas Cogollo».","ŕ":"Rocas. Por aquí no se pasa."}};
+ BIGSIGNS.faro=[{x:9,y:3,txt:"↑ TERRAZALIA"}]})();
+Object.assign(ZONES,{FA:{pool:["coronita","heineken","gaviotadamm","tintoverano","aguila"],lv:[33,36]}});
+const _stepFaro=onStep;onStep=async function(){const r=await _stepFaro();if(S.map==="faro"&&tileAt(S.x,S.y)==="~"&&Math.random()<.05){const z=ZONES.FA;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return r}
+ if(S.map==="faro"&&!S.flags.ponsFound&&S.y>=16&&Math.abs(S.x-14)<=3)await ponsScene();return r};
+NPC_LOOK.contra1={hs:4,ts:3};NPC_LOOK.contra2={hs:0,ts:5,beard:"stache"};NPC_LOOK.contra3={hs:6,ts:3};NPC_LOOK.capo={hs:10,ts:5,beard:"full"};
+const PAL_CONTRA={h:"#1a1a1a",s:"#c8955a",e:"#222",c:"#2a2a2a",z:"#e86a1a",p:"#1a1a1a",k:"#111"};
+NPCS.push({id:"contra1",map:"faro",x:11,y:10,dir:"right",sight:1,pal:PAL_CONTRA,hs:4,ts:3,trainer:tr4("Contrabandista","Moha",[["coronita",35],["heineken",35]],480,["Moha: ¡Eh! ¿Tú quién eres? ¡Aquí no hay nada que ver! Solo… cajas. De nada.","Moha: El jefe dice que el que pasa, paga."],"Moha: Vale, vale. Yo no he visto nada. Y tú tampoco.")},
+ {id:"contra2",map:"faro",x:7,y:12,dir:"right",sight:9,pal:PAL_CONTRA,hs:0,ts:5,trainer:tr4("Contrabandista","El Tuerto",[["aguila",35],["miller",36]],490,["El Tuerto: Con un ojo te veo de sobra, listillo.","El Tuerto: Esas bombonas valen más que tu vida. Bueno, que la de cualquiera."],"El Tuerto: Me has dejado tuerto del otro ojo.")},
+ {id:"contra3",map:"faro",x:17,y:14,dir:"left",sight:9,pal:PAL_CONTRA,hs:6,ts:3,trainer:tr4("Contrabandista","Rulo",[["tintoverano",35],["gaviotadamm",36]],490,["Rulo: ¡Alto! Esto es una zona de… pesca. Sí. De pesca de butano.","Rulo: El jefe está abajo, en la playa del faro. No le molestes, que está de mal humor desde lo del poli."],"Rulo: Me voy a pescar de verdad.")},
+ {id:"capo",map:"faro",x:12,y:15,dir:"up",sight:3,pal:{h:"#8a8a8a",s:"#c8955a",e:"#222",c:"#f4f4f4",z:"#e86a1a",p:"#1a1a1a",k:"#111"},hs:10,ts:5,cond:()=>!(S.beaten&&S.beaten.capo),
+  trainer:tr4("Capo del Butano","Don Bombona",[["capitanmorgan",36],["barrilete",37],["heineken",37]],900,["Don Bombona: Así que tú eres el que viene a por las bombonas de Izaskun.","Don Bombona: Yo solo las guardo. Me pagan por guardarlas. Me pagan muy bien… un señor con guantes blancos.","Don Bombona: ¿Y lo que hay en la playa? Yo no he sido. Yo solo… no he mirado. ¡A pelear!"],"Don Bombona: Llévate las bombonas. Y no bajes a la playa. Hazme caso.")});
+const _intFaro=interact;interact=async function(){const[fx,fy]=facing();if(S.map==="faro"&&tileAt(fx,fy)==="ȷ"&&!(S.keys&&S.keys.bombonas)){S.keys.bombonas=true;sfx("quest");save();await sayAll(["¡Encuentras las 🛢️ Bombonas de Izaskun! Pesan como un muerto.",S.flags.ponsFound?"Ya puedes volver a Terrazalia.":"Abajo, en la playa del faro, hay algo tirado en la arena. Algo… grande."]);return}return _intFaro()};
+async function ponsScene(){S.flags.ponsFound=true;cineOn();P.moving=false;sfx("weak");MYEMO={k:"❗",at:now()};FX.shake=now()+400;await sleep(900);
+ await say5("❗ …","¡¡HOSTIA!! ¡Está muerto!","Es el Sargento Pons. Bueno… lo que queda de él. Está despedazado en la arena: un brazo por aquí, una pierna por allá, y la cabeza mirando al cielo con los ojos abiertos de par en par.","Las gaviotas no se atreven ni a acercarse. Solo hay moscas. Muchas moscas.");
+ PONSJOINT=performance.now();await sleep(1200);await say5("Al lado de la cabeza, clavados en la arena… dos porros apagados, cruzados en aspa.","La firma del Sumiller. Otra vez.","🔍 Sospechosos del Sumiller:\n"+suspects());if(S.keys&&S.keys.bombonas)await say("Ya tienes las bombonas. Mejor vuelve a Terrazalia y cuéntaselo a Izaskun.");save();cineOff()}
+let PONSJOINT=0;
+function drawFaroFX(t,ox,oy){// el faro
+ const LX=20*T-ox,LY=17*T-oy;for(let i=0;i<5;i++){px(LX+2,LY-10-i*12,12,12,i%2?"#c8202a":"#f4f4f4")}px(LX,LY-72,16,10,"#3a3a3a");px(LX+3,LY-70,10,6,"#f2d14e");px(LX-1,LY-74,18,3,"#1a1a1a");px(LX,LY+2,16,14,"#e8e8e8");px(LX+6,LY+6,4,10,"#5a3a1a");
+ if(!S.flags.ponsFound&&!(S.keys&&S.keys.bombonas)&&S.y<12)return;
+ // el cadáver de Pons, despedazado
+ const X=14*T-ox,Y=17*T-oy;ctx.fillStyle="#7a0a0a";ctx.beginPath();ctx.ellipse(X+8,Y+10,22,8,0,0,7);ctx.fill();ctx.fillStyle="#a01414";ctx.beginPath();ctx.ellipse(X+4,Y+9,12,5,.2,0,7);ctx.fill();
+ for(let i=0;i<9;i++){const h=hash(i,7);px(X-14+(h%40),Y+((h>>3)%14),2,2,"#8a0a0a")}
+ px(X,Y+3,10,11,"#24346e");px(X+3,Y+5,3,3,"#f2c14e");px(X+9,Y+4,3,3,"#c8202a");px(X-1,Y+4,2,3,"#c8202a");
+ px(X-12,Y+6,9,3,"#24346e");px(X-15,Y+6,3,3,"#f1c27d");px(X-3,Y+6,2,3,"#c8202a");
+ px(X+15,Y+10,10,4,"#1a2450");px(X+25,Y+10,4,4,"#111");px(X+13,Y+10,2,4,"#c8202a");
+ ctx.fillStyle="#f1c27d";ctx.beginPath();ctx.arc(X+20,Y-2,5,0,7);ctx.fill();px(X+15,Y-8,10,3,"#1a2450");px(X+17,Y-3,3,3,"#ffffff");px(X+21,Y-3,3,3,"#ffffff");px(X+18,Y-2,1,1,"#111");px(X+22,Y-2,1,1,"#111");px(X+19,Y+1,3,1,"#5a1a1a");px(X+17,Y+3,7,2,"#c8202a");
+ for(let i=0;i<5;i++){const a=t/200+i*1.7;px(X+8+Math.cos(a)*14,Y+2+Math.sin(a*1.3)*7,1,1,"#111")}
+ // los dos porros cruzados
+ const JX=X+30,JY=Y-2;ctx.save();ctx.translate(JX,JY);for(const r of[.7,-.7]){ctx.save();ctx.rotate(r);ctx.fillStyle="#f4f0e0";ctx.fillRect(-7,-1,14,2);ctx.fillStyle="#c86a2a";ctx.fillRect(5,-1,2,2);ctx.restore()}ctx.restore();
+ if(PONSJOINT&&performance.now()-PONSJOINT<4000){ctx.strokeStyle="#ffd14a";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(JX,JY,9+Math.sin(t/100)*2,0,7);ctx.stroke()}}
+// Izaskun te manda la misión antes de dejarte entrar
+TALK2.izaout=async()=>{if(S.flags.faroDone)return;
+ if(S.keys&&S.keys.bombonas&&S.flags.ponsFound){S.flags.faroDone=true;delete S.keys.bombonas;sfx("quest");save();
+  await say5("Izaskun: ¡Mis bombonas! Ya pensaba que tendría que calentar la terraza quemando sillas. Otra vez.","Izaskun: … ¿Qué? ¿Pons? ¿En la playa del faro? ¿En trozos?","Izaskun: *se le cae el puro* … Ese hombre me multó 47 veces. Pero esto no se lo merece nadie.","Izaskun: Bueno. Has demostrado que tienes estómago. Pasa a mi terraza. Pero que sepas que dentro no te lo voy a poner fácil: tres salas, y en cada una te espera algo.");
+  const n=npcById("izaout");if(n)await npcWalk(n,[[17,4]],300);return}
+ if(S.flags.faroMision){await say(pick(["Izaskun: ¿Qué haces aquí todavía? Mis bombonas están en la Isla del Faro. Al sur, por la rampa de surf del puerto.","Izaskun: Sin bombonas no hay estufas. Sin estufas no hay terraza. Sin terraza no hay combate. ¡Andando!"])+(S.keys&&S.keys.bombonas&&!S.flags.ponsFound?" … ¿Y qué es esa cara? ¿Has bajado a la playa del faro? Ve a mirar, anda.":""));return}
+ S.flags.faroMision=true;save();await say5("Izaskun: ¡Alto ahí, chaval! ¿Adónde te crees que vas?","Izaskun: A mi terraza solo entra gente que se lo ha ganado. Y yo ahora mismo tengo un problema: unos contrabandistas me han robado las bombonas de butano de las estufas.","Izaskun: Se las han llevado a la Isla del Faro, al sur. Coge la rampa de surf del puerto, ve hasta la isla y tráemelas.","Izaskun: Y si de paso ves al Sargento Pons… dile que me debe una multa. Lleva dos días sin aparecer, y eso en él es rarísimo.","📍 Misión: recupera las bombonas de Izaskun en la Isla del Faro (al sur del puerto, con Surf).")};
+// ====================================================================================
+// 4 · EL GIMNASIO DE IZASKUN: 3 salas (chimeneas · concurso · estufas)
+// ====================================================================================
+MAPS.tgym1=room(["wwwwwwwwwwwww","wȼoooȼwȼoooȼw","wʉoooowooooʉw","wooooowooooow","wooooowooooow","wooooowooooow","wwwwwwwwwwwww","wʉȼoooooooȼʉw","wooooooooooow","wtoooooooootw","wwwwwweewwwww"],null,[6,9,"up"],{music:"lolo",txt:{ʉ:"Una estufa de terraza a tope. Calienta más que el infierno.",t:"Mesa de terraza con un cartel: «LAS CHIMENEAS TE LLEVAN DONDE QUIEREN ELLAS, NO DONDE QUIERES TÚ»."}});
+setExit("tgym1",["6,10","7,10"],["terrazalia",17,5,"down"]);
+const CHIM={"tgym1,2,7":["tgym1",6,9,"up","¡Puaj! Una chimenea atascada. Sales por donde has entrado, tiznado de hollín."],"tgym1,10,7":["tgym1",9,5,"up",""],"tgym1,11,1":["tgym1",6,9,"up","¡Fuuush! El humo te devuelve a la entrada."],"tgym1,7,1":["tgym1",3,5,"up",""],"tgym1,1,1":["tgym1",6,9,"up","¡Fuuush! El humo te devuelve a la entrada."],"tgym1,5,1":["tgym2",5,10,"up",""]};
+MAPS.tgym2=room(["wwwwwwwwwww","wwwwoʌowwww","wwwwɸɸɸwwww","wwwwoooowww","wwwwooowwww","wwwwɸɸɸwwww","wwwoooowwww","wwwwooowwww","wwwwɸɸɸwwww","wwwwoooowww","wwwwooowwww","wwwwwwwwwww"],null,[5,10,"up"],{music:"lolo",txt:{ɸ:"Una cortina de fuego. Encima, un cartel: «PREGUNTA. Acierta y pasa. Falla y pelea»."}});
+MAPS.tgym3=room(["wwwwwwwwwwwww","wwwwwooowwwww","wwwwwɸɸɸwwwww","wwʉoooooooʉww","wwoooooooooww","wwooʙʙʙʙʙooww","wwoooooooowww","wwʉoooooooʉww","wwwwwwowwwwww","wwwwwwoʋwwwww","wwwwwwwwwwwww"],null,[6,9,"up"],{music:"lolo",txt:{ʉ:"Una estufa de terraza. Apagada. Tiene un botón de encendido enorme.",ɸ:"Un muro de fuego. Detrás, Izaskun fuma tranquilamente."}});
+Object.assign(STAIRS,{"tgym2,5,1":["tgym3",6,9,"up",""],"tgym3,7,9":["tgym2",4,1,"down",""]});
+const _stepChim=onStep;onStep=async function(){const k=S.map+","+S.x+","+S.y;if(CHIM[k]){const[m,x,y,d,tx]=CHIM[k];sfx("super");for(let i=0;i<10;i++)worldParts.push({x:S.x*T+8+ri(-6,6),y:S.y*T+8,vx:(rnd()-.5)*1.2,vy:-1.5-rnd(),life:0,max:24,c:pick(["#5a5a5a","#8a8a8a","#2a2a2a"])});
+  await sleep(200);if(m===S.map){await fadeOut();S.x=x;S.y=y;S.dir=d;P.moving=false;pushPresence();await fadeIn()}else await warp(m,x,y,d);if(tx)await say(tx);const tr=trainerSees();if(tr){await trainerBattle(tr)}return}
+ if(S.map==="tgym3"&&tileAt(S.x,S.y)==="ʙ"&&burnOn(S.x,S.y,performance.now())){await burnBack();return}
+ return _stepChim()};
+// --- sala 2: el concurso (3 cortinas de fuego) ---
+const QUIZ=[["¿Cómo se llama el del Kebab 24h?",["Abdul","Paco","Chen"],0],["¿Qué tipo usa Izaskun?",["Agua","Fuego","Planta"],1],["¿Qué te dio Chuchi en el Parque Acuático?",["La MO Surf","Un gin-tonic","Una toalla"],0],["¿Qué deja el Sumiller encima de sus víctimas?",["Un corcho","Dos porros cruzados","Una copa rota"],1],
+ ["¿Cómo se llama el líder del Bar de Paco?",["Manolo","Paco","Maripili"],1],["¿Con qué se cura el equipo en el Bar La Brasa?",["Con fuego lento","Con agua bendita","Con calimocho"],0],["¿Quién vende MT en la Torre Cangrejo?",["Richu","Richard","Ricardito"],0],["¿Qué medalla da Bob Marihuano?",["Medalla Calambrazo","Medalla Bob Marihuano","Medalla Quemadura"],1],
+ ["¿Cómo se llama la isla donde apareció el Sargento Pons?",["Isla del Faro","Isla Bonita","Isla Canela"],0],["¿Qué es un Pedomón?",["Un bicho de bebida y vicio","Un tipo de tapa","Un baile"],0]];
+const GUARDS={"tgym2,2":{row:2,nm:"Encargado de la Barra",team:[["habano",38],["carajillo",38]]},"tgym2,5":{row:5,nm:"Camarera de Terraza",team:[["queimada",37],["montecristo",37]]},"tgym2,8":{row:8,nm:"Aprendiz de Terraza",team:[["carajillo",36],["montecristo",36]]}};
+function tg2Apply(){const g=MAPS.tgym2.g;for(const r of[2,5,8]){const open=S.flags["tg2r"+r];for(let x=4;x<=6;x++)g[r][x]=open?"o":"ɸ"}}
+function tg3Apply(){const g=MAPS.tgym3.g;for(let x=5;x<=7;x++)g[2][x]=S.flags.tg3done?"o":"ɸ"}
+const _oemGym=onEnterMap;onEnterMap=async function(){if(S.map==="tgym2")tg2Apply();if(S.map==="tgym3"){tg3Apply();TG3SEQ=[]}
+ if(S.map==="tgym1"&&!S.flags.tg1In){S.flags.tg1In=true;save();await say5("LA TERRAZA DE IZASKUN · SALA 1: LAS CHIMENEAS","Un cartel: «Para llegar a mí tendrás que pasar por mis chimeneas. Unas te llevan adelante, otras te escupen fuera. Y donde caigas, alguien te estará esperando. — Izaskun»")}
+ if(S.map==="tgym2"&&!S.flags.tg2In){S.flags.tg2In=true;save();await say5("SALA 2: EL CONCURSO","Tres cortinas de fuego. Cada una te hace una pregunta. Si aciertas, se apaga. Si fallas… el guardia de la cortina te reta a un combate.")}
+ if(S.map==="tgym3"&&!S.flags.tg3In){S.flags.tg3In=true;save();await say5("SALA 3: LAS ESTUFAS","Cuatro estufas apagadas y un muro de fuego delante de Izaskun. Hay que encenderlas en el orden correcto. ¡Y cuidado con el suelo, que quema a ratos!","Los dos camareros de la sala saben el orden… pero solo se lo dicen a quien les gana.")}
+ return _oemGym()};
+const _intGym=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
+ if(S.map==="tgym2"&&ch==="ɸ"){const G=GUARDS["tgym2,"+fy];if(!G)return;const q=QUIZ[(fy*7+(S.stats&&S.stats.quizN||0))%QUIZ.length];S.stats=S.stats||{};S.stats.quizN=(S.stats.quizN||0)+1;
+  const i=await choose("🔥 "+q[0],q[1].map(l=>({label:l})),{cols:1,cancel:false});
+  if(i===q[2]){sfx("quest");await say("¡Correcto! La cortina de fuego se apaga con un «fssss».")}else{sfx("weak");await say(`¡Incorrecto! Era «${q[1][q[2]]}». El ${G.nm} sale de detrás de la cortina…`);
+   const win=await battle(G.team.map(([s,l])=>newMon(s,l)),{trainer:{name:G.nm,short:G.nm.split(" ")[0],pal:{h:"#1a1a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:11,money:300,challenge:`¡El ${G.nm} te corta el paso!`,lose:"Vale, vale. Pasa. Pero estudia más."}});if(!win)return;await say("El guardia apaga la cortina a regañadientes.")}
+  S.flags["tg2r"+fy]=true;tg2Apply();save();return}
+ if(S.map==="tgym3"&&ch==="ʉ"){if(S.flags.tg3done){await say("Las cuatro estufas arden a tope. Izaskun te espera.");return}const k=fx+","+fy;if(TG3SEQ.includes(k)){await say("Esta ya está encendida.");return}
+  TG3SEQ.push(k);sfx("throw");const ok=TG3_ORDER.slice(0,TG3SEQ.length).join("|")===TG3SEQ.join("|");if(!ok){sfx("weak");TG3SEQ=[];await say("¡Fuuush! Has encendido la que no tocaba y se apagan todas de golpe. Vuelta a empezar.");return}
+  if(TG3SEQ.length===4){S.flags.tg3done=true;tg3Apply();FX.shake=now()+500;sfx("quest");save();await say("¡Las cuatro estufas rugen a la vez! El muro de fuego se aparta. Al fondo, Izaskun apaga el puro y se levanta.")}else await say(["¡Prende! Una menos.","¡Prende la segunda!","¡La tercera! Ya casi."][TG3SEQ.length-1]);return}
+ return _intGym()};
+// --- sala 3: estufas en orden y suelo que quema ---
+const TG3_ORDER=["10,7","2,3","2,7","10,3"];let TG3SEQ=[];
+function estufaLit(x,y){if(S.map==="tgym3")return S.flags.tg3done||TG3SEQ.includes(x+","+y);return true}
+function burnOn(x,y,t){return(Math.floor(t/1100)+x)%2===0}
+async function burnBack(){sfx("hit");FX.shake=now()+300;flash("#ff7a2a",250);await fadeOut();S.x=6;S.y=9;S.dir="up";P.moving=false;pushPresence();await fadeIn();toast("🔥 ¡Te has quemado los pies! Vuelves a la entrada.")}
+setInterval(()=>{if(S&&mode==="world"&&!busy&&!P.moving&&S.map==="tgym3"&&tileAt(S.x,S.y)==="ʙ"&&burnOn(S.x,S.y,performance.now()))run(burnBack)},120);
+NPC_LOOK.tasp1={hs:3,ts:11};NPC_LOOK.tasp2={hs:8,ts:11};
+NPCS.push({id:"tasp1",map:"tgym3",x:6,y:4,dir:"down",sight:3,smoke:true,pal:{h:"#3a1a0a",s:"#f1c27d",e:"#222",c:"#f4f4f4",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:11,
+  trainer:tr4("Jefe de Sala","Antxon",[["habano",39],["queimada",39]],520,["Antxon: Las estufas tienen su orden. Como los cafés: primero el solo, luego el cortado.","Antxon: Si me ganas, te digo cómo empieza Izaskun."],"Antxon: Vale, vale. Habla conmigo y te cuento.")},
+ {id:"tasp2",map:"tgym3",x:9,y:6,dir:"left",sight:6,smoke:true,pal:{h:"#c87a3a",s:"#f1c27d",e:"#222",c:"#f4f4f4",z:"#8a1a2a",p:"#1a1a1a",k:"#111"},hs:8,ts:11,
+  trainer:tr4("Sumiller de Estufas","Nerea",[["carajillo",39],["montecristo",40]],540,["Nerea: ¿Tú también vienes a encender estufas sin saber el orden? Qué valiente. Qué tonto.","Nerea: Gánamelas y te digo cómo acaba la cosa."],"Nerea: Uf. Habla conmigo, anda, que te lo cuento.")});
+TALK2.tasp1=async()=>{await say(S.beaten&&S.beaten.tasp1?"Antxon: Izaskun SIEMPRE empieza por la estufa de abajo a la derecha, la de su silla favorita. Y la segunda es la de la esquina contraria: arriba a la izquierda.":"Antxon: Primero gánamelas, chaval.")};
+TALK2.tasp2=async()=>{await say(S.beaten&&S.beaten.tasp2?"Nerea: La tercera está justo debajo de la segunda. Y la cuarta… la que queda, listo.":"Nerea: Sin combate no hay chivatazo.")};
+const _talkGymIz=TALK2.izaskun;TALK2.izaskun=async(n)=>{if(!S.flags.tg3done&&!S.flags.terraza){await say("Izaskun: *te mira a través del fuego* Enciende mis estufas, y luego hablamos.");return}return _talkGymIz(n)};
+// los guardias del concurso, para que se vean junto a cada cortina
+NPC_LOOK.tg2g1={hs:6,ts:11};NPC_LOOK.tg2g2={hs:8,ts:11};NPC_LOOK.tg2g3={hs:3,ts:11};
+NPCS.push({id:"tg2g1",map:"tgym2",x:7,y:9,dir:"left",pal:{h:"#1a1a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:6,ts:11},
+ {id:"tg2g2",map:"tgym2",x:3,y:6,dir:"right",pal:{h:"#6a2a1a",s:"#f1c27d",e:"#222",c:"#f4f4f4",z:"#8a1a2a",p:"#1a1a1a",k:"#111"},hs:8,ts:11},
+ {id:"tg2g3",map:"tgym2",x:7,y:3,dir:"left",pal:{h:"#3a1a0a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:11});
+for(const id of["tg2g1","tg2g2","tg2g3"])TALK2[id]=async()=>{await say(pick(["Guardia: Mira la cortina y pulsa para que te haga la pregunta. Si fallas, me toca pelear contigo. Y me encanta pelear.","Guardia: Izaskun escribe las preguntas ella misma. Por eso algunas tienen faltas de ortografía."]))};
+// tras ganar a Izaskun: ferry desbloqueado (el viaje a Tánger, en la siguiente tanda)
+LOGROS.push({id:"faro",n:"Lo que el mar escondía",d:"Encuentra lo que quedaba del Sargento Pons en la Isla del Faro.",ic:"🏝️",ok:()=>!!S.flags.ponsFound,rw:{money:200}},{id:"trileIker",n:"Ojo de halcón",d:"Gana a Iker al trile.",ic:"🥤",ok:()=>!!S.flags.trileWin,rw:{money:100}},{id:"mecheroOro",n:"Fuego eterno",d:"Devuélvele a Ramiro su mechero de oro.",ic:"🔥",ok:()=>!!S.flags.mecheroOro,rw:{money:150}});
+
+/*</B4MAR>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

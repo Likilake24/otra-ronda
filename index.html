@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="109 · Las tiendas van sacando género según tus medallas";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="110 · Al desmayarte ya no dice Kebab si estás en otra zona chill";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -3136,7 +3136,7 @@ async function battle(enemies,{trainer,special,easy,music}){
     S.team.forEach(m=>m.hp=maxhp(m));S.map=S.respawn[0];S.x=S.respawn[1];S.y=S.respawn[2];S.dir="up";
   }
   await battleOutro();pushPresence();
-  if(result==="lose")await say(S.respawn[0]==="yurta"?"Te despiertas en la yurta de la Abuela Luna, con una piedra fría en la frente. Abuela Luna: «Ay, criatura… Ya te he sanado el equipo. Respira.»":`Te despiertas en el Kebab con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`);
+  if(result==="lose")await say(S.respawn[0]==="yurta"?"Te despiertas en la yurta de la Abuela Luna, con una piedra fría en la frente. Abuela Luna: «Ay, criatura… Ya te he sanado el equipo. Respira.»":S.respawn[0]==="kebab"?`Te despiertas en el Kebab con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`:`Te despiertas en la zona chill${MAPNAME[S.respawn[0]]?" · "+MAPNAME[S.respawn[0]]:""}, tirado en un puf y con una resaca tremenda. Tu equipo ya está curado.`);
   for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}
   S.team.forEach(m=>delete m.v);
   save();

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="98 · Hoyales: 4 testigos (uno miente), castillo de 4 pisos con calimocho, cámara de hielo y guerra de cubitos";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="99 · Tractor tuneado, Valdeseco con linterna y escena del crimen, y Barajas: el nuevo 8.º gimnasio";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -10783,12 +10783,12 @@ WALK.add("ʄ");
 // ====================================================================================
 // LOS CUATRO TESTIGOS (personajes nuevos)
 // ====================================================================================
-NPC_LOOK.orejas={hs:10,ts:5,beard:"full"};NPC_LOOK.casimiro={hs:4,ts:2,beard:"stache"};NPC_LOOK.timmy={hs:12,ts:3};NPC_LOOK.roca={hs:11,ts:11};
+NPC_LOOK.orejas={hs:10,ts:5,beard:"full"};NPC_LOOK.casimiro={hs:4,ts:2,beard:"stache"};NPC_LOOK.timmy={hs:12,ts:3};NPC_LOOK.roca={hs:3,ts:11};
 const PNEW={orejas:{h:"#8a4a2a",s:"#e09878",e:"#222",c:"#6a4a2a",z:"#8a2a1a",p:"#3a2a1a",k:"#2a1a0a"},casimiro:{h:"#6a4a2a",s:"#f1c27d",e:"#222",c:"#8a7a4a",z:"#1a1a1a",p:"#4a4a3a",k:"#2a1a0a"},timmy:{h:"#c8802a",s:"#f1c8a0",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#2a2a2a",k:"#f4f4f4"},roca:{h:"#14101c",s:"#f4dcd0",e:"#222",c:"#1a141e",z:"#b81a5a",p:"#1a141e",k:"#000"}};
 NPCS.push({id:"orejas",map:"hoyales",x:12,y:13,dir:"right",pal:PNEW.orejas,hs:10,ts:5,fat:true,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
  {id:"casimiro",map:"hoyales",x:24,y:10,dir:"left",pal:PNEW.casimiro,hs:4,ts:2,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
  {id:"timmy",map:"hoyales",x:5,y:11,dir:"down",pal:PNEW.timmy,hs:12,ts:3,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
- {id:"roca",map:"hoyales",x:14,y:17,dir:"up",pal:PNEW.roca,hs:11,ts:11,cond:()=>!!S.flags.marruecos&&!S.flags.profe});
+ {id:"roca",map:"hoyales",x:14,y:17,dir:"up",pal:PNEW.roca,hs:3,ts:11,cond:()=>!!S.flags.marruecos&&!S.flags.profe});
 // qué juego "pertenece" a cada testigo
 const TESTIGOS={soga:{id:"orejas",n:"Orejas el Orujero",
   antes:["Orejas: ¿La llave de la torre? Yo sé cosas de esa noche. Pero mi boca se abre con una soga: gana a los quintos y hablamos. (Comisión de Fiestas, en la plaza.)","Orejas: Soy el Orejas. Hago el mejor orujo de la Ribera. Ilegal, claro. Si fuera legal, sería peor."],
@@ -10901,6 +10901,276 @@ if(typeof ZENV!=="undefined")Object.assign(ZENV,{torre4:"ztorre"});Object.assign
 LOGROS.push({id:"testigos",n:"El detective de la verbena",d:"Reúne los cuatro testimonios y descubre quién miente.",ic:"🔎",ok:()=>!!S.flags.hLiar,rw:{money:300}});
 
 /*</B4CASTILLO>*/
+/*<B4RUTA8>*/
+/* ===================== RUTA 8: EL TRACTOR TUNEADO y VALDESECO, EL PUEBLO FANTASMA (linterna, sustos, origen de la Ley Seca y escena del crimen) ===================== */
+// ---------- motor de ESCENA DEL CRIMEN: buscas con la lupa tocando la escena ----------
+// spec: {titulo, intro, pintar(g,t), pistas:[{id,x,y,r,n,t,clave}]}
+function crimeScene(spec){return new Promise(res=>{S.pruebas=S.pruebas||{};const found=new Set(spec.pistas.filter(p=>S.pruebas[p.id]).map(p=>p.id));let mx=360,my=220,raf=0,last="Mueve la lupa y toca lo que te parezca raro.",closed=false;
+ const close=()=>{if(closed)return;closed=true;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);closeOverlay();save();res(found.size)};
+ overlay(`<div style="max-width:880px;margin:0 auto"><h2 style="margin:2px 0;text-align:center">🔍 ${esc(spec.titulo)}</h2><canvas id="cs-c" width="720" height="440" style="width:100%;border-radius:12px;cursor:none;touch-action:none;background:#111"></canvas>
+  <div id="cs-t" style="background:#1a120a;border:2px solid #ffd14a66;border-radius:10px;padding:8px;margin-top:6px;min-height:58px"></div><div class="btns" style="justify-content:center;margin-top:6px"><button class="big alt" type="button" id="cs-x" tabindex="-1">Terminar la investigación</button></div></div>`,{onB:()=>{}});
+ const c=$("cs-c"),g=c.getContext("2d");const info=()=>{$("cs-t").innerHTML=`<b>${found.size}/${spec.pistas.length} pistas</b><br>${esc(last)}`;$("cs-x").textContent=found.size>=spec.pistas.length?"✅ Escena completa: salir":"Terminar la investigación"};
+ const pos=e=>{const r=c.getBoundingClientRect();mx=(e.clientX-r.left)*720/r.width;my=(e.clientY-r.top)*440/r.height};
+ const look=()=>{const p=spec.pistas.find(p=>Math.hypot(p.x-mx,p.y-my)<p.r);if(!p){last=pick(["Nada raro por aquí.","Solo polvo y colillas.","Aquí no hay nada… creo."]);sfx("blip")}else{if(!found.has(p.id)){found.add(p.id);S.pruebas[p.id]=1;sfx("quest")}last="📌 "+p.n+": "+p.t;try{ttsSay(p.t,voiceFor(null,null))}catch(e){}}info()};
+ c.onpointermove=pos;c.onpointerdown=e=>{e.preventDefault();pos(e);look()};$("cs-x").onclick=close;
+ const kd=e=>{const k=e.key.toLowerCase(),d=16;if(k==="arrowleft")mx-=d;else if(k==="arrowright")mx+=d;else if(k==="arrowup")my-=d;else if(k==="arrowdown")my+=d;else if(k==="z"||k==="enter"||k===" ")look();else if(k==="escape")close();else return;e.preventDefault();e.stopPropagation();mx=Math.max(0,Math.min(720,mx));my=Math.max(0,Math.min(440,my))};addEventListener("keydown",kd,true);
+ const draw=t=>{if(!c.isConnected){close();return}spec.pintar(g,t);for(const p of spec.pistas){if(found.has(p.id)){g.strokeStyle="#7aff6a";g.lineWidth=3;g.beginPath();g.arc(p.x,p.y,16,0,7);g.stroke();g.fillStyle="#7aff6a";g.font="900 18px Arial";g.textAlign="center";g.fillText("✔",p.x,p.y-20)}else if((t/1000+p.x)%5<.25){g.fillStyle="#fff";g.fillRect(p.x-1,p.y-6,2,12);g.fillRect(p.x-6,p.y-1,12,2)}}
+  // la lupa amplía lo que hay debajo
+  const R=52;g.save();g.beginPath();g.arc(mx,my,R,0,7);g.clip();g.drawImage(c,mx-R/2,my-R/2,R,R,mx-R,my-R,R*2,R*2);g.restore();g.strokeStyle="#d8b060";g.lineWidth=6;g.beginPath();g.arc(mx,my,R,0,7);g.stroke();g.lineWidth=10;g.beginPath();g.moveTo(mx+37,my+37);g.lineTo(mx+70,my+70);g.stroke();raf=requestAnimationFrame(draw)};info();raf=requestAnimationFrame(draw)})}
+// utilidades de pintura de escenas
+const CSD={R:(g,x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)},E:(g,x,y,rx,ry,c,a)=>{g.fillStyle=c;g.beginPath();g.ellipse(x,y,rx,ry,a||0,0,7);g.fill()},
+ cross:(g,x,y)=>{for(const r of[.7,-.7]){g.save();g.translate(x,y);g.rotate(r);g.fillStyle="#f4f0e0";g.fillRect(-26,-4,52,8);g.fillStyle="#c86a2a";g.fillRect(18,-4,8,8);g.restore()}},
+ body:(g,x,y,shirt,hair,hat)=>{const{R,E}=CSD;E(g,x+10,y+30,120,34,"#6a0808");E(g,x-10,y+26,70,22,"#8a0e0e");for(let i=0;i<22;i++)E(g,x-130+(i*61)%280,y+((i*37)%70),3+(i%4),2+(i%3),"#7a0a0a");R(g,x-36,y,76,40,shirt);R(g,x-36,y+16,76,5,"#c8a030");R(g,x-112,y+14,56,16,shirt);E(g,x-120,y+22,10,9,"#e0a878");R(g,x+62,y+26,70,18,"#1a2450");R(g,x+132,y+24,18,22,"#111");R(g,x+46,y+30,16,12,"#8a0e0e");E(g,x+70,y-24,24,24,"#e0a878");E(g,x+70,y-38,24,12,hair);if(hat){R(g,x+46,y-56,48,14,hat);R(g,x+40,y-44,58,6,"#0e1430")}E(g,x+62,y-24,6,5,"#fff");E(g,x+80,y-24,6,5,"#fff");E(g,x+62,y-23,2,2,"#111");E(g,x+80,y-23,2,2,"#111");E(g,x+71,y-8,8,4,"#3a0a0a");for(let i=0;i<6;i++){const a=performance.now()/260+i;E(g,x+20+Math.cos(a+i)*70,y-10+Math.sin(a*1.4)*34,2,1.5,"#0a0a0a")}}};
+// ====================================================================================
+// TRAMO 1 · EL TRACTOR TUNEADO
+// ====================================================================================
+function tractorGame(){return new Promise(res=>{
+ overlay(`<div style="max-width:980px;margin:0 auto;user-select:none"><canvas id="tg-c" width="960" height="460" style="width:100%;border-radius:12px;background:#87c8f0;touch-action:none"></canvas>
+  <div class="btns" style="justify-content:center"><button class="big alt" type="button" id="tg-j" tabindex="-1">⤒ Saltar (Z / ↑)</button><button class="big" type="button" id="tg-n" tabindex="-1">🔥 Nitro de clarete (X / →)</button></div>
+  <p style="text-align:center;margin:4px 0;font-size:14px">Salta las zanjas y las balas de paja. Los <b>controles de la Pasma</b> solo se revientan con el <b>nitro</b>. Recoge botellas de clarete para recargarlo.</p></div>`,{onB:()=>{}});
+ try{document.activeElement&&document.activeElement.blur()}catch(e){}
+ const c=$("tg-c"),x=c.getContext("2d"),W=960,H=460,GY=370,GOAL=2200;let jmp=false,nit=false;
+ const kd=e=>{const k=e.key.toLowerCase();if(["z","arrowup","w"," "].includes(k))jmp=true;else if(["x","arrowright","d","k"].includes(k))nit=true;else return;e.preventDefault();e.stopPropagation()};addEventListener("keydown",kd,true);
+ $("tg-j").onpointerdown=e=>{e.preventDefault();jmp=true};$("tg-n").onpointerdown=e=>{e.preventDefault();nit=true};c.onpointerdown=()=>jmp=true;
+ let regen=0,dist=0,y=0,vy=0,hp=3,fuel=2,boost=0,inv=0,obs=[],items=[],fx=[],spawnD=300,last=performance.now(),raf=0,over=false,bubble="El Chusta: ¡BROOO! ¡Esto corre más que mi vespino!",bT=3,shake=0;
+ const say5t=t=>{bubble=t;bT=2.6;try{ttsSay(t.replace(/^[^:]+:\s*/,""),voiceFor("chusta","El Chusta"))}catch(e){}};
+ const end=win=>{if(over)return;over=true;setTimeout(()=>{cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);closeOverlay();res(win)},1800)};
+ const tick=nw=>{if(!c.isConnected){removeEventListener("keydown",kd,true);res(false);return}const dt=Math.min(.033,(nw-last)/1000);last=nw;
+  if(!over){const spd=(boost>0?640:330)+dist*.04;dist+=spd*dt*.2;boost=Math.max(0,boost-dt);regen+=dt;if(regen>6){regen=0;if(fuel<3)fuel++}inv=Math.max(0,inv-dt);
+   if(jmp){jmp=false;if(y<=0){vy=830;sfx("throw")}}if(nit){nit=false;if(fuel>0&&boost<=0){fuel--;boost=1.5;sfx("super");say5t(pick(["El Chusta: ¡DALE AL CLARETE!","El Chusta: ¡AGÁRRATE QUE VOY SIN CINTURÓN!"]))}}
+   vy-=1850*dt;y=Math.max(0,y+vy*dt);if(y===0&&vy<0)vy=0;
+   spawnD-=spd*dt;if(spawnD<=0&&dist<GOAL-160){spawnD=520+Math.random()*260;const t=pick(["paja","paja","zanja","zanja","control"]);obs.push({t,x:W+60,w:t==="zanja"?90:t==="control"?46:54});if(t==="control"&&fuel===0)items.push({x:W-180,y:120});else if(Math.random()<.35)items.push({x:W+260,y:80+Math.random()*90})}
+   for(const o of obs){o.x-=spd*dt;if(!o.hit&&o.x<250&&o.x+o.w>150){const high=y>(o.t==="control"?170:34);if(o.t==="control"&&boost>0){o.hit=true;o.broken=true;shake=.25;sfx("hit");for(let i=0;i<18;i++)fx.push({x:o.x,y:GY-40,vx:200+Math.random()*400,vy:-Math.random()*500,c:pick(["#24346e","#f4f4f4","#e23b2a","#f2c14e"]),l:1});say5t("El Chusta: ¡¡STRIKE!! ¡Maderos volando!")}else if(!high&&!(o.t==="zanja"&&boost>0&&y>10)&&inv<=0){o.hit=true;hp--;inv=1.4;shake=.3;sfx("weak");say5t(pick(["El Chusta: ¡AY MI RABADILLA!","El Chusta: ¡Conduces como mi abuela, y no tiene carné!"]));if(hp<=0){say5t("El Chusta: Bro… hemos volcado. Otra vez.");end(false)}}}}
+   obs=obs.filter(o=>o.x>-120);for(const it of items){it.x-=spd*dt;if(!it.got&&it.x>120&&it.x<280){it.got=true;fuel=Math.min(3,fuel+1);sfx("trago")}}items=items.filter(i=>i.x>-40&&!i.got);
+   if(dist>=GOAL){say5t("*PFFF… CLONC… CLONC…* El Chusta: Bro… creo que el motor se ha muerto. ¿Qué pone en ese cartel?");end(true)}}
+  shake=Math.max(0,shake-dt);bT-=dt;
+  x.save();if(shake>0)x.translate((Math.random()-.5)*9,(Math.random()-.5)*9);const k=Math.min(1,Math.max(0,(dist-GOAL*.55)/(GOAL*.45)));const mix=(a,b)=>`rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*k)).join()})`;
+  const gr=x.createLinearGradient(0,0,0,GY);gr.addColorStop(0,mix([110,190,240],[20,18,40]));gr.addColorStop(1,mix([240,230,200],[100,90,110]));x.fillStyle=gr;x.fillRect(0,0,W,H);const sc=dist*5;
+  x.fillStyle=mix([150,170,90],[50,50,60]);for(let i=0;i<6;i++){x.beginPath();x.ellipse(((i*240-sc*.2)%1440+1440)%1440-200,GY,170,60+(i%3)*30,0,Math.PI,0);x.fill()}
+  for(let i=0;i<14;i++){const X=((i*110-sc*.6)%1540+1540)%1540-120;x.fillStyle=mix([60,130,50],[30,34,36]);x.beginPath();x.arc(X,GY-26,18,0,7);x.arc(X+16,GY-20,14,0,7);x.fill();x.fillStyle="#5a3a1a";x.fillRect(X,GY-14,4,14)}
+  x.fillStyle=mix([200,170,110],[80,70,66]);x.fillRect(0,GY,W,H-GY);x.fillStyle="rgba(0,0,0,.2)";for(let i=0;i<22;i++)x.fillRect(((i*60-sc)%1320+1320)%1320-60,GY+18+(i%3)*18,26,5);
+  for(const o of obs){if(o.t==="zanja"){x.fillStyle="#2a1a0a";x.fillRect(o.x,GY,o.w,50);x.fillStyle="#4a2a14";x.fillRect(o.x,GY,6,50);x.fillRect(o.x+o.w-6,GY,6,50)}else if(o.t==="paja"){x.fillStyle="#e8c050";x.beginPath();x.arc(o.x+27,GY-26,28,0,7);x.fill();x.strokeStyle="#b89030";x.lineWidth=3;for(const r of[9,18]){x.beginPath();x.arc(o.x+27,GY-26,r,0,7);x.stroke()}}else if(!o.broken){x.fillStyle="#f4f4f4";x.fillRect(o.x,GY-86,46,16);for(let i=0;i<4;i++){x.fillStyle="#e23b2a";x.fillRect(o.x+i*12,GY-86,6,16)}x.fillStyle="#3a3a3a";x.fillRect(o.x+4,GY-70,5,70);x.fillRect(o.x+37,GY-70,5,70);x.fillStyle="#24346e";x.fillRect(o.x+14,GY-140,20,54);x.fillStyle="#e0a878";x.beginPath();x.arc(o.x+24,GY-150,11,0,7);x.fill();x.fillStyle="#1a2450";x.fillRect(o.x+12,GY-166,24,9);x.fillStyle="#fff";x.font="900 11px Arial";x.textAlign="center";x.fillText("PASMA",o.x+23,GY-74)}}
+  for(const it of items){x.font="30px sans-serif";x.textAlign="center";x.fillText("🍷",it.x,it.y+150+Math.sin(nw/200)*5)}
+  // el tractor tuneado con remolque
+  const TX=200,TY=GY-y+(y===0?Math.sin(nw/60)*1.5:0);x.save();x.translate(TX,TY);if(inv>0&&Math.floor(nw/90)%2)x.globalAlpha=.4;const wheel=(X,Y,r)=>{x.fillStyle="#141414";x.beginPath();x.arc(X,Y,r,0,7);x.fill();x.fillStyle="#e6bc3a";x.beginPath();x.arc(X,Y,r*.45,0,7);x.fill();x.strokeStyle="#6a4a1a";x.lineWidth=3;for(let i=0;i<5;i++){const a=sc/40+i*1.26;x.beginPath();x.moveTo(X,Y);x.lineTo(X+Math.cos(a)*r*.45,Y+Math.sin(a)*r*.45);x.stroke()}};
+  x.fillStyle="#8a5a2a";x.fillRect(-150,-62,86,34);x.fillStyle="#a8743a";x.fillRect(-150,-66,86,6);wheel(-128,-18,18);wheel(-86,-18,18);x.fillStyle="#3a3a3a";x.fillRect(-66,-34,22,5);
+  x.fillStyle="#2a8a3a";x.fillRect(-120,-96,18,32);x.fillStyle="#e8b488";x.beginPath();x.arc(-111,-108,12,0,7);x.fill();x.fillStyle="#c8202a";x.fillRect(-124,-122,26,10);x.strokeStyle="#e8b488";x.lineWidth=6;x.beginPath();x.moveTo(-104,-88);x.lineTo(-86,-108-Math.abs(Math.sin(nw/150))*14);x.stroke();
+  x.fillStyle="#c8202a";x.fillRect(-44,-70,100,42);x.fillRect(26,-86,40,22);x.fillStyle="#ffd14a";x.fillRect(-44,-52,100,7);x.fillStyle="rgba(190,230,255,.75)";x.fillRect(-36,-116,46,46);x.strokeStyle="#7a1010";x.lineWidth=5;x.strokeRect(-36,-116,46,46);x.fillStyle="#e23b2a";x.fillRect(-42,-124,58,9);x.fillStyle="#d89868";x.beginPath();x.arc(-12,-92,11,0,7);x.fill();x.fillStyle=skinPal(S.skin).c;x.fillRect(-22,-82,20,14);x.fillStyle="#5a5a5a";x.fillRect(38,-112,8,28);for(let i=0;i<3;i++){const p=((nw/500+i/3)%1);x.globalAlpha=.4*(1-p);x.fillStyle="#bbb";x.beginPath();x.arc(42-p*70,-118-p*40,6+p*14,0,7);x.fill()}x.globalAlpha=1;wheel(-22,-26,28);wheel(52,-16,17);
+  if(boost>0){for(let i=0;i<3;i++){x.fillStyle=["#ff5a1a","#ffae2a","#c8205a"][(Math.floor(nw/60)+i)%3];x.beginPath();x.moveTo(-150,-52+i*9);x.lineTo(-190-Math.random()*40,-48+i*9);x.lineTo(-150,-40+i*9);x.fill()}}x.restore();
+  for(const f of fx){f.l-=dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=900*dt;x.fillStyle=f.c;x.fillRect(f.x,f.y,9,9)}fx=fx.filter(f=>f.l>0);
+  if(dist>GOAL-220){const X=W-(dist-(GOAL-220))*2.6;x.fillStyle="#5a4a3a";x.fillRect(X+10,GY-110,8,110);x.fillRect(X+150,GY-110,8,110);x.save();x.translate(X+84,GY-120);x.rotate(-.07);x.fillStyle="#8a7a5a";x.fillRect(-96,-28,192,54);x.fillStyle="#1a1208";x.font="900 28px Rubik,Arial";x.textAlign="center";x.fillText("VALDESECO",0,10);x.restore()}x.restore();
+  x.fillStyle="rgba(0,0,0,.55)";x.fillRect(12,12,330,34);x.fillStyle="#fff";x.font="900 16px Rubik,Arial";x.textAlign="left";x.fillText("🚜 "+"❤️".repeat(Math.max(0,hp))+"   🍷 nitro: "+fuel,22,35);x.fillStyle="rgba(0,0,0,.55)";x.fillRect(W-232,12,220,34);x.fillStyle="#7aff6a";x.fillRect(W-226,24,208*Math.min(1,dist/GOAL),10);x.fillStyle="#fff";x.font="700 11px Arial";x.fillText("Hacia el este",W-222,22);
+  if(bT>0&&bubble){x.font="700 16px Rubik,Arial";x.textAlign="center";const w=Math.min(920,x.measureText(bubble).width+28);x.fillStyle="#fff";x.beginPath();x.roundRect(W/2-w/2,58,w,32,12);x.fill();x.fillStyle="#1a120a";x.fillText(bubble,W/2,80,900)}
+  raf=requestAnimationFrame(tick)};window.__tg={jump:()=>jmp=true,nitro:()=>nit=true,state:()=>({dist,y,hp,fuel,obs})};raf=requestAnimationFrame(tick)})}
+if(typeof withMusic==="function")tractorGame=withMusic(tractorGame,"verbena");
+// salida de Hoyales hacia el este: el tractor de los quintos
+const _osR8=onStep;onStep=async function(){if(S.map==="hoyales"&&S.x>=37&&(S.y===12||S.y===13)&&S.flags.hoyales&&!S.flags.barajas){const go=await choose("El camino del este. Los quintos te han dejado el tractor tuneado aparcado en la cuneta, con el Chusta ya subido en el remolque.",[{label:"🚜 ¡Arrancar!"},{label:"Todavía no"}],{cols:1});
+   if(go!==0){S.x=35;S.dir="left";pushPresence();return}
+   if(!S.flags.tractorOk){cineOn();await sayAll(["[risa]El Chusta: ¡BRO! ¡He aparecido! No preguntes dónde estaba. Súbete, que arranco… no, que arrancas tú.","Quinto: El tractor tiene nitro de clarete. No preguntéis cómo funciona. Funciona.","[duda]El Chusta: Por cierto… ¿a ti Valdeseco te suena de algo? … Por nada. Cosas mías."]);cineOff()}
+   const win=S.flags.tractorOk?true:await tractorGame();if(!win){S.x=35;S.dir="left";pushPresence();await say("El Chusta: Venga, que esto lo sacamos. Vuelve a probar cuando quieras.");return}
+   S.flags.tractorOk=true;save();await warp("valdeseco",1,16,"right");return}return _osR8()};
+// ====================================================================================
+// TRAMO 2 · VALDESECO, EL PUEBLO FANTASMA
+// ====================================================================================
+["Ɯ"].forEach(ch=>{});
+(function(){const W=34,H=26;const g=grid5(W,H,".");carve(g,"#",0,0,W,1);carve(g,"#",0,H-1,W,1);carve(g,"#",0,0,1,H);carve(g,"#",W-1,0,1,H);g[16][0]=".";
+ carve(g,"v",0,16,28,1);carve(g,"v",8,6,2,16);carve(g,"v",12,9,12,6);carve(g,"v",26,0,2,17);carve(g,"v",9,21,18,1);carve(g,"v",9,6,18,1);g[0][26]="v";g[0][27]="v";
+ carve(g,",",2,3,5,4);carve(g,",",29,19,4,5);carve(g,",",2,19,5,4);carve(g,",",29,3,4,6);
+ const builds=[{id:"vestanco",kind:"casapueblo",x:13,y:3,w:4,h:3,door:[14,5],wall:"#8a8478",roof:"#5a3a2a",label:"",to:"vestancoin"},
+  {id:"vcasa1",kind:"casapueblo",x:2,y:12,w:4,h:3,door:[3,14],wall:"#7a746a",roof:"#4a3a34",label:"",to:"vcasa1"},
+  {id:"vcasa2",kind:"casapueblo",x:18,y:18,w:4,h:3,door:[19,20],wall:"#847a70",roof:"#53382e",label:"",to:"vcasa2"},
+  {id:"vcasa3",kind:"casapueblo",x:29,y:12,w:4,h:3,door:[30,14],wall:"#706a64",roof:"#3e302c",label:"",to:"vcasa3"},
+  {id:"vcasa4",kind:"casapueblo",x:20,y:2,w:4,h:3,door:[21,4],wall:"#7c7468",roof:"#4e3a30",label:"",to:null}];
+ builds.forEach(b=>{carve(g,"H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});g[15][3]="v";g[15][30]="v";g[5][21]=".";
+ g[11][17]="Ƥ";for(const[x,y]of[[11,8],[24,8],[7,10],[25,14],[11,23],[17,23],[24,18],[16,8]])if(g[y][x]===".")g[y][x]="#";
+ const signs={"5,15":"CASA DE LOS HERRERO. Alguien ha tachado el apellido con tiza.","2,17":"VALDESECO. «Pueblo de vino, tabaco y buena gente». Alguien ha pintado encima: «AQUÍ NO QUEDA NADIE».","24,7":"↑ AUTOPISTA · AEROPUERTO DE BARAJAS"};
+ for(const k of Object.keys(signs)){const[x,y]=k.split(",").map(Number);g[y][x]="S"}
+ MAPS.valdeseco={w:W,h:H,g,outdoor:true,signs,builds,lamps:[],music:"fumigon",entry:[1,16,"right"],exits:{"0,16":["hoyales",34,12,"left"],"26,0":["autovia",12,18,"up"],"27,0":["autovia",13,18,"up"]},txt:{"#":"Árboles secos. Ni los pájaros vienen.","Ƥ":"La fuente de la plaza. Está seca desde hace cuarenta años.",",":"Hierba crecida. Algo se mueve… y no hace ruido."}};
+ blockDrawn("valdeseco")})();
+MAPNAME.valdeseco="Ruta 8 · Valdeseco, el pueblo fantasma";
+Object.assign(ZONES,{VS:{pool:["ectolata","latasombra","celtas","celtaslargo","calaverita","catrina"].filter(s=>SP[s]),lv:[48,52]}});
+if(ZONES.VS.pool.length<2)ZONES.VS.pool=Object.keys(SP).filter(s=>SP[s].t==="siniestro"||SP[s].t==="psiquico").slice(0,6);
+const _weR8=wildEncounter;wildEncounter=async function(){if(S.map==="valdeseco"){const z=ZONES.VS;if(S.luck>0)S.luck--;await battle([newMon(pick(z.pool),ri(z.lv[0],z.lv[1]),true)],{});return}return _weR8()};
+const _gzR8=grassZones;grassZones=function(){if(S.map==="valdeseco")return[[ZONES.VS,"Valdeseco · huertos abandonados",true]];return _gzR8()};
+// el origen de la Ley Seca, en cinco pedazos
+const NOTAS=[["n1","Recorte de periódico","«VALDESECO, EL PUEBLO MÁS ALEGRE DE ESPAÑA. Aquí cada vecino hace lo suyo: vino, orujo, puros y algo verde en el huerto. La cooperativa lo reparte todo a partes iguales.»"],
+ ["n2","Acta de la cooperativa","«Se aprueba vender la receta de la reserva especial a una empresa de fuera. Doce votos a favor. Uno en contra. El del bodeguero, que dice que la receta es de su familia y no se vende.»"],
+ ["n3","Carta sin enviar","«Padre: anoche en la verbena discutieron a gritos. Los doce quieren la receta. Usted dijo que antes la quemaba. Tengo miedo. Me voy a esconder debajo de la barra, como cuando jugamos.»"],
+ ["n4","Parte del sereno","«23:50, todo en calma, salvo la verbena. 00:10, fuego en la bodega grande. Nadie da la voz de alarma. Veo doce personas mirando. Yo no he visto nada. Yo estaba borracho. Yo no he visto nada.»"],
+ ["n5","Ordenanza municipal","«A raíz de la desgracia, queda PROHIBIDO en Valdeseco beber, fumar y plantar. Primera Ley Seca. Firmado a petición de los vecinos.» Debajo, con letra de niño: «MENTIROSOS. LOS DOCE»."]];
+const notasN=()=>NOTAS.filter(n=>S.pruebas&&S.pruebas[n[0]]).length;
+async function leerNota(i){const[id,t,txt]=NOTAS[i];S.pruebas=S.pruebas||{};const nueva=!S.pruebas[id];S.pruebas[id]=1;if(nueva)sfx("quest");save();cineOn();await sayAll(["📜 "+t.toUpperCase(),txt].concat(nueva?[`📓 Apuntado en la libreta. El origen de la Ley Seca: ${notasN()}/5.`]:[]));cineOff()}
+// casas por dentro
+const vroom=(id,name,rows,exit,txt)=>{MAPS[id]=room(rows,null,[4,6,"up"],{music:"fumigon",txt});MAPNAME[id]=name;setExit(id,["4,7","5,7"],exit)};
+vroom("vcasa1","Casa de los Herrero",["wwwwwwwwww","wgooooootw","woooooooow","wthhooooow","woooooooow","wooooooooW".replace("W","w"),"woooooooow","wwwweewwww"],["valdeseco",3,15,"down"],{t:"Una mesa puesta para cenar. El pan tiene cuarenta años. Hay un recorte de periódico bajo un plato.",g:"Una maceta con la tierra seca como el serrín.",h:"Un sofá tapado con una sábana. La sábana respira. No. Es el aire."});
+vroom("vcasa2","La casa del sereno",["wwwwwwwwww","wmooooootw","woooooooow","woooooohhw","woooooooow","woooooooow","woooooooow","wwwweewwww"],["valdeseco",19,21,"down"],{m:"Un televisor roto. En el polvo de la pantalla alguien ha escrito «12» con el dedo.",t:"Una mesa con un chuzo, una gorra y un cuaderno de partes.",h:"Un camastro deshecho."});
+vroom("vcasa3","La escuela vieja",["wwwwwwwwww","wttootttow","woooooooow","wttootttow","woooooooow","wttootttow","woooooooow","wwwweewwww"],["valdeseco",30,15,"down"],{t:"Pupitres pequeños. En uno, grabadas a navaja, doce rayitas."});
+vroom("vestancoin","El estanco de Valdeseco",["wwwwwwwwww","wmooooootw","wccccccoow","woooooooow","woooooooow","wgooooooow","woooooooow","wwwweewwww"],["valdeseco",14,6,"down"],{c:"El mostrador del estanco. La caja registradora marca las 00:00.",m:"Cartones de tabaco amarillentos, colocados con regla.",t:"Un cenicero de cristal con una ceniza larga y perfecta.",g:"Una planta de verdad. La única viva del pueblo."});
+NPC_LOOK.justa={hs:9,ts:7};
+const PJUSTA={h:"#b8b8b8",s:"#e8b890",e:"#222",c:"#3a2a3a",z:"#f4f4f4",p:"#2a1a2a",k:"#111"};
+NPCS.push({id:"justa",map:"vestancoin",x:4,y:1,dir:"down",pal:PJUSTA,hs:9,ts:7,smoke:true,cond:()=>!S.flags.profe});
+TALK2.justa=async()=>{cineOn();if(!S.flags.justa1){S.flags.justa1=true;save();await sayAll(["[picaro]Doña Justa: Cuarenta años sin un cliente y hoy entra uno. Mal asunto.","Doña Justa: No, no te asustes. Soy la estanquera. Cuando todos se fueron, yo me quedé. Alguien tiene que cuadrar la caja.","[pena]Doña Justa: Aquella noche vendí doce puros. Doce. Para celebrar el trato de la receta. A la mañana siguiente me quedaba la bodega quemada, un pueblo sin gente y la caja con doce monedas.","Doña Justa: ¿Quiénes eran? Chaval, yo no doy nombres gratis. Y gratis no hay nada. Además, tres ya no pueden ni quejarse.","[susto]Doña Justa: El bodeguero que no quiso vender tenía un hijo. Del niño nunca más se supo. No encontraron ni los zapatos.","📓 Apuntado: «Doña Justa: doce compradores y un niño que desapareció»."]);S.pruebas=S.pruebas||{};S.pruebas.justa=1;S.bag.ibu=(S.bag.ibu||0)+3;save();await say("Doña Justa: Toma, tres Ibuprofenos. En este pueblo duele la cabeza de pensar.")}
+ else{const i=await choose("Doña Justa: ¿Qué quieres, criatura?",[{label:"☕ Curar al equipo"},{label:"❓ ¿Quién compró los doce puros?"},{label:"❓ ¿Y el niño?"},{label:"👋 Me voy"}],{cols:1});
+  if(i===0){S.team.forEach(m=>{m.hp=maxhp(m);delete m.psn});S.respawn=["vestancoin",4,5];sfx("heal");save();await say("Doña Justa: Un poquito de anís para ti y para los bichos. Como nuevos.")}
+  else if(i===1)await say("[picaro]Doña Justa: Una que lía puros me los trajo hechos. Uno que hace fotos retrató la compra. Y un chaval que apostaba juró que él no compraba nada… y se llevó dos. Hasta ahí llego.");
+  else if(i===2)await say("[pena]Doña Justa: El niño hoy sería un adulto. Podría ser cualquiera. Podría haberte invitado a una caña.")}cineOff()};
+const _doorVS=door;door=async function(b){if(b&&/^v(casa[123]|estanco)$/.test(b.id)){await warp(b.to,4,6,"up");return}if(b&&b.id==="vcasa4"){await say("La puerta está tapiada. Dentro suena un reloj de cuco. Dan las doce. Son las cinco.");return}return _doorVS(b)};
+// notas escondidas por el pueblo
+const NOTAT={"vcasa1,8,1":0,"vestancoin,8,1":1,"vcasa3,1,1":2,"vcasa2,8,1":3};
+const _intVS=interact;interact=async function(){const[fx,fy]=facing(),k=S.map+","+fx+","+fy;if(NOTAT[k]!==undefined){await leerNota(NOTAT[k]);return}if(S.map==="valdeseco"&&tileAt(fx,fy)==="Ƥ"){await leerNota(4);return}return _intVS()};
+// ---------- sustos ----------
+const SUSTOS={"valdeseco,6,16":["cat","¡MIAAAAU! Un gato negro te cruza entre las piernas y desaparece."],"valdeseco,9,11":["door","¡PLAM! Una puerta se cierra sola detrás de ti."],"valdeseco,22,21":["face","En la ventana de una casa… ¿había una cara? Ya no hay nadie."],"valdeseco,26,9":["bell","DONG. DONG. La campana sin campanario ha dado dos campanadas."],"vcasa3,4,4":["door","La tiza de la pizarra se mueve sola y escribe: «12 - 3 = 9»."]};
+let SCARE=null;
+const _osVS=onStep;onStep=async function(){const k=S.map+","+S.x+","+S.y,sc=SUSTOS[k];if(sc&&!(S.sustos&&S.sustos[k])){S.sustos=S.sustos||{};S.sustos[k]=1;SCARE={t:sc[0],t0:performance.now()};sfx("weak");FX.shake=now()+350;flash("#ffffff",90);MYEMO={k:"😱",at:now()};cineOn();await say(sc[1]);cineOff();save();return}
+ if(S.map==="valdeseco"&&!S.flags.fumiMuerto&&S.x>=12&&S.x<=23&&S.y>=9&&S.y<=14&&notasN()>=3){await escenaValdeseco();return}return _osVS()};
+// ---------- la gran escena del crimen ----------
+async function escenaValdeseco(){S.flags.fumiMuerto=true;save();cineOn();P.moving=false;FX.shake=now()+500;sfx("weak");MYEMO={k:"❗",at:now()};await sleep(700);
+ await sayAll(["[susto]El Chusta: Bro… ¿qué es eso que hay en la plaza?","[grito]El Chusta: ¡¡HOSTIA!! ¡ES UN MUERTO! ¡ES FUMIGÓN!","El Sargento Fumigón, el del cañón de la Ganja Life. Atado a la fuente seca, rodeado de doce velas. Nueve encendidas y tres apagadas.","[susto]El Chusta: Tres apagadas… Pons, Lolo y el Comisario. Bro, está contando.","[pena]El Chusta: … Oye. No puedo explicarte ahora por qué sé lo de las velas. Confía en mí, ¿vale?","Hay que mirar bien la escena antes de que alguien la limpie."]);cineOff();
+ await crimeScene({titulo:"La plaza de Valdeseco",pintar:(g,t)=>{const{R,E,cross,body}=CSD;const gr=g.createLinearGradient(0,0,0,440);gr.addColorStop(0,"#10121e");gr.addColorStop(1,"#2a2830");g.fillStyle=gr;g.fillRect(0,0,720,440);for(let i=0;i<14;i++)R(g,i*54,250+(i%2)*10,50,6,"#3a3840");E(g,360,150,150,40,"#5a5860");R(g,230,150,260,60,"#4a4850");E(g,360,210,130,30,"#3a3840");R(g,345,70,30,90,"#6a6870");body(g,340,258,"#5a6a3a","#3a2a1a","#2a3a2a");
+   for(let i=0;i<12;i++){const a=i/12*6.283,X=360+Math.cos(a)*240,Y=290+Math.sin(a)*110;R(g,X-4,Y,8,22,"#e8e0c8");if(i>2){E(g,X,Y-6+Math.sin(t/90+i),4,8,"#ffae2a");g.globalAlpha=.16;E(g,X,Y-4,22,22,"#ffcf6a");g.globalAlpha=1}else E(g,X,Y-4,1.5,5,"#6a6a6a")}
+   cross(g,540,330);R(g,150,355,60,10,"#b8b0a0");R(g,152,356,52,8,"#d8d0c0");E(g,612,205,26,18,"#d8d0b8",.3);R(g,600,198,20,12,"#8a6a3a");R(g,96,235,34,44,"#c8c0a8");E(g,205,150,9,14,"#7a1a3a");R(g,201,128,8,14,"#2a6a3a")},
+  pistas:[{id:"v_velas",x:600,y:290,r:34,n:"Las velas",t:"Doce velas en círculo. Tres apagadas. Alguien lleva la cuenta de los doce de Valdeseco."},
+   {id:"v_ceniza",x:176,y:360,r:34,n:"Ceniza de puro",t:"Una ceniza larga y perfecta, de un puro liado a mano. Igual que la de las campanas de Hoyales."},
+   {id:"v_servilleta",x:612,y:204,r:32,n:"Servilleta de bar",t:"Una servilleta con una mancha de vino y una frase: «a las doce, como entonces»."},
+   {id:"v_foto",x:112,y:256,r:32,n:"Foto recién revelada",t:"Una foto de Fumigón sonriendo, tomada hace pocas horas. El flash lo pilló desde muy cerca: conocía a quien la hizo… o a quien estaba al lado."},
+   {id:"v_copa",x:206,y:146,r:28,n:"La copa",t:"Una copa de vino todavía llena, colocada con cuidado. Nadie ha bebido de ella. Es un brindis."},
+   {id:"v_porros",x:540,y:330,r:36,n:"Los dos porros en cruz",t:"La firma del Sumiller. Pero esta vez uno está liado por un zurdo y el otro por un diestro. ¿Los lió la misma persona?"}]});
+ cineOn();await sayAll(["📓 Pistas de la plaza apuntadas en la libreta.","[duda]El Chusta: Los porros… uno de zurdo y otro de diestro. ¿Y si no es uno solo?","📍 Sigue hacia el norte: la autopista lleva al aeropuerto de Barajas."]);cineOff();save()}
+// la salida al norte no se abre hasta haber visto la escena
+const _osN=onStep;onStep=async function(){const ex=S.map==="valdeseco"&&MAPS.valdeseco.exits[S.x+","+S.y];if(ex&&ex[0]==="autovia"&&!S.flags.fumiMuerto){await say(notasN()>=3?"El Chusta: Antes de irnos, quiero ver la plaza.":`El Chusta: Bro, no nos vamos sin saber qué pasó aquí. Busca papeles por las casas (llevas ${notasN()}/3 como mínimo).`);S.y+=1;S.dir="down";pushPresence();return}return _osN()};
+// ---------- niebla y linterna ----------
+const _rwVS=renderWorld;renderWorld=function(t){_rwVS(t);if(!/^(valdeseco|vcasa\d|vestancoin)$/.test(S.map))return;const[ox,oy]=camOf(MAP()),tn=performance.now();
+ if(S.map==="valdeseco"&&S.flags.fumiMuerto){const X=17*T-ox+8,Y=12*T-oy+6;ctx.fillStyle="#7a0a0a";ctx.beginPath();ctx.ellipse(X,Y+4,18,6,0,0,7);ctx.fill();px(X-8,Y-6,14,9,"#5a6a3a");ctx.fillStyle="#e0a878";ctx.beginPath();ctx.arc(X+9,Y-8,4.4,0,7);ctx.fill();px(X+5,Y-14,10,3,"#2a3a2a");for(let i=0;i<12;i++){const a=i/12*6.283,vx=X+Math.cos(a)*30,vy=Y+Math.sin(a)*15;px(vx,vy,2,4,"#e8e0c8");if(i>2)px(vx,vy-3+Math.round(Math.sin(tn/90+i)*.5),2,2,"#ffae2a")}}
+ const wx=P.moving?P.fx+(P.tx-P.fx)*P.prog:S.x,wy=P.moving?P.fy+(P.ty-P.fy)*P.prog:S.y,cx=wx*T-ox+8,cy=wy*T-oy+2,ang={right:0,down:Math.PI/2,left:Math.PI,up:-Math.PI/2}[S.dir]||0;
+ const dk=darkCanvas();const d=dk.getContext("2d");d.globalCompositeOperation="source-over";d.clearRect(0,0,SW,SH);d.fillStyle=S.map==="valdeseco"?"rgba(6,8,16,.9)":"rgba(6,6,10,.93)";d.fillRect(0,0,SW,SH);d.globalCompositeOperation="destination-out";
+ const flick=1-(Math.sin(tn/53)>0.985?.5:0);let gr=d.createRadialGradient(cx,cy,4,cx,cy,34);gr.addColorStop(0,"rgba(0,0,0,.95)");gr.addColorStop(1,"rgba(0,0,0,0)");d.fillStyle=gr;d.beginPath();d.arc(cx,cy,34,0,7);d.fill();
+ gr=d.createRadialGradient(cx,cy,10,cx,cy,125);gr.addColorStop(0,`rgba(0,0,0,${.95*flick})`);gr.addColorStop(.75,`rgba(0,0,0,${.75*flick})`);gr.addColorStop(1,"rgba(0,0,0,0)");d.fillStyle=gr;d.beginPath();d.moveTo(cx,cy);d.arc(cx,cy,125,ang-.52,ang+.52);d.fill();ctx.drawImage(dk,0,0);
+ if(S.map==="valdeseco"){for(let i=0;i<7;i++){ctx.globalAlpha=.07;ctx.fillStyle="#cfd8e8";ctx.beginPath();ctx.ellipse(((i*70+tn/60*(1+i%3*.4))%(SW+120))-60,24+(i*29)%SH,46,13,0,0,7);ctx.fill()}ctx.globalAlpha=1}
+ if(SCARE){const k=(tn-SCARE.t0)/900;if(k>1)SCARE=null;else{ctx.globalAlpha=1-k;if(SCARE.t==="cat"){const X=cx-70+k*160;px(X,cy+8,12,6,"#000");px(X+10,cy+4,6,6,"#000");px(X+12,cy+5,1,1,"#ffe040");px(X+14,cy+5,1,1,"#ffe040")}else if(SCARE.t==="face"){ctx.fillStyle="#e8e8f0";ctx.beginPath();ctx.arc(cx+52,cy-24,9,0,7);ctx.fill();px(cx+47,cy-27,3,4,"#000");px(cx+54,cy-27,3,4,"#000");px(cx+49,cy-20,6,3,"#000")}ctx.globalAlpha=1}}};
+let _DKC=null;function darkCanvas(){if(!_DKC){_DKC=document.createElement("canvas");_DKC.width=SW;_DKC.height=SH}return _DKC}
+if(typeof ZENV!=="undefined")Object.assign(ZENV,{valdeseco:"zfaro",vcasa1:"ztorre",vcasa2:"ztorre",vcasa3:"ztorre",vestancoin:"ztorre"});
+VUELO_DEST.push({map:"valdeseco",n:"Valdeseco",x:2,y:16,mx:205,my:170,ok:()=>!!S.flags.tractorOk,ic:"👻"});
+LOGROS.push({id:"tractor",n:"Tractorista sin carné",d:"Llega a Valdeseco en el tractor tuneado.",ic:"🚜",ok:()=>!!S.flags.tractorOk,rw:{money:300}},{id:"origen",n:"La verdad de Valdeseco",d:"Reúne los 5 documentos del origen de la Ley Seca.",ic:"📜",ok:()=>notasN()>=5,rw:{money:500}});
+
+/*</B4RUTA8>*/
+/*<B4BARAJAS>*/
+/* ===================== GIMNASIO 8: BARAJAS (disfraces · cintas de equipaje · control de embarque · sala VIP de Don Leandro) ===================== */
+// casillas: ʘ taquilla con disfraz (ɐ) · ɑ baño · ⇦⇨⇧⇩ cintas · ɕ palanca · ɖ arco de seguridad
+const BELT={"⇦":[-1,0],"⇨":[1,0],"⇧":[0,-1],"⇩":[0,1]},BFLIP={"⇦":"⇨","⇨":"⇦","⇧":"⇩","⇩":"⇧"};
+for(const k of Object.keys(BELT))WALK.add(k);WALK.add("ɖ");
+const DISF={calle:{n:"Ropa de calle",c:null},limpiador:{n:"Uniforme de limpieza",c:"#2a9a8a",cap:"#2a9a8a"},azafata:{n:"Uniforme de azafato",c:"#c8202a",cap:"#c8202a"},piloto:{n:"Uniforme de piloto",c:"#1a2450",cap:"#f4f4f4"},guiri:{n:"Disfraz de guiri",c:"#ff8ac8",cap:"#f2d14e"}};
+const disf=()=>S.disfraz||"calle";
+const _dcB=drawChar;drawChar=function(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look){if(S&&/^bz\d$/.test(S.map)&&acc===S.skin&&disf()!=="calle"){const D=DISF[disf()];_dcB(Object.assign({},pal,{c:D.c,z:"#f4f4f4"}),dir,x,y,walk,bob,hs,0,fat,{},look);px(x+3,y-8-bob,10,3,D.cap);px(x+(dir==="left"?1:dir==="right"?11:3),y-6-bob,dir==="up"?0:4,1,D.cap);return}return _dcB(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look)};
+// ---------- el exterior: la autovía y la terminal ----------
+(function(){const g=grid5(26,20,".");carve(g,"#",0,0,26,1);carve(g,"#",0,0,1,20);carve(g,"#",25,0,1,20);carve(g,"#",0,19,26,1);carve(g,"a",1,11,24,3);carve(g,"v",12,6,2,14);carve(g,"v",2,8,22,3);g[19][12]="v";g[19][13]="v";
+ const builds=[{id:"bzterm",kind:"hotel",x:8,y:3,w:10,h:3,door:[12,5],wall:"#d8e4ee",roof:"#3a6a9a",label:"TERMINAL T-4",glow:"#4ad8ff",to:"bz1"},{id:"bzcafe",kind:"kiosko",x:2,y:6,w:4,h:2,door:[3,7],wall:"#f4f4f4",roof:"#c8642a",label:"CAFETERÍA",glow:"#c8642a",to:null},{id:"bzduty",kind:"kiosko",x:20,y:6,w:4,h:2,door:[21,7],wall:"#f4f4f4",roof:"#7a1a5a",label:"DUTY FREE",glow:"#ff4ad0",to:null}];
+ builds.forEach(b=>{carve(g,"H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});const signs={"14,17":"AEROPUERTO DE BARAJAS. «Vuele alto. Facture todo. Pague más.»","14,8":"↑ TERMINAL T-4 · ← Cafetería (cura) · → Duty Free (tienda)"};for(const k of Object.keys(signs)){const[x,y]=k.split(",").map(Number);g[y][x]="S"}
+ MAPS.autovia={w:26,h:20,g,outdoor:true,signs,builds,lamps:[],music:"carretera",entry:[12,18,"up"],exits:{"12,19":["valdeseco",26,1,"down"],"13,19":["valdeseco",27,1,"down"]},txt:{a:"La autovía. Taxis, autobuses y un señor corriendo con dos maletas.","#":"Una valla. Al otro lado, las pistas. Huele a queroseno y a bocadillo de 12 euros."}};blockDrawn("autovia");MAPNAME.autovia="Aeropuerto de Barajas"})();
+NPC_LOOK.bzcam={hs:6,ts:11};
+const _doorBz=door;door=async function(b){if(b&&b.id==="bzcafe"){const i=await choose("CAFETERÍA DEL AEROPUERTO: «Café: 9 euros. Sonrisa: no incluida».",[{label:"☕ Curar al equipo (25 pavos)",disabled:S.money<25},{label:"👋 Nada"}],{cols:1});if(i===0){S.money-=25;S.team.forEach(m=>{m.hp=maxhp(m);delete m.psn});S.respawn=["autovia",3,8];sfx("heal");save();await say("Un café aguado y agüita para tus bichos. ¡Equipo curado!")}return}
+ if(b&&b.id==="bzduty"){await shop({n:"Dependiente",hi:"Dependiente: Bienvenido al Duty Free. Todo sin impuestos y carísimo igual.",bye:"Dependiente: ¡Buen vuelo!",lines:["Dependiente: El señor Leandro es el dueño de todo esto. Y de lo que no se ve."]});return}
+ if(b&&b.id==="bzterm"){S.disfraz="calle";await warp("bz1",7,15,"up");return}return _doorBz(b)};
+// ====================================================================================
+// ZONA 1 · FACTURACIÓN (cada guardia solo deja pasar a cierta gente)
+// ====================================================================================
+const Z1=["wwwwwwwwwwwwwww","wwwwwwwʌwwwwwww","wooooooooooooow","wooooooooooooow","wwwwwwwwwwwowww","wooooooowoooooW","wʘoooooowooooow","wooooooowooooʘw","wwwowwwwwwwwwww","wooooooooooooow","wooooooooooooow","wwwwwwwowwwwwww","wɑooooooooooooW","wooooooooooooʘw","wooooooooooooow","wooooooooooooow","wwwwwwweeewwwww"].map(r=>r.replace(/W/g,"w").slice(0,15));
+Z1[6]=Z1[6].slice(0,8)+"o"+Z1[6].slice(9);mkMap("bz1",rowsGrid(Z1),"Terminal · Zona 1: Facturación","liga",[7,15,"up"],{"7,16":["autovia",12,6,"down"],"8,16":["autovia",12,6,"down"],"9,16":["autovia",12,6,"down"]},{"ɑ":"El baño. Aquí puedes cambiarte de ropa."});
+const LOCKERS={"bz1,13,13":["limpiador","guiri"],"bz1,1,6":["azafata"],"bz1,13,7":["piloto"]};
+const GATES={g1:{x:7,y:11,need:"limpiador",hi:"Guardia: Por aquí solo pasa el personal de LIMPIEZA. Que está todo perdido.",ok:"Guardia: ¡Hombre, ya era hora! Pasa, que en el mostrador 12 han derramado un gazpacho."},
+ g2:{x:3,y:8,need:"guiri",hi:"Guardia: Esta cola es la de turistas con pulserita. Tú no pareces turista.",ok:"Guardia: Sorry, sir. Pase, pase. Que no pierda el vuelo a Magaluf."},
+ g3:{x:8,y:6,need:"azafata",hi:"Guardia: Zona de TRIPULACIÓN. Auxiliares y nadie más.",ok:"Guardia: Anda, que llegas tarde al embarque. Corre."}};
+NPC_LOOK.bzg={hs:2,ts:8,hat:"poli"};
+for(const[id,G]of Object.entries(GATES)){NPCS.push({id:"bz_"+id,map:"bz1",x:G.x,y:G.y,dir:"down",pal:NPC_PAL.poli,hs:2,ts:8,cond:()=>!(S.gates&&S.gates[id])});NPC_LOOK["bz_"+id]=NPC_LOOK.bzg;
+ TALK2["bz_"+id]=async()=>{if(disf()===G.need){S.gates=S.gates||{};S.gates[id]=1;sfx("quest");save();await say(G.ok)}else await say(G.hi+(disf()!=="calle"?` (Vas con: ${DISF[disf()].n}.)`:""))}}
+async function lockerUse(list){S.ropa=S.ropa||{};const nuevos=list.filter(k=>!S.ropa[k]);if(!nuevos.length){await say("La taquilla está vacía.");return}for(const k of nuevos)S.ropa[k]=1;sfx("quest");save();await say("En la taquilla hay: "+nuevos.map(k=>DISF[k].n).join(" y ")+". (Cámbiate en el BAÑO de la entrada.)")}
+async function banoUse(){const own=["calle"].concat(Object.keys(S.ropa||{}));const i=await choose("🚻 ¿Qué te pones?",own.map(k=>({label:DISF[k].n+(disf()===k?" (puesto)":"")})),{cols:1});if(i>=0){S.disfraz=own[i];sfx("door");save();toast("👕 "+DISF[own[i]].n)}}
+// ====================================================================================
+// ZONA 2 · CINTAS DE EQUIPAJES (palancas que cambian el sentido)
+// ====================================================================================
+const Z2=(()=>{const W=13,H=15,R=(s=>()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff})(9917);
+ const build=()=>{const g=grid5(W,H,"w");carve(g,"o",1,12,11,2);carve(g,"o",1,2,11,1);g[1][6]="ʌ";g[14][6]="ʋ";return g};
+ const solve=(g,groups)=>{const flip=(c,x,y,mask)=>{const gi=groups[x+","+y];return gi!==undefined&&(mask>>gi&1)?BFLIP[c]:c};const slide=(x,y,mask)=>{const seen=new Set();while(BELT[flip(g[y][x],x,y,mask)]){const[dx,dy]=BELT[flip(g[y][x],x,y,mask)];const nx=x+dx,ny=y+dy;if(g[ny][nx]==="w"||g[ny][nx]==="ɕ"||seen.has(nx+","+ny))break;seen.add(nx+","+ny);x=nx;y=ny}return[x,y]};
+  const q=[[6,13,0,0,0]],seen=new Set(["6,13,0"]);while(q.length){const[x,y,mask,d,pulls]=q.shift();if(x===6&&y===2)return{d,pulls};for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){const nx=x+dx,ny=y+dy,c=g[ny]&&g[ny][nx];if(!c||c==="w")continue;if(c==="ɕ"){const li=groups["L"+nx+","+ny],m2=mask^(1<<li),k=x+","+y+","+m2;if(!seen.has(k)){seen.add(k);q.push([x,y,m2,d+1,pulls+1])}continue}const[ax,ay]=slide(nx,ny,mask),k=ax+","+ay+","+mask;if(!seen.has(k)){seen.add(k);q.push([ax,ay,mask,d+1,pulls])}}}return null};
+ let best=null;for(let it=0;it<2600;it++){const g=build(),groups={};for(let y=3;y<=11;y++)for(let x=1;x<=11;x++){const v=R();g[y][x]=v<.5?["⇦","⇨","⇧","⇩"][Math.floor(R()*4)]:v<.66?"w":"o";if(BELT[g[y][x]])groups[x+","+y]=Math.floor(R()*3)}
+  const lv=[];for(let i=0;i<3;i++){let x,y;do{x=1+Math.floor(R()*11);y=3+Math.floor(R()*10)}while(lv.some(p=>p[0]===x&&p[1]===y));lv.push([x,y]);g[y][x]="ɕ";delete groups[x+","+y];groups["L"+x+","+y]=i}
+  const s=solve(g,groups);if(s&&s.pulls>=2){const sc=s.pulls*100+s.d;if(!best||sc>best.sc)best={g,groups,sc,sol:s}}}
+ return best||{g:(()=>{const g=build();carve(g,"o",1,3,11,9);return g})(),groups:{},sol:{d:11,pulls:0}}})();
+mkMap("bz2",Z2.g.map(r=>r.slice()),"Terminal · Zona 2: Cintas de equipaje","liga",[6,13,"up"],{},{"ɕ":"Una palanca de las cintas."});
+let BMASK=0;
+function beltApply(){const g=MAPS.bz2.g;for(let y=0;y<g.length;y++)for(let x=0;x<g[0].length;x++){const o=Z2.g[y][x];if(!BELT[o])continue;const gi=Z2.groups[x+","+y];g[y][x]=gi!==undefined&&(BMASK>>gi&1)?BFLIP[o]:o}}
+const LEVCOL=["#e23b2a","#2a8ae0","#e6bc3a"];
+let beltSeen=new Set();
+const _osBz=onStep;onStep=async function(){if(S.map==="bz2"){const c=tileAt(S.x,S.y);if(BELT[c]){const[dx,dy]=BELT[c],k=S.x+","+S.y,nx=S.x+dx,ny=S.y+dy;if(!beltSeen.has(k)&&canWalk(nx,ny)){beltSeen.add(k);S.dir=dx>0?"right":dx<0?"left":dy>0?"down":"up";startMove(nx,ny);return}}beltSeen=new Set()}return _osBz()};
+// ====================================================================================
+// ZONA 3 · CONTROL DE EMBARQUE (cámaras que giran + arcos + disfraces)
+// ====================================================================================
+const Z3=["wwwwwwwwwwwwwww","wwwwwwwʌwwwwwww","wwwwwwwowwwwwww","wooooooooooooow","wooooooooooooow","wwɖwwwwwwwwwwww","wooooooooooooow","woowoowooowoooW","wooooooooooooow","wwwwwwwwwwwwɖww","wooooooooooooow","wooowooowooowow","wooooooooooooow","wɑooooooooooʘow","wooooooooooooow","wwwwwwwʋwwwwwww"].map(r=>r.replace(/W/g,"w"));
+mkMap("bz3",rowsGrid(Z3),"Terminal · Zona 3: Control de embarque","liga",[7,14,"up"],{},{"ɑ":"El baño. Aquí puedes cambiarte.","ɖ":"Un arco de seguridad."});
+LOCKERS["bz3,12,13"]=["piloto"];MAPS.bz3.g[6][13]="ɑ";
+const ARCHES={"2,5":"piloto","12,9":"azafata"};
+const CAMS=[{x:4,y:12,r:4,spd:1.1,off:0},{x:10,y:10,r:4,spd:1.3,off:2},{x:3,y:7,r:4,spd:1.2,off:1},{x:11,y:7,r:4,spd:1,off:3},{x:7,y:3,r:5,spd:1.25,off:0}];
+const camAng=(c,t)=>Math.floor((t/1000*c.spd+c.off)%4)*Math.PI/2;
+function camSees(c,x,y,t){const dx=x-c.x,dy=y-c.y,d=Math.hypot(dx,dy);if(d>c.r||d<.5)return false;let a=Math.atan2(dy,dx)-camAng(c,t);while(a>Math.PI)a-=6.283;while(a<-Math.PI)a+=6.283;if(Math.abs(a)>.5)return false;const n=Math.ceil(d*3);for(let i=1;i<n;i++){const ch=(MAPS.bz3.g[Math.round(c.y+dy*i/n)]||[])[Math.round(c.x+dx*i/n)];if(ch==="w")return false}return true}
+let camHold=0,camBusy=false;
+setInterval(()=>{if(!S||S.map!=="bz3"||mode!=="world"||busy||camBusy||!dlg.hidden||!ov.hidden){camHold=0;return}const t=performance.now();if(CAMS.some(c=>camSees(c,S.x,S.y,t))){camHold+=60;if(camHold>520){camHold=0;camBusy=true;sfx("weak");flash("#ff2a2a",300);run(async()=>{await fadeOut();S.x=7;S.y=14;S.dir="up";P.moving=false;pushPresence();await fadeIn();toast("📷 ¡Cámara! Vuelves al principio del control")}).finally(()=>camBusy=false);setTimeout(()=>camBusy=false,1500)}}else camHold=Math.max(0,camHold-60)},60);
+const _cwBz=canWalk;canWalk=function(x,y){if(S&&S.map==="bz3"&&tileAt(x,y)==="ɖ"){const need=ARCHES[x+","+y];if(disf()!==need){if(performance.now()-(canWalk.bz||0)>1500&&held.length){canWalk.bz=performance.now();sfx("weak");flash("#ff2a2a",200);toast("🚨 ¡PIII! El arco solo deja pasar con "+DISF[need].n.toLowerCase())}return false}}return _cwBz(x,y)};
+// ---------- sala VIP ----------
+MAPS.bzvip=room(["wwwwwwwwwwwww","wmmmmmmmmmmmw","wgoooooooooow","wohhooooohhow","wooooooooooow","wgoooooooootw","wooooooooooow","wwwwwwʋwwwwww"],null,[6,6,"up"],{music:"lolo",txt:{m:"Un ventanal enorme a las pistas. Un jet privado con una copa de vino pintada en la cola.",h:"Sillones de cuero blanco.",t:"Una mesa con puros habanos y un whisky de 3.000 pavos.",g:"Una planta carísima y de plástico."}});MAPNAME.bzvip="La sala VIP de Don Leandro";
+Object.assign(STAIRS,{"bz1,7,1":["bz2",6,13,"up",""],"bz2,6,14":["bz1",7,2,"down",""],"bz2,6,1":["bz3",7,14,"up",""],"bz3,7,15":["bz2",6,2,"down",""],"bz3,7,1":["bzvip",6,6,"up",""],"bzvip,6,7":["bz3",7,2,"down",""]});
+// ---------- tres aspirantes y Don Leandro ----------
+NPC_LOOK.bz_a1={hs:9,ts:11};NPC_LOOK.bz_a2={hs:5,ts:2};NPC_LOOK.bz_a3={hs:2,ts:11};NPC_LOOK.leandro={hs:12,ts:11};
+const PBZ=(c,h)=>({h,s:"#e0a878",e:"#222",c,z:"#f4f4f4",p:"#1a1a2a",k:"#111"});
+NPCS.push({id:"bz_a1",map:"bz1",x:7,y:2,dir:"down",sight:1,pal:PBZ("#c8202a","#6a3a1a"),hs:9,ts:11,trainer:tr4("Jefa de Mostrador","Maribel",[["greygoose",50],["absolutmagnum",51]],900,["Maribel: Su maleta pesa 200 gramos de más. Son 90 euros. O un combate."],"Maribel: Vale… le perdono el exceso de equipaje.")},
+ {id:"bz_a2",map:"bz2",x:6,y:2,dir:"down",sight:1,pal:PBZ("#e6bc3a","#2a1a0a"),hs:5,ts:2,trainer:tr4("Mozo de Equipajes","Tito Bultos",[["barrilblindado",51],["jackmagnum",52]],950,["Tito Bultos: ¡Aquí las maletas se tiran! ¡Y los intrusos también!"],"Tito Bultos: Me habéis descargado.")},
+ {id:"bz_a3",map:"bz3",x:7,y:2,dir:"down",sight:1,pal:PBZ("#1a2450","#1a1a1a"),hs:2,ts:11,trainer:tr4("Jefe de Seguridad","Comandante Ruiz",[["bezoya5l",52],["cafetera",52],["elcapo",53]],1100,["Comandante Ruiz: Zapatos fuera, cinturón fuera, bichos fuera. ¡A pelear!"],"Comandante Ruiz: Pase. Y llévese los zapatos.")},
+ {id:"leandro",map:"bzvip",x:6,y:2,dir:"down",smoke:true,pal:{h:"#2a2a30",s:"#e8b488",e:"#222",c:"#1a1a2a",z:"#8a1a2a",p:"#14141c",k:"#000"},hs:12,ts:11,cond:()=>!S.flags.profe});
+// los aspirantes se apartan al perder
+function bzAside(){for(const[id,m]of[["bz_a1","bz1"],["bz_a2","bz2"],["bz_a3","bz3"]]){const n=npcById(id);const done=!!(S&&S.beaten&&S.beaten[id]);const hx=m==="bz2"?5:6;n.x=done?(m==="bz2"?4:5):(m==="bz2"?6:7);n.y=2;if(m!=="bz2")MAPS[m].g[2][5]=done?"o":"w"}}
+(function(){MAPS.bz1.g[2][6]="o";MAPS.bz1.g[2][8]="o"})();
+setInterval(()=>{if(S&&mode==="world"&&!busy&&/^bz\d$/.test(S.map))bzAside()},250);
+const _intBz=interact;interact=async function(){const[fx,fy]=facing(),k=S.map+","+fx+","+fy,ch=tileAt(fx,fy);
+ if(LOCKERS[k]){await lockerUse(LOCKERS[k]);return}if(/^bz\d$/.test(S.map)&&ch==="ɑ"){await banoUse();return}
+ if(S.map==="bz2"&&ch==="ɕ"){const li=Z2.groups["L"+fx+","+fy];BMASK^=(1<<li);beltApply();sfx("door");toast("🔁 Cambian las cintas "+["ROJAS","AZULES","AMARILLAS"][li]);return}return _intBz()};
+const _oemBz=onEnterMap;onEnterMap=async function(){if(S.map==="bz2"){BMASK=0;beltApply()}await _oemBz();if(/^bz\d$/.test(S.map))bzAside();
+ const once=async(m,l)=>{if(S.map===m&&!S.flags["in_"+m]){S.flags["in_"+m]=true;save();await sayAll(l)}};
+ await once("autovia",["AEROPUERTO DE BARAJAS. Miles de maletas, megafonía y gente corriendo.","[duda]El Chusta: Bro, aquí dentro la Pasma tiene controles por todas partes. A ver cómo entramos sin que nos fichen.","[picaro]El Chusta: Yo me quedo en la cafetería… vigilando. Sí. Vigilando."]);
+ await once("bz1",["ZONA 1 · FACTURACIÓN. Cada guardia solo deja pasar a cierta gente.","Busca uniformes en las taquillas y cámbiate en el baño de la entrada. Habla con cada guardia con la ropa adecuada."]);
+ await once("bz2",["ZONA 2 · CINTAS DE EQUIPAJES. Las cintas te arrastran hasta el final.","Las palancas cambian el sentido de las cintas de su color: rojas, azules o amarillas. Si te lías, sal por la escalera de abajo y vuelve a entrar."]);
+ await once("bz3",["ZONA 3 · CONTROL DE EMBARQUE. Cámaras que giran y arcos de seguridad.","No te quedes en el foco de una cámara. Y cada arco solo deja pasar con un uniforme concreto: piensa en qué orden cambiarte."])};
+TALK2.leandro=async()=>{if(S.flags.barajas){await say("[picaro]Don Leandro: Nos veremos en la cena, campeón. Yo no me pierdo una cata.");return}cineOn();
+ await sayAll(["[picaro]Don Leandro: *sin darse la vuelta* El muchacho del ferry. Qué casualidad. Yo no creo en las casualidades. Las compro.","Don Leandro: Todo lo que se bebe y se fuma en este país pasa por mi mostrador. Sin impuestos, sin preguntas, sin recibos.","[duda]Don Leandro: Me han dicho que andas preguntando por Valdeseco.","[pena]Don Leandro: Yo era el de la empresa de fuera. El que iba a comprar la receta. Tenía veinticinco años y un maletín. Volví con el maletín… y sin comprador a quien darle la mano.","[enfado]Don Leandro: Y ahora alguien está borrando a los doce. ¡No pienso dejar que un fantasma me estropee el negocio! Si has llegado hasta aquí, demuéstrame que puedes protegerte. ¡A pelear!"]);cineOff();
+ const win=await battle([monMoves(newMon("judas",53),["navajazo","tercerojo","picado","mecherazo"]),monMoves(newMon("loboeristoff",53),["navajazo","congelador","tercerojo","picado"]),monMoves(newMon("elcapo",54),["navajazo","mecherazo","tercerojo","picado"]),monMoves(newMon("jackmagnum",55),["navajazo","mecherazo","picado","tercerojo"])],
+  {trainer:{name:"Don Leandro el Duty",short:"Don Leandro",pal:npcById("leandro").pal,hs:12,ts:11,money:2200,leader:true,challenge:"¡Don Leandro el Duty te desafía en su sala VIP!",lose:"Don Leandro: … Impresionante. Y yo no me impresiono sin cobrar."},music:"lolo"});
+ if(!win)return;S.flags.barajas=true;S.keys.barajas=true;S.tms=S.tms||{};S.tms.mt20=(S.tms.mt20||0)+1;S.bag.rinogucci=(S.bag.rinogucci||0)+2;S.pruebas=S.pruebas||{};S.pruebas.maletin=1;sfx("quest");save();cineOn();
+ await sayAll(["¡Has ganado la 🎫 Medalla Tarjeta de Embarque! ¡Tienes las 8 medallas!","🎁 Consigues la MT20 «Puñalada Siniestra» y 2 Riñoneras Gucci.","Don Leandro: Toma. Y una cosa más: hace un rato me ha llegado esto.","*Un sobre lacrado con el sello de una copa de vino.*","[susto]Don Leandro: «Los que quedan de aquella noche, más su detective, a cenar en Bodegas Cogollo. El que falte será el siguiente.»"]);cineOff();await invitacion()};
+MV.siniestrapunalada={n:"Puñalada Siniestra",t:"siniestro",p:100,acc:95,d:"Por la espalda y sin avisar. Muy poco deportivo."};if(!MTS.find(m=>m.id==="mt20"))MTS.push({id:"mt20",mv:"siniestrapunalada",price:0,types:null,reward:true});
+// ---------- la medalla 8 ahora es la de Barajas ----------
+MEDALS[7]={k:"barajas",n:"Medalla Tarjeta de Embarque",ic:"🎫",lider:"Don Leandro el Duty",tipo:"siniestro",has:()=>!!S.flags.barajas};
+KEYS_IT.barajas={n:"🎫 Medalla Tarjeta de Embarque",d:"La medalla de Don Leandro. Pone «PRIORITY»."};
+medallas=function(){return[S.flags.gym,S.flags.hoja,S.flags.neon,S.flags.costa,S.flags.terraza,S.flags.marruecos,S.flags.hoyales,S.flags.barajas].filter(Boolean).length};
+// la invitación a la cena solo llega después de Barajas
+const _invReal=invitacion;invitacion=async function(){if(S.flags.profe)return;if(!S.flags.barajas){if(S.flags.hoyales)await say("📍 Con la medalla de Hoyales, solo queda una. Sal por el camino del ESTE del pueblo: los quintos te prestan su tractor.");return}return _invReal()};
+const _qlBz=questLines;questLines=function(){const L=_qlBz().filter(l=>!/cena de cata/i.test(l));if(S.flags.hoyales&&!S.flags.barajas)L.push(!S.flags.tractorOk?"🚜 Sal de Hoyales por el camino del este y coge el tractor.":!S.flags.fumiMuerto?"👻 Valdeseco: busca documentos en las casas y ve a la plaza.":"✈️ Barajas: supera las 3 zonas de la terminal y gana a Don Leandro.");if(S.flags.barajas&&!S.flags.profe)L.push("🍷 Ve a la cena de cata (habla con Don Leandro en la sala VIP).");return L};
+const _leaAgain=TALK2.leandro;TALK2.leandro=async n=>{if(S.flags.barajas&&!S.flags.profe){await invitacion();return}return _leaAgain(n)};
+VUELO_DEST.push({map:"autovia",n:"Aeropuerto de Barajas",x:12,y:9,mx:215,my:150,ok:()=>!!S.flags.in_autovia,ic:"✈️"});
+if(typeof ZENV!=="undefined")Object.assign(ZENV,{autovia:"zferry",bz1:"zferry",bz2:"zferry",bz3:"zferry",bzvip:"zferry"});
+// ---------- dibujo ----------
+const _dtBz=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(/^bz(\d|vip)$/.test(S.map)){const floor=()=>{px(sx,sy,T,T,(x+y)%2?"#d8dce4":"#ccd2dc");px(sx,sy,T,1,"#bcc4d0")};
+  if(ch==="w"&&S.map!=="bzvip"){px(sx,sy,T,T,"#2a3a52");px(sx,sy,T,2,"#4a6a8a");const below=(MAPS[S.map].g[y+1]||[])[x];if(below&&below!=="w"){px(sx,sy+3,T,9,"#101a2a");if(x%4===1){ctx.fillStyle="#ffd14a";ctx.font="bold 6px Arial";ctx.textAlign="left";ctx.fillText(["✈ T4","K12 →","⬆ GATE","DUTY"][(x+y)%4],sx+1,sy+9)}else px(sx+2,sy+5,12,5,Math.floor(t/700+x)%3?"#2a6a9a":"#3a8ac0")}return}
+  if(BELT[ch]){const gi=Z2.groups[x+","+y],col=LEVCOL[gi]||"#8a8a8a";px(sx,sy,T,T,"#33363e");px(sx+1,sy+1,14,14,"#474b56");const[dx,dy]=BELT[ch],o=(t/55)%8;ctx.fillStyle=col;for(let i=-1;i<2;i++){const c=i*8+o;ctx.save();ctx.beginPath();ctx.rect(sx+1,sy+1,14,14);ctx.clip();ctx.translate(sx+8+dx*(c-4),sy+8+dy*(c-4));ctx.rotate(Math.atan2(dy,dx));ctx.beginPath();ctx.moveTo(-2,-4);ctx.lineTo(2,0);ctx.lineTo(-2,4);ctx.lineTo(0,0);ctx.fill();ctx.restore()}return}
+  if(ch==="ɕ"){floor();const li=Z2.groups["L"+x+","+y];px(sx+4,sy+10,8,4,"#3a3a3a");ctx.strokeStyle="#8a8a9a";ctx.lineWidth=2.4;const on=BMASK>>li&1;ctx.beginPath();ctx.moveTo(sx+8,sy+11);ctx.lineTo(sx+(on?13:3),sy+1);ctx.stroke();ctx.fillStyle=LEVCOL[li];ctx.beginPath();ctx.arc(sx+(on?13:3),sy+1,3.4,0,7);ctx.fill();return}
+  if(ch==="ʘ"){floor();px(sx+1,sy-5,14,20,"#5a7a9a");px(sx+8,sy-5,1,20,"#3a5a7a");px(sx+5,sy+4,2,3,"#f2c14e");px(sx+10,sy+4,2,3,"#f2c14e");for(let i=0;i<3;i++){px(sx+3,sy-2+i*2,4,1,"#3a5a7a");px(sx+10,sy-2+i*2,4,1,"#3a5a7a")}return}
+  if(ch==="ɑ"){floor();px(sx+1,sy-4,14,19,"#e8eef4");px(sx+3,sy-2,10,17,"#4a7ab8");ctx.fillStyle="#fff";ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText("WC",sx+8,sy+8);return}
+  if(ch==="ɖ"){floor();const ok=ARCHES[x+","+y]===disf();px(sx,sy-8,3,24,"#5a6a7a");px(sx+13,sy-8,3,24,"#5a6a7a");px(sx,sy-10,16,4,"#5a6a7a");px(sx+6,sy-9,4,2,ok?"#5aff5a":Math.floor(t/300)%2?"#ff3a3a":"#7a1a1a");ctx.fillStyle="#1a2a4a";ctx.font="bold 5px Arial";ctx.textAlign="center";ctx.fillText((ARCHES[x+","+y]||"").slice(0,6).toUpperCase(),sx+8,sy+14);return}
+  if(ch==="o"&&S.map!=="bzvip"){floor();return}}
+ return _dtBz(ch,x,y,sx,sy,t,style)};
+const _rwBz=renderWorld;renderWorld=function(t){_rwBz(t);if(S.map!=="bz3")return;const[ox,oy]=camOf(MAP()),tn=performance.now();for(const c of CAMS){const X=c.x*T-ox+8,Y=c.y*T-oy+8,a=camAng(c,tn),warn=Math.floor(((tn/1000*c.spd+c.off)%1)*100)>78;
+  ctx.fillStyle="rgba(255,60,40,.2)";const g=MAPS.bz3.g;for(let y=c.y-c.r;y<=c.y+c.r;y++)for(let x=c.x-c.r;x<=c.x+c.r;x++)if(g[y]&&g[y][x]&&g[y][x]!=="w"&&camSees(c,x,y,tn))ctx.fillRect(x*T-ox+1,y*T-oy+1,T-2,T-2);
+  if(warn){const a2=a+Math.PI/2;ctx.strokeStyle="rgba(255,220,60,.8)";ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(X,Y);ctx.lineTo(X+Math.cos(a2)*18,Y+Math.sin(a2)*18);ctx.stroke()}
+  ctx.save();ctx.translate(X,Y-4);ctx.rotate(a);ctx.fillStyle="#1a1a22";ctx.fillRect(-4,-3,9,6);ctx.fillStyle="#ff3a3a";ctx.fillRect(4,-1,2,2);ctx.restore()}};
+LOGROS.push({id:"barajas",n:"Pasajero VIP",d:"Gana a Don Leandro en su sala VIP.",ic:"🎫",ok:()=>!!S.flags.barajas,rw:{money:800}});
+
+/*</B4BARAJAS>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

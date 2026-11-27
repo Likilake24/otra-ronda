@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="90 · Pelea del Rif con tu personaje en 4 pantallas, cuerpo de Lolo y fondos de combate por zona";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="91 · Ciudades con caminos marcados, fuera bloques invisibles, torres transparentes al pasar por detrás";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8622,7 +8622,7 @@ function petUpdate(wx,wy){const here=P.moving?[P.fx,P.fy]:[S.x,S.y];
 const _dcPet=drawChar;drawChar=function(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look){
  if(!S||!S.pet||mode!=="world"||acc!==S.skin||!MAP())return _dcPet(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look);
  let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}petUpdate(wx,wy);
- const[ox,oy]=camOf(MAP()),X=PETPOS.x*T-ox+8,Y=PETPOS.y*T-oy+11;const same=Math.hypot(PETPOS.x-wx,PETPOS.y-wy)<.35,front=!same&&PETPOS.y>wy+.4;
+ const[ox,oy]=camOf(MAP()),aside=Math.abs(PETPOS.x-wx)<.45&&PETPOS.y<wy-.35?11:0,X=PETPOS.x*T-ox+8+aside,Y=PETPOS.y*T-oy+11;const same=Math.hypot(PETPOS.x-wx,PETPOS.y-wy)<.35,front=!same&&PETPOS.y>wy+.4;
  if(!front&&!same)drawPet(ctx,S.pet,X,Y,.7,performance.now());_dcPet(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look);if(front)drawPet(ctx,S.pet,X,Y,.7,performance.now())};
 // ---------- las 4 máquinas ----------
 const ACCK=["ag","an","ah"],CLOK=["tp","pp","kk","ac","hs"];
@@ -9573,9 +9573,11 @@ async function merenderoVisible(){cineOn();const p1={id:"hpoli1",map:"hoyales",x
  sfx("plop");p1.x=-20;p2.x=-20;await say5("Corren por la calle Real dejando una estela de humo y se tiran de cabeza al pilón de la plaza. Fsssssss.","La charanga, lejos de parar, se pone a tocar «Fuego» de El Arrebato. El pueblo entero aplaude.","Para retar al Rey de la Peña habrá que entrar en su torre. Empieza hablando con la charanga, en el escenario de la plaza.");
  NPCS.splice(NPCS.indexOf(p1),1);NPCS.splice(NPCS.indexOf(p2),1);cineOff()}
 const _rwH3=renderWorld;renderWorld=function(t){_rwH3(t);if(S.map!=="hoyales")return;const m=MAP();const[ox,oy]=camOf(m);
- // la media torre del castillo (alta, partida)
+ // la media torre del castillo (alta, partida); se vuelve transparente si pasas por detrás
+ ctx.globalAlpha=(S.x>=16&&S.x<=21&&S.y<14&&S.y>=5)?.35:1;
  const TX=18*T-ox,TY=14*T-oy;px(TX,TY-80,32,80,"#c8a878");for(let i=0;i<8;i++)px(TX,TY-80+i*10,32,1,"#a8885a");for(let i=0;i<4;i++)px(TX+(i%2)*16,TY-80+i*20,1,10,"#a8885a");
  ctx.fillStyle="#c8a878";ctx.beginPath();ctx.moveTo(TX,TY-80);ctx.lineTo(TX+8,TY-92);ctx.lineTo(TX+14,TY-84);ctx.lineTo(TX+20,TY-96);ctx.lineTo(TX+26,TY-86);ctx.lineTo(TX+32,TY-90);ctx.lineTo(TX+32,TY-80);ctx.fill();px(TX+12,TY-60,6,10,"#3a2a1a");px(TX+12,TY-30,6,10,"#3a2a1a");px(TX+28,TY-80,4,80,"#a8885a");
+ ctx.globalAlpha=1;
  // la iglesia de San Bartolomé con su torre
  const CX=26*T-ox,CY=7*T-oy;px(CX,CY-72,128,72,"#d8b878");px(CX,CY-72,128,4,"#b8985a");for(let i=0;i<6;i++)px(CX+10+i*20,CY-56,6,14,"#5a3a1a");px(CX+40,CY-30,28,30,"#6a4a2a");ctx.fillStyle="#5a3a1a";ctx.beginPath();ctx.arc(CX+54,CY-30,14,Math.PI,0);ctx.fill();
  px(CX+92,CY-128,30,60,"#d8b878");px(CX+100,CY-118,14,16,"#3a2a1a");ctx.fillStyle="#c89a2a";ctx.beginPath();ctx.arc(CX+107,CY-108,4,0,7);ctx.fill();ctx.fillStyle="#b8985a";ctx.beginPath();ctx.moveTo(CX+90,CY-128);ctx.lineTo(CX+107,CY-150);ctx.lineTo(CX+124,CY-128);ctx.fill();px(CX+106,CY-160,2,12,"#3a3a3a");px(CX+102,CY-156,10,2,"#3a3a3a");
@@ -9835,8 +9837,8 @@ const _dtZ2=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="zoco"){
  if(ch==="Ʉ"){_dtZ2("v",x,y,sx,sy,t,style);px(sx-2,sy-10,4,26,"#c8a060");px(sx+14,sy-10,4,26,"#c8a060");ctx.strokeStyle="#c8a060";ctx.lineWidth=4;ctx.beginPath();ctx.arc(sx+8,sy-8,9,Math.PI,0);ctx.stroke();ctx.strokeStyle="#2a8a6a";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(sx+8,sy-8,11,Math.PI,0);ctx.stroke();return}
  if(ch==="ƨ"){_dtZ2("v",x,y,sx,sy,t,style);px(sx+1,sy+3,14,12,"#2a8a6a");for(let i=0;i<14;i+=3)px(sx+1+i,sy+3,2,2,"#f4f4f4");px(sx+3,sy+6,10,7,"#4ab8d8");px(sx+7,sy-2,2,6,"#2a8a6a");if(Math.floor(t/300)%2)px(sx+5,sy+7,3,1,"#bfe6ff");return}
  if(ch==="Ɱ"){_dtZ2("v",x,y,sx,sy,t,style);return}}return _dtZ2(ch,x,y,sx,sy,t,style)};
-const _rwZ2=renderWorld;renderWorld=function(t){_rwZ2(t);if(S.map!=="zoco")return;const[ox,oy]=camOf(MAP());const X=33*T-ox,Y=7*T-oy;px(X,Y-90,32,90,"#e8c890");px(X,Y-90,32,3,"#2a8a6a");for(let i=0;i<4;i++){px(X+4,Y-80+i*20,24,2,"#2a8a6a");px(X+12,Y-76+i*20,8,10,"#2a3a4a")}
- px(X-3,Y-96,38,6,"#c8a060");px(X+6,Y-118,20,22,"#e8c890");ctx.fillStyle="#2a8a6a";ctx.beginPath();ctx.moveTo(X+4,Y-118);ctx.lineTo(X+16,Y-134);ctx.lineTo(X+28,Y-118);ctx.fill();px(X+15,Y-142,2,9,"#c8a030");ctx.fillStyle="#c8a030";ctx.beginPath();ctx.arc(X+16,Y-143,3,0,7);ctx.fill()};
+const _rwZ2=renderWorld;renderWorld=function(t){_rwZ2(t);if(S.map!=="zoco")return;const[ox,oy]=camOf(MAP());const X=33*T-ox,Y=7*T-oy;ctx.globalAlpha=(S.x>=31&&S.x<=36&&S.y<7)?.35:1;px(X,Y-90,32,90,"#e8c890");px(X,Y-90,32,3,"#2a8a6a");for(let i=0;i<4;i++){px(X+4,Y-80+i*20,24,2,"#2a8a6a");px(X+12,Y-76+i*20,8,10,"#2a3a4a")}
+ px(X-3,Y-96,38,6,"#c8a060");px(X+6,Y-118,20,22,"#e8c890");ctx.fillStyle="#2a8a6a";ctx.beginPath();ctx.moveTo(X+4,Y-118);ctx.lineTo(X+16,Y-134);ctx.lineTo(X+28,Y-118);ctx.fill();px(X+15,Y-142,2,9,"#c8a030");ctx.fillStyle="#c8a030";ctx.beginPath();ctx.arc(X+16,Y-143,3,0,7);ctx.fill();ctx.globalAlpha=1};
 
 /*</B4ZOCO2>*/
 /*<B4CIUDADES>*/
@@ -10325,6 +10327,40 @@ function rifFight(mode){return new Promise(res=>{
  window.__rif={P,E,keys,tap,info:()=>({stage,wave,goOn,over})};nextWave();raf=requestAnimationFrame(tick)})}
 
 /*</B4RIF2>*/
+/*<B4CAMINOS>*/
+/* ===================== CIUDADES ESTILO POKÉMON: fuera bloques invisibles y caminos marcados sin obstáculos ===================== */
+// ---------- 1 · fuera los bloques invisibles que dejaron los edificios altos al convertirse en casas ----------
+(function(){const BASE={park:"v",costa:"v",hoyales:".",terrazalia:"v",zoco:"v"};
+ for(const[id,base]of Object.entries(BASE)){const M=MAPS[id];if(!M)continue;const rowsOf=b=>{const up=(b.kind==="casapueblo"||b.kind==="casamora")?KIND_UP[b.kind]:(b.up!==undefined?b.up:(b.kind?KIND_UP[b.kind]||0:0));return Math.max(0,Math.ceil((up-4)/T))};
+  const need=new Set();for(const b of M.builds){for(let y=b.y-rowsOf(b);y<b.y+b.h;y++)for(let i=b.x;i<b.x+b.w;i++)need.add(i+","+y)}
+  for(const b of M.builds){if(b.kind!=="casapueblo"&&b.kind!=="casamora")continue;b.up=KIND_UP[b.kind];for(let y=b.y-1;y>=Math.max(0,b.y-7);y--)for(let i=b.x;i<b.x+b.w;i++)if(M.g[y][i]==="H"&&!need.has(i+","+y))M.g[y][i]=base}}})();
+// ---------- 2 · caminos marcados que unen todas las salidas y todas las puertas, sin obstáculos en medio ----------
+const PATHS={};
+(function(){const SOFT=new Set(["#","T","L","N","C","u","V","P","ü","M","B","t","F"]);
+ const KEEP=new Set(["=","r","v","A","Z","e","d","l","á","é","D"]);// ya son calle o suelo: no se cambian
+ const CFG={park:{tile:"=",hard:"#"},comuna:{tile:"r",hard:"P"},neon:{tile:"v",hard:"V"},costa:{tile:"v",hard:""}};
+ for(const[id,cfg]of Object.entries(CFG)){const M=MAPS[id];if(!M)continue;const g=M.g,W=M.w,H=M.h,marked=new Set();
+  const npc=new Set(NPCS.filter(n=>n.map===id&&n.x>=0).map(n=>n.x+","+n.y));
+  const goals=[];for(const b of M.builds){const x=b.door[0],y=b.door[1]+1;if(g[y]&&g[y][x]!==undefined)goals.push([x,y])}
+  const seen=new Set();for(const[k,to]of Object.entries(M.exits)){const[x,y]=k.split(",").map(Number);const edge=x===0?"L"+to[0]:x===W-1?"R"+to[0]:y===0?"U"+to[0]:y===H-1?"D"+to[0]:null;if(!edge||seen.has(edge))continue;seen.add(edge);goals.push([x,y])}
+  if(goals.length<2)continue;
+  const cost=(x,y)=>{const c=g[y][x];if(npc.has(x+","+y))return 40;if(marked.has(x+","+y))return .5;if(WALK.has(c))return KEEP.has(c)?1:c===","?6:2;
+   const border=x===0||y===0||x===W-1||y===H-1;if(SOFT.has(c)&&!border&&!(M.signs&&M.signs[x+","+y]))return 14;return 1e9};
+  const route=(from,to)=>{const dist=new Map([[from+"",0]]),prev=new Map(),q=[[0,from]];while(q.length){q.sort((a,b)=>a[0]-b[0]);const[d,[x,y]]=q.shift();if(x===to[0]&&y===to[1]){const out=[];let k=to+"";while(k){out.push(k);k=prev.get(k)}return out}
+     if(d>dist.get(x+","+y))continue;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const a=x+dx,b=y+dy;if(a<0||b<0||a>=W||b>=H)continue;const c=cost(a,b);if(c>=1e9)continue;const nd=d+c,k=a+","+b;if(nd<(dist.has(k)?dist.get(k):1e18)){dist.set(k,nd);prev.set(k,x+","+y);q.push([nd,[a,b]])}}}return null};
+  const hub=goals[goals.length-1];for(const goal of goals){const r=route(goal,hub);if(!r)continue;for(const k of r){marked.add(k);const[x,y]=k.split(",").map(Number);if(!WALK.has(g[y][x])&&SOFT.has(g[y][x]))g[y][x]=cfg.tile}}
+  // el camino se ensancha a 2 casillas donde haya sitio libre
+  for(const k of[...marked]){const[x,y]=k.split(",").map(Number);for(const[a,b]of[[x,y+1],[x+1,y]]){if(!g[b]||a>=W-1||b>=H-1)continue;const c=g[b][a];if(!npc.has(a+","+b)&&(c==="F"||c==="."||c===","&&false)){marked.add(a+","+b)}}}
+  PATHS[id]=marked}})();
+// ---------- dibujo del camino: tierra clara o adoquín con bordillo, como en los pueblos de Pokémon ----------
+const PSTYLE={park:["#e4d098","#c8b070","#f0e0b0"],comuna:["#d8b880","#a8885a","#e8cc98"],neon:["#6a5a86","#ff4ad0","#7a6a96"],costa:["#f0e0c0","#c8a878","#fff0d8"]};
+const _dtCam=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){_dtCam(ch,x,y,sx,sy,t,style);const P2=PATHS[S.map];if(!P2||!P2.has(x+","+y)||["A","Z","D","H","S","i","~","á","é"].includes(ch))return;const[base,edge,hl]=PSTYLE[S.map];
+ px(sx,sy,T,T,base);const h=hash(x,y);if(S.map==="costa"||S.map==="neon"){px(sx,sy+7,T,1,edge==="#ff4ad0"?"#5a4a76":edge);px(sx+((y%2)?4:11),sy,1,7,edge==="#ff4ad0"?"#5a4a76":edge);px(sx+((y%2)?11:4),sy+8,1,8,edge==="#ff4ad0"?"#5a4a76":edge)}else{px(sx+(h%12),sy+((h>>4)%12),2,2,hl);px(sx+((h>>6)%13),sy+((h>>2)%13),2,1,edge)}
+ const has=(a,b)=>P2.has(a+","+b)||["A","Z","D"].includes(MAP().g[b]&&MAP().g[b][a]);if(!has(x,y-1))px(sx,sy,T,2,edge);if(!has(x,y+1))px(sx,sy+T-2,T,2,edge);if(!has(x-1,y))px(sx,sy,2,T,edge);if(!has(x+1,y))px(sx+T-2,sy,2,T,edge)};
+// ---------- Costa Cangrejo: que no sea una fila de hoteles iguales ----------
+(function(){const c=MAPS.costa;for(const b of c.builds){if(b.id==="solresaca"){b.wall="#ffd890";b.roof="#7a2a8a"}if(b.id==="torrecan"){b.wall="#c8e8f8";b.roof="#1a5a9a"}}})();
+
+/*</B4CAMINOS>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

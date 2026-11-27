@@ -298,7 +298,7 @@ function musTick(){
   while(MUS.next<AC.currentTime+.15){musStep(tr,MUS.step,MUS.next,stepDur);MUS.next+=stepDur;MUS.step=(MUS.step+1)%32}
 }
 // Canciones de verdad (Kevin MacLeod, incompetech.com, CC BY 4.0). Si alguna no carga, suena la versión retro de TRACKS.
-const SONGS={park:["musica/park.mp3","Monkeys Spinning Monkeys"],kebab:["musica/kebab.mp3","Desert City"],gas:["musica/chen.mp3","Asian Drums"],yoli:["musica/mercadillo.mp3","Habanera"],
+const SONGS={park:["musica/park.mp3","Porch Swing Days"],kebab:["musica/kebab.mp3","Desert City"],gas:["musica/chen.mp3","Asian Drums"],yoli:["musica/mercadillo.mp3","Habanera"],
   bar:["musica/bar.mp3","Investigations"],descampado:["musica/descampado.mp3","Hustle"],battle:["musica/combate.mp3","Volatile Reaction"],
   senda:["musica/senda.mp3","Maccary Bay"],comuna:["musica/comuna.mp3","Montego"],c420:["musica/casas420.mp3","Mandeville"],fumigon:["musica/fumigon.mp3","Sunday Dub"]};
 const AUD={cache:{},el:null,failed:{}};SONGS.intro=["musica/intro.mp3","Hackbeat"];
@@ -1384,7 +1384,7 @@ const NPC_PAL={
 
 /* ===================== MAPAS ===================== */
 function grid(w,h,f){const g=[];for(let y=0;y<h;y++)g.push(Array(w).fill(f));return g}
-const MAPS={};
+const MAPS={};const CASAS_REALES=["abuela","chustahouse"],MAPAS_ORIG=["park","descampado","kebab","gas","yoli","bar","senda","abuela","chustahouse"];
 (function(){
   const W=36,H=22,g=grid(W,H,".");const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
   R("#",0,0,W,2);R("#",0,H-1,W,1);R("#",0,0,1,H);R("#",W-1,0,1,H);
@@ -1397,11 +1397,11 @@ const MAPS={};
   g[18][11]="B";g[18][12]="B";
   const lamps=[[16,7],[13,12],[16,16],[3,7],[26,7],[10,18],[20,16],[31,10],[2,16]];lamps.forEach(([x,y])=>g[y][x]="L");
   const signs={"13,7":"Parque de Pichi. Prohibido el botellón. (Ja.)","10,14":"Césped alto: aquí salen Pedomones salvajes. Abrebotellas, mechero y grinder a mano.",
-   "13,16":"↖ Kebab 24h   ·   ↑ Bar de Paco (ojo, La Pasma)   ·   ↗ Bazar Chen y Mercadillo   ·   ← El Descampado   ·   → por la calle: La Senda y la Ganja Life",
+   "13,16":"↖ Kebab   ·   ↑ Bar de Paco (ojo, La Pasma)   ·   ↗ Bazar Chen y Mercadillo   ·   ← El Descampado   ·   → por la calle: La Senda y la Ganja Life",
    "23,16":"Zona chunga: aquí salen los Pedomones más fuertes.","1,16":"← EL DESCAMPADO. Zona de colegas: combates e intercambios entre jugadores."};
   Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
   const builds=[
-   {id:"kebab",x:2,y:2,w:5,h:3,door:[4,4],wall:"#e8d2a8",roof:"#8a2a1a",label:"KEBAB 24H",to:"kebab",awn:["#c8202a","#f2d14e"],board:"#c8202a"},
+   {id:"kebab",x:2,y:2,w:5,h:3,door:[4,4],wall:"#e8d2a8",roof:"#8a2a1a",label:"KEBAB",to:"kebab",awn:["#c8202a","#f2d14e"],board:"#c8202a"},
    {id:"abuela",x:7,y:2,w:4,h:3,door:[8,4],wall:"#e8c8a0",roof:"#8a3a2a",label:"",to:"abuela",house:true,plants:true},
    {id:"bar",x:11,y:2,w:8,h:3,door:[14,4],wall:"#9a4a32",roof:"#3a2418",label:"BAR DE PACO",to:"bar",awn:["#2a6a2a","#f4f4f4"],board:"#2a1a14",ac:true},
    {id:"chustahouse",x:19,y:2,w:3,h:3,door:[20,4],wall:"#b8b0a8",roof:"#4a4a5a",label:"",to:"chustahouse",house:true,graffiti:true},
@@ -1735,8 +1735,8 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="105 · Arreglado el atasco en el hielo de Hoyales y botón «Estoy atascado»";
-const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
+const NET_PREFIX="otraronda-v1-";const GAME_VER="106 · Menú corto con Esc, bocadillos y paredes arreglados, voces rápidas y música nueva";
+const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 function makePeerRoom(code){
@@ -2067,7 +2067,7 @@ async function interact(){
   if(t==="Y"){closeDlg();await slotMachine();return}
   if(S.map==="park"&&t==="#"&&fx===18&&fy===13&&S.q.michi===1){S.q.michi=2;sfx("quest");save();await say("¡Miau! Entre las ramas hay un gato gordo y naranja mordiendo una lata de Mahou. ¡Es Michi! Lo coges en brazos.");return}
   if(S.map==="descampado"&&t==="Q"&&S.q.cuerda===1){S.q.cuerda=2;sfx("quest");save();await say("Al lado del bidón hay una cuerda de guitarra enrollada, un poco chamuscada. ¡Es la de Raúl!");return}
-  if(MAP().style==="casa"){const CT={m:"Una tele de tubo con el Telediario puesto. Nadie lo mira.",h:"Un sofá con funda de plástico. Cruje al mirarlo.",t:"Una mesa camilla con brasero. El mejor sitio de la casa.",f:"Una nevera con imanes de todos los pueblos de España.",g:"Un potus enorme. Se alimenta exclusivamente de los culos de cubata que le echan. Está más sano que tú.",
+  if(MAP().style==="casa"&&CASAS_REALES.includes(S.map)){const CT={m:"Una tele de tubo con el Telediario puesto. Nadie lo mira.",h:"Un sofá con funda de plástico. Cruje al mirarlo.",t:"Una mesa camilla con brasero. El mejor sitio de la casa.",f:"Una nevera con imanes de todos los pueblos de España.",g:"Un potus enorme. Se alimenta exclusivamente de los culos de cubata que le echan. Está más sano que tú.",
     w:S.map==="chustahouse"?"Pósters de un Seat León tuneado y de Camarón. Y una foto del Chusta de primera comunión.":"Fotos de los nietos, un calendario de una carnicería y un cuadro de un ciervo."};if(CT[t]){await say(CT[t]);return}}
   const TXT={"~":"El estanque huele a kalimotxo. Mejor no meterse.","B":"Un banco con 14 latas vacías encima. Respeto.","L":"Una farola. Alrededor revolotean bichos. Los normales, no los Pedomones.",
     "K":"Un kebab girando. Abdul jura que es ternera. La ternera no ha querido hacer declaraciones.","f":S.map==="kebab"?"Una nevera llena de Steinburg. Abdul te mira. Mejor no.":"Neveras con Red Bull, agua y hielo a 3 €.",
@@ -2075,7 +2075,7 @@ async function interact(){
     "s":"Estanterías con pipas, chicles y mecheros de colores.","m":"Un burro lleno de chándales, camisas de flores y una chupa de cuero «de marca». De qué marca, nadie lo sabe.","h":"Cajas de zapatillas. Pone «Nike», pero con dos K.","g":"Un altavoz enorme. Suena rumba a todo trapo.",
     "G":"Un grafiti enorme: «EL CHUSTA ESTUVO AKI». Debajo, en pequeño: «y debe 14 kebabs».","O":"Un sofá abandonado. Tiene más historias que tú.","Q":"Un bidón con fuego. Calentito. Alguien está asando un chorizo.","U":"Un carrito del Mercadona. Nadie sabe cómo ha llegado hasta aquí.",
     "w":S.map==="kebab"?"Un póster: «KEBAB + BIRRA = 6 €. Abierto 24h. Sí, también a las 5 de la mañana.»":S.map==="bar"?"Un cartel: «Prohibido cantar. Firmado: Paco». Debajo hay 40 firmas de gente que canta igual.":S.map==="yoli"?"Un toldo de rayas y un cartel pintado a mano: «MERCADILLO SARAY Y RAÚL. HOY TODO A 5 €. MAÑANA TAMBIÉN.»":"Un cartel: «Prohibido fumar. Los Pedomones, sí.»"};
-  if(TXT[t])await say(TXT[t]);
+  if(TXT[t]&&MAPAS_ORIG.includes(S.map)&&(t!=="w"||["kebab","bar","yoli"].includes(S.map)))await say(TXT[t]);
 }
 async function door(b){
   if(b.id==="bar"&&!S.flags.poli){await say("La puerta del Bar de Paco tiene un precinto amarillo de La Pasma: «CERRADO POR INSPECCIÓN». Debajo, alguien ha escrito a boli: «mentira».");return}
@@ -2106,7 +2106,7 @@ async function intro(){
   S.flags.starter=true;sfx("catch");pushPresence();
   await sayAll([`¡Has conseguido a ${mName(m)}! 🎉`,
    "El Porrosor: Y toma: 5 Abrebotellas para las bebidas, 5 Mecheros para el tabaco y 5 Grinders para lo verde. Cada cosa con lo suyo, ¿eh?",
-   "El Porrosor: Si te dejan KO, ve al Kebab 24h: Abdul te cura el equipo y te deja usar La Nevera.",
+   "El Porrosor: Si te dejan KO, ve al Kebab: Abdul te cura el equipo y te deja usar La Nevera.",
    "El Porrosor: En el Bazar Chen, Chen te vende de todo y Richard te vende MTs. Y al lado, el Mercadillo de Saray y Raúl el Gitano, para que no vayas hecho un cuadro.",
    "El Porrosor: Ah, y tu colega El Chusta anda por el camino de arriba. Me debe pasta. Como a todo el barrio."]);
   save();
@@ -2217,7 +2217,7 @@ function questLines(){
   else{
     const g=S.q.gorra,p=S.q.placa,w=S.q.walkie;
     L.push("📜 EL PRECINTO FALSO: consigue tres pruebas de que la inspección de La Pasma es mentira.");
-    L.push(g>=2?"✅ 📸 Foto del Chusta":g===1?"• 📸 Foto: gánale otra vez al Chusta, que lo grabó todo.":"• 📸 Foto: pregunta a Abdul en el Kebab 24h.");
+    L.push(g>=2?"✅ 📸 Foto del Chusta":g===1?"• 📸 Foto: gánale otra vez al Chusta, que lo grabó todo.":"• 📸 Foto: pregunta a Abdul en el Kebab.");
     L.push(p>=3?"✅ 🧾 Recibo de los precintos":p===2?"• 🧾 Recibo: devuélvele el Vapito a Richard.":p===1?"• 🧾 Recibo: busca el Vapito de Richard en el césped chungo (abajo a la derecha).":"• 🧾 Recibo: pregunta a Richard en el Bazar Chen.");
     L.push(w>=3?"✅ 📻 Grabación de La Pasma":w===1?"• 📻 Grabación: llévale un Absolut a Saray (salen en el césped chungo).":"• 📻 Grabación: pregunta a Saray en el Mercadillo.");
     if(S.keys.gorra&&S.keys.placa&&S.keys.walkie&&!S.flags.poli)L.push("• ¡Ya tienes las tres pruebas! Enséñaselas a La Pasma en la puerta del bar.");
@@ -2229,7 +2229,7 @@ function questLines(){
   L.push(S.q.cuerda>=3?"✅ La cuerda de Raúl":S.q.cuerda===2?"• Devuélvele la cuerda a Raúl.":S.q.cuerda===1?"• Busca la cuerda de Raúl en El Descampado, al lado de un bidón con fuego.":"• Habla con Raúl el Gitano en el Mercadillo.");
   if(S.flags.comunaIn){
     L.push(S.q.galletas>=2?"✅ Las Scooby Galletas":S.q.galletas===1?`• Busca las Scooby Galletas de Shaggy (${Object.keys(S.gallF||{}).length}/3): dos árboles en La Senda (uno en la meseta y otro al pie de la colina) y una palmera de Ganja Life.`:"• Habla con Shaggy y Scooby, abajo a la izquierda de Ganja Life.");
-    L.push(S.q.falafel>=3?"✅ El falafel de los veganos":S.q.falafel===2?"• Llévales el falafel de Abdul a los veganos de la plaza.":S.q.falafel===1?"• Pídele a Abdul (Kebab 24h) un falafel para los veganos.":"• Habla con la pareja de la pancarta, en la plaza de Ganja Life.")}
+    L.push(S.q.falafel>=3?"✅ El falafel de los veganos":S.q.falafel===2?"• Llévales el falafel de Abdul a los veganos de la plaza.":S.q.falafel===1?"• Pídele a Abdul (Kebab) un falafel para los veganos.":"• Habla con la pareja de la pancarta, en la plaza de Ganja Life.")}
   return L;
 }
 /* ===================== KEBAB, NEVERA, TIENDAS, PELU ===================== */
@@ -2240,7 +2240,7 @@ async function abdul(){
     await sayAll(["Abdul: ¿Pruebas contra La Pasma? Ay, amego… El Chusta estaba detrás de mi kebab la noche del precinto. Meando. Con el móvil en la mano.","Abdul: Dice que lo grabó todo. Pero ya sabes cómo es: gratis no te lo va a dar.","Abdul: Y de paso dile que me debe 14 kebabs. CATORCE."]);return}
   if(S.q.gorra===2){S.q.gorra=3;S.bag.caldito=(S.bag.caldito||0)+3;sfx("quest");save();
     await sayAll(["Abdul: ¿Que te ha dicho «el lunes»? ¿QUÉ lunes?","Abdul: … Bueno, amego, al menos tú me has hecho reír. Toma, para el camino.","¡Abdul te da 3 Calditos de la abuela!"]);return}
-  await say("Abdul: ¡Hola, amego! Bienvenido al Kebab 24h.");
+  await say("Abdul: ¡Hola, amego! Bienvenido al Kebab.");
   while(true){
     const i=await choose("Abdul: ¿Qué te pongo, amego?",[{label:"🥙 Un kebab (curar equipo)"},{label:"🧊 Otra cosilla (La Nevera)"},{label:"👨‍🍳 Echar una mano (Monta el kebab)"},{label:"💬 Hablar"},{label:"👋 Nada, gracias"}],{cols:1});
     if(i<0)return;
@@ -2676,7 +2676,7 @@ function cpmGame(bet){
 async function veganTalk(n){
   const who=n.id==="lucia"?"Lucía":"Bruno";const q=S.q.falafel||0;
   if(q===0){S.q.falafel=1;save();sfx("quest");
-    await sayAll([`${who}: ¡Hola, compañere! ¿Sabías que cada kebab que te comes es una tragedia para un pollo?`,"Bruno: Y para el planeta. Y para tu colesterol.","Lucía: Llevamos tres semanas de manifestación delante del Kebab 24h de tu barrio. Abdul nos sale a dar… kebabs. No entiende nada.","Bruno: Si consigues que Abdul nos haga un FALAFEL, desconvocamos la protesta. Y te damos algo bonito, hecho a mano.","Lucía: Comercio justo, ¿eh? Tejido por una cooperativa de Bolivia. Bueno, por Bruno. En el sofá."]);return}
+    await sayAll([`${who}: ¡Hola, compañere! ¿Sabías que cada kebab que te comes es una tragedia para un pollo?`,"Bruno: Y para el planeta. Y para tu colesterol.","Lucía: Llevamos tres semanas de manifestación delante del Kebab de tu barrio. Abdul nos sale a dar… kebabs. No entiende nada.","Bruno: Si consigues que Abdul nos haga un FALAFEL, desconvocamos la protesta. Y te damos algo bonito, hecho a mano.","Lucía: Comercio justo, ¿eh? Tejido por una cooperativa de Bolivia. Bueno, por Bruno. En el sofá."]);return}
   if(q===1){await say(pick(["Lucía: ¿Y el falafel? La revolución tiene hambre.","Bruno: Sin falafel no hay paz. Bueno, sí hay paz, pero con pancarta."]));return}
   if(q===2){S.q.falafel=3;S.accU.ac2=true;save();sfx("quest");
     await sayAll(["Lucía: ¡¿UN FALAFEL DE ABDUL?! ¡Bruno, mira!","Bruno: Está… está buenísimo. Abdul tenía un corazón vegano y no lo sabía.","Lucía: Toma, te lo has ganado: un poncho de lana de alpaca. Bueno, de acrílico. Las alpacas son nuestras amigas.","¡Consigues el 🧶 Poncho! (Póntelo en el Mercadillo, con Saray.)"]);return}
@@ -3136,7 +3136,7 @@ async function battle(enemies,{trainer,special,easy,music}){
     S.team.forEach(m=>m.hp=maxhp(m));S.map=S.respawn[0];S.x=S.respawn[1];S.y=S.respawn[2];S.dir="up";
   }
   await battleOutro();pushPresence();
-  if(result==="lose")await say(S.respawn[0]==="yurta"?"Te despiertas en la yurta de la Abuela Luna, con una piedra fría en la frente. Abuela Luna: «Ay, criatura… Ya te he sanado el equipo. Respira.»":`Te despiertas en el Kebab 24h con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`);
+  if(result==="lose")await say(S.respawn[0]==="yurta"?"Te despiertas en la yurta de la Abuela Luna, con una piedra fría en la frente. Abuela Luna: «Ay, criatura… Ya te he sanado el equipo. Respira.»":`Te despiertas en el Kebab con una resaca tremenda. Abdul: «Otra vez tú, amego… Ya te he curado el equipo.»`);
   for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}
   S.team.forEach(m=>delete m.v);
   save();
@@ -5879,23 +5879,27 @@ const hashStr=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h
 function voiceFor(key,name){const C=key?CAST[key]:null;if(C&&key!=="narrador")return{g:C.g,p:C.p,r:C.r};if(!name)return{g:"m",p:CAST.narrador.p,r:CAST.narrador.r};const h=hashStr(name),f=FEMN.test(name);return{g:f?"f":"m",p:(f?1.02:.68)+(h%38)/100,r:.94+(h%24)/100}}
 function ttsClean(s){return s.replace(/\*[^*]*\*/g," ").replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}]/gu," ").replace(/\(.*?\)/g," ").replace(/[«»"_]/g," ").replace(/(\p{L})\1{2,}/gu,"$1$1").replace(/([¡!¿?])\1+/g,"$1").replace(/\p{Lu}{2,}/gu,w=>w.toLowerCase()).replace(/…/g,", ").replace(/(\w)-(\w)/g,"$1 $2").replace(/\s+([,.!?])/g,"$1").replace(/([,.])\s*,/g,"$1").replace(/\s+/g," ").trim()}
 // parte el texto en frases para que la entonación cambie como al hablar de verdad
-function ttsFrases(t){const out=[];for(const f of t.match(/[^.!?]+[.!?]*/g)||[t]){const s=f.trim();if(!s)continue;if(out.length&&(out[out.length-1].length<45||s.length<14)&&out[out.length-1].length+s.length<190)out[out.length-1]+=" "+s;else out.push(s)}return out}
+function ttsFrases(t){const out=[];for(const f of t.match(/[^.!?]+[.!?]*/g)||[t]){const s=f.trim();if(!s)continue;if(out.length&&(out[out.length-1].length<110||s.length<30)&&out[out.length-1].length+s.length<240)out[out.length-1]+=" "+s;else out.push(s)}return out}
 // las voces "naturales" suenan mucho más humanas: se eligen siempre primero
 const vozNota=v=>(/natural|neural/i.test(v.name)?100:0)+(/online/i.test(v.name)?30:0)+(/premium|enhanced|mejorad|siri/i.test(v.name)?60:0)+(/google/i.test(v.name)?40:0)+(/es[-_]ES/i.test(v.lang)?25:0);
 const VFEM=/helena|laura|elvira|m[oó]nica|paulina|female|mujer|sabina|dalia|paloma|marisol|ximena|abril|irene|triana|vera|google español/i,VMAL=/pablo|jorge|diego|carlos|[aá]lvaro|\bmale\b|hombre|enrique|ra[uú]l|alex|arnau|dario|el[ií]as|nil|saul|teo/i;
-function vozPara(g,quien){if(!TTSV.length)return[null,false];const todas=[...TTSV].sort((a,b)=>vozNota(b)-vozNota(a));const mias=todas.filter(q=>g==="f"?VFEM.test(q.name):VMAL.test(q.name)&&!/female/i.test(q.name));const pool=mias.length?mias:todas;const top=pool.filter(q=>vozNota(q)>=vozNota(pool[0])-25).slice(0,4);return[top[hashStr(quien||"narrador")%top.length],!!mias.length]}
+function vozPara(g,quien){if(!TTSV.length)return[null,false];const todas=[...TTSV].sort((a,b)=>vozNota(b)-vozNota(a));const mias=todas.filter(q=>g==="f"?VFEM.test(q.name):VMAL.test(q.name)&&!/female/i.test(q.name));const pool=mias.length?mias:todas;const top=pool.filter(q=>vozNota(q)>=vozNota(pool[0])-110).slice(0,8);return[top[hashStr(quien||"narrador")%top.length],!!mias.length]}
 function ttsStop(){try{TTS&&TTS.cancel()}catch(e){}}
-const VOZ_RITMO=1.5;
+const VOZ_VELS=[{n:"Rápida",r:1.7},{n:"Muy rápida",r:2.1},{n:"A toda pastilla",r:2.5}];let VOZVEL=(()=>{try{const v=parseInt(localStorage.getItem("or_vozvel"),10);return v>=0&&v<3?v:1}catch(e){return 1}})();
 const VOZ_ANIMO={susto:[1.14,.1],grito:[1.12,.08],enfado:[1.08,-.05],risa:[1.08,.09],pena:[.86,-.07],duda:[.96,.04],picaro:[.94,-.03],normal:[1,0]};
 function ttsSay(body,v,mood,quien){if(!TTS||!VOZ||muted)return;const text=ttsClean(body);if(!text||!/[a-záéíóúñ]/i.test(text))return;try{TTS.cancel();const[voz,acierta]=vozPara(v.g,quien);const[mr,mp_]=VOZ_ANIMO[mood]||VOZ_ANIMO.normal;
  // si el aparato no tiene voz de ese sexo se fuerza más el tono; si la tiene, casi natural (suena menos a robot)
- const base=1+(v.p-1)*(acierta?.35:.8);let total=0;for(const fr of ttsFrases(text)){if((total+=fr.length)>520)break;const u=new SpeechSynthesisUtterance(fr);u.lang="es-ES";if(voz)u.voice=voz;const preg=/\?$/.test(fr),excl=/!$/.test(fr),j=(hashStr(fr)%9-4)/100;
-  u.pitch=Math.max(.5,Math.min(1.6,base+mp_+(preg?.07:excl?.04:0)+j));u.rate=Math.max(1,Math.min(1.9,v.r*VOZ_RITMO*mr*(1+j)));u.volume=1;TTS.speak(u)}}catch(e){}}
+ const base=1+(v.p-1)*(acierta?.7:.95);let total=0;for(const fr of ttsFrases(text)){if((total+=fr.length)>520)break;const u=new SpeechSynthesisUtterance(fr);u.lang="es-ES";if(voz)u.voice=voz;const preg=/\?$/.test(fr),excl=/!$/.test(fr),j=(hashStr(fr)%9-4)/100;
+  u.pitch=Math.max(.5,Math.min(1.6,base+mp_+(preg?.07:excl?.04:0)+j));u.rate=Math.max(1.2,Math.min(3,VOZ_VELS[VOZVEL].r*(.75+v.r*.25)*(.7+mr*.3)*(1+j)));u.volume=1;TTS.speak(u)}}catch(e){}}
 function toggleVoz(){VOZ=!VOZ;try{localStorage.setItem("or_voz",VOZ?"1":"0")}catch(e){}if(!VOZ)ttsStop();vozBtnPinta();toast(VOZ?"🗣️ Voces activadas":"🔇 Voces desactivadas")}
 // botón siempre a la vista para poner o quitar las voces
 const VOZBTN=document.createElement("button");VOZBTN.type="button";VOZBTN.id="vozbtn";VOZBTN.tabIndex=-1;
 function vozBtnPinta(){VOZBTN.textContent=VOZ?"🔊 Voz: SÍ":"🔇 Voz: NO";VOZBTN.setAttribute("aria-pressed",VOZ?"true":"false");VOZBTN.style.opacity=VOZ?"1":".7"}
 VOZBTN.style.cssText="position:fixed;left:6px;top:6px;z-index:99999;font:700 13px Rubik,Arial,sans-serif;padding:7px 11px;border-radius:20px;border:2px solid #f2a93b;background:#1a120acc;color:#fff;cursor:pointer;touch-action:manipulation";
+const VELBTN=document.createElement("button");VELBTN.type="button";VELBTN.id="velbtn";VELBTN.tabIndex=-1;VELBTN.style.cssText=VOZBTN.style.cssText;VELBTN.style.left="112px";
+function velPinta(){VELBTN.textContent="⏩ "+(VOZVEL+1);VELBTN.title="Velocidad de la voz: "+VOZ_VELS[VOZVEL].n}
+function cambiaVel(){VOZVEL=(VOZVEL+1)%3;try{localStorage.setItem("or_vozvel",String(VOZVEL))}catch(e){}velPinta();toast("⏩ Voz "+VOZ_VELS[VOZVEL].n.toLowerCase())}
+VELBTN.onpointerdown=e=>{e.preventDefault();e.stopPropagation()};VELBTN.onclick=e=>{e.preventDefault();e.stopPropagation();cambiaVel();VELBTN.blur()};velPinta();document.body.appendChild(VELBTN);
 VOZBTN.onpointerdown=e=>{e.preventDefault();e.stopPropagation()};VOZBTN.onclick=e=>{e.preventDefault();e.stopPropagation();toggleVoz();VOZBTN.blur()};vozBtnPinta();document.body.appendChild(VOZBTN);
 // ---------- unir retrato, voz, saltito y cámara con cada diálogo ----------
 const PORT=document.createElement("canvas");PORT.width=96;PORT.height=96;PORT.id="portrait";
@@ -5907,7 +5911,7 @@ function speakerNpc(key,name){const here=NPCS.filter(n=>n.map===S.map&&n.x>=0&&n
 let ZOOMED=false;function camZoom(n){const cv=$("cv"),w=$("whd");if(!n){if(ZOOMED){ZOOMED=false;for(const e of[cv,w])if(e)e.style.transform=""}return}try{const[ox,oy]=camOf(MAP());const px_=Math.max(12,Math.min(88,((n.x*T-ox+8)/SW)*100)),py=Math.max(18,Math.min(72,((n.y*T-oy)/SH)*100));for(const e of[cv,w])if(e){e.style.transformOrigin=px_+"% "+py+"%";e.style.transform="scale(1.32)"}ZOOMED=true}catch(e){}}
 $("screen").style.overflow="hidden";
 function speakBegin(text){const P2=parseSpeaker(text);const key=P2.name?(SPEAKER[P2.name.toLowerCase()]||SPEAKER[P2.name.toLowerCase().replace(/^(el|la) /,"")]||null):null;
- if(!P2.name){SPK=null;PORT.style.display="none";NTAG.style.display="none";ttsSay(P2.body,voiceFor(null,null),P2.ex||guessMood(P2.body));return P2}
+ if(!P2.name){SPK=null;PORT.style.display="none";NTAG.style.display="none";if(CINE.on)ttsSay(P2.body,voiceFor(null,null),P2.ex||guessMood(P2.body));else ttsStop();return P2}
  const mood=P2.ex||guessMood(P2.body),npc=mode==="world"?speakerNpc(key,P2.name):null;const look=bustLook(key,P2.name);
  const changed=!SPK||SPK.name!==P2.name||SPK.mood!==mood;SPK={name:P2.name,look,mood,t0:performance.now(),len:P2.body.length,npc};
  if(look){PORT.style.display="block";if(changed){PORT.classList.remove("pop");void PORT.offsetWidth;PORT.classList.add("pop")}NTAG.textContent=P2.name;NTAG.style.display="block"}else{PORT.style.display="none";NTAG.style.display="none"}
@@ -11466,7 +11470,7 @@ const ZONA={senda:"park",carretera:"neon",n340:"costa",bahia:"terrazalia",faro:"
 function zonaDe(m){if(NODOS.some(n=>n[0]===m))return m;if(ZONA[m])return ZONA[m];if(/^tcasa|^tgym|^brasa/.test(m))return"terrazalia";if(/^templo|^zcasa|^riad|^teteria/.test(m))return"zoco";if(/^torre|^hcasa|^pena|^bodega|^iglesia/.test(m))return"hoyales";if(/^v/.test(m))return"valdeseco";if(/^bz/.test(m))return"autovia";if(/^bunker/.test(m))return"cata";return null}
 const PISTAS_MAPA={park:"Gana la Chapa en el Parque de Pichi.",comuna:"Consigue la Medalla Bob Marihuano en Ganja Life.",neon:"Gana la Medalla Calambrazo en Ciudad Neón.",costa:"Supera el reto de Costa Cangrejo.",terrazalia:"Llega por la bahía a Terrazalia y supera su gimnasio.",zoco:"Cruza el mar hasta el Zoco del Rif.",hoyales:"Por los viñedos, llega a Hoyales de Roa y conquista la torre.",valdeseco:"Sal por el este de Hoyales hacia Valdeseco.",autovia:"Desde Valdeseco, sigue hasta Barajas y gana al octavo líder.",cata:"Ve a la cena de las Bodegas Cogollo y resuelve el caso.",liga:"¡A por la Liga!"};
 function mapaGeneral(){return new Promise(res=>{let raf=0;const close=()=>{cancelAnimationFrame(raf);closeOverlay();res()};const here=zonaDe(S.map);const next=NODOS.find(n=>n[4]()&&!n[5]());
- overlay(`<div style="max-width:820px;margin:0 auto;text-align:center"><h2 style="margin:2px 0">🗺️ El mapa del viaje</h2><canvas id="mp-c" width="760" height="440" style="width:100%;border-radius:12px"></canvas><p style="margin:6px 0">${next?`📍 Siguiente parada: <b>${next[1]}</b>`:"🏆 ¡Has completado el viaje!"}<br><small>${next?PISTAS_MAPA[next[0]]:""}</small></p><div class="btns" style="justify-content:center"><button class="big" type="button" id="mp-x">Cerrar</button></div></div>`,{onB:close,focusId:"mp-x"});$("mp-x").onclick=close;const c=$("mp-c"),g=c.getContext("2d");
+ overlay(`<div style="max-width:820px;margin:0 auto;text-align:center"><h2 style="margin:2px 0">🗺️ El mapa del viaje</h2><canvas id="mp-c" width="760" height="440" style="width:100%;border-radius:12px"></canvas><p style="margin:6px 0">${next?`📍 Siguiente parada: <b>${next[1]}</b>`:"🏆 ¡Has completado el viaje!"}<br><small>${next?PISTAS_MAPA[next[0]]:""}</small></p><div class="btns" style="justify-content:center">${S.flags.vuelo?`<button class="big alt" type="button" id="mp-vo">🕊️ Volar</button>`:""}<button class="big" type="button" id="mp-x">Cerrar</button></div></div>`,{onB:close,focusId:"mp-x"});$("mp-x").onclick=close;if($("mp-vo"))$("mp-vo").onclick=()=>{cancelAnimationFrame(raf);closeOverlay();res("volar")};const c=$("mp-c"),g=c.getContext("2d");
  const draw=t=>{if(!c.isConnected)return;g.fillStyle="#2a6a8a";g.fillRect(0,0,760,440);g.fillStyle="#c8a868";g.beginPath();g.moveTo(20,300);g.quadraticCurveTo(80,60,300,40);g.quadraticCurveTo(620,0,740,60);g.quadraticCurveTo(720,230,520,300);g.quadraticCurveTo(300,430,40,420);g.closePath();g.fill();g.fillStyle="#d8a050";g.beginPath();g.ellipse(430,410,150,40,0,0,7);g.fill();g.fillStyle="rgba(60,110,40,.35)";for(let i=0;i<40;i++){g.beginPath();g.arc(60+(i*97)%620,90+(i*53)%260,8+(i%4)*3,0,7);g.fill()}
   for(let i=1;i<NODOS.length;i++){const a=NODOS[i-1],b=NODOS[i];g.strokeStyle=b[4]()?"#5a3a14":"rgba(90,60,30,.28)";g.lineWidth=4;g.setLineDash(b[4]()?[]:[7,7]);g.beginPath();g.moveTo(a[2],a[3]);g.lineTo(b[2],b[3]);g.stroke();g.setLineDash([])}
   for(const[id,nm,X,Y,open,done]of NODOS){const o=open(),d=o&&done();const isN=next&&next[0]===id;g.fillStyle=d?"#2a9a48":o?"#e6a020":"#6a5a4a";g.beginPath();g.arc(X,Y,isN?12+Math.sin(t/200)*3:11,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=2;g.stroke();g.fillStyle="#fff";g.font="900 13px Arial";g.textAlign="center";g.fillText(d?"✔":o?"!":"?",X,Y+5);g.font="900 13px Rubik,Arial";g.strokeStyle="#1a0e04";g.lineWidth=4;const L=o?nm:"???";g.strokeText(L,X,Y+28);g.fillText(L,X,Y+28);if(id===here){g.fillStyle="#e23b2a";g.beginPath();g.moveTo(X,Y-14);g.lineTo(X-8,Y-30-Math.abs(Math.sin(t/250))*6);g.lineTo(X+8,Y-30-Math.abs(Math.sin(t/250))*6);g.fill();g.fillStyle="#fff";g.font="700 11px Arial";g.fillText("ESTÁS AQUÍ",X,Y-40)}}raf=requestAnimationFrame(draw)};raf=requestAnimationFrame(draw)})}
@@ -12039,6 +12043,24 @@ function sitioSeguro(){const m=S.map,M=MAPS[m];if(m==="faro")return["terrazalia"
 async function desatascar(){const i=await choose("🆘 ¿Estás atascado? Te saco a un sitio seguro (la puerta del gimnasio, la calle o la entrada). No pierdes medallas, dinero ni Pedomones.",[{label:"🚪 Sí, sácame de aquí"},{label:"↩ No"}],{cols:1});if(i!==0)return;const d=sitioSeguro();if(S.map==="torre2"){delete S.hielo}P.moving=false;await warp(d[0],d[1],d[2],"down");if(S.map==="bunker2"&&!S.flags.floodOk)floodStart();save();toast("🆘 Ya estás a salvo")}
 
 /*</B4ATASCO>*/
+/*<B4DIC1>*/
+﻿/* ===================== TANDA 1 (dic): bocadillo pegado · Esc abre el menú · menú corto · sombrillas fuera ===================== */
+// un diálogo ya leído se quedaba flotando encima de menús y combates (con el nombre y los pavos): al abrir una pantalla, se quita
+const _sayD=say;say=function(t){delete dlg.dataset.leido;return _sayD(t).then(v=>{dlg.dataset.leido="1";return v})};
+const _chD=choose;choose=function(q,o,x){delete dlg.dataset.leido;return _chD(q,o,x).then(v=>{dlg.dataset.leido="1";return v})};
+const _ovD=overlay;overlay=function(h,o){if(!dlg.hidden&&dlg.dataset.leido==="1")closeDlg();return _ovD(h,o)};
+// Esc abre el menú
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!pending&&mode==="world"&&!busy&&ov.hidden&&dlg.hidden&&!P.moving){e.preventDefault();e.stopImmediatePropagation();run(mainMenu)}},true);
+// ---------- menú corto: lo demás va dentro de la Mochila y de Ajustes ----------
+async function submenu(titulo,arma){while(true){const L=arma();const i=await choose(titulo,L.map(a=>({label:a[0]})).concat([{label:"↩ Volver"}]),{cols:2});if(i<0||i>=L.length)return;const r=await L[i][1]();if(r==="close")return"close"}}
+const mochilaMenu=()=>submenu("🎒 Mochila",()=>{const L=[["🧃 Objetos",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallas",()=>medallero()],["📒 Registro",()=>registro()]];if(S.pruebas&&Object.keys(S.pruebas).length)L.push(["📓 Libreta",()=>libreta()]);if(S.pets&&Object.keys(S.pets).length)L.push(["🐾 Mascota",()=>petMenu()]);L.push(["📡 Radar",()=>radar()]);return L});
+const ajustesMenu=()=>submenu("⚙️ Ajustes",()=>[["🎚️ Música"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],[VOZ?"🔊 Voces: sí":"🔇 Voces: no",()=>toggleVoz()],["⏩ Voz: "+VOZ_VELS[VOZVEL].n,()=>cambiaVel()],["🆘 Estoy atascado",async()=>{await desatascar();return"close"}]]);
+mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",mochilaMenu],["🗺️ Mapa"+(S.flags.vuelo?" y vuelo":""),async()=>{if(await mapaGeneral()==="volar"){await vuelo();return"close"}}],["📜 Misiones",()=>say(questLines().join("\n"))],["🏆 Logros",()=>logrosScreen()],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["⚙️ Ajustes",ajustesMenu],["✖️ Cerrar",null]];
+ const i=await choose(`${S.name||"Menú"} · ${S.money} pavos${S.fichas?` · ${S.fichas} fichas`:""}`,L.map(([label])=>({label})));if(i<0||!L[i][1])return;const r=await L[i][1]();if(r==="close")return}};
+// fuera las sombrillas plantadas en el césped de Hoyales
+(function(){const g=MAPS.hoyales.g;if(typeof PRP==="undefined")return;g.forEach((row,y)=>row.forEach((c,x)=>{if(c!==PRP.mesa)return;const n={};for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[0,2],[0,-2],[2,0],[-2,0]]){const k=(g[y+dy]||[])[x+dx];if(k&&k!==PRP.mesa&&WALK.has(k))n[k]=(n[k]||0)+1}const best=Object.entries(n).sort((a,b)=>b[1]-a[1])[0];g[y][x]=best?best[0]:"."}))})();
+
+/*</B4DIC1>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="108 · Cartelitos de gimnasio, zona chill y tienda; sin letrero de SALIDA; 10 riñoneras al empezar";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="109 · Las tiendas van sacando género según tus medallas";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -12122,6 +12122,18 @@ const _dtCt=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(ch===CARTEL){con
 const _stCt=start;start=function(){if(S&&CARTELES.has(S.map+","+S.x+","+S.y))S.y++;return _stCt()};
 
 /*</B4DIC2>*/
+/*<B4DIC3>*/
+/* ===================== TANDA 3 (dic): las tiendas van sacando género según avanzas ===================== */
+const nMedallas=()=>MEDALS.filter(m=>m.has()).length;
+// medallas que hacen falta para que aparezca cada cosa (lo que no está en la lista se vende desde el principio)
+const GENERO={ibu:1,rinomarca:2,redbull:2,suero:3,abreoro:4,zippo:4,grinder4:4,rinogucci:5};
+const MT_NIVEL={mt09:0,mt05:0,mt06:0,mt01:1,mt07:1,mt02:2,mt03:2,mt04:2,mt08:3,mt11:5,mt12:5,mt14:1,mt15:2,mt16:3};
+const _shopG=shop;shop=async function(V){const copia={},m=nMedallas();let ocultas=0;for(const k of Object.keys(SHOP)){copia[k]=SHOP[k];SHOP[k]=copia[k].filter(i=>(GENERO[i]||0)<=m);ocultas+=copia[k].length-SHOP[k].length}
+ try{if(ocultas&&!(S.flags.generoAviso===m)){S.flags.generoAviso=m;toast("📦 Te quedan "+ocultas+" productos por desbloquear: gana medallas")}return await _shopG(V)}finally{for(const k of Object.keys(copia))SHOP[k]=copia[k]}};
+const _mtG=mtShop;mtShop=async function(V){const todas=MTS.slice(),m=nMedallas(),hay=todas.filter(t=>t.reward||(MT_NIVEL[t.id]||0)<=m),faltan=todas.length-hay.length;MTS.length=0;MTS.push(...hay);
+ try{if(faltan)toast("📦 Richard: «Con más medallas le saco "+faltan+" MTs más, jefe»");return await _mtG(V)}finally{MTS.length=0;MTS.push(...todas)}};
+
+/*</B4DIC3>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

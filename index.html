@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="103 · El Parque de Pichi, rehecho como un pueblo de Pokémon";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="104 · El Club de Ajedrez de Terrazalia: rivales con IA, problemas reales y torneo";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -11673,6 +11673,346 @@ const _dtHb=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="park"&&
 MAPS.park.g[11][17]=".";MAPS.park.g[12][17]=".";
 
 /*</B4PARQUE>*/
+/*<B4AJMOTOR>*/
+/* ===================== AJEDREZ · motor con las reglas oficiales e inteligencia artificial ===================== */
+// Todo dentro de una función para poder ejecutarlo también en segundo plano (Web Worker) sin congelar el juego.
+function CrearMotorAjedrez(){
+ // tablero 0x88 · piezas 1P 2C 3A 4T 5D 6R (positivas blancas, negativas negras)
+ const LETRA=" PNBRQK",VAL=[0,100,320,330,500,900,0];
+ const KN=[-33,-31,-18,-14,14,18,31,33],KI=[-17,-16,-15,-1,1,15,16,17],DB=[-17,-15,15,17],DR=[-16,-1,1,16];
+ const name=s=>"abcdefgh"[s&7]+((s>>4)+1),sqOf=n=>(n.charCodeAt(0)-97)+16*(+n[1]-1);
+ // claves aleatorias para reconocer posiciones repetidas
+ let seed=987654321;const rnd32=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return seed|0};
+ const mkZ=n=>{const a=[];for(let i=0;i<n;i++)a.push([rnd32(),rnd32()]);return a};
+ const ZP=mkZ(13*128),ZS=mkZ(1)[0],ZC=mkZ(16),ZE=mkZ(128);
+ function xor(P,z){P.h1^=z[0];P.h2^=z[1]}
+ const zp=(pc,s)=>ZP[(pc+6)*128+s];
+ function set(P,s,pc){const old=P.b[s];if(old)xor(P,zp(old,s));P.b[s]=pc;if(pc){xor(P,zp(pc,s));if(pc===6)P.kw=s;if(pc===-6)P.kb=s}}
+ function fromFEN(f){const[pl,side,cas,ep,half,full]=f.split(" ");const P={b:new Int8Array(128),side:side==="b"?-1:1,cas:0,ep:-1,half:+half||0,full:+full||1,h1:0,h2:0,kw:-1,kb:-1,hist:[]};
+  pl.split("/").forEach((row,i)=>{let x=0;for(const ch of row){if(ch>="1"&&ch<="8")x+=+ch;else{const t=LETRA.indexOf(ch.toUpperCase());set(P,16*(7-i)+x,ch===ch.toUpperCase()?t:-t);x++}}});
+  if(cas&&cas!=="-"){if(cas.includes("K"))P.cas|=1;if(cas.includes("Q"))P.cas|=2;if(cas.includes("k"))P.cas|=4;if(cas.includes("q"))P.cas|=8}
+  if(ep&&ep!=="-")P.ep=sqOf(ep);if(P.side<0)xor(P,ZS);xor(P,ZC[P.cas]);if(P.ep>=0)xor(P,ZE[P.ep]);return P}
+ function toFEN(P){let out=[];for(let r=7;r>=0;r--){let row="",e=0;for(let f=0;f<8;f++){const pc=P.b[16*r+f];if(!pc){e++;continue}if(e){row+=e;e=0}const c=LETRA[Math.abs(pc)];row+=pc>0?c:c.toLowerCase()}if(e)row+=e;out.push(row)}
+  const cas=(P.cas&1?"K":"")+(P.cas&2?"Q":"")+(P.cas&4?"k":"")+(P.cas&8?"q":"");return out.join("/")+" "+(P.side>0?"w":"b")+" "+(cas||"-")+" "+(P.ep>=0?name(P.ep):"-")+" "+P.half+" "+P.full}
+ function attacked(P,s,by){const b=P.b;
+  for(const d of(by>0?[-15,-17]:[15,17])){const t=s+d;if(!(t&0x88)&&b[t]===by)return true}
+  for(const d of KN){const t=s+d;if(!(t&0x88)&&b[t]===2*by)return true}
+  for(const d of KI){const t=s+d;if(!(t&0x88)&&b[t]===6*by)return true}
+  for(const d of DB){for(let t=s+d;!(t&0x88);t+=d){const p=b[t];if(p){if(p===3*by||p===5*by)return true;break}}}
+  for(const d of DR){for(let t=s+d;!(t&0x88);t+=d){const p=b[t];if(p){if(p===4*by||p===5*by)return true;break}}}
+  return false}
+ const inCheck=(P,side=P.side)=>attacked(P,side>0?P.kw:P.kb,-side);
+ function pseudo(P,capsOnly){const b=P.b,s0=P.side,out=[];const add=(f,t,fl)=>out.push({f,t,pc:b[f],cap:fl==="ep"?-s0:b[t],pr:0,fl:fl||""});
+  const addP=(f,t,fl)=>{const r=t>>4;if(r===0||r===7){for(const pr of[5,4,3,2])out.push({f,t,pc:b[f],cap:b[t],pr,fl:""})}else add(f,t,fl)};
+  for(let s=0;s<128;s++){if(s&0x88){s+=7;continue}const p=b[s];if(!p||(p>0?1:-1)!==s0)continue;const a=p>0?p:-p;
+   if(a===1){const fw=16*s0,one=s+fw;if(!(one&0x88)&&!b[one]){const promo=(one>>4)===0||(one>>4)===7;if(!capsOnly||promo)addP(s,one);if(!capsOnly&&(s>>4)===(s0>0?1:6)&&!b[one+fw])add(s,one+fw,"dbl")}
+    for(const d of[fw-1,fw+1]){const t=s+d;if(t&0x88)continue;if(b[t]&&(b[t]>0?1:-1)!==s0)addP(s,t);else if(t===P.ep&&!b[t])add(s,t,"ep")}continue}
+   if(a===2||a===6){for(const d of a===2?KN:KI){const t=s+d;if(t&0x88)continue;if(!b[t]){if(!capsOnly)add(s,t)}else if((b[t]>0?1:-1)!==s0)add(s,t)}
+    if(a===6&&!capsOnly){const home=s0>0?4:116;if(s===home&&!attacked(P,s,-s0)){const k=s0>0?1:4,q=s0>0?2:8;
+      if(P.cas&k&&!b[s+1]&&!b[s+2]&&b[s+3]===4*s0&&!attacked(P,s+1,-s0)&&!attacked(P,s+2,-s0))add(s,s+2,"ck");
+      if(P.cas&q&&!b[s-1]&&!b[s-2]&&!b[s-3]&&b[s-4]===4*s0&&!attacked(P,s-1,-s0)&&!attacked(P,s-2,-s0))add(s,s-2,"cq")}}continue}
+   const dirs=a===3?DB:a===4?DR:KI;for(const d of dirs){for(let t=s+d;!(t&0x88);t+=d){if(!b[t]){if(!capsOnly)add(s,t);continue}if((b[t]>0?1:-1)!==s0)add(s,t);break}}}
+  return out}
+ const CMASK=new Int8Array(128).fill(15);CMASK[0]=13;CMASK[7]=14;CMASK[4]=12;CMASK[112]=7;CMASK[119]=11;CMASK[116]=3;
+ function make(P,m){const u={m,cas:P.cas,ep:P.ep,half:P.half,h1:P.h1,h2:P.h2,kw:P.kw,kb:P.kb};P.hist.push(u);const s0=P.side;
+  xor(P,ZC[P.cas]);if(P.ep>=0)xor(P,ZE[P.ep]);P.ep=-1;P.half=(Math.abs(m.pc)===1||m.cap)?0:P.half+1;
+  set(P,m.f,0);if(m.fl==="ep")set(P,m.t-16*s0,0);set(P,m.t,m.pr?m.pr*s0:m.pc);
+  if(m.fl==="ck"){set(P,m.t+1,0);set(P,m.t-1,4*s0)}if(m.fl==="cq"){set(P,m.t-2,0);set(P,m.t+1,4*s0)}
+  if(m.fl==="dbl"){const mid=m.f+16*s0;if(P.b[m.t-1]===-s0&&!((m.t-1)&0x88)||P.b[m.t+1]===-s0&&!((m.t+1)&0x88)){P.ep=mid;xor(P,ZE[mid])}}
+  P.cas&=CMASK[m.f]&CMASK[m.t];xor(P,ZC[P.cas]);P.side=-s0;xor(P,ZS);if(s0<0)P.full++;return u}
+ function unmake(P){const u=P.hist.pop(),m=u.m;P.side=-P.side;const s0=P.side;if(s0<0)P.full--;const b=P.b;
+  b[m.t]=0;b[m.f]=m.pc;if(m.fl==="ep")b[m.t-16*s0]=-s0;else if(m.cap)b[m.t]=m.cap;
+  if(m.fl==="ck"){b[m.t-1]=0;b[m.t+1]=4*s0}if(m.fl==="cq"){b[m.t+1]=0;b[m.t-2]=4*s0}
+  P.cas=u.cas;P.ep=u.ep;P.half=u.half;P.h1=u.h1;P.h2=u.h2;P.kw=u.kw;P.kb=u.kb}
+ function legal(P,capsOnly){const out=[],s0=P.side;for(const m of pseudo(P,capsOnly)){make(P,m);if(!inCheck(P,s0))out.push(m);unmake(P)}return out}
+ const uci=m=>name(m.f)+name(m.t)+(m.pr?LETRA[m.pr].toLowerCase():"");
+ const findUci=(P,u)=>legal(P).find(m=>uci(m)===u)||null;
+ function perft(P,d){if(!d)return 1;let n=0;for(const m of legal(P)){make(P,m);n+=perft(P,d-1);unmake(P)}return n}
+ const keyOf=P=>(P.h1>>>0)*2097152+(P.h2>>>11);
+ function repeticiones(P){let n=1;for(let i=P.hist.length-1,k=0;i>=0&&k<P.half;i--,k++){const u=P.hist[i];if(u.h1===P.h1&&u.h2===P.h2)n++}return n}
+ function sinMaterial(P){const l=[];for(let s=0;s<128;s++){if(s&0x88)continue;const p=P.b[s];if(p&&Math.abs(p)!==6)l.push([Math.abs(p),((s>>4)+(s&7))%2,p>0])}
+  if(!l.length)return true;if(l.length===1)return l[0][0]===2||l[0][0]===3;return l.every(a=>a[0]===3&&a[1]===l[0][1])}
+ // ¿ha terminado? devuelve null o {res:"1-0"|"0-1"|"½-½", motivo}
+ function estado(P){const ms=legal(P);if(!ms.length)return inCheck(P)?{res:P.side>0?"0-1":"1-0",motivo:"jaque mate"}:{res:"½-½",motivo:"ahogado"};
+  if(sinMaterial(P))return{res:"½-½",motivo:"no queda material para dar mate"};if(P.half>=100)return{res:"½-½",motivo:"regla de las 50 jugadas"};if(repeticiones(P)>=3)return{res:"½-½",motivo:"triple repetición"};return null}
+ // notación (en español: R D T A C)
+ const ES=["","","C","A","T","D","R"];
+ function san(P,m){let s;if(m.fl==="ck")s="O-O";else if(m.fl==="cq")s="O-O-O";else{const a=Math.abs(m.pc);let dis="";if(a>1){const otros=legal(P).filter(o=>o.t===m.t&&o.pc===m.pc&&o.f!==m.f);if(otros.length){if(!otros.some(o=>(o.f&7)===(m.f&7)))dis=name(m.f)[0];else if(!otros.some(o=>(o.f>>4)===(m.f>>4)))dis=name(m.f)[1];else dis=name(m.f)}}
+   s=ES[a]+dis+(m.cap?(a===1?name(m.f)[0]:"")+"x":"")+name(m.t)+(m.pr?"="+ES[m.pr]:"")}
+  make(P,m);if(inCheck(P))s+=legal(P).length?"+":"#";unmake(P);return s}
+ // ---------- evaluación: material y dónde está cada pieza ----------
+ const T={1:[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0],
+  2:[-50,-40,-30,-30,-30,-30,-40,-50,-40,-20,0,0,0,0,-20,-40,-30,0,10,15,15,10,0,-30,-30,5,15,20,20,15,5,-30,-30,0,15,20,20,15,0,-30,-30,5,10,15,15,10,5,-30,-40,-20,0,5,5,0,-20,-40,-50,-40,-30,-30,-30,-30,-40,-50],
+  3:[-20,-10,-10,-10,-10,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,10,10,5,0,-10,-10,5,5,10,10,5,5,-10,-10,0,10,10,10,10,0,-10,-10,10,10,10,10,10,10,-10,-10,5,0,0,0,0,5,-10,-20,-10,-10,-10,-10,-10,-10,-20],
+  4:[0,0,0,0,0,0,0,0,5,10,10,10,10,10,10,5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,0,0,0,5,5,0,0,0],
+  5:[-20,-10,-10,-5,-5,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,5,5,5,0,-10,-5,0,5,5,5,5,0,-5,0,0,5,5,5,5,0,-5,-10,5,5,5,5,5,0,-10,-10,0,5,0,0,0,0,-10,-20,-10,-10,-5,-5,-10,-10,-20],
+  6:[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20]};
+ const KEND=[-50,-40,-30,-20,-20,-30,-40,-50,-30,-20,-10,0,0,-10,-20,-30,-30,-10,20,30,30,20,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,20,30,30,20,-10,-30,-30,-30,0,0,0,0,-30,-30,-50,-30,-30,-30,-30,-30,-30,-50];
+ function evaluar(P){let mg=0,mat=0,kw=0,kb=0;const bis=[0,0],pw=new Int8Array(8),pb=new Int8Array(8),peones=[];
+  for(let s=0;s<128;s++){if(s&0x88){s+=7;continue}const p=P.b[s];if(!p)continue;const w=p>0,a=w?p:-p,f=s&7,r=s>>4,i=(w?7-r:r)*8+f;
+   if(a===6){if(w)kw=i;else kb=i;continue}let v=VAL[a]+T[a][i];if(a!==1)mat+=VAL[a];else{(w?pw:pb)[f]++;peones.push([w,f,r])}if(a===3)bis[w?0:1]++;mg+=w?v:-v}
+  const fin=mat<=2600,K=fin?KEND:T[6];mg+=K[kw]-K[kb];if(bis[0]>1)mg+=30;if(bis[1]>1)mg-=30;
+  for(const[w,f,r]of peones){const me=w?pw:pb,op=w?pb:pw;let v=0;if(me[f]>1)v-=12;if(!(me[f-1]>0)&&!(me[f+1]>0))v-=12;if(!(op[f]>0)&&!(op[f-1]>0)&&!(op[f+1]>0)){const av=w?r:7-r;v+=8+av*av*(fin?3:1)}mg+=w?v:-v}
+  // en finales ganados, arrinconar al rey rival
+  if(fin&&Math.abs(mg)>350){const gana=mg>0?1:-1,rey=gana>0?kb:kw,otro=gana>0?kw:kb,fx=rey%8,fy=rey>>3;const borde=Math.abs(fx-3.5)+Math.abs(fy-3.5),cerca=14-(Math.abs(fx-otro%8)+Math.abs(fy-(otro>>3)));mg+=gana*(borde*10+cerca*4)}
+  return mg*P.side}
+ // ---------- búsqueda ----------
+ const MATE=100000;let nodos=0,limite=0,cortado=false,TT=new Map(),killers=[];
+ const orden=(m,tt,ply)=>{if(tt&&m.f===tt.f&&m.t===tt.t&&m.pr===tt.pr)return 1e6;if(m.cap)return 1e5+VAL[Math.abs(m.cap)]*10-VAL[Math.abs(m.pc)];if(m.pr)return 9e4+m.pr;const k=killers[ply];return k&&k.f===m.f&&k.t===m.t?8e4:0};
+ function quiet(P,al,be,ply){nodos++;const st=evaluar(P);if(st>=be)return be;if(st>al)al=st;if(ply>40)return al;const s0=P.side;
+  for(const m of pseudo(P,true).sort((a,b)=>orden(b,null,0)-orden(a,null,0))){if(m.cap&&st+VAL[Math.abs(m.cap)]+200<al&&!m.pr)continue;make(P,m);if(inCheck(P,s0)){unmake(P);continue}const v=-quiet(P,-be,-al,ply+1);unmake(P);if(v>=be)return be;if(v>al)al=v}return al}
+ function negamax(P,d,al,be,ply){if((++nodos&1023)===0&&limite&&Date.now()>limite)cortado=true;if(cortado)return 0;
+  if(ply&&(P.half>=100||repeticiones(P)>=2))return 0;const chk=inCheck(P);if(chk&&ply<30)d++;if(d<=0)return quiet(P,al,be,ply);
+  const key=keyOf(P),e=TT.get(key);if(ply&&e&&e.d>=d&&Math.abs(e.v)<MATE-500){if(e.f===0)return e.v;if(e.f===1&&e.v>=be)return e.v;if(e.f===2&&e.v<=al)return e.v}
+  const s0=P.side,ms=pseudo(P);ms.sort((a,b)=>orden(b,e&&e.m,ply)-orden(a,e&&e.m,ply));let best=-1e9,bm=null,n=0;const a0=al;
+  for(const m of ms){make(P,m);if(inCheck(P,s0)){unmake(P);continue}let v;if(!n)v=-negamax(P,d-1,-be,-al,ply+1);else{v=-negamax(P,d-1,-al-1,-al,ply+1);if(v>al&&v<be)v=-negamax(P,d-1,-be,-al,ply+1)}unmake(P);n++;if(cortado)return 0;
+   if(v>best){best=v;bm=m}if(v>al)al=v;if(al>=be){if(!m.cap)killers[ply]=m;break}}
+  if(!n)return chk?-MATE+ply:0;if(TT.size>200000)TT.clear();TT.set(key,{d,v:best,m:bm,f:best<=a0?2:best>=be?1:0});return best}
+ // niveles de los rivales
+ const NIVELES={1:{prof:1,azar:.4,ruido:220},2:{prof:2,azar:.12,ruido:90},3:{prof:3,azar:0,ruido:35},4:{prof:5,ms:1500,ruido:8},5:{prof:30,ms:3500,ruido:0}};
+ function pensar(P,nivel){const L=NIVELES[nivel]||NIVELES[3],raiz=legal(P);if(!raiz.length)return null;
+  if(L.azar&&Math.random()<L.azar)return raiz[Math.floor(Math.random()*raiz.length)];
+  nodos=0;cortado=false;killers=[];limite=0;const t0=Date.now();let mejor=raiz[0],ordenadas=raiz.slice(),prof=0,nota=0;
+  for(let d=1;d<=L.prof;d++){const res=[];let al=-1e9;for(const m of ordenadas){make(P,m);let v;if(L.ruido)v=-negamax(P,d-1,-1e9,1e9,1);else{v=res.length?-negamax(P,d-1,-al-1,-al,1):-negamax(P,d-1,-1e9,1e9,1);if(res.length&&v>al)v=-negamax(P,d-1,-1e9,-al,1)}unmake(P);if(cortado)break;res.push([m,v]);if(v>al)al=v}
+   if(cortado)break;res.sort((a,b)=>b[1]-a[1]);ordenadas=res.map(r=>r[0]);prof=d;nota=res[0][1];
+   if(L.ruido){const r=res.map(([m,v])=>[m,Math.abs(v)>MATE-500?v:v+(Math.random()*2-1)*L.ruido]).sort((a,b)=>b[1]-a[1]);mejor=r[0][0]}else mejor=res[0][0];
+   if(nota>MATE-500)break;if(L.ms){if(Date.now()-t0>L.ms*.55)break;limite=t0+L.ms}}
+  pensar.info={prof,nodos,nota};return mejor}
+ // ¿quien mueve puede dar mate en n jugadas pase lo que pase? (para corregir los problemas)
+ function mateEn(P,n){for(const m of legal(P)){make(P,m);if(n<=1&&!inCheck(P)){unmake(P);continue}const rs=legal(P);let ok;if(!rs.length)ok=inCheck(P);else if(n<=1)ok=false;else{ok=true;for(const r of rs){make(P,r);const sub=mateEn(P,n-1);unmake(P);if(!sub){ok=false;break}}}unmake(P);if(ok)return m}return null}
+ // la mejor defensa: la respuesta que más alarga el mate
+ function defensa(P,n){const ms=legal(P);for(const r of ms){make(P,r);const rapido=n>1&&mateEn(P,n-1);unmake(P);if(!rapido)return r}return ms[0]||null}
+ return{fromFEN,toFEN,legal,make,unmake,inCheck,estado,san,uci,findUci,perft,pensar,evaluar,mateEn,defensa,sinMaterial,name,sqOf,LETRA,NIVELES,keyOf}}
+const AJ=CrearMotorAjedrez();
+// la máquina piensa en segundo plano para que el reloj y la pantalla no se congelen
+let AJW=null,AJWid=0;const AJWres=new Map();
+function ajPensar(fen,jugadas,nivel){const local=()=>{const P=AJ.fromFEN(fen);for(const u of jugadas){const m=AJ.findUci(P,u);if(m)AJ.make(P,m)}const m=AJ.pensar(P,nivel);return m?AJ.uci(m):null};
+ return new Promise(res=>{try{if(!AJW){const src="const M=("+CrearMotorAjedrez.toString()+")();onmessage=e=>{const d=e.data,P=M.fromFEN(d.fen);for(const u of d.jugadas){const m=M.findUci(P,u);if(m)M.make(P,m)}const m=M.pensar(P,d.nivel);postMessage({id:d.id,u:m?M.uci(m):null})}";AJW=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));AJW.onmessage=e=>{const f=AJWres.get(e.data.id);if(f){AJWres.delete(e.data.id);f(e.data.u)}};AJW.onerror=()=>{AJW=false;for(const f of AJWres.values())f(undefined);AJWres.clear()}}
+   if(AJW){const id=++AJWid;AJWres.set(id,u=>res(u===undefined?local():u));AJW.postMessage({id,fen,jugadas,nivel});return}}catch(e){AJW=false}setTimeout(()=>res(local()),60)})}
+
+/*</B4AJMOTOR>*/
+/*<B4AJDATOS>*/
+/* Problemas de ajedrez de la base libre de Lichess (database.lichess.org, licencia CC0), verificados uno a uno: [id, posicion, solucion, mate en N, dificultad] */
+const AJPZ=[["01gl3","5r1k/6pp/3p2p1/pppP2q1/5RP1/3P4/PPPQ4/2K5 w - - 1 26","f4f8",1,482],["10DSD","2kr3r/ppp1q1pp/3b3n/5p1b/7N/1P1P2PP/PB1NPPB1/R1Q1K2R b KQ - 0 13","e7e2",1,484],["0avLw","r4rk1/1b2bpp1/p1qp3p/2B1pP2/N7/1B1Q4/P1P3PP/3RR1K1 b - - 0 24","c6g2",1,496],["0gQmH","5rk1/1ppqn1p1/p3bBQp/3pP3/PP1P4/1P5P/6P1/2R3K1 w - - 1 25","g6g7",1,663],["0iYGB","r2q3r/pppbk1p1/1b3nB1/4p1p1/4P3/1QP5/P4PPP/RN1R2K1 w - - 0 15","b3f7",1,749],["0jTRM","3r4/4p1k1/1P3pp1/5b1p/2q2P2/4R1Q1/6PP/4N2K b - - 0 31","c4f1",1,762],["0IN6H","5r1k/ppp2p2/3prN1p/b3q1pQ/4P3/3B4/PPP4P/1K3R2 w - - 8 31","h5h6",1,778],["0b5ie","r2q1rk1/pp3ppp/2n1p3/8/3pQ3/2P2NP1/PP3PP1/R3K2R w KQ - 0 14","e4h7",1,837],["0zPIg","3r1rk1/p1p3pp/4b3/qpQ3P1/4P2P/3P4/PPP5/R1K2B1R b - - 2 23","a5e1",1,918],["0HSJk","r4rk1/1pp2ppp/p7/2b4q/5Qn1/2N2bPP/PPP2P2/R1B1RBK1 b - - 2 18","c5f2",1,963],["11JIu","r6k/1p4R1/1q1p1Q2/5N2/p3Pn2/K1BP3P/8/6R1 b - - 0 36","b6b3",1,1005],["08jAw","2rr1k2/4qp2/1p3Qp1/3B2P1/p1Pp1P2/8/P6P/5RK1 w - - 0 36","f6h8",1,1016],["0Dpus","r1bq1rk1/pppp4/2n1p3/4p1n1/1bPP4/2NQ4/PP2NPP1/R3KB1R w KQ - 0 13","d3g6",1,1032],["19BGQ","5r2/1RR5/p5pk/P1P4p/3bN3/8/1P3r2/6K1 w - - 0 35","c7h7",1,1060],["16cU4","r3k2r/ppp2ppp/2q1p3/4P3/1b6/2N2Q2/PP4PP/3R1RK1 w kq - 1 17","f3f7",1,1066],["0llE5","rn3rk1/1b3p1p/4pp2/pp4qQ/2pP3N/2P5/PPB2PPP/3R1RK1 w - - 4 18","h5h7",1,1088],["0sbJD","2r5/1p4p1/p2k1p2/3P4/PP1RP2p/1K3P1P/2r5/3R4 b - - 0 33","c8c3",1,1093],["0uIC7","r2q2rk/1p2bp1p/p1bp1n1Q/2p1p1N1/4PP2/2NP4/PPP3PP/R4RK1 w - - 1 15","g5f7",1,1103],["0BbRw","r1k3r1/4R1p1/pnNB1nbp/8/8/2P5/PP3PPP/R2K4 w - - 1 21","e7c7",1,1106],["14yK6","4R3/5r1p/1r1n1kpB/1p2p3/4P1BP/8/2P2PP1/6K1 w - - 5 38","e8e6",1,1156],["0v8CC","r5nr/pp2kppp/4b3/1B2P3/4p3/2B5/PP3PPP/3RK2R w K - 3 14","c3b4",1,1161],["0ztuO","4B3/r3r3/p4p2/1ppp3R/6kP/2P1P3/5PK1/8 w - - 0 36","f2f3",1,1166],["0e4pb","k1r2R2/ppB5/1np3Q1/3p3p/q2P4/7P/PP4P1/1K1R4 b - - 0 27","a4d1",1,1169],["0fO8q","5k1r/6b1/1p1N2Qp/p2PqN2/P7/3b3P/1P4P1/6K1 w - - 12 33","g6f7",1,1204],["03Xd6","r1b1r3/ppp5/3pk3/4npB1/8/2N4Q/Pq4PK/5R2 w - - 0 29","h3f5",1,1214],["0HDzc","2rr4/5n1p/p3kp2/P1BR1Np1/1pP1P3/2b3P1/4K2P/5R2 w - - 1 32","f5g7",1,1279],["0RCn4","rn5r/kb5p/p1p2Np1/1P1Nbp2/1P2p3/1B5P/R1P3P1/3R3K w - - 0 26","b5b6",1,1283],["02VaY","r4r2/pp1n3k/1q1pp1R1/7p/3bP2P/6R1/PPPQB3/2K5 w - - 0 21","d2h6",1,1296],["0iCSM","r1b5/ppp3bk/3p1q1p/3Q2pP/2BP1p2/2P3B1/PP3PP1/2KRr3 w - - 0 19","d5g8",1,1296],["1BSJH","4B1k1/1pp2pp1/7p/p7/P2pNn2/3P3q/1P3P2/R3NRK1 b - - 6 30","f4e2",1,1342],["13JMk","3k4/3r4/2K3p1/8/1Q6/8/5P2/3q4 w - - 0 95","b4f8",1,1364],["1AYO1","8/2p5/p3q1p1/4pk1p/P6P/2Q5/6P1/6K1 w - - 5 49","c3f3",1,1413],["0DN0L","5k2/3P4/pp5p/4B3/P1Bp2n1/7q/1P6/6K1 w - - 0 45","d7d8q",1,1433],["1Ar3y","1br3rk/4n1p1/p3P1np/1p5Q/8/PBB3PP/1P3qPK/2R1R3 w - - 7 35","h5h6",1,1444],["0PqW4","6k1/pp2n1pp/5p2/7P/8/Qb2BN2/1P2KPP1/1q3B1R b - - 6 30","b1d1",1,1531],["0eIDj","Q1N5/3P1k2/2n2p2/2P2Kp1/5PP1/8/1p4P1/8 b - - 0 57","b2b1q",1,1552],["0eu2y","r3k1nr/4pp1p/p1nP2p1/8/1pb1PP2/2N1BN1P/1qPK4/3RQB1R b kq - 0 17","b4c3",1,1625],["0h4OG","5kqr/p1r2b1p/5Q2/1Bb2pp1/8/8/PPP3PP/4R2K w - - 0 25","e1e8",1,1676],["13g0z","2k5/1p3r2/p1p5/3bQ3/2q5/5PBP/6PK/8 w - - 5 44","e5e8",1,1751],["09nQI","6k1/8/4p2p/2b1P3/1p6/5qNp/PR3Q1B/6K1 b - - 4 36","f3g2",1,1956],["17eDe","3rr3/5pkp/6p1/1R6/PP3P2/1B6/3p1PPP/3R2K1 b - - 0 32","e8e1 d1e1 d2e1q",2,689],["0pqXI","1Qbq3r/5k2/pP2p3/3pPp2/3P4/2P2Np1/4BbP1/1R1Q1K2 b - - 1 30","h8h1 f3g1 h1g1",2,791],["0Oo0M","3r2k1/1R4b1/q3p1p1/1p6/pPr5/P1P2Q2/5PP1/B5K1 w - - 0 35","f3f7 g8h8 f7g7",2,799],["0fglZ","6k1/5ppb/4p2p/1P1pP3/Q3nP1q/7P/6BK/6B1 w - - 1 44","a4a8 h4d8 a8d8",2,851],["0FAEh","8/1pk1r2p/p2R4/2p3P1/4p3/4Q3/Pq3PK1/8 w - - 2 42","e3c5 c7b8 d6d8",2,883],["0WVOM","6k1/1R4bp/3P4/5pN1/b3P3/7P/5PBK/2r5 b - - 0 38","g7e5 f2f4 e5f4",2,901],["0sUAo","7k/2P3p1/5pQ1/2b1pP1p/2q4P/1p6/3p2B1/3R3K b - - 0 46","c4h4 g2h3 h4h3",2,926],["0j3Cy","4rk2/1p2r1n1/p1p2p2/3p3Q/PP1P1q1P/2P3R1/5PP1/4RK2 w - - 3 30","h5h8 f8f7 h8g7",2,950],["0TeQr","1k3r2/1bn2qp1/1n1QB2p/N7/Pp1P4/6P1/1P3PP1/2R3K1 b - - 0 28","f7f2 g1h2 f2g2",2,978],["0n5Ka","rr5k/1Q2N1pp/p3Nn2/2p1n3/4p3/PP2p1P1/KBq4P/5B1R w - - 2 22","e7g6 h7g6 b7g7",2,1094],["0e3Oz","r7/4pp2/2pp1k2/8/2b1P2P/6Q1/6PK/r7 w - - 0 33","g3g5 f6e6 g5f5",2,1100],["0PW5p","5R2/4N1pk/8/2p3P1/4n2P/2r5/6K1/8 w - - 0 39","g5g6 h7h6 f8h8",2,1123],["0r4MT","2kr1r2/pp1q2p1/2b1R2p/2b5/P4BQ1/8/6PP/1R5K w - - 1 31","e6c6 b7c6 b1b8",2,1125],["0bd00","2r1k2r/1p2p1bp/p2pp1p1/2n1P3/3B1P2/2N5/qPPQ2PP/2KR1B1R b k - 1 15","a2a1 c3b1 c5b3",2,1156],["1545l","4rr2/4np1k/2p4p/p4q2/1p3Q2/8/PPP5/2K4R w - - 0 39","f4h6 h7g8 h6h8",2,1178],["157bu","6k1/7p/2q1p1BQ/p1P2pP1/3p1P2/2P1P1KR/2r4P/8 b - - 2 39","c6g2 g3h4 g2g4",2,1181],["19yme","8/7p/4R1pk/p1pr3P/P7/6Q1/3q1PK1/8 w - - 0 57","e6g6 h7g6 g3g6",2,1216],["07V9Y","6k1/R7/2pprpK1/1p4p1/8/2P2p2/1P6/8 w - - 2 47","a7a8 e6e8 a8e8",2,1225],["12EMH","5r2/p4p1k/8/1P1Q4/7b/5P2/PBq2P1P/7K w - - 0 27","d5h5 h7g8 h5h8",2,1236],["0dq0v","1r4k1/p4ppp/1Bp5/K7/2r2P2/P6P/6P1/R3R3 b - - 0 30","a7b6 a5a6 c4a4",2,1269],["0dhDZ","5Q2/p6p/q3p1p1/4Np2/3P2Pk/4nP2/1P6/6K1 w - - 0 32","f8h6 h4g3 h6h2",2,1277],["023E4","1r5N/1p2R1bp/p2k4/2pN3B/2Pn1P2/8/b5PP/6K1 w - - 2 26","h8f7 d6c6 e7c7",2,1282],["02Wym","r1b1r1k1/ppp2ppp/1n6/8/3qNPQ1/6P1/P5BP/R3RK2 w - - 4 19","e4f6 g8h8 e1e8",2,1289],["08PWC","4r1k1/p4pp1/2Qp3p/8/3P2q1/P1P5/1B3R1P/7K b - - 0 24","e8e1 f2f1 e1f1",2,1302],["0sba0","r3rk1b/ppq2p2/6p1/3pp1B1/4b3/2P2RP1/P4PK1/7R w - - 0 27","h1h8 f8g7 g5f6",2,1311],["11ZfR","r1b1kbnr/pp3ppp/2n1p3/1N1QP3/8/4BN2/P1PK1PPP/q4B1R w kq - 0 11","b5c7 e8e7 e3c5",2,1329],["15S3Q","r4bnr/ppk3pp/2p2p2/4n3/3NP3/2N1B3/PP4PP/2KR1b1R w - - 0 13","d4e6 c7c8 d1d8",2,1331],["01EMd","r6k/3nq1pp/3pBp2/2p1nP2/1p2R2Q/1P5P/r5P1/2B1R1K1 w - - 7 32","h4h7 h8h7 e4h4",2,1347],["17Pwf","3Rr1k1/5p2/7p/2p3p1/3p3P/1P1P2K1/R1Pq1PQ1/B7 b - - 0 29","d2f4 g3h3 f4h4",2,1383],["0o40Y","3r1rk1/p3qpb1/2p3p1/4p2N/4P3/4p2Q/PPP2PK1/R6R w - - 0 26","h5f6 g7f6 h3h7",2,1463],["0kQJK","Q7/8/8/8/3kp3/3p4/5rPP/R2K4 b - - 0 52","f2f1 d1d2 e4e3",2,1465],["0PrOJ","5r1r/pppk2p1/3p4/4p3/3nP3/N5P1/PPP2P2/R1B2RK1 b - - 2 16","d4f3 g1g2 h8h2",2,1478],["0BccL","r7/p1p1kp2/2P2N2/3PP3/P4q2/6p1/2Q2p2/5K2 w - - 2 38","c2c5 e7d8 c5f8",2,1537],["0jLIO","1rbn1b1r/1p1kpppp/p4n2/1N2p3/2B5/5N2/PP3PPP/R1B1K2R w KQ - 0 12","f3e5 d7e8 b5c7",2,1579],["0I7zw","4q2r/p4R1p/1b4pk/2ppP3/6P1/B1P5/P1P1K2P/5R2 w - - 1 22","a3c1 g6g5 f1f6",2,1612],["0FHYg","7k/p5pp/2p5/2p5/2B1P3/2B1b1Pb/PP3r1P/4R2K b - - 5 26","h3g2 h1g1 f2e2",2,1633],["11ybn","6k1/ppb3p1/2p3N1/5R2/2Pr4/8/PP3KP1/8 w - - 0 38","g6e7 g8h8 f5h5",2,1670],["00TRo","7k/2r3p1/1p2p2b/3p2NQ/1q1P4/1p6/5R2/6K1 w - - 2 39","h5e8 b4f8 f2f8",2,1695],["0EKNw","5r2/1bpn2k1/p1q2rp1/8/2p3N1/2N1Q3/PPP2RPP/5RK1 b - - 3 28","c6g2 f2g2 f6f1",2,1790],["0gWiM","8/pp4pk/2p3r1/5Q1P/5p2/1B6/Pr3b1K/5R2 b - - 0 37","f2g1 h2h3 b2h2",2,2006],["19zot","rn5k/1b4pp/p3Bn2/P1b1q3/1p2p3/5P2/1PP1N1PP/3RR2K w - - 0 22","d1d8 f6e8 d8e8 c5f8 e8f8",3,677],["0MvTu","r1k4r/pppn1Qp1/3R2p1/5nB1/3P2P1/2P2P1q/P6P/R5K1 w - - 5 24","f7d7 c8b8 d7d8 h8d8 d6d8",3,981],["0CbfB","6k1/1pq1b1pp/4P3/5Q2/p7/2P4P/6P1/7K w - - 0 32","f5f7 g8h8 f7e8 e7f8 e8f8",3,1018],["13J5Y","6k1/2p1Rp2/1q3rpp/p2P4/8/2Q5/P4PPP/4R1K1 b - - 3 29","b6f2 g1h1 f2f1 e1f1 f6f1",3,1036],["0EXPs","1k1r4/ppp3Qp/5n2/5r2/4p3/P3P2P/P2q1PR1/2R2K2 w - - 0 21","g7c7 b8a8 c7c8 d8c8 c1c8",3,1057],["0zGDV","2k4r/ppp1Qp1p/6b1/4P3/8/2P2N1P/P1q3P1/K2R4 w - - 2 23","e7d7 c8b8 d7d8 h8d8 d1d8",3,1124],["1BvCB","2q3k1/pp4pp/2p5/3rrR1Q/8/4P2P/1P4P1/6K1 w - - 0 29","h5f7 g8h8 f7f8 c8f8 f5f8",3,1125],["0LRRs","8/3R4/2B3p1/1p1Pb3/1Pb1N2k/r6p/5K2/8 w - - 2 56","d7h7 h4g4 c6d7 g4f4 h7h4",3,1191],["0JmhO","r2qr3/1p1bbk2/1n2pppB/p2n4/P2PN1Q1/8/1P3PPP/RB3RK1 w - - 2 21","e4d6 e7d6 g4g6 f7e7 g6g7",3,1235],["0KCeN","6k1/pr3r2/1p2QBp1/2p1P2P/3P4/2P1q3/PP4KP/8 w - - 0 31","e6e8 f7f8 e8g6 b7g7 g6g7",3,1323],["0YDFe","5rk1/ppp3pp/8/7q/6P1/1P4PB/PQ2R2K/1RBr4 b - - 0 29","d1h1 h2h1 h5h3 e2h2 h3f1",3,1357],["0Leao","2k1rr2/pR1b3p/2P2q2/3B3Q/8/8/P4PPP/5RK1 b - - 0 29","f6f2 f1f2 e8e1 f2f1 e1f1",3,1424],["01YV3","1r4k1/p3R2p/3p2pQ/3q4/3b4/3p4/PP3rPP/1RB4K w - - 0 23","h6h7 g8f8 c1h6 d4g7 h7g7",3,1444],["1B6JJ","6k1/4ppbp/1p4p1/p5N1/8/P4QnP/6PK/2q5 w - - 0 31","f3f7 g8h8 f7e8 g7f8 e8f8",3,1455],["1204K","8/1k4B1/3p3p/3P2pP/Q3P3/6PK/4bbB1/6q1 b - - 4 50","g5g4 h3h4 g1h2 g2h3 h2h3",3,1540],["16RVe","3k3r/ppp3pq/5p2/1P1B4/Q5b1/P2P2P1/1B2PP2/R3R1K1 b - - 2 24","h7h2 g1f1 g4h3 d5g2 h3g2",3,1584],["0fHkr","r1bq2k1/ppp3pr/2nb1nNp/8/3P1p2/2P5/PP4PP/RNBQ1RK1 w - - 1 12","d1b3 f6d5 b3d5 c8e6 d5e6",3,1716],["02LtX","r3k2r/ppQ1n1p1/1p1R4/6p1/8/P3qP2/BPP4P/5b1K w kq - 0 23","c7d7 e8f8 d7d8 a8d8 d6d8",3,1723],["0rVFZ","4rk1r/pR2bppp/2Qp4/3Pp1B1/4n3/2Pq1P2/P5PP/4K2R w K - 0 20","g5e7 e8e7 b7b8 e7e8 b8e8",3,1752],["0SjKr","1rr5/4kpQ1/p2bp3/3p2P1/P5qP/2P3P1/8/5RK1 w - - 1 35","f1f7 e7e8 g7g8 d6f8 g8f8",3,1845],["146DQ","5rk1/pp6/5p2/3p2pR/3P4/P6Q/3n1PK1/2q5 w - - 8 44","h5h8 g8f7 h3d7 f7g6 d7h7",3,1871],["0EQu4","4rr1k/p1p1Nppp/1b1pb3/1P6/P1q5/8/1BPQ1PPP/R3R1K1 w - - 1 18","b2g7 h8g7 d2g5 g7h8 g5f6",3,1927],["0gFr6","6QR/5pp1/1p3qkp/p1bb4/P5P1/4P2P/5P2/6K1 w - - 3 33","h8h6 g6h6 g8h8 h6g5 h8h5",3,2083],["0qMn8","3rbk2/pp2p1bQ/3p1p2/2rNnP2/4P1q1/1B6/P1P2KP1/3R3R w - - 2 30","h7g8 f8g8 d5f6 g8f8 f6h7",3,2247]];
+
+/*</B4AJDATOS>*/
+/*<B4AJEDREZ>*/
+/* ===================== AJEDREZ · tablero a pantalla completa, rivales, reloj, apuestas, problemas, torneo y el CLUB de Terrazalia ===================== */
+const AJRIV=[
+ {id:"ajnico",nv:1,n:"Nico",t:"8 años · Principiante",pal:mp("#8a4a1a","#2a8ad8"),hs:1,ts:0,g:"m",p:1.45,
+  hola:["¡Yo juego muy bien! Mi abuelo me deja ganar siempre."],come:["¡Te la he comido! ¡Te la he comido!"],pierde:["¡Eh! Esa la quería yo."],jaque:["¡Jaque! Se dice así, ¿no?"],gana:["¡HE GANADO! ¡Se lo voy a contar a toda la clase!"],fin:["Jo… la revancha. Es que me picaba la nariz."]},
+ {id:"ajpuri",nv:2,n:"Doña Puri",t:"Juega los domingos · Fácil",pal:mp("#c8c8c8","#a84a8a"),hs:9,ts:3,g:"f",p:1.05,
+  hola:["Siéntate, hijo. ¿Quieres una pastita? Luego te gano."],come:["Ay, perdona, que esta me la llevo."],pierde:["Uy, esa no la había visto, sin las gafas…"],jaque:["Jaque, cariño. No te lo tomes a mal."],gana:["¡Ay, qué bien! Hoy invito yo a la merienda."],fin:["Muy bien jugado. Se lo diré a tu madre."]},
+ {id:"ajpaquito",nv:3,n:"Paquito el Estanquero",t:"Veterano del club · Media",pal:mp("#2a1a0e","#6a7a3a"),hs:4,ts:4,g:"m",p:.8,
+  hola:["Aquí se juega callado y se pierde con dignidad."],come:["Esta al cenicero."],pierde:["Hmm. Esa me ha picado."],jaque:["Jaque. Piénsatelo, que no hay prisa. Bueno, el reloj sí la tiene."],gana:["Otro que cae. La casa no fía ni regala."],fin:["Pues sí que sabes. La próxima vez no fumo mientras juego."]},
+ {id:"ajirina",nv:4,n:"La Profesora Irina",t:"Entrenadora · Difícil",pal:mp("#e8c860","#1a2a5a"),hs:8,ts:6,g:"f",p:.95,
+  hola:["En mi escuela, perder es la primera lección. Empecemos."],come:["Un regalo. Gracias."],pierde:["Interesante. Eso estaba bien visto."],jaque:["Jaque. Tu rey está incómodo."],gana:["Analiza la partida. Tu error vino diez jugadas antes."],fin:["…Excelente. No me pasaba desde Leningrado."]},
+ {id:"ajramiro",nv:5,n:"Maestro Don Ramiro",t:"Campeón del club · Maestro",pal:mp("#e8e8e8","#2a1a1a"),hs:10,ts:5,g:"m",p:.62,
+  hola:["Cuarenta años sentado en esta mesa. Mueva usted."],come:["Era inevitable."],pierde:["Ya veremos si ha sido un acierto."],jaque:["Jaque."],gana:["Vuelva cuando haya soñado con las sesenta y cuatro casillas."],fin:["Señor mío… me quito el sombrero. El club tiene un nuevo maestro."]}];
+const ajRiv=id=>AJRIV.find(r=>r.id===id);
+const ajDice=(r,k,mood)=>{const t=pick(r[k]);try{ttsSay(t,{g:r.g,p:r.p,r:1},mood||"normal",r.n)}catch(e){}return t};
+// ---------- sonido de madera ----------
+let AJAC=null;function ajClac(fuerte){if(muted)return;try{AJAC=AJAC||new(window.AudioContext||window.webkitAudioContext)();const a=AJAC,n=a.sampleRate*.07|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(a.sampleRate*.008));const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type="bandpass";f.frequency.value=fuerte?900:1500;f.Q.value=1.3;const g=a.createGain();g.gain.value=fuerte?1.1:.7;s.connect(f);f.connect(g);g.connect(a.destination);s.start()}catch(e){}}
+// ---------- piezas dibujadas (estilo Staunton, en una caja de 100x100) ----------
+function ajPieza(g,tipo,blanca,x,y,s){g.save();g.translate(x,y);g.scale(s/100,s/100);
+ const gr=g.createLinearGradient(20,0,82,0);if(blanca){gr.addColorStop(0,"#fffdf4");gr.addColorStop(.45,"#f4e8c8");gr.addColorStop(1,"#b89a68")}else{gr.addColorStop(0,"#6a5a50");gr.addColorStop(.4,"#332824");gr.addColorStop(1,"#0c0807")}
+ const borde=blanca?"#5a4022":"#000",brillo=blanca?"rgba(255,255,255,.75)":"rgba(255,225,190,.35)";g.fillStyle=gr;g.strokeStyle=borde;g.lineWidth=2;g.lineJoin="round";
+ const forma=f=>{g.beginPath();f();g.closePath();g.fill();g.stroke()},bola=(cx,cy,r)=>forma(()=>g.arc(cx,cy,r,0,7)),anillo=(cy,rx,ry)=>forma(()=>g.ellipse(50,cy,rx,ry,0,0,7));
+ // peana común
+ forma(()=>{g.moveTo(24,92);g.quadraticCurveTo(22,84,30,83);g.lineTo(70,83);g.quadraticCurveTo(78,84,76,92);g.quadraticCurveTo(50,97,24,92)});anillo(82,23,4.5);
+ if(tipo===1){forma(()=>{g.moveTo(41,50);g.quadraticCurveTo(42,68,31,80);g.lineTo(69,80);g.quadraticCurveTo(58,68,59,50)});anillo(50,16,4.5);bola(50,35,13.5)}
+ else if(tipo===4){forma(()=>{g.moveTo(37,41);g.quadraticCurveTo(40,62,31,80);g.lineTo(69,80);g.quadraticCurveTo(60,62,63,41)});anillo(41,19,4);forma(()=>{g.moveTo(29,38);g.lineTo(29,19);g.lineTo(39,19);g.lineTo(39,26);g.lineTo(45,26);g.lineTo(45,19);g.lineTo(55,19);g.lineTo(55,26);g.lineTo(61,26);g.lineTo(61,19);g.lineTo(71,19);g.lineTo(71,38)})}
+ else if(tipo===2){forma(()=>{g.moveTo(32,80);g.bezierCurveTo(32,66,52,60,48,48);g.bezierCurveTo(42,54,34,52,28,56);g.bezierCurveTo(20,59,17,50,23,45);g.bezierCurveTo(30,39,34,28,43,23);g.lineTo(45,10);g.lineTo(53,20);g.bezierCurveTo(70,23,80,43,72,62);g.bezierCurveTo(69,70,70,75,70,80)});
+  g.fillStyle=blanca?"#3a2410":"#e8c8a0";g.beginPath();g.arc(42,33,2.8,0,7);g.fill();g.beginPath();g.arc(25,50,1.6,0,7);g.fill();g.strokeStyle=blanca?"rgba(90,60,30,.7)":"rgba(255,220,180,.35)";g.lineWidth=1.8;for(let i=0;i<4;i++){g.beginPath();g.moveTo(57+i*3,25+i*9);g.quadraticCurveTo(68+i*1.5,31+i*9,66+i,40+i*9);g.stroke()}g.fillStyle=gr;g.strokeStyle=borde;g.lineWidth=2}
+ else if(tipo===3){forma(()=>{g.moveTo(42,62);g.quadraticCurveTo(43,73,32,80);g.lineTo(68,80);g.quadraticCurveTo(57,73,58,62)});anillo(62,17,4.5);forma(()=>{g.moveTo(50,17);g.bezierCurveTo(66,28,70,46,59,59);g.lineTo(41,59);g.bezierCurveTo(30,46,34,28,50,17)});bola(50,14,5);g.beginPath();g.moveTo(57,28);g.lineTo(45,45);g.lineWidth=3.4;g.stroke();g.lineWidth=2}
+ else{forma(()=>{g.moveTo(37,60);g.quadraticCurveTo(41,72,31,80);g.lineTo(69,80);g.quadraticCurveTo(59,72,63,60)});anillo(60,20,4.5);
+  if(tipo===5){forma(()=>{g.moveTo(34,58);g.lineTo(24,27);g.lineTo(38,45);g.lineTo(39,20);g.lineTo(50,43);g.lineTo(61,20);g.lineTo(62,45);g.lineTo(76,27);g.lineTo(66,58)});for(const[cx,cy]of[[24,24],[39,17],[61,17],[76,24]])bola(cx,cy,4.6);bola(50,34,5)}
+  else{forma(()=>{g.moveTo(35,58);g.bezierCurveTo(18,40,30,28,50,40);g.bezierCurveTo(70,28,82,40,65,58)});anillo(36,9,5);forma(()=>{g.moveTo(46,6);g.lineTo(54,6);g.lineTo(54,13);g.lineTo(62,13);g.lineTo(62,21);g.lineTo(54,21);g.lineTo(54,32);g.lineTo(46,32);g.lineTo(46,21);g.lineTo(38,21);g.lineTo(38,13);g.lineTo(46,13)})}}
+ g.strokeStyle=brillo;g.lineWidth=2.6;g.lineCap="round";g.beginPath();g.moveTo(32,87);g.quadraticCurveTo(38,89,46,89);g.stroke();g.beginPath();g.moveTo(tipo===2?36:tipo===4?40:43,tipo===1?66:72);g.quadraticCurveTo(40,75,36,78);g.stroke();g.restore()}
+// ---------- estilos de tablero ----------
+const AJEST=[{n:"Madera de nogal",l:"#e8c890",d:"#9a6232",marco:"#4a2c14",veta:"rgba(90,50,15,.18)",letra:"#e8c890"},{n:"Mármol",l:"#e9e6df",d:"#78818c",marco:"#2c3038",veta:"rgba(255,255,255,.3)",letra:"#d8d8d0"},{n:"Torneo verde",l:"#ecebd0",d:"#6f9150",marco:"#2a1a10",veta:"rgba(0,0,0,.05)",letra:"#d8d8b0"}];
+const ajPref=()=>{try{return JSON.parse(localStorage.getItem("or_aj"))||{}}catch(e){return{}}};
+const ajGuardaPref=o=>{try{localStorage.setItem("or_aj",JSON.stringify(Object.assign(ajPref(),o)))}catch(e){}};
+(function(){const st=document.createElement("style");st.textContent=
+"#ajx{position:fixed;inset:0;z-index:9000;background:radial-gradient(ellipse at 50% 30%,#4a3220,#140c06 75%);display:flex;gap:14px;align-items:center;justify-content:center;padding:48px 10px 10px;box-sizing:border-box;overflow:auto;color:#f4e8d0;font-family:Rubik,Arial,sans-serif}"+
+"#ajx canvas{touch-action:manipulation;cursor:pointer;display:block;filter:drop-shadow(0 18px 30px #000a)}#ajp{width:min(320px,94vw);display:flex;flex-direction:column;gap:8px}"+
+"#ajp .caja{background:#1d130bdd;border:2px solid #7a5530;border-radius:12px;padding:9px 12px}#ajp .reloj{font:800 26px ui-monospace,Consolas,monospace;float:right;background:#0b0704;border-radius:8px;padding:1px 10px;color:#cfc4b4}#ajp .turno{border-color:#f2a93b}#ajp .turno .reloj{color:#ffd14a}"+
+"#ajp .dice{font-style:italic;color:#ffe6b0;min-height:20px;font-size:14px}#ajp .jug{max-height:118px;overflow:auto;font:14px/1.7 ui-monospace,Consolas,monospace}#ajp button{font:700 14px Rubik,Arial,sans-serif;padding:10px 8px;border-radius:10px;border:2px solid #8a6238;background:#2e1f12;color:#fff;cursor:pointer}#ajp button:hover{background:#4a321c}#ajp .bts{display:grid;grid-template-columns:1fr 1fr;gap:7px}"+
+"@media (max-width:760px){#ajx{flex-direction:column;justify-content:flex-start}#ajp .jug{max-height:62px}}";document.head.appendChild(st)})();
+/* Pantalla de juego. cfg: {fen, humano:1|-1|0 (0 = mirar), nivel, rival, reloj (min), modo:"partida"|"problema"|"mirar", problema, titulo}
+   Devuelve {res:"gana"|"pierde"|"tablas"|"abandona"|"salir"|"resuelto", motivo, fallos} */
+function ajTablero(cfg){return new Promise(resolve=>{
+ const P=AJ.fromFEN(cfg.fen||"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),fen0=AJ.toFEN(P),jugadas=[],sans=[],comidas={1:[],"-1":[]};
+ const pref=ajPref();let vista=pref.vista||"arriba",est=pref.est||0;const humano=cfg.humano===undefined?1:cfg.humano;let giro=(cfg.problema?P.side:humano||1)<0;
+ let sel=null,ult=null,anim=null,fin=null,cerrado=false,pensando=false,promo=null,armaR=false,fallos=0,paso=0,aviso=0;
+ const rel=cfg.reloj?{1:cfg.reloj*60000,"-1":cfg.reloj*60000}:null;let tPrev=performance.now();
+ overlay("<div></div>",{onB:()=>{}});const root=document.createElement("div");root.id="ajx";root.innerHTML=`<canvas id="aj-c"></canvas><div id="ajp"><div class="caja" id="aj-op"></div><div class="caja"><div class="dice" id="aj-dice"></div><div id="aj-msg" style="font-weight:700;margin-top:3px"></div></div><div class="caja jug" id="aj-jug"></div><div class="caja" id="aj-yo"></div><div class="bts" id="aj-bts"></div></div>`;document.body.appendChild(root);
+ const cv_=root.querySelector("#aj-c"),g=cv_.getContext("2d"),q=id=>root.querySelector("#"+id);let W=600,H=600;
+ const medir=()=>{const movil=innerWidth<=760;let lado=movil?Math.min(innerWidth-34,innerHeight*.62):Math.min(innerHeight-70,innerWidth-370);lado=Math.max(280,Math.floor(lado));W=lado;H=vista==="persp"?Math.floor(lado*.86):lado;const dpr=Math.min(2,devicePixelRatio||1);cv_.width=W*dpr;cv_.height=H*dpr;cv_.style.width=W+"px";cv_.style.height=H+"px";g.setTransform(dpr,0,0,dpr,0,0)};
+ // geometría: (u,v) en casillas desde la esquina superior izquierda tal y como se ve
+ const geo=(u,v)=>{if(vista!=="persp"){const m=W*.05,s=(W-2*m)/8;return[m+u*s,m+v*s,s]}const far=W*.66,near=W*.93,t=v/8,ancho=far+(near-far)*t,alto=H*.8,y=H*.15+alto*(far*t+(near-far)*t*t/2)/((far+near)/2);return[W/2+(u/8-.5)*ancho,y,ancho/8]};
+ const aVista=s=>{const f=s&7,r=s>>4;return giro?[7-f,r]:[f,7-r]};const deVista=(u,v)=>giro?(7-u)+16*v:u+16*(7-v);
+ const cuad=(u,v)=>{const a=geo(u,v),b=geo(u+1,v),c=geo(u+1,v+1),d=geo(u,v+1);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.lineTo(c[0],c[1]);g.lineTo(d[0],d[1]);g.closePath()};
+ function dibuja(t){const E=AJEST[est];g.clearRect(0,0,W,H);
+  // marco
+  const a=geo(0,0),b=geo(8,0),c=geo(8,8),d=geo(0,8),m=W*.042;g.fillStyle=E.marco;g.beginPath();const ms_=vista==="persp"?m*.8:m;g.moveTo(a[0]-ms_,a[1]-m);g.lineTo(b[0]+ms_,b[1]-m);g.lineTo(c[0]+m,c[1]+m);g.lineTo(d[0]-m,d[1]+m);g.closePath();g.fill();g.strokeStyle="#c8984a";g.lineWidth=2;g.stroke();
+  if(vista==="persp"){g.fillStyle="#1e1008";g.fillRect(d[0]-m,d[1]+m,c[0]-d[0]+2*m,H*.03)}
+  for(let v=0;v<8;v++)for(let u=0;u<8;u++){const clara=(u+v)%2===0;cuad(u,v);g.fillStyle=clara?E.l:E.d;g.fill();g.save();g.clip();g.strokeStyle=E.veta;g.lineWidth=1.2;const[x0,y0,s]=geo(u,v);for(let i=0;i<5;i++){const h=hash(u*7+i,v*13+i)%100/100;g.beginPath();g.moveTo(x0-s*.2,y0+s*(.1+i*.2+h*.1));g.bezierCurveTo(x0+s*.3,y0+s*(h*.3+i*.2),x0+s*.7,y0+s*(.35+i*.18),x0+s*1.3,y0+s*(.1+i*.2));g.stroke()}g.restore()}
+  const marca=(s,col)=>{const[u,v]=aVista(s);cuad(u,v);g.fillStyle=col;g.fill()};
+  if(ult){marca(ult.f,"rgba(255,214,60,.36)");marca(ult.t,"rgba(255,214,60,.5)")}if(sel!==null){marca(sel,"rgba(60,190,255,.5)")}
+  if(AJ.inCheck(P)){const k=P.side>0?P.kw:P.kb;marca(k,`rgba(230,40,30,${.45+.2*Math.sin(t/140)})`)}if(aviso>t)marca(aviso.s||0,"transparent");
+  g.fillStyle=E.letra;g.font=`700 ${Math.max(10,W*.022)}px Rubik,Arial`;g.textAlign="center";for(let i=0;i<8;i++){const[x,y]=geo(i+.5,8);g.fillText("abcdefgh"[giro?7-i:i],x,y+m*.72);const[xl,yl]=geo(0,i+.5);g.fillText(String(giro?i+1:8-i),xl-m*.45,yl+4)}
+  // piezas, de atrás hacia delante
+  const lista=[];for(let v=0;v<8;v++)for(let u=0;u<8;u++){const s=deVista(u,v);let pc=P.b[s];if(!pc)continue;let pu=u,pv=v,alto=0;if(anim&&anim.t===s){const k=Math.min(1,(t-anim.t0)/260),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,[fu,fv]=aVista(anim.f);pu=fu+(u-fu)*e;pv=fv+(v-fv)*e;alto=Math.sin(Math.PI*k)*(anim.salta?.55:.16);if(k>=1)anim=null}lista.push([pv,pu,pc,alto])}
+  lista.sort((x,y)=>x[0]-y[0]);for(const[v,u,pc,alto]of lista){const[cx,cy,s]=geo(u+.5,v+(vista==="persp"?.72:.5));const tam=vista==="persp"?s*(Math.abs(pc)===1?1.15:Math.abs(pc)===6?1.55:1.38):s*1.02;
+   g.fillStyle="rgba(0,0,0,.3)";g.beginPath();g.ellipse(cx+tam*.05,cy+(vista==="persp"?0:tam*.4),tam*(.32-alto*.1),tam*.09,0,0,7);g.fill();ajPieza(g,Math.abs(pc),pc>0,cx-tam/2,(vista==="persp"?cy-tam*.93:cy-tam*.52)-alto*s,tam)}
+  if(promo){g.fillStyle="rgba(0,0,0,.65)";g.fillRect(0,0,W,H);g.fillStyle="#fff";g.font=`800 ${W*.04}px Rubik,Arial`;g.fillText("¿En qué pieza coronas?",W/2,H*.34);[5,4,3,2].forEach((p,i)=>{const s=W*.2,x=W*.08+i*(s+W*.013),y=H*.4;g.fillStyle="#e8d4a8";g.fillRect(x,y,s,s);ajPieza(g,p,P.side>0,x,y,s)})}}
+ const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+ const material=c=>comidas[c].slice().sort((a,b)=>b-a).map(p=>["","♟","♞","♝","♜","♛"][p]).join("");
+ const ficha=(color,nombre,sub)=>`${rel?`<span class="reloj" id="aj-r${color>0?"w":"b"}">${mmss(rel[color])}</span>`:""}<b>${color>0?"⚪":"⚫"} ${esc(nombre)}</b><br><small style="opacity:.75">${esc(sub)}</small><div style="font-size:17px;min-height:20px;letter-spacing:1px">${material(color)}</div>`;
+ const R=cfg.rival;
+ function panel(){const yo=humano||1;const nomOp=cfg.modo==="mirar"?cfg.nombres[1]:cfg.modo==="problema"?"El problema":R?R.n:"La máquina";const subOp=cfg.modo==="problema"?`Problema de Lichess · dificultad ${cfg.problema[4]}`:R?R.t:cfg.sub||"";
+  q("aj-op").innerHTML=ficha(cfg.modo==="mirar"?-1:-(cfg.problema?AJ.fromFEN(fen0).side:yo),nomOp,subOp);q("aj-yo").innerHTML=ficha(cfg.modo==="mirar"?1:cfg.problema?AJ.fromFEN(fen0).side:yo,cfg.modo==="mirar"?cfg.nombres[0]:(S&&S.name)||"Tú",cfg.titulo||"Tú");
+  q("aj-op").classList.toggle("turno",!fin&&cfg.modo!=="problema"&&(cfg.modo==="mirar"?P.side<0:P.side!==yo));q("aj-yo").classList.toggle("turno",!fin&&(cfg.modo==="problema"||(cfg.modo==="mirar"?P.side>0:P.side===yo)));
+  let h="";for(let i=0;i<sans.length;i+=2)h+=`<b>${i/2+1}.</b> ${sans[i]} ${sans[i+1]||""} &nbsp; `;q("aj-jug").innerHTML=h||"<small>Aquí se apunta la partida.</small>";q("aj-jug").scrollTop=1e5}
+ function botones(){const b=[["aj-vista",vista==="persp"?"🔭 Vista: 3D":"🔲 Vista: arriba"],["aj-est","🎨 "+AJEST[est].n]];
+  if(cfg.modo==="partida"&&!fin){b.push(["aj-tab","🤝 Pedir tablas"],["aj-ren",armaR?"⚠️ ¿Seguro?":"🏳️ Rendirse"])}else if(cfg.modo==="problema"&&!fin)b.push(["aj-rein","↺ Empezar otra vez"],["aj-sal","🚪 Dejarlo"]);else b.push(["aj-sal",fin?"✔ Continuar":"🚪 Dejar de mirar"]);
+  q("aj-bts").innerHTML=b.map(([i,t])=>`<button type="button" id="${i}" tabindex="-1">${t}</button>`).join("");const on=(i,f)=>{const e=q(i);if(e)e.onclick=f};
+  on("aj-vista",()=>{vista=vista==="persp"?"arriba":"persp";ajGuardaPref({vista});medir();botones()});on("aj-est",()=>{est=(est+1)%AJEST.length;ajGuardaPref({est});botones()});
+  on("aj-ren",()=>{if(!armaR){armaR=true;botones();setTimeout(()=>{armaR=false;if(!cerrado&&!fin)botones()},3000);return}terminar("pierde","te has rendido")});
+  on("aj-tab",()=>{if(P.side!==humano||pensando)return;const v=AJ.evaluar(P)*-humano;if(v<-60||(sans.length>=60&&Math.abs(v)<60))terminar("tablas","por acuerdo");else msg(R?`${R.n} rechaza las tablas.`:"Tablas rechazadas.")});
+  on("aj-rein",()=>{while(P.hist.length)AJ.unmake(P);jugadas.length=sans.length=0;comidas[1]=[];comidas[-1]=[];ult=sel=null;paso=0;msg(textoProblema());panel()});
+  on("aj-sal",()=>cerrar(fin||{res:"salir",motivo:""}))}
+ const msg=t=>{q("aj-msg").textContent=t},dice=t=>{q("aj-dice").textContent=t?"«"+t+"»":""};
+ const textoProblema=()=>`Juegan las ${P.side>0?"BLANCAS":"NEGRAS"}. Mate en ${cfg.problema[3]}.`;
+ function terminar(res,motivo){if(fin)return;fin={res,motivo,fallos};sel=null;promo=null;const t={gana:"🏆 ¡HAS GANADO!",pierde:"💀 Has perdido",tablas:"🤝 Tablas",resuelto:"✅ ¡Resuelto!",acabada:"Partida terminada"}[res];msg(`${t}${motivo?" · "+motivo:""}`);sfx(res==="gana"||res==="resuelto"?"quest":res==="pierde"?"weak":"blip");
+  if(R&&cfg.modo==="partida")dice(res==="gana"?ajDice(R,"fin","pena"):res==="pierde"?ajDice(R,"gana","risa"):"Tablas. Ni para ti ni para mí.");botones();panel()}
+ function cerrar(r){if(cerrado)return;cerrado=true;cancelAnimationFrame(raf);removeEventListener("keydown",tecla,true);removeEventListener("resize",medir);root.remove();ttsStop();closeOverlay();resolve(r)}
+ const tecla=e=>{e.preventDefault();e.stopPropagation();if(e.key==="Escape"){if(promo){promo=null;return}if(fin||cfg.modo!=="partida")cerrar(fin||{res:"salir",motivo:""});else if(sel!==null)sel=null}};addEventListener("keydown",tecla,true);addEventListener("resize",medir);
+ function jugar(m){const san=AJ.san(P,m),mia=P.side;AJ.make(P,m);jugadas.push(AJ.uci(m));sans.push(san);if(m.cap)comidas[mia].push(Math.abs(m.cap));ult=m;sel=null;anim={f:m.f,t:m.t,t0:performance.now(),salta:Math.abs(m.pc)===2};ajClac(!!m.cap);if(AJ.inCheck(P))setTimeout(()=>sfx("blip"),90);panel();return san}
+ function comprobarFin(){const e=AJ.estado(P);if(!e)return false;if(cfg.modo==="mirar"){terminar("acabada",e.motivo+" ("+e.res+")");return true}terminar(e.res==="½-½"?"tablas":(e.res==="1-0")===(humano>0)?"gana":"pierde",e.motivo);return true}
+ async function turnoMaquina(){if(fin||cerrado)return;const lado=P.side;pensando=true;if(cfg.modo!=="mirar")msg((R?R.n:"La máquina")+" está pensando…");const t0=performance.now();const nv=cfg.modo==="mirar"?cfg.niveles[lado>0?0:1]:cfg.nivel;
+  const u=await ajPensar(fen0,jugadas.slice(),nv);const espera=(cfg.modo==="mirar"?1100:650+Math.random()*700)-(performance.now()-t0);if(espera>0)await new Promise(r=>setTimeout(r,espera));pensando=false;if(fin||cerrado||P.side!==lado)return;const m=u&&AJ.findUci(P,u);if(!m){comprobarFin();return}
+  jugar(m);if(R&&cfg.modo==="partida"){if(AJ.inCheck(P)&&Math.random()<.8)dice(ajDice(R,"jaque","picaro"));else if(m.cap&&Math.abs(m.cap)>=3)dice(ajDice(R,"come","risa"))}if(comprobarFin())return;msg(cfg.modo==="mirar"?"Mirando la partida…":AJ.inCheck(P)?"⚠️ ¡Jaque! Te toca.":"Te toca.");if(cfg.modo==="mirar")setTimeout(turnoMaquina,350)}
+ // jugada del jugador en un problema: vale cualquiera que fuerce el mate en las jugadas que quedan
+ function jugadaProblema(m){const quedan=cfg.problema[3]-paso,linea=cfg.problema[2].split(" ");pensando=true;msg("A ver…");setTimeout(()=>{if(cerrado)return;
+   AJ.make(P,m);const rs=AJ.legal(P);let bien;if(!rs.length)bien=AJ.inCheck(P);else if(quedan<=1)bien=false;else{bien=true;for(const r of rs){AJ.make(P,r);const ok=AJ.mateEn(P,quedan-1);AJ.unmake(P);if(!ok){bien=false;break}}}AJ.unmake(P);
+   if(!bien){pensando=false;sel=null;fallos++;sfx("weak");msg("❌ No es esa: el rey se escapa. "+textoProblema());return}
+   const esLinea=AJ.uci(m)===linea[paso*2];jugar(m);if(!rs.length){pensando=false;terminar("resuelto","jaque mate");return}
+   setTimeout(()=>{if(cerrado)return;const r=(esLinea&&linea[paso*2+1]&&AJ.findUci(P,linea[paso*2+1]))||AJ.defensa(P,quedan-1);jugar(r);paso++;pensando=false;msg(`✔ ¡Buena! Ahora mate en ${cfg.problema[3]-paso}.`)},750)},40)}
+ cv_.onclick=ev=>{const rc=cv_.getBoundingClientRect(),x=(ev.clientX-rc.left)*W/rc.width,y=(ev.clientY-rc.top)*H/rc.height;
+  if(promo){const s=W*.2,i=Math.floor((x-W*.08)/(s+W*.013));if(y>H*.4&&y<H*.4+s&&i>=0&&i<4){const m=promo.find(k=>k.pr===[5,4,3,2][i]);promo=null;if(cfg.modo==="problema")jugadaProblema(m);else{jugar(m);if(!comprobarFin())turnoMaquina()}}else promo=null;return}
+  if(fin||pensando||cfg.modo==="mirar"||(cfg.modo==="partida"&&P.side!==humano))return;
+  let casilla=null;for(let v=0;v<8&&casilla===null;v++){const[,y0]=geo(0,v),[,y1]=geo(0,v+1);if(y>=y0&&y<y1){const t=(y-y0)/(y1-y0),izq=geo(0,v+t)[0],der=geo(8,v+t)[0],u=Math.floor((x-izq)/(der-izq)*8);if(u>=0&&u<8)casilla=deVista(u,v)}}
+  if(casilla===null)return;const pc=P.b[casilla];if(pc&&Math.sign(pc)===P.side){sel=sel===casilla?null:casilla;sfx("sel");return}if(sel===null)return;
+  const ms=AJ.legal(P).filter(m=>m.f===sel&&m.t===casilla);if(!ms.length){sfx("weak");msg(AJ.inCheck(P)?"Estás en jaque: tienes que salvar al rey.":"Esa pieza no puede ir ahí.");sel=null;return}
+  if(ms.length>1){promo=ms;return}if(cfg.modo==="problema")jugadaProblema(ms[0]);else{const comida=ms[0].cap;jugar(ms[0]);if(R&&comida&&Math.abs(comida)>=3&&Math.random()<.7)dice(ajDice(R,"pierde","duda"));if(!comprobarFin())turnoMaquina()}};
+ let raf=0;const bucle=t=>{if(cerrado)return;const dt=t-tPrev;tPrev=t;if(rel&&!fin&&sans.length){rel[P.side]-=dt;const e=q(P.side>0?"aj-rw":"aj-rb");if(e){e.textContent=mmss(rel[P.side]);e.style.color=rel[P.side]<20000?"#ff6a5a":""}if(rel[P.side]<=0){rel[P.side]=0;const rival=-P.side;let puede=false;for(let s=0;s<120;s++)if(!(s&0x88)&&P.b[s]*rival>0&&[1,4,5].includes(Math.abs(P.b[s])))puede=true;terminar(!puede?"tablas":rival===humano?"gana":"pierde","se acabó el tiempo")}}dibuja(t);raf=requestAnimationFrame(bucle)};
+ medir();panel();botones();raf=requestAnimationFrame(bucle);
+ if(cfg.modo==="problema")msg(textoProblema());else if(cfg.modo==="mirar"){msg("Mirando la partida…");setTimeout(turnoMaquina,600)}else{if(R)dice(ajDice(R,"hola"));msg(P.side===humano?"Empiezas tú.":"Salen las blancas.");if(P.side!==humano)setTimeout(turnoMaquina,500)}
+ window.__aj={P,estado:()=>({fin,sans:sans.slice(),pensando,humano,vista}),click:(s)=>{const[u,v]=aVista(s),[x,y]=geo(u+.5,v+.5),rc=cv_.getBoundingClientRect();cv_.onclick({clientX:rc.left+x*rc.width/W,clientY:rc.top+y*rc.height/H})},cerrar}})}
+if(typeof withMusic==="function")ajTablero=withMusic(ajTablero,"bar");
+// ---------- preparar una partida: color, reloj y apuesta ----------
+async function ajPreparar(titulo){const c=await choose(titulo+" ¿Con qué color juegas?",[{label:"⚪ Blancas (sales tú)"},{label:"⚫ Negras"},{label:"🎲 Al azar"},{label:"↩ Volver"}],{cols:2});if(c<0||c>2)return null;
+ const r=await choose("⏱️ ¿Con reloj?",[{label:"Sin reloj"},{label:"3 minutos"},{label:"5 minutos"},{label:"10 minutos"},{label:"↩ Volver"}],{cols:2});if(r<0||r>3)return null;
+ const AP=[0,50,100,250];const a=await choose("💰 ¿Os jugáis algo? (es opcional)",AP.map(v=>({label:v?`Apostar ${v} pavos`:"🤝 Sin apuesta",disabled:S.money<v})).concat([{label:"↩ Volver"}]),{cols:2});if(a<0||a>3)return null;
+ return{humano:c===2?(Math.random()<.5?1:-1):c===0?1:-1,reloj:[0,3,5,10][r],apuesta:AP[a]}}
+async function ajPartida(R,opt){const o=opt||await ajPreparar(`${R.n} · ${R.t}.`);if(!o)return null;const r=await ajTablero({modo:"partida",humano:o.humano,nivel:R.nv,rival:R,reloj:o.reloj,titulo:o.apuesta?`Apuesta: ${o.apuesta} pavos`:o.titulo||"Partida amistosa"});if(r.res==="salir")return r;
+ S.ajStats=S.ajStats||{g:0,p:0,t:0,vencidos:{}};if(r.res==="gana"){S.ajStats.g++;S.ajStats.vencidos[R.id]=1;const premio=o.apuesta+[0,20,40,80,150,300][R.nv];S.money+=premio;await say(`${R.n}: ${R.fin[0]} (+${premio} pavos)`)}else if(r.res==="pierde"){S.ajStats.p++;if(o.apuesta){S.money-=o.apuesta;await say(`Pierdes la apuesta: −${o.apuesta} pavos.`)}}else S.ajStats.t++;save();return r}
+// ---------- los problemas ----------
+async function ajProblemas(){while(true){S.ajPz=S.ajPz||{};const hechos=n=>AJPZ.filter(p=>p[3]===n&&S.ajPz[p[0]]).length,total=n=>AJPZ.filter(p=>p[3]===n).length;
+ const i=await choose(`🧩 Abuelo Tomás: Problemas de verdad, de los que corren por el mundo. Llevas ${Object.keys(S.ajPz).length}/${AJPZ.length}.`,[1,2,3].map(n=>({label:`Mate en ${n}`,sub:`${hechos(n)}/${total(n)} resueltos`})).concat([{label:"🏆 Récords"},{label:"↩ Volver"}]),{cols:1});
+ if(i<0||i>3)return;if(i===3){await showBoard5("ajedrez",RECN.ajedrez);continue}const n=i+1;
+ while(true){const p=AJPZ.find(p=>p[3]===n&&!S.ajPz[p[0]]);if(!p){await say(`Abuelo Tomás: ¡No me queda ni un mate en ${n}! Eres una máquina.`);break}const r=await ajTablero({modo:"problema",fen:p[1],problema:p,titulo:`Mate en ${n} · nº ${hechos(n)+1} de ${total(n)}`});if(r.res!=="resuelto")break;
+  S.ajPz[p[0]]=1;const premio=Math.round([0,30,70,150][n]*(r.fallos?.5:1));S.money+=premio;recordPut("ajedrez",Object.keys(S.ajPz).length);save();const s=await choose(`Abuelo Tomás: ${r.fallos?"A la "+(r.fallos+1)+"ª, pero vale.":"¡A la primera!"} Toma ${premio} pavos.`,[{label:"➡️ Otro problema"},{label:"↩ Ya está bien"}],{cols:1});if(s!==0)break}}}
+// ---------- el torneo del club: cinco rondas ----------
+function ajClasificacion(T){return[["tu",(S.name||"Tú")+" (tú)"]].concat(AJRIV.map(r=>[r.id,r.n])).map(([id,n])=>[n,T.pts[id]||0,id]).sort((a,b)=>b[1]-a[1]||(a[2]==="tu"?-1:1))}
+const ajTablaTxt=T=>ajClasificacion(T).map(([n,p],i)=>`${["🥇","🥈","🥉"][i]||i+1+"."} ${n} — ${p} pt`).join("\n");
+async function ajTorneo(){let T=S.ajTorneo;if(!T){const i=await choose("📋 Secretaria Loli: El Torneo del Club son 5 rondas, una contra cada rival, de menor a mayor. Victoria 1 punto, tablas medio. Premios: 🥇 1.500 · 🥈 600 · 🥉 300 pavos. La inscripción es gratis.",[{label:"✍️ Apuntarme"},{label:"↩ Ahora no"}],{cols:1});if(i!==0)return;const r=await choose("⏱️ ¿Reloj para todo el torneo?",[{label:"Sin reloj"},{label:"5 minutos"},{label:"10 minutos"}],{cols:3});T=S.ajTorneo={ronda:0,reloj:[0,5,10][r]||0,pts:{}};save()}
+ while(T.ronda<5){const R=AJRIV[T.ronda];const i=await choose(`📋 Ronda ${T.ronda+1} de 5: contra ${R.n} (${R.t}). Juegas con ${T.ronda%2?"negras":"blancas"}.`,[{label:"♟️ Jugar la ronda"},{label:"📊 Clasificación"},{label:"↩ Seguir otro día"},{label:"🗑️ Abandonar el torneo"}],{cols:2});
+  if(i===1){await say("📊 CLASIFICACIÓN\n"+ajTablaTxt(T));continue}if(i===3){delete S.ajTorneo;save();await say("Secretaria Loli: Te borro de la lista. Puedes apuntarte otra vez cuando quieras.");return}if(i!==0)return;
+  const r=await ajPartida(R,{humano:T.ronda%2?-1:1,reloj:T.reloj,apuesta:0,titulo:`Torneo · ronda ${T.ronda+1}`});if(!r||r.res==="salir"){await say("Secretaria Loli: La ronda queda pendiente.");return}
+  const pt=r.res==="gana"?1:r.res==="tablas"?.5:0;T.pts.tu=(T.pts.tu||0)+pt;T.pts[R.id]=(T.pts[R.id]||0)+1-pt;
+  // las otras partidas de la ronda
+  const resto=AJRIV.filter(q=>q.id!==R.id);for(let k=0;k+1<resto.length;k+=2){const a=resto[k],b=resto[k+1],d=rnd()+(a.nv-b.nv)*.22;const pa=d>.66?1:d<.34?0:.5;T.pts[a.id]=(T.pts[a.id]||0)+pa;T.pts[b.id]=(T.pts[b.id]||0)+1-pa}
+  T.ronda++;save();await say("📊 CLASIFICACIÓN\n"+ajTablaTxt(T))}
+ const puesto=ajClasificacion(T).findIndex(a=>a[2]==="tu")+1;const premio=[1500,600,300][puesto-1]||0;S.money+=premio;if(puesto===1){S.flags.ajCampeon=true;sfx("quest")}delete S.ajTorneo;save();await say(puesto===1?`🏆 ¡CAMPEÓN DEL TORNEO DEL CLUB! Te llevas ${premio} pavos y tu nombre en la copa.`:premio?`Quedas en el puesto ${puesto}º. Te llevas ${premio} pavos.`:`Quedas en el puesto ${puesto}º. El torneo se puede repetir cuando quieras.`)}
+
+/*</B4AJEDREZ>*/
+/*<B4AJCLUB>*/
+/* ===================== EL CLUB DE AJEDREZ DE TERRAZALIA: caseta propia, todo el mundo jugando y cualquier mesa se puede usar ===================== */
+(function(){const M=MAPS.terrazalia,g=M.g;
+ M.builds.push({id:"clubaj",kind:"casapueblo",x:6,y:15,w:6,h:4,door:[8,18],wall:"#f0e2c0",roof:"#2a3a5a",label:"CLUB DE AJEDREZ",to:"clubaj"});
+ for(let y=14;y<19;y++)for(let x=6;x<12;x++)g[y][x]="H";g[18][8]="D";
+ // ajedrez gigante en el suelo, delante de la puerta
+ for(let y=19;y<=20;y++)for(let x=6;x<=11;x++)if(g[y][x]==="v")g[y][x]="ꞡ";
+ if(typeof PATHS!=="undefined"&&PATHS.terrazalia)for(let y=14;y<21;y++)for(let x=6;x<12;x++)PATHS.terrazalia.delete(x+","+y);
+ for(const n of NPCS)if(n.map==="terrazalia"&&n.x>=6&&n.x<12&&n.y>=14&&n.y<19){n.x=13;n.y=18}})();
+WALK.add("ꞡ");
+// interior: w pared · o suelo · e salida · Ꞓ mesa con tablero · Ꞔ vitrina de copas · Ꞗ tablón del torneo · Ꞙ cuadro
+mkMap("clubaj",rowsGrid([
+ "wwwꞘwwꟄwwꞘwwꞖwww",
+ "wooooooooooooooow",
+ "wooooooooooooooow",
+ "wooꞒooooꞒooooꞒoow",
+ "wooooooooooooooow",
+ "wooooooooooooooow",
+ "wooooꞒooooꞒooooow",
+ "wooooooooooooooow",
+ "wooooooooooooooow",
+ "wooꞒooooꞒooooꞒoow",
+ "wooooooooooooooow",
+ "wooꞒooooooooꞒooow",
+ "wooooooooooooooow",
+ "wwwwwwwweewwwwwww"]),"Club de Ajedrez de Terrazalia","bar",[8,12,"up"],{"8,13":["terrazalia",8,19,"down"],"9,13":["terrazalia",8,19,"down"]},
+ {"Ꞙ":"Un cuadro: la foto del club en 1974. Todos serios. Uno dormido.","Ꞔ":"La vitrina de copas. La más grande pone «TORNEO DEL CLUB» y hay un hueco para tu nombre.","Ꞓ":"Una mesa de ajedrez de madera, con su reloj."});
+// los cinco rivales, cada uno detrás de su mesa (tú te sientas enfrente)
+const AJMESA={"3,3":"ajnico","8,3":"ajpuri","13,3":"ajpaquito","5,6":"ajirina","10,6":"ajramiro"};
+const clubNpc=(id,x,y,dir,pal,hs,ts)=>{NPC_LOOK[id]={hs,ts};NPCS.push({id,map:"clubaj",x,y,dir,pal,hs,ts})};
+for(const[k,id]of Object.entries(AJMESA)){const[x,y]=k.split(",").map(Number),R=ajRiv(id);clubNpc(id,x,y-1,"down",R.pal,R.hs,R.ts);TALK2[id]=async()=>ajMesaRival(R)}
+async function ajMesaRival(R){const v=S.ajStats&&S.ajStats.vencidos[R.id];await say(`${R.n}: ${v?"¿Otra? Siéntate.":R.hola[0]}`);await ajPartida(R)}
+// mesas con gente jugando: se puede mirar o pedir la siguiente
+const AJPAREJAS={"3,9":{a:["ajm1","Julián",2],b:["ajm2","Encarna",3]},"8,9":{a:["ajm3","El Bigotes",3],b:["ajm4","Yusuf",4]},"13,9":{a:["ajm5","Marisa",1],b:["ajm6","Don Cosme",2]}};
+Object.entries(AJPAREJAS).forEach(([k,P2],i)=>{const[x,y]=k.split(",").map(Number);
+ clubNpc(P2.a[0],x-1,y,"right",mp(["#d8d8d8","#1a1a1a","#8a4a2a"][i],["#6a3a2a","#2a6a5a","#8a6a2a"][i]),[10,4,8][i],[4,2,6][i]);clubNpc(P2.b[0],x+1,y,"left",mp(["#4a2a1a","#2a1a0e","#c8c8c8"][i],["#a84a5a","#e8e0c8","#3a4a8a"][i]),[9,1,10][i],[3,0,5][i]);
+ const habla=async(quien)=>{await say(`${quien[1]}: ${pick(["Chsss… estoy pensando desde el martes.","Mi rival lleva tres jugadas haciéndose el dormido.","Si quieres mirar, mira. Pero sin respirar fuerte."])}`);await ajMesaPareja(k)};
+ TALK2[P2.a[0]]=async()=>habla(P2.a);TALK2[P2.b[0]]=async()=>habla(P2.b)});
+async function ajMesaPareja(k){const P2=AJPAREJAS[k];const i=await choose(`Mesa de ${P2.a[1]} contra ${P2.b[1]}.`,[{label:"👀 Mirar su partida"},{label:`♟️ Jugar contra ${P2.a[1]}`,sub:["","Principiante","Fácil","Media","Difícil"][P2.a[2]]},{label:`♟️ Jugar contra ${P2.b[1]}`,sub:["","Principiante","Fácil","Media","Difícil"][P2.b[2]]},{label:"↩ Dejarlos en paz"}],{cols:1});
+ if(i===0)await ajTablero({modo:"mirar",humano:0,nombres:[P2.a[1],P2.b[1]],niveles:[P2.a[2],P2.b[2]],titulo:"Blancas"});
+ else if(i===1||i===2){const q=i===1?P2.a:P2.b,base=AJRIV[q[2]-1];await ajPartida(Object.assign({},base,{id:q[0],n:q[1],g:/Encarna|Marisa/.test(q[1])?"f":"m",t:"Socio del club · "+["","Principiante","Fácil","Media","Difícil"][q[2]],hola:["Venga, una rapidita."],fin:["Bien jugado. Voy a por un café."]}))}}
+// mesas libres: eliges el nivel que quieras
+async function ajMesaLibre(){const i=await choose("Una mesa libre. ¿Contra quién quieres jugar?",AJRIV.map(r=>({label:r.n,sub:r.t})).concat([{label:"↩ Volver"}]),{cols:2});if(i>=0&&i<AJRIV.length)await ajPartida(AJRIV[i])}
+// Abuelo Tomás (el del parque, que se ha mudado) lleva los problemas · la secretaria, el torneo
+{const t=npcById("ajedrecista");if(t){t.map="clubaj";t.x=2;t.y=11;t.dir="right";delete t.cond}}
+TALK2.ajedrecista=async()=>ajProblemas();
+clubNpc("ajloli",12,2,"down",mp("#6a2a1a","#2a5a8a"),8,3);TALK2.ajloli=async()=>ajTorneo();
+clubNpc("ajmiron",6,4,"right",mp("#c8c8c8","#5a5a3a"),10,4);TALK2.ajmiron=async()=>{await say(pick(["Mirón del club: Yo no juego. Yo solo opino. Y siempre cuando ya has movido.","Mirón del club: ¿El secreto? Controla el centro, saca los caballos y enroca pronto. Y no hables con Nico mientras piensa.","Mirón del club: Don Ramiro no ha perdido desde que el Naranjito era mascota."]))};
+const _intAj=interact;interact=async function(){if(S.map==="clubaj"){const[fx,fy]=facing(),ch=tileAt(fx,fy),k=fx+","+fy;if(ch==="Ꞓ"){if(AJMESA[k])return ajMesaRival(ajRiv(AJMESA[k]));if(AJPAREJAS[k])return ajMesaPareja(k);if(k==="3,11")return ajProblemas();return ajMesaLibre()}if(ch==="Ꞗ")return ajTorneo()}return _intAj()};
+const _entAj=onEnterMap;onEnterMap=async function(){await _entAj();if(S.map==="clubaj"&&!S.flags.ajIn){S.flags.ajIn=true;save();await sayAll(["CLUB DE AJEDREZ DE TERRAZALIA. Silencio sagrado, olor a café y tic-tac de relojes.","Las 5 mesas de arriba tienen rival fijo, de menos a más nivel. En las de abajo puedes mirar o jugar contra los socios, y la mesa libre es para el nivel que quieras.","Abuelo Tomás (abajo a la izquierda) tiene los problemas. La secretaria Loli, junto al tablón, apunta al Torneo del Club."])}};
+// ---------- aspecto del club ----------
+const _dtAj=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="terrazalia"&&ch==="ꞡ"){px(sx,sy,T,T,"#d8d0bc");for(let j=0;j<2;j++)for(let i=0;i<2;i++)if((i+j+x*2+y*2)%2===0)px(sx+i*8,sy+j*8,8,8,"#3a3430");else px(sx+i*8,sy+j*8,8,8,"#efe6cc");
+  if((x===7&&y===19)||(x===10&&y===20)){const bl=x===7;px(sx+4,sy+11,9,3,"rgba(0,0,0,.3)");try{ajPieza(ctx,bl?6:2,bl,sx-2,sy-9,21)}catch(e){}}return}
+ if(S.map==="clubaj"){const suelo=()=>{px(sx,sy,T,T,(x+y)%2?"#7a4e2a":"#845630");px(sx,sy+7,T,1,"#5a3818");px(sx+((y%2)?4:11),sy,1,8,"#5a3818");px(sx+((y%2)?12:3),sy+8,1,8,"#5a3818")};
+  const pared=()=>{px(sx,sy,T,T,"#3a2416");px(sx,sy,T,3,"#55361f");px(sx+7,sy+3,1,13,"#2a180c");px(sx,sy+13,T,3,"#24140a")};
+  if(ch==="o"){suelo();if(x>=7&&x<=10&&y>=1&&y<=12){px(sx,sy,T,T,"#6a1a22");if((x+y)%2)px(sx+6,sy+6,4,4,"#8a2a30");if(x===7)px(sx+1,sy,1,T,"#d8a848");if(x===10)px(sx+14,sy,1,T,"#d8a848")}return}
+  if(ch==="w"){pared();return}
+  if(ch==="Ꞙ"){pared();px(sx+2,sy+2,12,10,"#c8984a");px(sx+3,sy+3,10,8,"#efe6cc");for(let i=0;i<4;i++)for(let j=0;j<4;j++)if((i+j)%2)px(sx+4+i*2,sy+3+j*2,2,2,"#2a2420");return}
+  if(ch==="Ꞔ"){pared();px(sx+1,sy+2,14,13,"#7a5530");px(sx+2,sy+3,12,11,"#a8d0e0");for(const[ox,h]of[[3,6],[7,9],[11,5]]){px(sx+ox,sy+13-h,3,h-3,"#f2c14e");px(sx+ox+1,sy+10,1,3,"#c8982a");px(sx+ox-1,sy+13-h+1,1,2,"#f2c14e")}px(sx+3,sy+4,1,8,"rgba(255,255,255,.6)");return}
+  if(ch==="Ꞗ"){pared();px(sx+1,sy+2,14,12,"#8a6038");px(sx+2,sy+3,12,10,"#f4ecd8");px(sx+4,sy+4,8,1,"#8a1a1a");for(let i=0;i<4;i++)px(sx+3,sy+6+i*2,10-i*2,1,"#3a3a3a");return}
+  if(ch==="Ꞓ"){suelo();px(sx+1,sy+12,14,3,"rgba(0,0,0,.3)");px(sx+2,sy+10,2,5,"#3a2010");px(sx+12,sy+10,2,5,"#3a2010");px(sx,sy+1,16,11,"#a8743a");px(sx,sy+1,16,1,"#d8a868");px(sx+3,sy+2,9,9,"#3a2010");for(let i=0;i<4;i++)for(let j=0;j<4;j++)px(sx+4+i*2-0,sy+3+j*2,2,2,(i+j)%2?"#6a4022":"#ecd8b0");
+   for(const[ox,oy,c]of[[4,2,"#1a1008"],[8,3,"#1a1008"],[6,8,"#fff8e8"],[10,7,"#fff8e8"]]){px(sx+ox,sy+oy,2,3,c);px(sx+ox,sy+oy-1,1,1,c)}px(sx+13,sy+4,3,5,"#2a2a30");px(sx+14,sy+5,1,1,Math.floor(t/500+x)%2?"#7aff6a":"#e8e8e8");return}}
+ return _dtAj(ch,x,y,sx,sy,t,style)};
+// logros
+{const L=LOGROS.find(l=>l.id==="ajedrez");if(L){L.n="Cerebrito";L.d="Resuelve 25 problemas de ajedrez.";L.ok=()=>Object.keys((S&&S.ajPz)||{}).length>=25}}
+LOGROS.push({id:"ajmaestro",n:"Jaque al maestro",d:"Gana a Don Ramiro al ajedrez.",ic:"♚",ok:()=>!!(S.ajStats&&S.ajStats.vencidos.ajramiro),rw:{money:1000}},{id:"ajcampeon",n:"Campeón del club",d:"Gana el Torneo del Club de Ajedrez.",ic:"🏆",ok:()=>!!S.flags.ajCampeon,rw:{money:800}});
+const _stAjc=start;start=function(){if(S&&S.map==="terrazalia"&&!WALK.has((MAPS.terrazalia.g[S.y]||[])[S.x])){S.x=8;S.y=19}return _stAjc()};
+// el cartel de la Isla del Faro tapaba la puerta del club: se aparta
+if(typeof BIGSIGNS!=="undefined")for(const s of BIGSIGNS.terrazalia||[])if(s.y===19&&s.x>=6&&s.x<=11)s.x=2;
+// rótulo de madera sobre la puerta
+const _rwClub=renderWorld;renderWorld=function(t){_rwClub(t);if(S.map!=="terrazalia")return;const[ox,oy]=camOf(MAP()),X=9*T-ox,Y=15*T-oy+3;if(X<-90||X>SW+90||Y<-20||Y>SH)return;px(X-46,Y-1,92,15,"#3a2010");px(X-44,Y+1,88,11,"#6a4022");px(X-44,Y+1,88,1,"#a8743a");TXTCAP=true;try{ctx.fillStyle="#ffe6b0";ctx.font="bold 7.5px Arial";ctx.textAlign="center";ctx.fillText("♞ CLUB DE AJEDREZ ♜",X,Y+9)}finally{TXTCAP=false}};
+for(let y=19;y<=20;y++)for(let x=6;x<=11;x++)if(MAPS.terrazalia.g[y][x]!=="S")MAPS.terrazalia.g[y][x]="ꞡ";
+
+/*</B4AJCLUB>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

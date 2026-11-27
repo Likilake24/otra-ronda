@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="83 · Hoyales de Roa nuevo (torre del castillo, iglesia, ermita, bodegas en el cerro, casas de pueblo) y menús que ya no se esconden";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="84 · Pelea a navajazos en el Rif (estilo Stickman) y Saltos del Cabo con acrobacias y récords compartidos";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -9595,6 +9595,171 @@ const _dtH3=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){
  return _dtH3(ch,x,y,sx,sy,t,style)};
 
 /*</B4HOYALES3>*/
+/*<B4TANDA5>*/
+/* ===================== TANDA 5: LA PELEA DEL RIF (estilo Stickman) y LOS SALTOS DEL CABO (clavados con acrobacias) ===================== */
+// ---------- récords compartidos (local + colegas conectados) ----------
+const BOARDS5={rif:"otraronda_rif_v1",clavados:"otraronda_clavados_v1"};
+function board5(k){try{return JSON.parse(localStorage.getItem(BOARDS5[k]))||[]}catch(e){return[]}}
+function board5Add(k,e){const b=board5(k);const i=b.findIndex(q=>q.nm===e.nm&&q.ini===e.ini);if(i>=0){if(b[i].s>=e.s)return;b.splice(i,1)}b.push(e);b.sort((a,c)=>c.s-a.s);try{localStorage.setItem(BOARDS5[k],JSON.stringify(b.slice(0,15)))}catch(err){}}
+const myIni=()=>String(S.name||"YO").replace(/[^A-Za-zÑñ0-9]/g,"").slice(0,3).toUpperCase()||"YO";
+const _hsp5=hsPublishAll;hsPublishAll=function(){const st=S.stats||{},hs={};if(st.arcadeBest)hs.pasma=[st.arcadeBest.ini,st.arcadeBest.s];if(st.gullBest)hs.gaviota=[st.gullBest.ini,st.gullBest.s];if(st.invBest)hs.invaders=[st.invBest.ini,st.invBest.s];
+ if(st.rifBest)hs.rif=[myIni(),st.rifBest];if(st.clavBest)hs.clavados=[myIni(),st.clavBest];if(Object.keys(hs).length)try{setMP({hs})}catch(e){}};
+setInterval(()=>{try{for(const o of OTHERS.values()){const hs=o.info&&o.info.pr&&o.info.pr.hs;if(!hs)continue;for(const k of["rif","clavados"]){const h=hs[k];if(Array.isArray(h)&&typeof h[1]==="number"&&h[1]>0&&h[1]<1e7)board5Add(k,{ini:String(h[0]||"???").slice(0,3),s:Math.floor(h[1]),nm:cleanName(o.info.nm)||"Colega",friend:true})}}}catch(e){}},4000);
+async function showBoard5(k,title){const b=board5(k);await say(title+"\n"+(b.length?b.slice(0,10).map((e,i)=>`${i+1}. ${e.ini} · ${e.nm}${e.friend?" 👥":""} — ${e.s}`).join("\n"):"Todavía no hay récords. ¡Sé el primero!"))}
+// ---------- controles comunes (teclado + botones en pantalla) ----------
+function pad5(ids){const keys={};const kd=e=>{const k=e.key.toLowerCase();keys[k]=true;if(["arrowleft","arrowright","arrowup","arrowdown"," ","z","x","w","a","s","d","j","k"].includes(k)){e.preventDefault();e.stopPropagation()}};const ku=e=>{keys[e.key.toLowerCase()]=false;e.stopPropagation()};
+ addEventListener("keydown",kd,true);addEventListener("keyup",ku,true);for(const[id,k]of ids){const b=$(id);if(!b)continue;b.onpointerdown=e=>{e.preventDefault();keys[k]=true;keys["tap_"+k]=true};b.onpointerup=b.onpointerleave=()=>{keys[k]=false}}
+ return{keys,off(){removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true)}}}
+// ====================================================================================
+// LA PELEA DEL RIF · navajas, saltos y plataformas (estilo Stickman Fight)
+// ====================================================================================
+function rifFight(mode){return new Promise(res=>{
+ overlay(`<div style="max-width:1000px;margin:0 auto;user-select:none"><canvas id="rf-c" width="960" height="540" style="width:100%;border-radius:12px;background:#2a1a10;touch-action:none"></canvas>
+  <div style="display:flex;justify-content:space-between;gap:8px;margin-top:6px"><div class="btns" style="margin:0"><button class="big alt" type="button" id="rf-l">◀</button><button class="big alt" type="button" id="rf-r">▶</button><button class="big alt" type="button" id="rf-d">▼</button></div>
+  <div class="btns" style="margin:0"><button class="big alt" type="button" id="rf-x">↺ Esquivar</button><button class="big alt" type="button" id="rf-u">⤒ Saltar</button><button class="big" type="button" id="rf-a">🔪 Navaja</button></div></div>
+  <p class="keys" style="text-align:center;margin:4px 0">Flechas o WASD: moverte · ↑ / W / Espacio: saltar (doble salto) · ↓: bajar de un toldo · Z / J: navajazo (combo de 3) · X / K: esquivar</p></div>`,{onB:()=>{}});
+ const c=$("rf-c"),x=c.getContext("2d"),W=960,H=540,GY=470,G=1700;const pad=pad5([["rf-l","arrowleft"],["rf-r","arrowright"],["rf-d","arrowdown"],["rf-u","arrowup"],["rf-a","z"],["rf-x","x"]]);const K=pad.keys;
+ const PL=[{x:90,y:370,w:200,c:"#c8202a"},{x:380,y:300,w:200,c:"#2a8a6a"},{x:680,y:370,w:200,c:"#e6bc3a"},{x:400,y:175,w:160,c:"#2a6ad0"}];
+ const sk=skinPal(S.skin);let last=performance.now(),raf=0,over=false,wave=0,msg="",msgT=0,shake=0,score=0,kills=0,t0=last;const fx=[],shots=[],drops=[];
+ const mk=(o)=>Object.assign({vx:0,vy:0,dir:1,onG:false,jumps:0,state:"idle",st:0,cool:0,hit:0,inv:0,combo:0,comboT:0,atk:0,dash:0,dashCd:0,dead:false,rot:0,anim:0},o);
+ const P=mk({x:160,y:GY,hp:120,max:120,team:0,col:"#111",band:sk.c||"#e23b2a",spd:290});
+ const E=[];const TYPES={navaja:{hp:50,spd:180,dmg:10,rng:52,wind:.32,cd:.9,col:"#3a2a6a",hat:"#24346e"},porra:{hp:85,spd:120,dmg:16,rng:60,wind:.5,cd:1.3,col:"#24346e",hat:"#1a2450",big:true},botella:{hp:40,spd:140,dmg:10,rng:420,wind:.6,cd:1.9,col:"#6a3a1a",hat:"#c8202a",ranged:true},
+  boss:{hp:360,spd:210,dmg:20,rng:62,wind:.42,cd:.8,col:"#1a2450",hat:"#c8a030",big:true,boss:true}};
+ const spawn=(t,side)=>{const T0=TYPES[t];E.push(mk({type:t,x:side<0?-30:W+30,y:GY-200*Math.random(),hp:T0.hp*(mode==="club"?1+wave*.08:1),max:T0.hp*(mode==="club"?1+wave*.08:1),team:1,dir:-side}))};
+ const WAVES=[[["navaja",-1],["navaja",1],["navaja",1]],[["navaja",-1],["porra",1],["navaja",1],["porra",-1]],[["botella",1],["botella",-1],["navaja",1],["navaja",-1],["porra",1]],[["boss",1],["navaja",-1]]];
+ const nextWave=()=>{if(mode==="club"){const n=3+Math.floor(wave/2);for(let i=0;i<n;i++)spawn(pick(wave>3?["navaja","porra","botella","navaja"]:["navaja","navaja","porra"]),i%2?1:-1);if(wave>0&&wave%4===3)spawn("boss",1);msg="OLEADA "+(wave+1);msgT=2;wave++;return}
+  if(wave>=WAVES.length){fin(true);return}for(const[t,s]of WAVES[wave])spawn(t,s);msg=wave===3?"¡EL CABO NAVAJAS!":"OLEADA "+(wave+1)+" / 4";msgT=2.2;wave++};
+ const fin=async(win)=>{if(over)return;over=true;cancelAnimationFrame(raf);pad.off();await new Promise(r=>setTimeout(r,1200));closeOverlay();res({win,score:Math.round(score+kills*100),wave})};
+ const landPl=f=>{if(f.vy<0)return false;for(const p of PL){if(f.x>p.x-8&&f.x<p.x+p.w+8&&f.py<=p.y+1&&f.y>=p.y&&!(f===P&&K.arrowdown||f.drop>0)){f.y=p.y;return true}}if(f.y>=GY){f.y=GY;return true}return false};
+ const hurt=(f,d,kx,src)=>{if(f.inv>0||f.dead)return;f.hp-=d;f.hit=.18;f.vx=kx;f.vy=-260;f.onG=false;if(f.state==="wind"){f.state="idle";f.cool=.5}shake=.12;sfx("hit");
+  fx.push({x:f.x,y:f.y-60,t:pick(["¡ZAS!","¡CHAS!","¡PAM!","¡ZASCA!"]),l:.6,c:"#ffffff"});for(let i=0;i<7;i++)fx.push({x:f.x,y:f.y-40,vx:(Math.random()-.5)*260,vy:-Math.random()*260,l:.5,dot:true,c:f===P?"#c8202a":"#a01414"});
+  if(f.hp<=0){f.dead=true;f.vy=-520;f.vx=kx*1.6;f.state="dead";if(f!==P){kills++;score+=f.type==="boss"?800:100;if(Math.random()<.25)drops.push({x:f.x,y:f.y-20,vy:-200,l:8})}}};
+ const update=dt=>{if(over)return;
+  // jugador
+  let mv=(K.arrowright||K.d?1:0)-(K.arrowleft||K.a?1:0);if(P.dead)mv=0;P.py=P.y;
+  if(P.dash>0){P.dash-=dt}else if(P.hit<=0)P.vx=mv*P.spd*(P.atk>0&&P.onG?.35:1);if(mv)P.dir=mv;
+  const jp=K.arrowup||K.w||K[" "];if(jp&&!P.jHeld&&!P.dead&&(P.onG||P.jumps<2)){P.vy=-640;P.onG=false;P.jumps++;sfx("sel");for(let i=0;i<5;i++)fx.push({x:P.x,y:P.y,vx:(Math.random()-.5)*120,vy:-40,l:.3,dot:true,c:"#c8a878"})}P.jHeld=jp;
+  const at=K.z||K.j;if(at&&!P.aHeld&&!P.dead&&P.atk<=0&&P.cool<=0){P.combo=P.comboT>0?(P.combo+1)%3:0;P.comboT=.55;P.atk=.22;P.cool=P.combo===2?.4:.2;sfx("throw");const big=P.combo===2,air=!P.onG;
+   for(const e of E){if(e.dead)continue;const dx=e.x-P.x,dy=(e.y-30)-(P.y-30);if(Math.abs(dy)<70&&Math.abs(dx)<(big?78:62)&&Math.sign(dx||P.dir)===P.dir)hurt(e,big?32:air?22:18,P.dir*(big?520:240),P)}}P.aHeld=at;
+  const dg=K.x||K.k;if(dg&&!P.dHeld&&P.dashCd<=0&&!P.dead){P.dash=.22;P.dashCd=.75;P.inv=.32;P.vx=P.dir*620;sfx("sel")}P.dHeld=dg;
+  for(const k of["atk","cool","comboT","dashCd","inv","hit"])P[k]=Math.max(0,P[k]-dt);
+  // físicas de todos
+  for(const f of[P,...E]){f.py=f.y;f.vy+=G*dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.drop=Math.max(0,(f.drop||0)-dt);if(!f.dead){if(landPl(f)){f.vy=0;f.onG=true;f.jumps=0}else f.onG=false;f.x=Math.max(14,Math.min(W-14,f.x));if(f.onG&&f.hit<=0&&f!==P)f.vx*=.8}else{f.rot+=dt*9*Math.sign(f.vx||1)}f.anim+=dt*Math.abs(f.vx)/40}
+  if(P.dead&&P.y>H+200){fin(false);return}if(P.dead&&!P.endT)P.endT=1.4;if(P.endT){P.endT-=dt;if(P.endT<=0){fin(false);return}}
+  // enemigos
+  for(const e of E){if(e.dead)continue;const T0=TYPES[e.type];e.cool=Math.max(0,e.cool-dt);e.hit=Math.max(0,e.hit-dt);if(e.hit>0)continue;const dx=P.x-e.x,ady=P.y-e.y;e.dir=Math.sign(dx)||e.dir;
+   if(e.state==="wind"){e.st-=dt;if(e.st<=0){e.state="strike";e.st=.18;if(T0.ranged){shots.push({x:e.x,y:e.y-50,vx:Math.sign(dx)*Math.min(520,Math.abs(dx)*1.4+120),vy:-380,dmg:T0.dmg})}
+     else if(e.charge){e.vx=e.dir*720;e.st=.35}else if(Math.abs(dx)<T0.rng+12&&Math.abs(ady)<60&&!P.dead)hurt(P,T0.dmg,e.dir*300,e)}continue}
+   if(e.state==="strike"){e.st-=dt;if(e.charge&&Math.abs(dx)<40&&Math.abs(ady)<60&&!P.dead){hurt(P,T0.dmg+6,e.dir*500,e);e.charge=false}if(e.st<=0){e.state="idle";e.charge=false;e.cool=T0.cd}continue}
+   const want=T0.ranged?T0.rng*.6:T0.rng*.8;if(Math.abs(dx)>want)e.vx=Math.sign(dx)*T0.spd;else if(T0.ranged&&Math.abs(dx)<160)e.vx=-Math.sign(dx)*T0.spd;else e.vx=0;
+   if(ady<-60&&Math.abs(dx)<220&&e.onG&&Math.random()<dt*2.2){e.vy=-640;e.onG=false}if(ady>60&&e.onG&&Math.abs(dx)<160&&e.y<GY)e.drop=.3;
+   if(e.cool<=0&&!P.dead){if(T0.ranged&&Math.abs(dx)<T0.rng){e.state="wind";e.st=T0.wind}else if(Math.abs(dx)<T0.rng&&Math.abs(ady)<60){e.state="wind";e.st=T0.wind}else if(T0.boss&&Math.abs(dx)>200&&Math.abs(ady)<40&&Math.random()<dt*1.5){e.state="wind";e.st=.6;e.charge=true;fx.push({x:e.x,y:e.y-110,t:"❗",l:.6,c:"#ff3a3a"})}}}
+  for(let i=E.length-1;i>=0;i--)if(E[i].dead&&E[i].y>H+100)E.splice(i,1);
+  for(const s of shots){s.vy+=G*.6*dt;s.x+=s.vx*dt;s.y+=s.vy*dt;if(!s.gone&&Math.abs(s.x-P.x)<20&&s.y>P.y-80&&s.y<P.y){hurt(P,s.dmg,Math.sign(s.vx)*200);s.gone=true;fx.push({x:s.x,y:s.y,t:"¡CRASH!",l:.5,c:"#9fe8ff"})}if(s.y>GY)s.gone=true}for(let i=shots.length-1;i>=0;i--)if(shots[i].gone)shots.splice(i,1);
+  for(const d of drops){d.vy+=G*.5*dt;d.y+=d.vy*dt;if(d.y>GY-10){d.y=GY-10;d.vy=0}d.l-=dt;if(Math.abs(d.x-P.x)<24&&Math.abs(d.y-(P.y-10))<40&&!P.dead){P.hp=Math.min(P.max,P.hp+30);d.l=0;sfx("heal");fx.push({x:P.x,y:P.y-80,t:"+30 🍵",l:.8,c:"#7aff6a"})}}for(let i=drops.length-1;i>=0;i--)if(drops[i].l<=0)drops.splice(i,1);
+  if(!E.some(e=>!e.dead)&&!P.dead&&msgT<=0)nextWave();msgT=Math.max(0,msgT-dt);shake=Math.max(0,shake-dt);score+=dt*2};
+ // dibujo de un stickman
+ const stick=(f,t)=>{const s=(f.type&&TYPES[f.type].big?1.2:1)*1.3,col=f.hit>0?"#ffffff":f.col,lw=4.5*s;x.save();x.translate(f.x,f.y);if(f.dead)x.rotate(f.rot);x.scale(f.dir*1,1);x.strokeStyle=col;x.fillStyle=col;x.lineWidth=lw;x.lineCap="round";
+  const run=f.onG&&Math.abs(f.vx)>20?Math.sin(f.anim*1.4):0,air=!f.onG;const hipY=-34*s,neckY=-64*s;
+  const leg=(a,b)=>{x.beginPath();x.moveTo(0,hipY);x.lineTo(a*s,hipY+14*s);x.lineTo(b*s,0);x.stroke()};
+  if(air){leg(10,4);leg(-6,-12)}else{leg(run*12,run*16);leg(-run*12,-run*16)}
+  x.beginPath();x.moveTo(0,hipY);x.lineTo(2*s,neckY);x.stroke();x.beginPath();x.arc(3*s,neckY-11*s,10*s,0,7);x.fill();
+  if(f===P){x.fillStyle=f.band;x.fillRect(-7*s,neckY-16*s,20*s,4*s);x.beginPath();x.moveTo(-7*s,neckY-15*s);x.lineTo(-16*s,neckY-10*s+Math.sin(t/90)*3);x.lineTo(-8*s,neckY-12*s);x.fill()}
+  else{x.fillStyle=TYPES[f.type].hat;x.fillRect(-8*s,neckY-23*s,22*s,6*s);x.fillRect(4*s,neckY-19*s,12*s,3*s)}
+  x.fillStyle="#fff";x.fillRect(7*s,neckY-14*s,3*s,3*s);
+  let armA=-.2+run*.4,armB=.5-run*.4;const atkP=f===P?(f.atk>0?1-f.atk/.22:-1):f.state==="wind"?-.7:f.state==="strike"?1:-1;
+  if(atkP>=0)armA=-1.6+atkP*2.6;else if(atkP<-.5)armA=-2.4;
+  const sh=[2*s,neckY+8*s];const hand=[sh[0]+Math.cos(armA)*22*s,sh[1]+Math.sin(armA)*22*s];x.beginPath();x.moveTo(sh[0],sh[1]);x.lineTo(hand[0],hand[1]);x.stroke();x.beginPath();x.moveTo(sh[0],sh[1]);x.lineTo(sh[0]+Math.cos(armB+1.2)*-18*s,sh[1]+Math.sin(armB+1.2)*18*s);x.stroke();
+  // arma: navaja para ti y los navajeros, porra para los polis, botella para los tiradores
+  x.save();x.translate(hand[0],hand[1]);x.rotate(armA+Math.PI/2*0.2);const wt=f===P?"navaja":f.type==="boss"?"navaja":f.type;
+  if(wt==="navaja"){x.fillStyle="#5a3a1a";x.fillRect(-2,-3,10,6);x.fillStyle="#d8d8e0";x.beginPath();x.moveTo(8,-3);x.lineTo(f.type==="boss"?34:24,0);x.lineTo(8,3);x.fill()}else if(wt==="porra"){x.fillStyle="#1a1a1a";x.fillRect(-2,-3,30,6)}else{x.fillStyle="#2a8a3a";x.fillRect(-2,-4,14,8);x.fillRect(12,-2,6,4)}x.restore();
+  if(f.state==="wind"&&f!==P){x.fillStyle="#ff3a3a";x.globalAlpha=.5+.5*Math.sin(t/40);x.beginPath();x.arc(3*s,neckY-40*s,5,0,7);x.fill();x.globalAlpha=1}x.restore();
+  if(f===P&&f.atk>0){const p=1-f.atk/.22;x.strokeStyle="rgba(255,255,255,.85)";x.lineWidth=5;x.beginPath();x.arc(f.x+f.dir*18,f.y-48,P.combo===2?58:46,f.dir>0?-1.6+p*.5:Math.PI+1.6-p*.5,f.dir>0?.4+p*.5:Math.PI-.4-p*.5,f.dir<0);x.stroke()}
+  if(!f.dead&&f!==P){const w=f.type==="boss"?90:44;x.fillStyle="rgba(0,0,0,.55)";x.fillRect(f.x-w/2,f.y-(f.type==="boss"?120:100),w,5);x.fillStyle="#ff4a4a";x.fillRect(f.x-w/2,f.y-(f.type==="boss"?120:100),w*Math.max(0,f.hp/f.max),5)}};
+ const bg=t=>{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#ff9a4a");g.addColorStop(.55,"#c8502a");g.addColorStop(1,"#4a1a10");x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle="#ffd890";x.beginPath();x.arc(780,120,46,0,7);x.fill();
+  x.fillStyle="#6a2a1a";for(let i=0;i<12;i++){const bx=i*86-10,bh=120+((i*37)%90);x.fillRect(bx,GY-bh-60,80,bh+60);if(i%3===0){x.beginPath();x.arc(bx+40,GY-bh-60,22,Math.PI,0);x.fill()}}
+  x.fillStyle="#4a1a10";for(let i=0;i<12;i++){x.fillRect(i*86+30,GY-80-((i*37)%90),10,14)}x.fillStyle="#d8a060";x.fillRect(0,GY,W,H-GY);x.fillStyle="#b8804a";for(let i=0;i<W;i+=40)x.fillRect(i,GY+6,24,4);
+  for(let i=0;i<6;i++){const lx=80+i*160,ly=40+Math.sin(t/600+i)*4;x.strokeStyle="#3a1a0a";x.lineWidth=1;x.beginPath();x.moveTo(lx,0);x.lineTo(lx,ly);x.stroke();x.fillStyle=["#ffcf4a","#ff6a3a","#4ad8ff"][i%3];x.globalAlpha=.85;x.beginPath();x.ellipse(lx,ly+8,7,10,0,0,7);x.fill();x.globalAlpha=1}
+  for(const p of PL){x.fillStyle="#3a2a1a";x.fillRect(p.x+6,p.y,4,GY-p.y);x.fillRect(p.x+p.w-10,p.y,4,GY-p.y);x.fillStyle=p.c;x.fillRect(p.x,p.y-6,p.w,10);for(let i=0;i<p.w;i+=20){x.fillStyle=i%40?"#f4f0e4":p.c;x.beginPath();x.moveTo(p.x+i,p.y+4);x.lineTo(p.x+i+20,p.y+4);x.lineTo(p.x+i+10,p.y+14);x.fill()}}};
+ const draw=t=>{x.save();if(shake>0)x.translate((Math.random()-.5)*8,(Math.random()-.5)*8);bg(t);
+  for(const d of drops){x.font="22px sans-serif";x.textAlign="center";x.fillText("🍵",d.x,d.y)}for(const s of shots){x.save();x.translate(s.x,s.y);x.rotate(t/80);x.fillStyle="#2a8a3a";x.fillRect(-4,-9,8,18);x.restore()}
+  for(const e of E)stick(e,t);stick(P,t);
+  for(const f of fx){f.l-=1/60;if(f.dot){f.x+=f.vx/60;f.y+=f.vy/60;f.vy+=12;x.fillStyle=f.c;x.fillRect(f.x,f.y,4,4)}else{x.globalAlpha=Math.max(0,f.l*1.6);x.fillStyle=f.c;x.font="900 22px Rubik,Arial";x.textAlign="center";x.fillText(f.t,f.x,f.y-(.6-f.l)*40);x.globalAlpha=1}}for(let i=fx.length-1;i>=0;i--)if(fx[i].l<=0)fx.splice(i,1);
+  x.restore();x.fillStyle="rgba(0,0,0,.55)";x.fillRect(14,14,260,30);x.fillStyle="#c8202a";x.fillRect(18,18,252*Math.max(0,P.hp/P.max),22);x.fillStyle="#fff";x.font="900 15px Rubik,Arial";x.textAlign="left";x.fillText("TÚ 🔪 "+Math.max(0,Math.ceil(P.hp)),24,35);
+  x.textAlign="right";x.fillText(mode==="club"?`Puntos: ${Math.round(score+kills*100)} · Oleada ${wave}`:`Oleada ${Math.max(1,wave)} / 4 · Quedan ${E.filter(e=>!e.dead).length}`,W-16,35);
+  if(msgT>0){x.globalAlpha=Math.min(1,msgT);x.fillStyle="#fff";x.font="900 54px Rubik,Arial";x.textAlign="center";x.strokeStyle="#1a0a04";x.lineWidth=8;x.strokeText(msg,W/2,H/2-40);x.fillText(msg,W/2,H/2-40);x.globalAlpha=1}
+  if(over){x.fillStyle="rgba(0,0,0,.5)";x.fillRect(0,0,W,H);x.fillStyle="#fff";x.font="900 60px Rubik,Arial";x.textAlign="center";x.fillText(P.dead?"K.O.":"¡VICTORIA!",W/2,H/2)}};
+ const tick=nw=>{if(!c.isConnected){pad.off();return}const dt=Math.min(.033,(nw-last)/1000);last=nw;update(dt);draw(nw);if(!over)raf=requestAnimationFrame(tick)};nextWave();raf=requestAnimationFrame(tick)})}
+// el Cabo Navajas ya no es un combate de Pedomones: es una pelea a navajazos
+const _tbRif=trainerBattle;trainerBattle=async function(n){if(!n||n.id!=="cabo")return _tbRif(n);if(S.beaten&&S.beaten.cabo)return true;
+ cineOn();emote(n,"🔪",1200);await sayAll((n.trainer.pre||[]).concat(["Detrás del Cabo salen de los puestos sus matones de la Ley Seca, navaja en mano. Te lanzan una navaja a los pies.","El Chusta (por el móvil): «BRO NO TE RAJES. Literal.»"]));cineOff();
+ const r=await rifFight("historia");S.stats=S.stats||{};if(r.win){S.beaten=S.beaten||{};S.beaten.cabo=true;S.money+=600;sfx("quest");save();await sayAll(["¡Has tumbado al Cabo Navajas y a toda su banda!","Has ganado 600 pavos."]);return true}
+ await sayAll(["Te han dejado K.O. en mitad del zoco… Un tendero te despierta con un vaso de té.","Tendero: Vuelve cuando quieras revancha. El Cabo sigue ahí, presumiendo."]);S.team.forEach(m=>m.hp=Math.max(1,m.hp));const[dx,dy]=DIRS[n.dir];S.x+=dx*2;S.y+=dy*2;pushPresence();return false};
+// el Club de Lucha del Rif: modo supervivencia con récords compartidos
+NPC_LOOK.karim={hs:3,ts:5};
+NPCS.push({id:"karim",map:"zoco",x:16,y:12,dir:"down",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#c8202a",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:5,smoke:true});
+TALK2.karim=async()=>{while(true){const i=await choose("Karim: Bienvenido al CLUB DE LUCHA DEL RIF. Aquí se pelea a navaja contra oleadas sin fin. Primera regla: se habla mucho del club.",[{label:"🔪 ¡A pelear! (10 pavos)",disabled:S.money<10||!(S.beaten&&S.beaten.cabo)},{label:"🏆 Récords"},{label:"👋 Luego"}],{cols:1,info:()=>S.beaten&&S.beaten.cabo?"Aguanta todas las oleadas que puedas. Los puntos se comparten con tus colegas conectados.":"Primero gánale al Cabo Navajas, que está en mitad del zoco."});
+ if(i===0){S.money-=10;const r=await rifFight("club");const sc=r.score;S.stats=S.stats||{};const rec=sc>(S.stats.rifBest||0);if(rec)S.stats.rifBest=sc;board5Add("rif",{ini:myIni(),s:sc,nm:S.name||"Tú"});hsPublishAll();save();await say(`Has aguantado ${r.wave} oleadas: ${sc} puntos.${rec?" ¡NUEVO RÉCORD!":""}`)}
+ else if(i===1)await showBoard5("rif","🏆 CLUB DE LUCHA DEL RIF");else return}};
+// ====================================================================================
+// LOS SALTOS DEL CABO · clavados desde el acantilado de Costa Cangrejo
+// ====================================================================================
+const TRICKS=[{n:"MORTAL ATRÁS",k:["arrowleft","arrowleft"],p:100,rot:-1,dur:.55},{n:"MORTAL ADELANTE",k:["arrowright","arrowright"],p:100,rot:1,dur:.55},{n:"INVERTIDO",k:["arrowdown","arrowup"],p:150,inv:true,dur:.7},
+ {n:"TIRABUZÓN",k:["arrowleft","arrowright"],p:150,twist:true,dur:.6},{n:"DOBLE MORTAL",k:["arrowup","arrowleft","arrowleft"],p:250,rot:-2,dur:.85},{n:"TRIPLE VOLTERETA",k:["arrowup","arrowright","arrowright","arrowright"],p:400,rot:3,dur:1.15}];
+const ARW={arrowleft:"←",arrowright:"→",arrowup:"↑",arrowdown:"↓"};
+function cliffGame(){return new Promise(res=>{
+ overlay(`<div style="max-width:1000px;margin:0 auto;user-select:none"><canvas id="cl-c" width="960" height="560" style="width:100%;border-radius:12px;background:#4ab8e8;touch-action:none"></canvas>
+  <div class="btns" style="justify-content:center;margin-top:6px"><button class="big alt" type="button" id="cl-l">←</button><button class="big alt" type="button" id="cl-d">↓</button><button class="big alt" type="button" id="cl-u">↑</button><button class="big alt" type="button" id="cl-r">→</button><button class="big" type="button" id="cl-z">⏎ ¡SALTA! / ENTRAR</button></div>
+  <p class="keys" style="text-align:center;margin:4px 0">Z: coger impulso y saltar · En el aire, teclea las flechas de cada acrobacia · Antes de tocar el agua, pulsa Z para entrar recto. ¡Si caes a mitad de acrobacia, panzazo!</p></div>`,{onB:()=>{}});
+ const c=$("cl-c"),x=c.getContext("2d"),W=960,H=560,SEA=500,CLIFF={x:0,w:210,top:110};const pad=pad5([["cl-l","arrowleft"],["cl-r","arrowright"],["cl-u","arrowup"],["cl-d","arrowdown"],["cl-z","z"]]);const K=pad.keys;
+ const sk=skinPal(S.skin);let last=performance.now(),raf=0,done=false,jump=0,total=0,ph="ready",pow=0,powT=0,J=null,fx=[],judges=null,log=[];const prev={};
+ const newJump=()=>{J={x:170,y:CLIFF.top,vx:0,vy:0,rot:0,twist:0,inv:0,trick:null,tt:0,buf:[],pts:0,mult:1,used:{},entry:false,res:null};ph="ready";pow=0};
+ newJump();
+ const pressed=k=>{const v=!!K[k]||!!K["tap_"+k];K["tap_"+k]=false;const r=v&&!prev[k];prev[k]=!!K[k];return r};
+ const finJump=async()=>{const r=J.res;total+=r.pts;log.push(r);judges={t:performance.now(),sc:r.pts};jump++;await new Promise(z=>setTimeout(z,2300));if(jump>=3){done=true;pad.off();await new Promise(z=>setTimeout(z,600));closeOverlay();res({total,log})}else{newJump()}};
+ const update=dt=>{if(done)return;
+  if(ph==="ready"){powT+=dt;pow=(Math.sin(powT*3.2)+1)/2;if(pressed("z")){ph="air";const p=.55+pow*.45;J.vx=150+p*130;J.vy=-420-p*260;J.pow=p;sfx("throw");fx.push({x:J.x,y:J.y-60,t:p>.92?"¡IMPULSO PERFECTO!":p>.7?"¡Buen impulso!":"Impulso flojo…",l:1,c:"#ffffff"})}for(const k of Object.keys(ARW))pressed(k);return}
+  if(ph==="air"){J.vy+=900*dt;J.x+=J.vx*dt;J.y+=J.vy*dt;J.vx*=.995;
+   for(const k of Object.keys(ARW))if(pressed(k)){J.buf.push(k);if(J.buf.length>4)J.buf.shift();sfx("blip");
+    if(!J.trick){for(const tr of TRICKS.slice().sort((a,b)=>b.k.length-a.k.length)){const n=tr.k.length;if(J.buf.length>=n&&J.buf.slice(-n).join()===tr.k.join()){J.trick=tr;J.tt=0;J.buf=[];const rep=J.used[tr.n]?.5:1;J.used[tr.n]=1;const pts=Math.round(tr.p*rep*J.mult);J.pts+=pts;J.mult+=.25;fx.push({x:J.x,y:J.y-70,t:tr.n+" +"+pts,l:1.2,c:rep<1?"#ffd14a":"#7aff6a"});sfx("lvl");break}}}}
+   if(J.trick){J.tt+=dt;const tr=J.trick,p=Math.min(1,J.tt/tr.dur);if(tr.rot)J.rot=tr.rot*Math.PI*2*p;if(tr.twist)J.twist=p;if(tr.inv)J.inv=Math.sin(p*Math.PI);if(p>=1){J.trick=null;J.rot=0;J.twist=0;J.inv=0}}
+   if(pressed("z")&&!J.entry&&J.y>SEA-260){J.entry=true;J.entryY=J.y}
+   if(J.y>=SEA-10){ph="splash";const mid=!!J.trick;let pts=J.pts,txt,crash=false;
+    if(mid){crash=true;pts=-150;txt="¡¡PANZAZO!! Has caído a mitad de "+J.trick.n+". −150"}else if(!J.entry){pts=Math.round(pts*.5);txt="Entrada de lado… los jueces tuercen el gesto. (Puntos a la mitad)"}else{const clean=J.entryY>SEA-140;pts+=clean?100:40;txt=clean?"¡ENTRADA LIMPIA! Ni una gota. +100":"Entrada correcta. +40"}
+    J.res={pts,txt,crash,tricks:Object.keys(J.used)};sfx(crash?"hit":"plop");if(crash){FX.shake=now()+300}for(let i=0;i<(crash?40:16);i++)fx.push({x:J.x,y:SEA,vx:(Math.random()-.5)*(crash?520:220),vy:-Math.random()*(crash?520:360),l:1,dot:true,c:crash?"#ffffff":"#bfe6ff"});fx.push({x:J.x,y:SEA-80,t:crash?"¡PLAF!":"¡CHOF!",l:1.3,c:crash?"#ff4a4a":"#ffffff"});finJump()}}};
+ const diver=(X,Y,rot,twist,inv,splayed)=>{x.save();x.translate(X,Y);x.scale(1.5,1.5);x.rotate(rot+(inv?Math.PI*inv:0));x.scale(1-.85*Math.sin(twist*Math.PI),1);x.strokeStyle="#2a1a10";x.lineWidth=5;x.lineCap="round";
+  x.fillStyle=sk.s||"#e0a878";x.beginPath();x.arc(0,-34,9,0,7);x.fill();x.fillStyle=sk.h||"#3a2414";x.beginPath();x.arc(0,-38,9,Math.PI,0);x.fill();
+  x.strokeStyle=sk.s||"#e0a878";x.beginPath();x.moveTo(0,-24);x.lineTo(0,4);x.stroke();x.fillStyle=sk.p||"#2a6ad0";x.fillRect(-6,-2,12,8);
+  const a=splayed?1.2:-.2;x.beginPath();x.moveTo(0,-20);x.lineTo(-14*Math.cos(a),-20-14*Math.sin(a)-6);x.moveTo(0,-20);x.lineTo(14*Math.cos(a),-20-14*Math.sin(a)-6);x.stroke();x.beginPath();x.moveTo(-3,6);x.lineTo(-5,26);x.moveTo(3,6);x.lineTo(5,26);x.stroke();x.restore()};
+ const draw=t=>{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#5ac8f0");g.addColorStop(.85,"#bfe8ff");x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle="#ffffff";x.globalAlpha=.7;for(let i=0;i<4;i++){x.beginPath();x.ellipse((i*300+t/40)%1100-80,60+i*20,60,16,0,0,7);x.fill()}x.globalAlpha=1;
+  x.fillStyle="#2a8ac8";x.fillRect(0,SEA,W,H-SEA);for(let i=0;i<W;i+=30){x.fillStyle="rgba(255,255,255,.4)";x.fillRect((i+t/20)%W,SEA+10+(i%3)*12,14,2)}
+  x.fillStyle="#a8784e";x.beginPath();x.moveTo(0,CLIFF.top);x.lineTo(CLIFF.w,CLIFF.top);x.lineTo(CLIFF.w-30,SEA);x.lineTo(0,SEA);x.fill();x.fillStyle="#6aa04a";x.fillRect(0,CLIFF.top-8,CLIFF.w,10);x.fillStyle="#8a5e3a";for(let i=0;i<8;i++)x.fillRect(20+i*22,CLIFF.top+30+i*40,30,6);
+  // público en la playa y los 3 jueces
+  x.fillStyle="#f2dca0";x.fillRect(720,SEA-24,240,24);for(let i=0;i<9;i++){x.fillStyle=["#e23b2a","#2a6ad0","#f2d14e","#2a9a48","#e04a9a"][i%5];x.fillRect(730+i*24,SEA-44+Math.sin(t/150+i)*3,10,20);x.fillStyle="#e0a878";x.beginPath();x.arc(735+i*24,SEA-50+Math.sin(t/150+i)*3,6,0,7);x.fill()}
+  for(let i=0;i<3;i++){const jx=760+i*60;x.fillStyle="#1a1a1a";x.fillRect(jx,SEA-90,36,40);x.fillStyle="#f4f0e4";x.fillRect(jx-4,SEA-118,44,26);x.fillStyle="#1a1a1a";x.font="900 18px Rubik,Arial";x.textAlign="center";
+   if(judges&&performance.now()-judges.t>500){const v=judges.sc<0?2.5:Math.max(3,Math.min(10,judges.sc/90+5+(i-1)*.5));x.fillText(v.toFixed(1),jx+18,SEA-99)}else x.fillText("?",jx+18,SEA-99)}
+  if(ph==="ready"){diver(J.x,J.y-26,0,0,0,true);x.fillStyle="rgba(0,0,0,.5)";x.fillRect(250,40,300,26);x.fillStyle=pow>.92?"#7aff6a":"#ffd14a";x.fillRect(254,44,292*pow,18);x.fillStyle="#fff";x.font="900 16px Rubik,Arial";x.textAlign="center";x.fillText("IMPULSO · pulsa Z en lo más alto",400,34)}
+  else if(J){const sp=ph==="splash";if(!sp||J.y<SEA)diver(J.x,Math.min(J.y,SEA)-10,J.rot,J.twist,J.inv,!J.entry&&!J.trick)}
+  // chuleta de acrobacias
+  x.fillStyle="rgba(0,0,0,.45)";x.fillRect(W-300,14,286,170);x.fillStyle="#fff";x.font="900 14px Rubik,Arial";x.textAlign="left";x.fillText("ACROBACIAS (en el aire)",W-288,34);x.font="600 13px Rubik,Arial";
+  TRICKS.forEach((tr,i)=>{x.fillStyle=J&&J.used[tr.n]?"#7aff6a":"#ffffff";x.fillText(tr.k.map(k=>ARW[k]).join(" ")+"  "+tr.n+"  ("+tr.p+")",W-288,56+i*20)});
+  x.fillStyle="rgba(0,0,0,.45)";x.fillRect(14,14,220,56);x.fillStyle="#fff";x.font="900 16px Rubik,Arial";x.fillText(`Salto ${Math.min(3,jump+1)} / 3`,26,36);x.fillText(`Total: ${total}`,26,60);
+  if(J&&ph==="air"){x.fillStyle="#fff";x.font="900 26px Rubik,Arial";x.textAlign="center";x.fillText(J.buf.map(k=>ARW[k]).join(" "),J.x,J.y-90);if(J.y>SEA-260&&!J.entry){x.fillStyle=Math.floor(t/120)%2?"#ffd14a":"#ffffff";x.font="900 24px Rubik,Arial";x.fillText("¡Z PARA ENTRAR!",W/2,SEA-200)}}
+  if(J&&J.res&&ph==="splash"){x.fillStyle="rgba(0,0,0,.55)";x.fillRect(W/2-330,200,660,64);x.fillStyle=J.res.crash?"#ff6a6a":"#ffffff";x.font="900 18px Rubik,Arial";x.textAlign="center";x.fillText(J.res.txt,W/2,226);x.fillText(`Puntos del salto: ${J.res.pts}`,W/2,252)}
+  for(const f of fx){f.l-=1/60;if(f.dot){f.x+=f.vx/60;f.y+=f.vy/60;f.vy+=14;x.fillStyle=f.c;x.fillRect(f.x,f.y,4,4)}else{x.globalAlpha=Math.max(0,Math.min(1,f.l));x.fillStyle=f.c;x.font="900 20px Rubik,Arial";x.textAlign="center";x.fillText(f.t,f.x,f.y-(1.2-f.l)*30);x.globalAlpha=1}}for(let i=fx.length-1;i>=0;i--)if(fx[i].l<=0)fx.splice(i,1)};
+ const tick=nw=>{if(!c.isConnected){pad.off();return}const dt=Math.min(.033,(nw-last)/1000);last=nw;if(ph!=="splash")update(dt);draw(nw);if(!done)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+// Rafa el Clavadista, en la playa junto al cabo
+NPC_LOOK.rafa={hs:2,ts:0};
+NPCS.push({id:"rafa",map:"costa",x:40,y:16,dir:"right",pal:{h:"#1a1a1a",s:"#c8955a",e:"#222",c:"#e23b2a",z:"#f4f4f4",p:"#e23b2a",k:"#c8955a"},hs:2,ts:0});
+BIGSIGNS.costa=(BIGSIGNS.costa||[]).concat([{x:37,y:14,txt:"SALTOS DEL\nCABO 🤸"}]);
+TALK2.rafa=async()=>{while(true){const i=await choose("Rafa el Clavadista: ¡Eeeh! ¿Te atreves con los SALTOS DEL CABO? 25 metros, tres saltos y tres jueces muy exigentes. Bueno, uno está borracho.",[{label:"🤸 ¡A saltar! (15 pavos)",disabled:S.money<15},{label:"🏆 Récords"},{label:"❓ Cómo se juega"},{label:"👋 Luego"}],{cols:1});
+ if(i===0){S.money-=15;const r=await cliffGame();S.stats=S.stats||{};const rec=r.total>(S.stats.clavBest||0);if(rec)S.stats.clavBest=r.total;board5Add("clavados",{ini:myIni(),s:r.total,nm:S.name||"Tú"});hsPublishAll();
+  let extra="";if(r.total>=1000&&!S.flags.clavPrem){S.flags.clavPrem=true;S.money+=500;extra=" Rafa: ¡Más de 1.000! Toma 500 pavos, campeón.";sfx("quest")}save();
+  await say(`Puntuación final: ${r.total}.${rec?" ¡NUEVO RÉCORD!":""}${extra}\n`+r.log.map((l,k)=>`Salto ${k+1}: ${l.pts} (${l.crash?"panzazo":l.tricks.join(", ")||"sin acrobacias"})`).join("\n"))}
+ else if(i===1)await showBoard5("clavados","🏆 SALTOS DEL CABO");else if(i===2)await sayAll(["Rafa: Primero coges impulso: la barra sube y baja, pulsa Z cuando esté arriba del todo.","Rafa: En el aire, teclea las flechas de cada acrobacia. Si encadenas varias distintas, cada una vale más. Repetir la misma vale la mitad.","Rafa: Y lo más importante: antes de tocar el agua, pulsa Z para entrar recto. Si caes a mitad de una acrobacia… ¡PANZAZO! Y te quito puntos."]);else return}};
+LOGROS.push({id:"rif",n:"Navaja de oro",d:"Tumba al Cabo Navajas y a su banda en la pelea del zoco.",ic:"🔪",ok:()=>!!(S.beaten&&S.beaten.cabo),rw:{money:300}},{id:"clav",n:"Clavadista",d:"Haz más de 1.000 puntos en los Saltos del Cabo.",ic:"🤸",ok:()=>!!S.flags.clavPrem,rw:{money:300}});
+
+/*</B4TANDA5>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

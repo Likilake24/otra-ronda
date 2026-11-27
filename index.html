@@ -9697,7 +9697,7 @@ const _tbRif=trainerBattle;trainerBattle=async function(n){if(!n||n.id!=="cabo")
  await sayAll(["Te han dejado K.O. en mitad del zoco… Un tendero te despierta con un vaso de té.","Tendero: Vuelve cuando quieras revancha. El Cabo sigue ahí, presumiendo."]);S.team.forEach(m=>m.hp=Math.max(1,m.hp));const[dx,dy]=DIRS[n.dir];S.x+=dx*2;S.y+=dy*2;pushPresence();return false};
 // el Club de Lucha del Rif: modo supervivencia con récords compartidos
 NPC_LOOK.karim={hs:3,ts:5};
-NPCS.push({id:"karim",map:"zoco",x:16,y:12,dir:"down",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#c8202a",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:5,smoke:true});
+NPCS.push({id:"karim",map:"zoco",x:18,y:12,dir:"down",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#c8202a",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:5,smoke:true});
 TALK2.karim=async()=>{while(true){const i=await choose("Karim: Bienvenido al CLUB DE LUCHA DEL RIF. Aquí se pelea a navaja contra oleadas sin fin. Primera regla: se habla mucho del club.",[{label:"🔪 ¡A pelear! (10 pavos)",disabled:S.money<10||!(S.beaten&&S.beaten.cabo)},{label:"🏆 Récords"},{label:"👋 Luego"}],{cols:1,info:()=>S.beaten&&S.beaten.cabo?"Aguanta todas las oleadas que puedas. Los puntos se comparten con tus colegas conectados.":"Primero gánale al Cabo Navajas, que está en mitad del zoco."});
  if(i===0){S.money-=10;const r=await rifFight("club");const sc=r.score;S.stats=S.stats||{};const rec=sc>(S.stats.rifBest||0);if(rec)S.stats.rifBest=sc;board5Add("rif",{ini:myIni(),s:sc,nm:S.name||"Tú"});hsPublishAll();save();await say(`Has aguantado ${r.wave} oleadas: ${sc} puntos.${rec?" ¡NUEVO RÉCORD!":""}`)}
  else if(i===1)await showBoard5("rif","🏆 CLUB DE LUCHA DEL RIF");else return}};

@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="88 · Gimnasio de Izaskun nuevo: laberinto a oscuras, preguntas variadas, puzle de tuberías y MT potente de premio";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="89 · Hoyales: charanga en el escenario con combate triple, misión de la llave, gimnasio en la torre y 4 juegos nuevos";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8878,9 +8878,9 @@ const _intHo=interact;interact=async function(){const[fx,fy]=facing(),k=fx+","+f
 // ---------- MINIJUEGOS DE LAS FIESTAS ----------
 const FIESTAS=[{k:"soga",n:"🪢 Tiro de soga",d:"Contra los quintos de Hoyales"},{k:"pucheros",n:"🏺 Romper pucheros",d:"Con los ojos vendados"},{k:"boina",n:"🧢 Lanzamiento de boina",d:"Bate al abuelo Matías (32 m)"},{k:"porron",n:"🍷 El porrón",d:"Bebe más que el Rey (1,2 L)"}];
 const fiestasWon=()=>FIESTAS.filter(f=>S.fiestas&&S.fiestas[f.k]).length;
-TALK2.comision=async()=>{while(true){const i=await choose(`Comisión de Fiestas: ¡Pruebas de San Garrafón! Gana al menos 2 para poder subir al escenario del Rey. (Llevas ${fiestasWon()}/4)`,[...FIESTAS.map(f=>({label:f.n+(S.fiestas&&S.fiestas[f.k]?" ✅":""),sub:f.d})),{label:"👋 Luego"}],{cols:1});
+TALK2.comision=async()=>{while(true){const i=await choose(`Comisión de Fiestas: ¡Pruebas de San Garrafón! Premio por cada una la primera vez. (Llevas ${fiestasWon()}/4)`,[...FIESTAS.map(f=>({label:f.n+(S.fiestas&&S.fiestas[f.k]?" ✅":""),sub:f.d})),{label:"👋 Luego"}],{cols:1});
  if(i<0||i>=FIESTAS.length)return;const k=FIESTAS[i].k;const win=await fiestaGame(k);if(win){S.fiestas=S.fiestas||{};const first=!S.fiestas[k];S.fiestas[k]=1;if(first){S.money+=200;S.stats=S.stats||{}}save();
-  await say(first?`¡Ganas la prueba! +200 pavos.${fiestasWon()===2?" ¡Ya tienes 2 pruebas! Cuando ganes a la charanga, podrás subir al escenario del Rey.":""}${fiestasWon()===4?" ¡LAS CUATRO! El pueblo te nombra Hijo Predilecto.":""}`:"¡Otra vez campeón! El pueblo te aplaude.")}else await say("¡Casi! Inténtalo otra vez.")}};
+  await say(first?`¡Ganas la prueba! +200 pavos.${fiestasWon()===4?" ¡LAS CUATRO! El pueblo te nombra Hijo Predilecto.":""}`:"¡Otra vez campeón! El pueblo te aplaude.")}else await say("¡Casi! Inténtalo otra vez.")}};
 const _rey2=TALK2.reypena;TALK2.reypena=async(n)=>{if(!S.flags.hoyales&&fiestasWon()<2){await say(`Rey de la Peña: ¡Eh! En mis fiestas, al escenario solo sube quien gana a la charanga Y al menos 2 pruebas de San Garrafón. Llevas ${fiestasWon()}/4. Habla con la Comisión de Fiestas, al lado de la plaza.`);return}return _rey2(n)};
 function fiestaGame(kind){return new Promise(res=>{
  overlay(`<div style="max-width:820px;margin:0 auto"><canvas id="fg-c" width="720" height="440" style="width:100%;border-radius:12px;background:#87c8f0;touch-action:none"></canvas>
@@ -9570,7 +9570,7 @@ async function merenderoVisible(){cineOn();const p1={id:"hpoli1",map:"hoyales",x
  FIREH={t0:performance.now()};sfx("super");FX.shake=now()+700;flash("#ffb04a",300);await sleep(900);emote(p1,"🔥",2500);emote(p2,"🔥",2500);p1.burning=true;p2.burning=true;
  await say5("¡¡FUUUUUSH!! La barbacoa escupe una llamarada de tres metros. A los dos polis se les prende el culo.");
  npcWalk(p1,[[5,10],[5,11],[6,11],[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[14,11]],110);await npcWalk(p2,[[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[13,12],[14,12]],110);await sleep(300);
- sfx("plop");p1.x=-20;p2.x=-20;await say5("Corren por la calle Real dejando una estela de humo y se tiran de cabeza al pilón de la plaza. Fsssssss.","La charanga, lejos de parar, se pone a tocar «Fuego» de El Arrebato. El pueblo entero aplaude.","Para subir al escenario y retar al Rey de la Peña: gana a los tres músicos de la charanga (en la plaza) y al menos 2 pruebas de las fiestas (Comisión de Fiestas).");
+ sfx("plop");p1.x=-20;p2.x=-20;await say5("Corren por la calle Real dejando una estela de humo y se tiran de cabeza al pilón de la plaza. Fsssssss.","La charanga, lejos de parar, se pone a tocar «Fuego» de El Arrebato. El pueblo entero aplaude.","Para retar al Rey de la Peña habrá que entrar en su torre. Empieza hablando con la charanga, en el escenario de la plaza.");
  NPCS.splice(NPCS.indexOf(p1),1);NPCS.splice(NPCS.indexOf(p2),1);cineOff()}
 const _rwH3=renderWorld;renderWorld=function(t){_rwH3(t);if(S.map!=="hoyales")return;const m=MAP();const[ox,oy]=camOf(m);
  // la media torre del castillo (alta, partida)
@@ -10004,6 +10004,169 @@ const _oemG2=onEnterMap;onEnterMap=async function(){if(S.map==="tgym1")S.flags.t
  if(S.map==="tgym3"&&!S.flags.tg3v2&&!S.flags.tg3done){S.flags.tg3v2=true;save();await say("SALA 3: LA LLAVE DE PASO. Aquí no hay combates. En el centro está la llave del gas: hay que llevarlo a los quemadores para abrir el muro de fuego. Toca pensar.")}};
 
 /*</B4GYM2>*/
+/*<B4HOYALES4>*/
+/* ===================== HOYALES v4: charanga en el escenario (combate triple), misión de la llave, gimnasio en la torre y 4 juegos nuevos ===================== */
+// ====================================================================================
+// COMBATE TRIPLE: 3 contra 3 a la vez
+// ====================================================================================
+function tripleBattle(foesSpec,title){return new Promise(res=>{
+ const mine=S.team.filter(m=>m.hp>0).slice(0,3);const foes=foesSpec.map(([s,l,mv])=>monMoves(newMon(s,l),mv));[...mine,...foes].forEach(resetV);
+ const spr=(m,v)=>{try{return PIXLIB.get(m.sp,v).toDataURL()}catch(e){return""}};const SPR=new Map();mine.forEach(m=>SPR.set(m,spr(m,"back")));foes.forEach(m=>SPR.set(m,spr(m,"front")));
+ let log=["¡La charanga saca a sus tres Pedomones a la vez!"],choices=[],turnI=0,pickMove=null,busyT=false,over=false;const parts=new Set(mine);
+ const card=(m,side,mark)=>`<div style="width:30%;max-width:190px;text-align:center;opacity:${m.hp>0?1:.25};border-radius:12px;padding:4px;border:3px solid ${mark||"transparent"};background:#00000040" ${side==="f"&&pickMove&&m.hp>0?`id="tb-f${foes.indexOf(m)}" role="button" tabindex="0"`:""}>
+   <img src="${SPR.get(m)}" alt="" style="width:100%;max-width:130px;image-rendering:pixelated;aspect-ratio:1"><div style="font-weight:700;font-size:13px">${esc(mName(m))} <small>Nv ${m.lvl}</small></div>
+   <div style="height:8px;background:#0008;border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:${Math.max(0,m.hp/maxhp(m))*100}%;background:${m.hp/maxhp(m)>.5?"#6adf5a":m.hp/maxhp(m)>.2?"#f2c14e":"#e23b2a"}"></i></div><small>${Math.max(0,m.hp)}/${maxhp(m)}</small></div>`;
+ const render=()=>{const actor=!busyT&&!over?mine.filter(m=>m.hp>0)[turnI]:null;
+  overlay(`<div style="max-width:820px;margin:0 auto"><h2 style="text-align:center;margin:4px 0">🎺 ${esc(title)} · COMBATE TRIPLE</h2>
+   <div style="display:flex;justify-content:space-around;background:linear-gradient(#5a2a6a,#2a1030);border-radius:12px;padding:8px">${foes.map(m=>card(m,"f",pickMove&&m.hp>0?"#ffd14a":"")).join("")}</div>
+   <div style="display:flex;justify-content:space-around;background:linear-gradient(#2a4a2a,#122012);border-radius:12px;padding:8px;margin-top:6px">${mine.map(m=>card(m,"m",m===actor?"#4ad8ff":"")).join("")}</div>
+   <div style="background:#1a120a;border:2px solid #6a4a2a;border-radius:10px;padding:8px;margin:6px 0;min-height:56px;font-size:14px">${log.slice(-3).map(esc).join("<br>")}</div>
+   ${actor?(pickMove?`<p style="text-align:center">¿A quién le das con <b>${MV[pickMove].n}</b>? Toca a un rival (arriba).</p><div class="btns" style="justify-content:center"><button class="big alt" type="button" id="tb-back">↩ Cambiar ataque</button></div>`:
+     `<p style="text-align:center;margin:2px">Turno de <b>${esc(mName(actor))}</b>: elige ataque</p><div class="btns wrap" style="justify-content:center">${actor.moves.map((mv,i)=>`<button class="big alt" type="button" id="tb-m${i}" style="font-size:14px">${MV[mv].n}<br><small>${TYPES[MV[mv].t].n} · ${MV[mv].p||"estado"}</small></button>`).join("")}</div>`):""}</div>`,{onB:()=>{if(pickMove){pickMove=null;render()}}});
+  if(actor&&!pickMove)actor.moves.forEach((mv,i)=>{const b=$("tb-m"+i);if(b)b.onclick=()=>{const M=MV[mv];if(!M.p&&(M.eff==="heal"||M.eff==="atkup")){choose1(actor,mv,actor)}else{pickMove=mv;sfx("sel");render()}}});
+  if(pickMove){foes.forEach((f,i)=>{const b=$("tb-f"+i);if(b)b.onclick=()=>{const mv=pickMove;pickMove=null;choose1(actor,mv,f)}});const bk=$("tb-back");if(bk)bk.onclick=()=>{pickMove=null;render()}}};
+ const choose1=(u,mv,t)=>{choices.push({u,mv,t});turnI++;sfx("sel");if(turnI>=mine.filter(m=>m.hp>0).length)resolve();else render()};
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ const act=({u,mv,t})=>{const M=MV[mv],isP=mine.includes(u);if(u.hp<=0)return;if(u.v.skip){u.v.skip=false;log.push(`${mName(u)} sigue empanao y pierde el turno.`);return}
+  if(t.hp<=0){const alive=(isP?foes:mine).filter(m=>m.hp>0);if(!alive.length)return;t=pick(alive)}
+  if(rnd()*100>accOf(mv)*(1-.15*u.v.acc)){log.push(`${mName(u)} usa ${M.n}… ¡y falla!`);sfx("weak");return}
+  if(M.p>0){let d=((2*u.lvl/5+2)*M.p*eff(u,"atk")/eff(t,"def"))/50+2;if(isStab(M.t,SP[u.sp]))d*=1.5;const k=tmult(M.t,SP[t.sp]);d*=k*(.85+rnd()*.15);if(rnd()<1/16)d*=1.5;d=Math.max(1,Math.floor(d));t.hp=Math.max(0,t.hp-d);sfx(k>1?"super":k<1?"weak":"hit");
+    log.push(`${mName(u)} usa ${M.n} contra ${mName(t)}: −${d}${k>1?" ¡Muy eficaz!":k<1?" Poco eficaz.":""}${t.hp<=0?" ¡KO!":""}`);if(M.eff==="drain")u.hp=Math.min(maxhp(u),u.hp+Math.floor(d/2))}
+  else if(M.eff==="heal"){u.hp=Math.min(maxhp(u),u.hp+Math.floor(maxhp(u)*.4));sfx("heal");log.push(`${mName(u)} usa ${M.n} y recupera fuerzas.`)}
+  else if(M.eff==="atkup"){u.v.atk=1;sfx("lvl");log.push(`${mName(u)} usa ${M.n}: ¡sube su ataque!`)}
+  else{if(M.eff==="acc")t.v.acc=Math.min(3,t.v.acc+1);if(M.eff==="spd")t.v.spd=Math.min(2,t.v.spd+1);if(M.eff==="skip"&&rnd()<.5)t.v.skip=true;sfx("status");log.push(`${mName(u)} usa ${M.n} contra ${mName(t)}.`)}};
+ const resolve=async()=>{busyT=true;for(const f of foes.filter(m=>m.hp>0)){const alive=mine.filter(m=>m.hp>0);const scored=f.moves.map(mv=>{const t=pick(alive);return{u:f,mv,t,s:(MV[mv].p||20)*(MV[mv].p?tmult(MV[mv].t,SP[t.sp]):1)*(.6+rnd()*.8)}}).sort((a,b)=>b.s-a.s);choices.push(scored[0])}
+  choices.sort((a,b)=>eff(b.u,"spd")*(.9+rnd()*.2)-eff(a.u,"spd")*(.9+rnd()*.2));
+  for(const c of choices){if(!mine.some(m=>m.hp>0)||!foes.some(m=>m.hp>0))break;const before=log.length;act(c);if(log.length>before){render();await wait(950)}}
+  choices=[];turnI=0;busyT=false;const win=!foes.some(m=>m.hp>0),lose=!mine.some(m=>m.hp>0);if(!win&&!lose){render();return}
+  over=true;log.push(win?"¡Los tres músicos se quedan sin fuelle! ¡HAS GANADO!":"Tus tres Pedomones han caído…");render();await wait(1800);closeOverlay();
+  if(win){const total=foes.reduce((a,f)=>a+SP[f.sp].xp*f.lvl/7*1.5,0),alive=[...parts].filter(m=>m.hp>0);for(const m of alive){const g=Math.max(1,Math.floor(total/alive.length));m.xp+=g;await say(`${SP[m.sp].n} gana ${g} puntos de experiencia.`);while(m.xp>=toNext(m.lvl)){m.xp-=toNext(m.lvl);const o=maxhp(m);m.lvl++;m.hp+=maxhp(m)-o;sfx("lvl");await say(`¡${SP[m.sp].n} sube a ${lvlTxt(m,true)}!`);await learnAt(m)}}for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}}
+  S.team.forEach(m=>delete m.v);save();res(win)};
+ render()})}
+// ====================================================================================
+// LA CHARANGA, SUBIDA AL ESCENARIO (solo pelea si hablas con ellos)
+// ====================================================================================
+(function(){const pos={charanga1:[16,8],charanga2:[19,8],charanga3:[21,8]};for(const[id,[x,y]]of Object.entries(pos)){const n=npcById(id);if(n){n.x=x;n.y=y;n.dir="down";delete n.trainer;delete n.sight;n.idle=true}}
+ const r=npcById("reypena");if(r){r.map="torre3";r.x=5;r.y=2;r.dir="down"}})();
+const MIS=["Habla con la charanga en el escenario de la plaza.","Busca la llave en el merendero (mira la barbacoa, al oeste).","Habla con los quintos (su casa está al oeste) y gana el tiro de soga.","Gana el juego de los pucheros (Comisión de Fiestas, en la plaza) y mira dentro.","Toca las campanas de la ermita en orden y habla con el sacristán.","Baja a la bodega de los Pérez, gana al porrón y habla con el abuelo.","¡Tienes la llave! Sube a la media torre del castillo y reta al Rey de la Peña."];
+const hm=()=>S.flags.hMis||0;const setHm=n=>{S.flags.hMis=n;save();sfx("quest");toast("📍 "+(n<6?"Nueva pista":"¡Llave conseguida!"))};
+async function charangaTalk(){if(S.flags.hoyales){await say(pick(["Charanga: ¡Campeón! ¡Ta-ta-chaaaán!","Charanga: Esta va por ti. Es la misma canción de siempre, pero va por ti."]));return}
+ if(hm()>0){await say("Charanga: ¿La llave de la torre? Seguimos sin saber nada. 📍 "+MIS[Math.min(6,hm())]);return}
+ if(!pena3()){const i=await choose("Charanga: ¿Quién sube a NUESTRO escenario? Aquí se compite los tres contra tres. A la vez. ¿Te atreves?",[{label:"🎺 ¡Combate triple!"},{label:"👋 Ahora no"}],{cols:1});if(i!==0)return;
+  const win=await tripleBattle([["cubokali",46,["navajazo","picado","calambrazo","congelador"]],["volllitro",46,["chorro","espumarajo","navajazo","calambrazo"]],["vollboxeo",47,["navajazo","calambrazo","chorro","picado"]]],"La charanga Los Desafinaos");
+  if(!win){S.team.forEach(m=>m.hp=maxhp(m));save();await say("Charanga: ¡Ja! Otra vez será. (La Peña te ha curado el equipo. Vuelve cuando quieras.)");return}
+  S.beaten=S.beaten||{};["charanga1","charanga2","charanga3"].forEach(k=>S.beaten[k]=true);S.money+=1600;save();await say("¡Has ganado 1.600 pavos!")}
+ await sayAll(["Fali (trompeta): Vale, vale. Te has ganado subir a retar al Rey. El Rey está arriba del todo, en la media torre del castillo.","Maite (bombo): Eso sí… la llave de la torre la teníamos nosotros. La guardábamos en el estuche del bombo.","Txomin (platillos): Y el estuche… lo dejamos anoche en el merendero. Cuando lo de la barbacoa en llamas.","📍 "+MIS[1]]);setHm(1)}
+for(const id of["charanga1","charanga2","charanga3"])TALK2[id]=charangaTalk;
+// ---------- las pistas ----------
+const _q1h=TALK2.quinto1;TALK2.quinto1=async(n)=>{if(hm()===2){if(!(S.fiestas&&S.fiestas.soga)){await sayAll(["Quinto: ¿La llave de la torre? Sí, la tenemos. Bueno, la tenemos… si nos ganas.","Quinto: En el TIRO DE SOGA. Apúntate en la Comisión de Fiestas, en la plaza. Gana y hablamos."]);return}
+  await sayAll(["Quinto: ¡Nos has tirado al pilón! Un trato es un trato…","Quinto: Esto… que la llave ya no la tenemos. La metimos en uno de los PUCHEROS de la fiesta, para esconderla. Cosas de las 5 de la mañana.","📍 "+MIS[3]]);setHm(3);return}return _q1h(n)};
+const _sacH=TALK2.sacristan;TALK2.sacristan=async(n)=>{if(hm()===4&&S.flags.campanas){await sayAll(["Sacristán: ¡Qué bien suenan! San Garrafón está contento.","Sacristán: La llave… la tuve yo. Pero se la dejé al abuelo Pérez, que me debía un favor. Está en su bodega, en el cerro.","📍 "+MIS[5]]);setHm(5);return}return _sacH(n)};
+const _perH=TALK2.perez;TALK2.perez=async(n)=>{if(hm()===5){if(!(S.fiestas&&S.fiestas.porron)){await sayAll(["Abuelo Pérez: ¿La llave de la torre? La tengo colgada detrás de la barrica del 53.","Abuelo Pérez: Pero en mi bodega las cosas se ganan bebiendo con arte. Gana al EL PORRÓN en la Comisión de Fiestas y es tuya."]);return}
+  S.keys.llaveTorre=true;await sayAll(["Abuelo Pérez: ¡Eso es empinar con arte! Toma, la llave de la torre. Oxidada, pero abre.","🗝️ ¡Consigues la LLAVE DE LA TORRE!","📍 "+MIS[6]]);setHm(6);return}return _perH(n)};
+Object.assign(KEYS_IT,{llaveTorre:{n:"🗝️ Llave de la torre",d:"Abre la puerta de la media torre del castillo de Hoyales."}});
+const _qlH4=questLines;questLines=function(){const L=_qlH4().filter(l=>!/charanga/i.test(l));if(S.flags.marruecos&&!S.flags.hoyales&&S.flags.vinRocas)L.push("🎺 Hoyales: "+MIS[Math.min(6,hm())]);return L};
+// ====================================================================================
+// EL GIMNASIO: DENTRO DE LA MEDIA TORRE DEL CASTILLO
+// ====================================================================================
+MAPS.torre1=room(["wwwwwwwwwww","wwwwwʌwwwww","wwwwwowwwww","wwooooooowww".slice(0,11),"wwowwwwwoww","wwooooooooo".slice(0,10)+"w","wwwwwowwwww","wwooooooowww".slice(0,11),"wwooooooowww".slice(0,11),"wwwwweewwww"],null,[5,8,"up"],{music:"verbena",txt:{}});
+MAPS.torre1.g=rowsGrid(["wwwwwwwwwww","wwwwwʌwwwww","wwwwwowwwww","wooooooooow","wowwwowwwww","wooooooooow","wwwwwwwwwow","wooooooooow","wooooooooow","wwwwweewwww"]);
+MAPS.torre2=room(["wwwwwwwwwww","wwwwwʌwwwww","wooooooooow","wwwwwwwwwow","wooooooooow","wowwwowwwww","wooooooooow","wwwwowwwwww","wwwwoʋwwwww","wwwwwwwwwww"],null,[4,8,"up"],{music:"verbena",txt:{}});
+MAPS.torre3=room(["wwwwwwwwwww","wtoooooootw","woooooooooW".replace("W","w"),"woooooooooW".replace("W","w"),"wtoooooootw","wwooooooowww".slice(0,11),"wwwwwowwwww","wwwwoʋwwwww","wwwwwwwwwww"],null,[4,7,"up"],{music:"lolo",txt:{t:"Un barril con una bandera de la Peña El Garrafón. Desde la ventana se ve todo Hoyales."}});
+setExit("torre1",["5,9","6,9"],["hoyales",18,14,"down"]);
+Object.assign(STAIRS,{"torre1,5,1":["torre2",4,8,"up",""],"torre2,5,8":["torre1",5,2,"down",""],"torre2,5,1":["torre3",4,7,"up",""],"torre3,5,7":["torre2",5,2,"down",""]});
+Object.assign(MAPNAME,{torre1:"La Torre · primer piso",torre2:"La Torre · segundo piso",torre3:"La Torre · la sala del Rey"});
+NPC_LOOK.torrea={hs:5,ts:3};NPC_LOOK.torreb={hs:9,ts:10};
+NPCS.push({id:"torrea",map:"torre1",x:5,y:4,dir:"down",sight:1,pal:{h:"#3a2a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#f4f4f4",k:"#c8202a"},hs:5,ts:3,trainer:tr4("Portero de la Torre","Chema",[["gambrinus",47],["escanciador",47]],700,["Chema: Para ver al Rey hay que subir. Y para subir hay que pasar por mí."],"Chema: Sube, sube. Yo me quedo vigilando… la bota de vino.")},
+ {id:"torreb",map:"torre2",x:5,y:5,dir:"up",sight:1,pal:{h:"#6a2a1a",s:"#f1c27d",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#f4f4f4",k:"#c8202a"},hs:9,ts:10,trainer:tr4("Mano Derecha del Rey","La Pili",[["cajadonuts",48],["volllitro",49]],800,["La Pili: Llevo 20 fiestas al lado del Rey. Tú llevas 20 minutos aquí."],"La Pili: Vale, tienes aguante. Arriba te espera.")});
+const _intT=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
+ if(S.map==="hoyales"&&ch==="Ʈ"){if(S.keys&&S.keys.llaveTorre||S.flags.hoyales){await warp("torre1",5,8,"up");return}await say("La puerta de la media torre está cerrada con llave. Arriba se oye al Rey de la Peña cantando.");return}
+ if(S.map==="hoyales"&&ch==="ȝ"&&hm()===1){await sayAll(["Entre las brasas apagadas de la barbacoa hay un estuche de bombo medio chamuscado. Dentro, ni rastro de la llave… pero sí una nota:","«La llave nos la quedamos los QUINTOS hasta que la charanga pague la ronda. Firmado: los quintos»","📍 "+MIS[2]]);setHm(2);return}
+ return _intT()};
+const _rwT=renderWorld;renderWorld=function(t){_rwT(t);if(S.map!=="hoyales")return;const[ox,oy]=camOf(MAP());const X=18*T-ox,Y=14*T-oy;px(X+8,Y-18,16,18,"#5a3a1a");ctx.fillStyle="#5a3a1a";ctx.beginPath();ctx.arc(X+16,Y-18,8,Math.PI,0);ctx.fill();px(X+15,Y-18,2,18,"#3a2410");px(X+19,Y-9,2,3,"#e8c060")};
+TALK2.reypena=async()=>{if(S.flags.hoyales){if(!S.flags.profe){await invitacion();return}await say(pick(["Rey de la Peña: 40 fiestas sin dormir. 41 contigo. ¡Viva San Garrafón!","Rey de la Peña: Desde aquí arriba vi al del sombrero de paja rondar las bodegas."]));return}
+ await say5("Rey de la Peña: ¡Así que has subido hasta MI torre!","Rey de la Peña: Yo soy el Rey de la Peña. 40 fiestas sin dormir. Riñonera, pañuelo y unos puños como jamones.","Rey de la Peña: ¿Psíquico? ¿Volador? Ya me lo sé. Mis bichos traen cosas para eso. ¡Que suene la charanga!");
+ const win=await battle([monMoves(newMon("gambrinus",49),["navajazo","congelador","calambrazo","picado"]),monMoves(newMon("escanciador",49),["escanciada","navajazo","picado","congelador"]),monMoves(newMon("vollboxeo",50),["navajazo","calambrazo","congelador","chorro"]),monMoves(newMon("increible",52),["navajazo","congelador","calambrazo","cogollazo"])],
+  {trainer:{name:"El Rey de la Peña",short:"El Rey",pal:PAL_REY,hs:4,ts:1,money:1600,leader:true,challenge:"¡El Rey de la Peña te desafía en lo alto de la torre!",lose:"Rey de la Peña: ¡Me cago en San Garrafón! Vale, vale. Has ganado. Ronda para todos."},music:"lolo"});
+ if(win){S.flags.hoyales=true;S.keys.hoyales=true;S.bag.rinogucci=(S.bag.rinogucci||0)+1;sfx("quest");save();await say5("¡Has ganado la 🎺 Medalla Verbena!","Rey de la Peña: Toma. La llevaba en la riñonera desde 1987. Y esta Riñonera Gucci, que a mí ya no me cierra.","Rey de la Peña: Pons en el faro, Lolo en el zoco, el Comisario aquí… Alguien está borrando a todos los que saben algo.");await warp("hoyales",18,14,"down");await invitacion()}};
+// ====================================================================================
+// LOS CUATRO JUEGOS DE LAS FIESTAS, REHECHOS Y MÁS DIFÍCILES
+// ====================================================================================
+Object.assign(FIESTAS.find(f=>f.k==="soga"),{d:"Tira justo en el momento. Si machacas el botón, resbalas."});Object.assign(FIESTAS.find(f=>f.k==="pucheros"),{d:"Memoria, vueltas y un público que a veces miente"});
+Object.assign(FIESTAS.find(f=>f.k==="boina"),{d:"Bate al abuelo Matías: ¡45 metros!"});Object.assign(FIESTAS.find(f=>f.k==="porron"),{d:"Empina con arte: llega a 1,2 L sin atragantarte"});
+fiestaGame=function(kind){return new Promise(res=>{
+ overlay(`<div style="max-width:820px;margin:0 auto;user-select:none"><canvas id="fg-c" width="720" height="440" style="width:100%;border-radius:12px;background:#87c8f0;touch-action:none"></canvas>
+  <div class="btns" style="justify-content:center"><button class="big alt" type="button" id="fg-l">◀</button><button class="big" type="button" id="fg-a">¡YA! (Z / Espacio)</button><button class="big alt" type="button" id="fg-r">▶</button></div></div>`,{onB:()=>{}});
+ const c=$("fg-c"),x=c.getContext("2d"),W=720,H=440;let last=performance.now(),t0=last,raf=0,done=false,held=0,hold=false,press=0,rel=0;
+ const down=()=>{if(!hold){press++;hold=true}},up=()=>{if(hold){hold=false;rel++}};
+ const kd=e=>{const k=e.key.toLowerCase();if(k==="arrowleft"||k==="a")held=-1;else if(k==="arrowright"||k==="d")held=1;else if(["z"," ","enter","j"].includes(k)){if(!e.repeat)down()}else return;e.preventDefault();e.stopPropagation()};
+ const ku=e=>{const k=e.key.toLowerCase();if(["arrowleft","a","arrowright","d"].includes(k))held=0;if(["z"," ","enter","j"].includes(k))up();e.stopPropagation()};addEventListener("keydown",kd,true);addEventListener("keyup",ku,true);
+ $("fg-l").onpointerdown=()=>held=-1;$("fg-r").onpointerdown=()=>held=1;$("fg-l").onpointerup=$("fg-r").onpointerup=()=>held=0;$("fg-a").onpointerdown=e=>{e.preventDefault();down()};$("fg-a").onpointerup=$("fg-a").onpointerleave=up;c.onpointerdown=down;c.onpointerup=up;
+ const fin=async(win,txt)=>{if(done)return;done=true;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);sfx(win?"quest":"weak");await new Promise(r=>setTimeout(r,1500));if(!c.isConnected){res(false);return}closeOverlay();await say(txt);res(win)};
+ const sky=()=>{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#87c8f0");g.addColorStop(.6,"#d8f0ff");g.addColorStop(.61,"#8ac060");g.addColorStop(1,"#5a9a3a");x.fillStyle=g;x.fillRect(0,0,W,H);for(let i=0;i<12;i++){x.fillStyle=["#e23b2a","#f2d14e","#2a6ad0","#2a9a48"][i%4];x.beginPath();x.moveTo(i*60,12);x.lineTo(i*60+30,12);x.lineTo(i*60+15,30);x.fill()}};
+ const guy=(X,Y,col,s=1,lean=0)=>{x.save();x.translate(X,Y);x.rotate(lean);x.fillStyle="#3a3a4a";x.fillRect(-8*s,-14*s,7*s,14*s);x.fillRect(1*s,-14*s,7*s,14*s);x.fillStyle=col;x.fillRect(-10*s,-36*s,20*s,23*s);x.fillStyle="#e0a878";x.beginPath();x.arc(0,-44*s,9*s,0,7);x.fill();x.fillStyle="#c8202a";x.fillRect(-10*s,-26*s,20*s,4*s);x.restore()};
+ const text=(s,X,Y,size=20,col="#1a1a1a")=>{x.font=`900 ${size}px Rubik,Arial`;x.textAlign="center";x.fillStyle=col;x.fillText(s,X,Y)};
+ const bar=(X,Y,w,v,col,lab)=>{x.fillStyle="rgba(0,0,0,.55)";x.fillRect(X,Y,w,16);x.fillStyle=col;x.fillRect(X+2,Y+2,(w-4)*Math.max(0,Math.min(1,v)),12);if(lab){x.font="700 12px Rubik,Arial";x.textAlign="left";x.fillStyle="#1a1a1a";x.fillText(lab,X,Y-4)}};
+ let st={};
+ const T={
+  // ---------- TIRO DE SOGA: tirar JUSTO cuando la flecha cruza la zona ----------
+  soga(dt,t){if(!st.init)st={init:1,pos:0,m:0,dir:1,zone:.5,zw:.16,spd:.85,lock:0,fb:"",fbT:0,hit:0,used:false};
+   st.m+=st.dir*st.spd*dt;if(st.m>1){st.m=1;st.dir=-1;st.used=false}if(st.m<0){st.m=0;st.dir=1;st.used=false}st.lock=Math.max(0,st.lock-dt);st.fbT-=dt;
+   st.pos-=dt*(5+t*.22);
+   if(press){press=0;if(st.lock<=0&&!st.used){const d=Math.abs(st.m-st.zone);st.used=true;if(d<st.zw/2){const perfect=d<st.zw*.18;st.pos+=perfect?17:11;st.hit++;st.fb=perfect?"¡PERFECTO!":"¡TIRÓN!";sfx(perfect?"super":"hit");st.zone=.15+Math.random()*.7;st.zw=Math.max(.075,st.zw-.008);st.spd=Math.min(1.9,st.spd+.075)}else{st.pos-=11;st.lock=.7;st.fb="¡Has resbalado!";sfx("weak")}st.fbT=.9}else{st.pos-=7;st.lock=.7;st.fb="¡No machaques! Resbalas";st.fbT=.9;sfx("weak")}}
+   sky();text("TIRO DE SOGA",W/2,60,28);text("Un solo tirón por pasada, y justo en la zona verde. La zona se mueve y cada vez va más rápido.",W/2,86,14);
+   x.strokeStyle="#a8784a";x.lineWidth=8;x.beginPath();x.moveTo(60,300);x.lineTo(660,300);x.stroke();const mk=360-st.pos*3;x.fillStyle="#c8202a";x.fillRect(mk-6,286,12,28);x.fillStyle="#1a1a1a";x.fillRect(358,262,4,76);x.fillStyle="#2a7ac8";x.fillRect(330,332,60,14);
+   for(let i=0;i<3;i++)guy(mk-250+i*42,334,"#e23b2a",1.2,-.35);for(let i=0;i<4;i++)guy(mk+140+i*40,334,"#2a6ad0",1.2,.35);
+   const bx=120,bw=480;x.fillStyle="#2a2a2a";x.fillRect(bx,372,bw,26);x.fillStyle="#5aff5a";x.fillRect(bx+(st.zone-st.zw/2)*bw,372,st.zw*bw,26);x.fillStyle="#ffffa0";x.fillRect(bx+(st.zone-st.zw*.18)*bw,372,st.zw*.36*bw,26);x.fillStyle=st.lock>0?"#ff4a4a":"#ffffff";x.fillRect(bx+st.m*bw-3,366,6,38);
+   if(st.fbT>0)text(st.fb,W/2,150,26,st.fb.startsWith("¡P")||st.fb.startsWith("¡T")?"#1a6a1a":"#a01a1a");bar(260,110,200,.5+st.pos/160,"#e23b2a","Ventaja");text("Tirones buenos: "+st.hit,W/2,424,14,"#ffffff");
+   if(st.pos>=80)fin(true,"¡Los quintos acaban de culo en el pilón! ¡Has ganado el tiro de soga!");else if(st.pos<=-80||t>45)fin(false,"Los quintos te arrastran hasta la charanga. Espera a que la flecha entre en la zona verde: una pulsada, no más.")},
+  // ---------- PUCHEROS: memoria, vueltas, controles girados y un público con un mentiroso ----------
+  pucheros(dt,t){if(!st.init){const prize=[0,1,2,3,4].sort(()=>Math.random()-.5).slice(0,2);st={init:1,ph:"look",k:0,pots:[0,1,2,3,4].map(i=>({x:120+i*120,pz:prize.includes(i),broke:false})),bx:360,inv:Math.random()<.5,swings:4,got:0,pow:0,charging:false,shout:[],shT:0,liar:Math.floor(Math.random()*3),msg:"",msgT:0};press=rel=0}
+   const NAMES=["Tía Petra","El Alcalde","Tío Eusebio"];st.k+=dt;st.msgT-=dt;
+   if(st.ph==="look"){sky();text("MEMORIZA: ¿en qué pucheros están los caramelos?",W/2,62,22);for(const p of st.pots){x.fillStyle="#b8643a";x.beginPath();x.ellipse(p.x,200,30,34,0,0,7);x.fill();x.fillStyle="#8a4a2a";x.fillRect(p.x-16,164,32,10);if(p.pz){x.font="32px sans-serif";x.textAlign="center";x.fillText("🍬",p.x,150)}}text("Te vendan en "+Math.max(0,3.5-st.k).toFixed(1)+" s…",W/2,290,18);guy(st.bx,380,"#e23b2a",1.4);if(st.k>3.5){st.ph="spin";st.k=0}press=rel=0;return}
+   if(st.ph==="spin"){x.fillStyle="#000";x.fillRect(0,0,W,H);x.save();x.translate(W/2,220);x.rotate(st.k*9);x.font="90px sans-serif";x.textAlign="center";x.fillText("😵‍💫",0,30);x.restore();text("¡Vueltas! ¡Vueltas! ¡Una más!",W/2,380,22,"#ffffff");if(st.k>2.8){st.ph="play";st.k=0;st.bx=360}press=rel=0;return}
+   const dir=held*(st.inv?-1:1);st.bx=Math.max(60,Math.min(660,st.bx+dir*150*dt));
+   const goal=st.pots.filter(p=>p.pz&&!p.broke).sort((a,b)=>Math.abs(a.x-st.bx)-Math.abs(b.x-st.bx))[0];st.shT-=dt;
+   if(goal&&st.shT<=0){st.shT=.9;const who=Math.floor(Math.random()*3),d=goal.x-st.bx;let m=Math.abs(d)<30?"¡AHÍ, DALE!":d<0?(Math.abs(d)>150?"¡MUCHO más a la IZQUIERDA!":"¡Un pelín a la izquierda!"):(Math.abs(d)>150?"¡MUCHO más a la DERECHA!":"¡Un pelín a la derecha!");
+     if(who===st.liar)m=Math.abs(d)<30?pick(["¡A la izquierda!","¡A la derecha!"]):d<0?"¡A la DERECHA, hombre!":"¡A la IZQUIERDA, hombre!";st.shout.push({t:NAMES[who]+": "+m,x:150+who*210,y:150+Math.random()*60,l:2});sfx("blip")}
+   if(press){press=0;st.charging=true;st.pow=0}if(st.charging){st.pow+=dt*1.5;if(st.pow>1.15)st.pow=0}
+   if(rel){rel=0;if(st.charging){st.charging=false;st.swings--;st.sw=.3;const good=st.pow>=.62&&st.pow<=.88;const p=st.pots.find(p=>!p.broke&&Math.abs(p.x-st.bx)<30);
+       if(!p){st.msg="¡Al aire! No hay nada ahí.";sfx("throw")}else if(!good){st.msg=st.pow<.62?"Muy flojo: el puchero solo hace «clonc».":"¡Demasiado fuerte! Se te escapa el palo.";sfx("weak")}else{p.broke=true;if(p.pz){st.got++;st.msg="¡¡CRAC!! ¡Lluvia de caramelos!";sfx("quest")}else{st.msg=pick(["¡CRAC! Harina en toda la cara.","¡CRAC! Agua helada.","¡CRAC! Un puñado de confeti viejo."]);sfx("hit")}}st.msgT=1.6;st.pow=0}}
+   x.fillStyle="#050303";x.fillRect(0,0,W,H);st.sw=Math.max(0,(st.sw||0)-dt);guy(360,390,"#e23b2a",1.6,st.sw>0?-.2:0);x.strokeStyle="#8a5a2a";x.lineWidth=8;x.beginPath();x.moveTo(372,320);x.lineTo(st.sw>0?430:392,st.sw>0?330:230);x.stroke();
+   for(const s of st.shout){s.l-=dt;x.globalAlpha=Math.max(0,Math.min(1,s.l));text("🗣 "+s.t,s.x,s.y-(2-s.l)*14,16,"#ffe8a0");x.globalAlpha=1}st.shout=st.shout.filter(s=>s.l>0);
+   text("A ciegas · Ojo: uno del público MIENTE SIEMPRE. Descubre quién.",W/2,40,17,"#ffffff");text(`Golpes: ${st.swings} · Caramelos: ${st.got}/2 · ¿Te han girado los controles? Fíjate en lo que gritan.`,W/2,64,13,"#c8c8c8");
+   bar(260,408,200,st.pow,st.pow>=.62&&st.pow<=.88?"#5aff5a":"#ffd14a");x.fillStyle="#5aff5a";x.fillRect(262+196*.62,404,196*.26,3);text("Mantén ¡YA! para cargar y suelta en la marca verde",W/2,434,12,"#ffffff");if(st.msgT>0)text(st.msg,W/2,110,20,"#7aff9a");
+   if(st.got>=2)fin(true,`¡Los dos pucheros buenos! El mentiroso era ${NAMES[st.liar]}. ¡Lluvia de caramelos y ovación!`);else if(st.swings<=0&&st.sw<=0)fin(false,`Sin golpes. El mentiroso de esta vez era ${NAMES[st.liar]}.`)},
+  // ---------- BOINA: 45 metros, tres barras rápidas y viento que cambia ----------
+  boina(dt,t){if(!st.init)st={init:1,ph:0,tries:3,best:0,k:0,wind:Math.random()*5-2.5,v:{}};st.k+=dt;sky();
+   text("LANZAMIENTO DE BOINA",W/2,56,26);text(`El abuelo Matías: 45 m · Tu mejor: ${st.best.toFixed(1)} m · Tiros: ${st.tries} · Viento: ${st.wind>0?"→ a favor":"← en contra"} ${Math.abs(st.wind).toFixed(1)}`,W/2,80,14);
+   const SX=d=>70+d*12;for(let d=0;d<=50;d+=5){x.fillStyle="#fff";x.fillRect(SX(d),352,2,10);x.font="10px Arial";x.textAlign="center";x.fillText(d+" m",SX(d),376)}x.fillStyle="#ffd14a";x.fillRect(SX(45)-2,300,4,54);text("MATÍAS",SX(45),294,11);guy(50,352,"#2a6ad0",1.2);
+   const osc=(sp)=>1-Math.abs(((st.k*sp)%2)-1);
+   if(st.ph<3){const names=["ÁNGULO","FUERZA","GIRO DE MUÑECA"],sps=[1.5,2.1,2.7],targ=[.5,.93,.5],tw=[.1,.09,.1];const v=osc(sps[st.ph]);
+     for(let i=0;i<3;i++){const Y=130+i*44,val=i<st.ph?st.v[i]:i===st.ph?v:0;x.fillStyle="rgba(0,0,0,.55)";x.fillRect(200,Y,320,18);x.fillStyle="#5aff5a";x.fillRect(200+320*(targ[i]-tw[i]/2),Y,320*tw[i],18);x.fillStyle="#fff";x.fillRect(200+320*val-3,Y-4,6,26);x.font="700 12px Rubik,Arial";x.textAlign="right";x.fillStyle="#1a1a1a";x.fillText(names[i],192,Y+13)}
+     text("Pulsa ¡YA! con la marca blanca sobre la zona verde. Las tres.",W/2,282,15);
+     if(press){press=0;st.v[st.ph]=v;st.ph++;st.k=0;sfx("sel");if(st.ph===3){const eA=1-Math.min(1,Math.abs(st.v[0]-.5)*.8),eP=1-Math.min(1,Math.abs(st.v[1]-.93)*1.1),eG=1-Math.min(1,Math.abs(st.v[2]-.5)*.7);st.dist=Math.max(3,48*eA*eP*eG+st.wind*.8+(Math.random()*.8-.4));st.fly=0}}}
+   else{press=0;st.fly+=dt*.55;const k=Math.min(1,st.fly),d=st.dist*k,hgt=Math.sin(Math.PI*k)*150;x.fillStyle="#1a1a1a";x.beginPath();x.ellipse(SX(d),344-hgt,14,6,st.fly*22,0,7);x.fill();text(d.toFixed(1)+" m",SX(d),320-hgt,16);
+     if(st.fly>=1.7){st.best=Math.max(st.best,st.dist);st.tries--;st.ph=0;st.k=0;st.wind=Math.random()*5-2.5;if(st.best>45)fin(true,`¡${st.best.toFixed(1)} metros! La boina pasa por encima de la marca de Matías. Se quita la suya de pura emoción.`);else if(st.tries<=0)fin(false,`Tu mejor tiro: ${st.best.toFixed(1)} m. Hacen falta más de 45: las tres barras casi perfectas.`)}}
+   rel=0},
+  // ---------- PORRÓN: empinar (mantener) sin atragantarte y soltar cuando viene el hipo ----------
+  porron(dt,t){if(!st.init)st={init:1,h:0,ml:0,gar:0,hipo:3+Math.random()*2,warn:0,stain:0,time:35};st.time-=dt;
+   st.h=Math.max(0,Math.min(1,st.h+(hold?dt*.7:-dt*2.4)));const drinking=st.h>.06;
+   if(drinking){st.ml+=dt*(22+90*st.h*st.h);st.gar+=dt*(16+26*st.h)}else st.gar-=dt*46;st.gar=Math.max(0,st.gar);
+   st.hipo-=dt;if(st.hipo<=0){if(!st.warn){st.warn=.75;sfx("blip")}else{st.warn-=dt;if(st.warn<=0){if(st.h>.25){st.stain++;st.ml=Math.max(0,st.ml-150);st.gar+=25;sfx("weak");st.splash=.8}st.warn=0;st.hipo=2.2+Math.random()*3}}}
+   st.splash=Math.max(0,(st.splash||0)-dt);sky();text("EL PORRÓN: EMPINA CON ARTE",W/2,56,24);text("Mantén ¡YA! para empinar (más alto = más vino). Suelta para tragar. Si sale el ¡HIPO!, baja el porrón YA.",W/2,80,13);
+   const px0=360,py0=300-st.h*180,sh=st.h>.6?Math.sin(t*28)*(st.h-.6)*14:0;x.save();x.translate(px0+70+sh,py0);x.rotate(-.35-st.h*.75);x.fillStyle="rgba(215,240,255,.85)";x.beginPath();x.ellipse(0,0,30,42,0,0,7);x.fill();x.fillStyle="#7a1a3a";const lvl=Math.max(4,40-st.ml/40);x.fillRect(-26,40-lvl-6,52,lvl);x.fillStyle="rgba(215,240,255,.85)";x.fillRect(-62,6,40,8);x.restore();
+   guy(300,390,"#f4f4f4",2.2,-.12*st.h);if(drinking){x.strokeStyle="#7a1a3a";x.lineWidth=3+st.h*3;x.beginPath();x.moveTo(px0+22+sh,py0+14);x.quadraticCurveTo(px0-10,py0+40,306,292);x.stroke()}
+   if(st.splash>0){x.fillStyle="#7a1a3a";for(let i=0;i<14;i++)x.fillRect(280+(i*17)%70,300+(i*29)%70,6,6);text("¡TE HAS PUESTO PERDIDO! −150 ml",W/2,150,22,"#a01a1a")}
+   if(st.warn>0)text("⚠️ ¡HIPO! ¡BAJA EL PORRÓN!",W/2,120,30,Math.floor(t*10)%2?"#e23b2a":"#1a1a1a");
+   x.fillStyle="#3a3a3a";x.fillRect(30,130,22,250);const hh=Math.min(250,st.ml/1400*250);x.fillStyle="#7a1a3a";x.fillRect(30,380-hh,22,hh);x.fillStyle="#ffd14a";x.fillRect(24,380-1200/1400*250,34,3);text((st.ml/1000).toFixed(2)+" L",42,400,13);
+   bar(540,150,150,st.gar/100,st.gar>75?"#e23b2a":"#4ad8ff","Garganta llena");bar(540,200,150,st.h,"#ffd14a","Altura del chorro");text("⏱ "+Math.max(0,Math.ceil(st.time))+" s",615,250,20);text("Manchas: "+st.stain+"/3",615,280,14);
+   press=rel=0;if(st.ml>=1200)fin(true,`¡${(st.ml/1000).toFixed(2)} litros con un arte que no se ha visto en Hoyales desde 1987!`);else if(st.gar>=100)fin(false,"¡COF, COF, COF! Te has atragantado. Suelta antes para tragar.");else if(st.stain>=3)fin(false,"Tres manchas. La camiseta ya es de otro color. Cuando salga el ¡HIPO!, baja el porrón.");else if(st.time<=0)fin(false,`Se acabó el tiempo: ${(st.ml/1000).toFixed(2)} L. Empina más alto cuando no haya hipo.`)}};
+ const tick=nw=>{const dt=Math.min(.05,(nw-last)/1000);last=nw;if(!c.isConnected){removeEventListener("keydown",kd,true);removeEventListener("keyup",ku,true);res(false);return}if(!done){T[kind](dt,(nw-t0)/1000);raf=requestAnimationFrame(tick)}};raf=requestAnimationFrame(tick)})};
+// al ganar los pucheros durante la misión, dentro aparece la nota
+const _fgH=fiestaGame;fiestaGame=async function(k){const w=await _fgH(k);if(w&&k==="pucheros"&&hm()===3){await sayAll(["¡Dentro del puchero bueno, entre los caramelos, hay un papel pringoso!","«He cogido la llave para que no la pierdan. Está a buen recaudo. Si las campanas de la ermita suenan en orden, os la devuelvo. — El Sacristán»","📍 "+MIS[4]]);setHm(4)}return w};
+
+/*</B4HOYALES4>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

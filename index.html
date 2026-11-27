@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="82 · Nuevo orden: ferry a Tánger tras Izaskun, Martillo Bereber, Ruta 7 de los Viñedos con desprendimiento y Hoyales al final";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="83 · Hoyales de Roa nuevo (torre del castillo, iglesia, ermita, bodegas en el cerro, casas de pueblo) y menús que ya no se esconden";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8995,6 +8995,11 @@ let petSteps=0;const _osT1=onStep;onStep=async function(){const r=await _osT1.ap
  if(petHas("cerdito")&&petSteps%100===0){const n=ri(5,30);S.money+=n;sfx("catch");toast("🐖 ¡El cerdito ha desenterrado "+n+" pavos!")}}return r};
 // ---------- EQUIPO SIMÉTRICO: 3 y 3 (2 y 2 y 2 en el móvil) ----------
 (function(){const st=document.createElement("style");st.textContent=".pty{grid-template-columns:repeat(3,1fr)!important}@media (max-width:620px){.pty{grid-template-columns:repeat(2,1fr)!important}}";document.head.appendChild(st)})();
+// ---------- el cuadro de diálogo siempre por delante de las pantallas grandes (mascotas, premios del casino…) ----------
+(function(){const d=$("dlg"),ovEl=$("ov");if(!d||!ovEl)return;const home=d.parentNode,next=d.nextSibling;const st=document.createElement("style");
+ st.textContent="#dlg.dlgtop{position:fixed!important;z-index:60!important;left:50%!important;right:auto!important;transform:translateX(-50%);width:min(94vw,860px);bottom:3%!important;font-size:clamp(15px,2.2vw,20px)}";document.head.appendChild(st);
+ const sync=()=>{const top=!ovEl.hidden;if(top&&d.parentNode!==document.body){document.body.appendChild(d);d.classList.add("dlgtop")}else if(!top&&d.parentNode===document.body){home.insertBefore(d,next&&next.parentNode===home?next:null);d.classList.remove("dlgtop")}};
+ new MutationObserver(sync).observe(ovEl,{attributes:true,attributeFilter:["hidden"]});sync()})();
 // ---------- las máquinas de bolas solo en la Espuma Party ----------
 (function(){for(const[id,M]of Object.entries(MAPS)){if(id==="espumaplaya"||!M.g)continue;for(const row of M.g)for(let i=0;i<row.length;i++)if(row[i]==="%")row[i]=M.outdoor?".":"o"}})();
 // ---------- ESPUMA PARTY al aire libre, en la playa ----------
@@ -9446,6 +9451,150 @@ VUELO_DEST.push({map:"vinedos",n:"Ruta 7 · Viñedos",x:2,y:8,mx:220,my:198,ok:(
 LOGROS.push({id:"ferry",n:"Cruzando el Estrecho",d:"Viaja en el ferry a Tánger.",ic:"⛴",ok:()=>!!S.flags.ferryIn,rw:{money:150}},{id:"vinrocas",n:"Rompepiedras",d:"Abre el camino de los Viñedos con el Martillo Bereber.",ic:"🔨",ok:()=>!!S.flags.vinRocas,rw:{money:200}});
 
 /*</B4ORDEN>*/
+/*<B4HOYALES3>*/
+/* ===================== TANDA 4 · HOYALES DE ROA rehecho como el pueblo de verdad (media torre del castillo, San Bartolomé, ermita de la Virgen de Arriba, bodegas en el cerro) ===================== */
+(function(){const W=40,H=30;const[g,R]=mk(W,H,".");
+ R("#",0,0,W,1);R("#",0,H-1,W,1);R("#",W-1,0,1,H);R("#",0,0,1,H);g[12][0]="v";g[13][0]="v";
+ // calles empedradas y la plaza mayor
+ R("v",0,12,30,2);R("v",13,7,12,11);R("v",10,4,2,22);R("v",24,6,2,18);R("v",10,23,29,2);R("v",18,17,2,6);R("v",2,6,9,1);
+ // la media torre del castillo, en mitad de la plaza; el pilón al lado
+ R("Ʈ",18,12,2,2);g[11][15]="Ƥ";
+ // el escenario de la verbena
+ R("é",15,8,8,2);
+ // iglesia de San Bartolomé (norte) y ermita de la Virgen de Arriba (en el alto)
+ R("Ȼ",26,2,8,5);g[6][29]="ʘ";R("v",29,7,1,1);
+ R("Ǝ",2,1,5,3);g[3][4]="ʘ";R("v",4,4,1,2);[[2,5],[4,5],[6,5]].forEach(([x,y])=>g[y][x]="ß");
+ // el merendero (pinar con mesas y barbacoa), junto a la entrada
+ R(",",1,8,1,3);[[3,8],[6,8],[3,10]].forEach(([x,y])=>g[y][x]="ü");g[10][6]="ȝ";[[8,8],[1,7]].forEach(([x,y])=>g[y][x]="#");
+ // el cerro de las bodegas (al sureste): puertas excavadas y zarceras arriba
+ R("í",30,18,9,4);[31,33,35,37].forEach(x=>g[21][x]="ȸ");g[21][35]="ȸ";[[32,18],[34,18],[36,18]].forEach(([x,y])=>g[y][x]="ȹ");R("v",30,22,9,1);
+ // hierba alta (Pedomones) al este y al sur
+ R(",",34,2,4,9);R(",",20,26,8,2);
+ // el laberinto del encierro (al suroeste)
+ const maze=["V.VVVVVVV","V.V...V.V","V...V.V.V","VVVVV...V","Vi......V"];maze.forEach((r,j)=>{for(let i=0;i<9;i++)g[22+j][1+i]=r[i]});g[21][2]=".";R("V",1,27,9,1);
+ const builds=[{id:"pena",kind:"pension",x:26,y:14,w:5,h:3,door:[28,16],wall:"#f4e8c8",roof:"#2a8a3a",label:"PEÑA",glow:"#2a8a3a",to:"pena"},
+  {id:"hcasa1",kind:"pension",x:2,y:15,w:4,h:3,door:[3,17],wall:"#e8d8b8",roof:"#a84a2a",label:"",glow:"#a84a2a",to:"hcasa1"},
+  {id:"hcasa2",kind:"pension",x:13,y:19,w:4,h:3,door:[14,21],wall:"#e8dcc0",roof:"#b85a2a",label:"",glow:"#b85a2a",to:"hcasa2"},
+  {id:"hcasa3",kind:"pension",x:32,y:9,w:4,h:3,door:[33,11],wall:"#f0e4c8",roof:"#9a4a2a",label:"",glow:"#9a4a2a",to:"hcasa3"},
+  {id:"hcasa4",kind:"pension",x:20,y:19,w:3,h:3,door:[21,21],wall:"#e4d4b4",roof:"#a85a3a",label:"",glow:"#a85a3a",to:null}];
+ builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
+ const signs={"1,11":"HOYALES DE ROA. Fiestas de San Garrafón. «Aquí se bebe del porrón, no del vaso.»","12,10":"PLAZA MAYOR · ↑ Escenario de la verbena · ↗ Iglesia de San Bartolomé · → Peña El Garrafón (cura) · ↘ Cerro de las bodegas","9,5":"↖ ERMITA DE LA VIRGEN DE ARRIBA · Las campanas solo traen suerte si se tocan en orden."};
+ Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
+ MAPS.hoyales={w:W,h:H,g,outdoor:true,signs,builds,lamps:[],music:"verbena",entry:[1,12,"right"],
+  exits:{"0,12":["vinedos",40,8,"left"],"0,13":["vinedos",40,9,"left"]},
+  txt:{"Ʈ":"La media torre del castillo de Hoyales. Lleva siglos partida por la mitad y sigue en pie. Como el Rey de la Peña.","Ȼ":"La iglesia de San Bartolomé, de piedra dorada. Se acabó en 1791 y desde entonces nadie ha sacado el confesionario.","Ǝ":"La ermita de la Virgen de Arriba, en lo alto del pueblo.",
+   "ȸ":"Una bodega excavada en el cerro. Puerta de madera vieja y olor a vino de hace cien años.","ȹ":"Una zarcera: la chimenea de una bodega. Por aquí respira el vino.","í":"El cerro de las bodegas. Por dentro está más agujereado que un queso.","é":"El escenario de la verbena: tablones, guirnaldas y un altavoz que suena a lata.","ü":"Una mesa del merendero con un mantel de cuadros y una tortilla abandonada.","ȝ":"La barbacoa del merendero.","Ƥ":"El pilón de la plaza. Agua fresquita. Bueno, fresquita no: con espuma de cerveza.","#":"Chopos y pinos del merendero.","V":"Las vallas de madera del encierro."}};
+ BIGSIGNS.hoyales=[{x:1,y:14,txt:"← RUTA 7\nVIÑEDOS"}];
+ blockDrawn("hoyales")})();
+// ---------- casas de pueblo de verdad: piedra, teja, puerta de madera y contraventanas ----------
+KIND_UP.casapueblo=14;
+KIND4.casapueblo=function(b,ox,oy,t){const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,wall=b.wall||"#e8d8b8",dk=hexShade(wall,.82),roof=b.roof||"#b85a2a",rd=hexShade(roof,.75);
+ ctx.fillStyle="rgba(0,0,0,.18)";ctx.fillRect(x+3,y+h-2,w,4);
+ px(x,y,w,h,wall);for(let j=0;j<h;j+=5)for(let i=(j/5)%2*6;i<w;i+=12)px(x+i,y+j,10,4,hexShade(wall,.93));px(x,y,w,2,dk);
+ // tejado de tejas con alero
+ ctx.fillStyle=roof;ctx.beginPath();ctx.moveTo(x-4,y+4);ctx.lineTo(x+6,y-14);ctx.lineTo(x+w-6,y-14);ctx.lineTo(x+w+4,y+4);ctx.closePath();ctx.fill();
+ for(let j=0;j<4;j++){const yy=y-12+j*4.5;ctx.strokeStyle=rd;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+4-j*2.5,yy);ctx.lineTo(x+w-4+j*2.5,yy);ctx.stroke();for(let i=x+6-j*2;i<x+w-4+j*2;i+=5){ctx.beginPath();ctx.arc(i,yy+2,2.2,Math.PI,0);ctx.stroke()}}
+ px(x-4,y+3,w+8,2,rd);px(x+w-14,y-20,6,9,"#c8b8a0");px(x+w-15,y-21,8,2,"#8a7a6a");
+ // puerta y ventanas
+ const dx=(b.door[0]-b.x)*T;px(x+dx+3,y+h-13,10,13,"#6a4022");px(x+dx+4,y+h-12,8,12,"#8a5a30");px(x+dx+8,y+h-12,1,12,"#6a4022");px(x+dx+10,y+h-7,1,2,"#e8c060");ctx.fillStyle="#6a4022";ctx.beginPath();ctx.arc(x+dx+8,y+h-13,5,Math.PI,0);ctx.fill();
+ const wins=[];for(let i=0;i<b.w;i++)if(i!==b.door[0]-b.x)wins.push(i);for(const i of wins.slice(0,3)){const wx=x+i*T+4,wy=y+h-14;px(wx,wy,8,7,"#3a5a7a");px(wx+1,wy+1,6,2,"#7aa8d0");px(wx-3,wy,3,7,"#2a6a3a");px(wx+8,wy,3,7,"#2a6a3a");px(wx-1,wy+7,10,2,"#a89070");if((i+b.x)%2)px(wx,wy+5,8,2,["#e23b2a","#ff9ad0","#f2d14e"][(i+b.y)%3])}
+};
+(function(){for(const id of["hoyales","terrazalia"]){const M=MAPS[id];for(const b of M.builds)if(/^(hcasa|tcasa|pena)/.test(b.id))b.kind="casapueblo"}})();
+// gente de Hoyales en su sitio nuevo
+(function(){const set=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};
+ set("reypena",{x:19,y:9,dir:"down"});set("charanga1",{x:15,y:15,dir:"up",sight:3});set("charanga2",{x:22,y:15,dir:"up",sight:3});set("charanga3",{x:18,y:16,dir:"up",sight:2});
+ set("comision",{x:14,y:10,dir:"right"});set("sacristan",{x:8,y:5,dir:"left"});set("hcomi",{x:35,y:22,dir:"up"});
+ for(const k of Object.keys(BELLS))delete BELLS[k];Object.assign(BELLS,{"2,5":0,"4,5":1,"6,5":2});
+ delete PICK_AT["hoyales,24,24"];PICK_AT["hoyales,2,26"]="encierro";
+ setExit("pena",["4,7","5,7"],["hoyales",28,17,"down"]);
+ for(const d of VUELO_DEST)if(d.map==="hoyales"){d.x=28;d.y=17}})();
+// el Comisario espera delante de SU bodega (la del medio)
+(function(){const n=npcById("hcomi");if(n){n.x=35;n.y=23;n.dir="up"}})();
+// ---------- interiores: cada casa sirve para algo ----------
+MAPS.hcasa1=room(["wwwwwwwwww","wgmoooohhw","woooooooow","wtoooooopw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"verbena",txt:{m:"La tele: las fiestas de Hoyales de 1994. Salen las mismas caras con más pelo.",h:"Un sofá con un pañuelo de peñas en cada brazo.",t:"Una mesa camilla con un porrón y una baraja española.",p:"La Nevera de la tía Petra. Morcilla, chorizo y cuatro Pedomones de la guardería."}});
+setExit("hcasa1",["4,7","5,7"],["hoyales",3,18,"down"]);
+MAPS.hcasa2=room(["wwwwwwwwww","whhoooʌogw","woooooooow","wtoooooooow".slice(0,9)+"w","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"verbena",txt:{h:"Literas de los quintos. Huelen a calimocho y a colonia barata.",t:"Una mesa con una nevera portátil y 40 latas vacías.",g:"Un cactus con una boina puesta."}});
+setExit("hcasa2",["4,7","5,7"],["hoyales",14,22,"down"]);
+MAPS.hcasa2b=room(["wwwwwwwwww","wtoooooogw","woooooooow","woooooooow","woooooohhw","woooooʋoow","woooooooow","wwwwwwwwww"],null,[6,4,"down"],{music:"verbena",txt:{t:"Un escritorio con un diario abierto: «Día 3 de fiestas. No sé dónde está mi coche. Ni mis pantalones.»",h:"Un colchón en el suelo con forma de quinto dormido.",g:"Una maceta con una lata de cerveza plantada."}});
+MAPS.hcasa3=room(["wwwwwwwwww","wgmooooogw","woooooooow","wtoooooohw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"verbena",txt:{m:"Un mapa antiguo del cerro con todas las bodegas marcadas. Una tiene una X roja.",t:"Una mesa con planos de bodegas y un bocata de lomo.",h:"Un sillón orejero con la forma del alcalde.",g:"Un geranio regado con clarete."}});
+setExit("hcasa3",["4,7","5,7"],["hoyales",33,12,"down"]);
+MAPS.bodegaPerez=room(["wwwwwwwwwwww","wttttooootgw","woooooooooow","whoooooooohw","woooooooooow","woooooooooow","wwwwweewwwww"],null,[5,5,"up"],{music:"verbena",txt:{t:"Barricas y más barricas. Una pone «1953». Otra pone «NO TOCAR». Otra pone «MÍO».",h:"Un banco de piedra frío como la cara del Comisario.",g:"Una cepa vieja plantada en una barrica."}});
+setExit("bodegaPerez",["5,6","6,6"],["hoyales",31,22,"down"]);
+Object.assign(STAIRS,{"hcasa2,6,1":["hcasa2b",6,4,"down",""],"hcasa2b,6,5":["hcasa2",6,2,"down",""]});
+Object.assign(MAPNAME,{hcasa1:"Casa de la tía Petra",hcasa2:"Casa de los quintos",hcasa2b:"Casa de los quintos · arriba",hcasa3:"Casa del alcalde",bodegaPerez:"Bodega de los Pérez"});
+NPC_LOOK.petra={hs:9,ts:7};NPC_LOOK.quinto1={hs:3,ts:2};NPC_LOOK.quinto2={hs:5,ts:3};NPC_LOOK.alcalde={hs:10,ts:5,beard:"stache"};NPC_LOOK.perez={hs:2,ts:0,beard:"full"};NPC_LOOK.cura={hs:10,ts:11};
+NPCS.push({id:"petra",map:"hcasa1",x:3,y:3,dir:"down",pal:{h:"#d8d8d8",s:"#f1c27d",e:"#222",c:"#2a2a2a",z:"#f4f4f4",p:"#2a2a2a",k:"#111"},hs:9,ts:7},
+ {id:"quinto1",map:"hcasa2",x:3,y:3,dir:"down",pal:{h:"#3a2a1a",s:"#e0a878",e:"#222",c:"#c8202a",z:"#f4f4f4",p:"#f4f4f4",k:"#c8202a"},hs:3,ts:2},
+ {id:"quinto2",map:"hcasa2b",x:3,y:3,dir:"right",idle:true,pal:{h:"#1a1a1a",s:"#d8a070",e:"#222",c:"#f4f4f4",z:"#c8202a",p:"#f4f4f4",k:"#c8202a"},hs:5,ts:3},
+ {id:"alcalde",map:"hcasa3",x:5,y:3,dir:"down",pal:{h:"#8a8a8a",s:"#f1c27d",e:"#222",c:"#1a2a4a",z:"#f4f4f4",p:"#1a2a4a",k:"#111"},hs:10,ts:5},
+ {id:"perez",map:"bodegaPerez",x:6,y:2,dir:"down",pal:{h:"#f4f4f4",s:"#c8955a",e:"#222",c:"#5a3a1a",z:"#f4f4f4",p:"#2a2a2a",k:"#111"},hs:2,ts:0});
+TALK2.petra=async()=>{if(!S.flags.petraGift){S.flags.petraGift=true;S.bag.ibu=(S.bag.ibu||0)+2;sfx("catch");save();await sayAll(["Tía Petra: ¡Hijo! ¿De quién eres tú? … Da igual, siéntate. ¿Has desayunado? ¿Has dormido? ¿Has llamado a tu madre?","Tía Petra: Toma, dos Ibuprofenos. En fiestas se reparten como caramelos.","¡Consigues 2 Ibuprofenos!"]);return}
+ await say(pick(["Tía Petra: Las campanas de la ermita, el orden es: la del medio, la que da al pueblo y la que queda. Eso me lo enseñó mi abuela.","Tía Petra: El Comisario lleva días metido en la bodega de en medio. «Requisando», dice. Bebiendo, digo yo."]))};
+TALK2.quinto1=async()=>{await say(pick(["Quinto: ¡Somos los quintos del 2007! Bueno, del 2007 al 2026. No nos hemos ido nunca.","Quinto: Arriba está el Mangas. Lleva tres días sin bajar. Dice que guarda un secreto de la bodega.","Quinto: En el tiro de soga somos imbatibles. Bueno, éramos. Hasta que alguien nos pisó la soga."]))};
+TALK2.quinto2=async()=>{if(!S.flags.mangasInfo){S.flags.mangasInfo=true;S.bag.rinomarca=(S.bag.rinomarca||0)+1;sfx("catch");save();await sayAll(["El Mangas: Shhh… Te cuento algo si no se lo dices a nadie. La noche del incendio del merendero vi a un señor con sombrero de paja subir al cerro de las bodegas.","El Mangas: Llevaba una mochila llena de algo que hacía «clinc, clinc». Y metió algo por una zarcera.","El Mangas: Toma, por escucharme. Una Riñonera de marca que me encontré en la verbena."]);return}
+ await say("El Mangas: Ya te lo he contado todo. Ahora déjame dormir la mona. La mona de hace tres días.")};
+TALK2.alcalde=async()=>{await say(pick(["Alcalde: Bienvenido a Hoyales. La torre del castillo la partió un rayo en 1500 y pico. La iglesia la acabaron en 1791. Y las fiestas no han acabado nunca.","Alcalde: En el mapa del cerro he marcado la bodega del medio. Es la que el Comisario ha «requisado». No me fío.","Alcalde: Si tocas bien las campanas de la ermita, el sacristán te dará la colecta. Bueno, parte. Bueno, un poco."]))};
+TALK2.perez=async()=>{if(!S.flags.perezGift){S.flags.perezGift=true;S.bag.agua=(S.bag.agua||0)+1;S.money+=100;sfx("catch");save();await sayAll(["Abuelo Pérez: Esta bodega la excavó mi bisabuelo con un pico y mucha paciencia. Y mucho vino.","Abuelo Pérez: Toma, 100 pavos y un agua, que pareces deshidratado. Y no te acerques a la bodega del medio: el cerro anda crujiendo desde hace días."]);return}
+ await say(pick(["Abuelo Pérez: Las zarceras son las chimeneas de las bodegas. Si alguien tira algo por una… acaba en la bodega de abajo.","Abuelo Pérez: Aquí abajo se está a 12 grados todo el año. Como en el corazón del Comisario."]))};
+const _doorH3=door;door=async function(b){if(b&&b.id==="hcasa1"){await warp("hcasa1",4,6,"up");return}if(b&&b.id==="hcasa2"){await warp("hcasa2",4,6,"up");return}if(b&&b.id==="hcasa3"){await warp("hcasa3",4,6,"up");return}
+ if(b&&b.id==="hcasa4"){await say("Casa de los Gómez. Un cartel en la puerta: «ESTAMOS EN LA VERBENA. VOLVEMOS EL LUNES. DE OCTUBRE.»");return}return _doorH3(b)};
+// la iglesia y la ermita por dentro
+MAPS.iglesiaH=room(["wwwwwwwwwwww","wgooommooogw","woooooooooow","whhhhoohhhhw","woooooooooow","whhhhoohhhhw","woooooooooow","wwwwweewwwww"],null,[5,6,"up"],{music:"park",txt:{m:"El retablo del siglo XVII, todo dorado. San Bartolomé te mira con cara de saber lo que hiciste anoche.",h:"Bancos de madera con nombres grabados de los quintos de cada año.",g:"Unas flores de plástico muy bien cuidadas."}});
+setExit("iglesiaH",["5,7","6,7"],["hoyales",29,7,"down"]);MAPNAME.iglesiaH="Iglesia de San Bartolomé";
+NPCS.push({id:"cura",map:"iglesiaH",x:6,y:2,dir:"down",pal:{h:"#3a3a3a",s:"#f1c27d",e:"#222",c:"#1a1a1a",z:"#f4f4f4",p:"#1a1a1a",k:"#111"},hs:10,ts:11});
+TALK2.cura=async()=>{if(!S.flags.curaGift){S.flags.curaGift=true;S.bag.agua=(S.bag.agua||0)+2;sfx("catch");save();await sayAll(["Don Anselmo: Hijo mío, en fiestas aquí solo entran los que buscan perdón… y los que buscan sombra.","Don Anselmo: Toma, dos botellas de agua bendita. Bueno, es del grifo. Pero yo la he mirado con mucho cariño.","¡Consigues 2 "+(ITEMS.agua?ITEMS.agua.n:"Aguas")+"!"]);return}
+ await say(pick(["Don Anselmo: Un señor con sombrero de paja vino a confesarse. Estuvo dos horas. Salí yo más cansado que él.","Don Anselmo: Las campanas de la ermita las fundió el abuelo del Rey de la Peña. Por eso suenan desafinadas."]))};
+// ---------- interacciones con las casillas nuevas ----------
+const _intH3=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
+ if(S.map==="hoyales"&&ch==="ʘ"){if(fx===29){await warp("iglesiaH",5,6,"up");return}await say("La ermita de la Virgen de Arriba está cerrada. Por la ventana se ve una vela encendida y una foto del Rey de la Peña de joven.");return}
+ if(S.map==="hoyales"&&ch==="ȸ"){if(fx===31){await warp("bodegaPerez",5,5,"up");return}if(fx===35){await say(S.flags.bodegaBoom?"Donde estaba la bodega del medio solo queda un montón de rocas. De entre dos piedras asoma una gorra.":"La bodega del medio. El Comisario no deja pasar a nadie.");return}
+  await say(pick(["Bodega de los Gil: cerrada. Por la cerradura sale olor a clarete del 64.","Bodega de los Sanz: «SE VENDE VINO. SE COMPRA SILENCIO.»"]));return}
+ if(S.map==="hoyales"&&ch==="ȝ"){await say(S.flags.merenderoFuego?"La barbacoa del merendero, chamuscada. Solo queda una chuleta en la parrilla, intacta. Es un milagro de San Garrafón.":"La barbacoa del merendero.");return}
+ return _intH3()};
+// al acercarte a la bodega del medio, empieza el derrumbe
+const _osH3=onStep;onStep=async function(){const r=await _osH3();if(S.map==="hoyales"&&!S.flags.bodegaBoom&&S.y>=22&&S.y<=24&&Math.abs(S.x-35)<=2&&S.flags.hoyalesIn&&!busyH3){busyH3=true;try{await bodegaScene()}finally{busyH3=false}}return r};let busyH3=false;
+// ---------- LAS ESCENAS SE VEN ----------
+let ROCKFALL=null,FIREH=null;
+const _oemH3=onEnterMap;onEnterMap=async function(){
+ if(S.map==="hoyales"&&!S.flags.hoyalesIn){S.flags.hoyalesIn=true;S.flags.merenderoFuego=true;save();await _oemH3();await merenderoVisible();return}
+ return _oemH3()};
+async function merenderoVisible(){cineOn();const p1={id:"hpoli1",map:"hoyales",x:5,y:9,dir:"up",pal:NPC_PAL.poli,hs:2,ts:8},p2={id:"hpoli2",map:"hoyales",x:7,y:10,dir:"left",pal:NPC_PAL.poli,hs:2,ts:8};NPC_LOOK.hpoli1={hs:2,ts:8,hat:"poli"};NPC_LOOK.hpoli2={hs:2,ts:8,hat:"poli",beard:"stache"};NPCS.push(p1,p2);
+ await say5("HOYALES DE ROA. Fiestas de San Garrafón: guirnaldas, la media torre del castillo en la plaza y una charanga que no para.","En el merendero de la entrada, dos agentes de la Pasma rodean la barbacoa: «¡Ley Seca! ¡Aquí no se asa nada con alcohol!»");
+ emote(p2,"😏",1200);await sleep(500);await say5("Uno de ellos coge una botella para «apagar» la barbacoa. Pone «Bezoya»… pero huele a orujo.");emote(p2,"💦",700);await sleep(600);
+ FIREH={t0:performance.now()};sfx("super");FX.shake=now()+700;flash("#ffb04a",300);await sleep(900);emote(p1,"🔥",2500);emote(p2,"🔥",2500);p1.burning=true;p2.burning=true;
+ await say5("¡¡FUUUUUSH!! La barbacoa escupe una llamarada de tres metros. A los dos polis se les prende el culo.");
+ npcWalk(p1,[[5,10],[5,11],[6,11],[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[14,11]],110);await npcWalk(p2,[[7,11],[8,11],[9,11],[10,11],[11,11],[12,11],[13,11],[13,12],[14,12]],110);await sleep(300);
+ sfx("plop");p1.x=-20;p2.x=-20;await say5("Corren por la calle Real dejando una estela de humo y se tiran de cabeza al pilón de la plaza. Fsssssss.","La charanga, lejos de parar, se pone a tocar «Fuego» de El Arrebato. El pueblo entero aplaude.","Para subir al escenario y retar al Rey de la Peña: gana a los tres músicos de la charanga (en la plaza) y al menos 2 pruebas de las fiestas (Comisión de Fiestas).");
+ NPCS.splice(NPCS.indexOf(p1),1);NPCS.splice(NPCS.indexOf(p2),1);cineOff()}
+const _rwH3=renderWorld;renderWorld=function(t){_rwH3(t);if(S.map!=="hoyales")return;const m=MAP();const[ox,oy]=camOf(m);
+ // la media torre del castillo (alta, partida)
+ const TX=18*T-ox,TY=14*T-oy;px(TX,TY-80,32,80,"#c8a878");for(let i=0;i<8;i++)px(TX,TY-80+i*10,32,1,"#a8885a");for(let i=0;i<4;i++)px(TX+(i%2)*16,TY-80+i*20,1,10,"#a8885a");
+ ctx.fillStyle="#c8a878";ctx.beginPath();ctx.moveTo(TX,TY-80);ctx.lineTo(TX+8,TY-92);ctx.lineTo(TX+14,TY-84);ctx.lineTo(TX+20,TY-96);ctx.lineTo(TX+26,TY-86);ctx.lineTo(TX+32,TY-90);ctx.lineTo(TX+32,TY-80);ctx.fill();px(TX+12,TY-60,6,10,"#3a2a1a");px(TX+12,TY-30,6,10,"#3a2a1a");px(TX+28,TY-80,4,80,"#a8885a");
+ // la iglesia de San Bartolomé con su torre
+ const CX=26*T-ox,CY=7*T-oy;px(CX,CY-72,128,72,"#d8b878");px(CX,CY-72,128,4,"#b8985a");for(let i=0;i<6;i++)px(CX+10+i*20,CY-56,6,14,"#5a3a1a");px(CX+40,CY-30,28,30,"#6a4a2a");ctx.fillStyle="#5a3a1a";ctx.beginPath();ctx.arc(CX+54,CY-30,14,Math.PI,0);ctx.fill();
+ px(CX+92,CY-128,30,60,"#d8b878");px(CX+100,CY-118,14,16,"#3a2a1a");ctx.fillStyle="#c89a2a";ctx.beginPath();ctx.arc(CX+107,CY-108,4,0,7);ctx.fill();ctx.fillStyle="#b8985a";ctx.beginPath();ctx.moveTo(CX+90,CY-128);ctx.lineTo(CX+107,CY-150);ctx.lineTo(CX+124,CY-128);ctx.fill();px(CX+106,CY-160,2,12,"#3a3a3a");px(CX+102,CY-156,10,2,"#3a3a3a");
+ // la ermita, pequeñita y blanca
+ const EX=2*T-ox,EY=4*T-oy;px(EX,EY-40,80,40,"#f4f0e4");ctx.fillStyle="#b85a2a";ctx.beginPath();ctx.moveTo(EX-4,EY-40);ctx.lineTo(EX+40,EY-62);ctx.lineTo(EX+84,EY-40);ctx.fill();px(EX+33,EY-20,14,20,"#6a4a2a");px(EX+36,EY-72,8,12,"#f4f0e4");px(EX+38,EY-70,4,5,"#3a2a1a");px(EX+39,EY-80,2,8,"#3a3a3a");
+ // el fuego del merendero
+ if(FIREH){const k=(performance.now()-FIREH.t0)/1000;const a=k<6?1:Math.max(0,1-(k-6)/4);if(a<=0)FIREH=null;else{const X=6*T-ox+8,Y=10*T-oy+8;for(let i=0;i<7;i++){const f=(Math.floor(t/80)+i)%3;ctx.globalAlpha=a;ctx.fillStyle=["#ff5a1a","#ff9a2a","#ffd23a"][f];ctx.beginPath();ctx.moveTo(X-14+i*4,Y+4);ctx.quadraticCurveTo(X-12+i*4,Y-30-Math.min(1,k)*20-f*6,X-10+i*4,Y+4);ctx.fill()}ctx.globalAlpha=1}}
+ for(const n of NPCS)if(n.burning&&n.map==="hoyales"&&n.x>=0){const X=n.x*T-ox+8,Y=n.y*T-oy+12;const f=Math.floor(t/90)%3;ctx.fillStyle=["#ff5a1a","#ff9a2a","#ffd23a"][f];ctx.beginPath();ctx.moveTo(X-5,Y);ctx.quadraticCurveTo(X,Y-12-f*3,X+5,Y);ctx.fill();ctx.globalAlpha=.4;ctx.fillStyle="#8a8a8a";ctx.beginPath();ctx.arc(X-4,Y-14,4,0,7);ctx.fill();ctx.globalAlpha=1}
+ // el derrumbe del cerro sobre la bodega del medio
+ const hc=npcById("hcomi");if(!ROCKFALL&&CINE.on&&!S.flags.bodegaBoom&&hc&&hc.x<0)ROCKFALL={t0:performance.now()};
+ const BX=35*T-ox,BY=21*T-oy;if(ROCKFALL){const k=(performance.now()-ROCKFALL.t0)/1000;for(let i=0;i<9;i++){const d=Math.max(0,Math.min(1,(k-i*.18)/.6));const rx=BX-14+(i*13)%40,ry=BY-80+d*d*86;ctx.fillStyle=i%2?"#7a6a5a":"#9a8a7a";ctx.beginPath();ctx.ellipse(rx,ry,8+i%3*2,7,0,0,7);ctx.fill()}
+  if(k<3){ctx.globalAlpha=Math.max(0,.5-k*.15);ctx.fillStyle="#d8c8a8";ctx.beginPath();ctx.arc(BX+8,BY,30+k*20,0,7);ctx.fill();ctx.globalAlpha=1}if(k>4&&S.flags.bodegaBoom)ROCKFALL=null}
+ else if(S.flags.bodegaBoom){for(let i=0;i<7;i++){ctx.fillStyle=i%2?"#7a6a5a":"#9a8a7a";ctx.beginPath();ctx.ellipse(BX-10+(i*11)%36,BY+6-(i%3)*5,8,6,0,0,7);ctx.fill()}px(BX+6,BY-2,8,3,"#1a2450")}};
+// ---------- dibujo de las casillas nuevas de Hoyales ----------
+const _dtH3=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){
+ if(S.map==="hoyales"){
+  if(ch==="Ʈ"||ch==="Ȼ"||ch==="Ǝ"){_dtH3("v",x,y,sx,sy,t,style);return}
+  if(ch==="ʘ"){_dtH3("v",x,y,sx,sy,t,style);return}
+  if(ch==="Ƥ"){_dtH3("v",x,y,sx,sy,t,style);px(sx+1,sy+3,14,12,"#8a8a8a");px(sx+2,sy+4,12,9,"#4a9ad0");px(sx+3,sy+5,5,1,"#bfe6ff");px(sx+7,sy-3,2,7,"#7a7a7a");return}
+  if(ch==="ȝ"){_dtH3(".",x,y,sx,sy,t,style);px(sx+3,sy+6,10,8,"#5a5a5a");px(sx+2,sy+5,12,2,"#2a2a2a");for(let i=0;i<4;i++)px(sx+3+i*3,sy+5,1,2,"#8a8a8a");return}
+  if(ch==="ȸ"){_dtH3("í",x,y,sx,sy,t,style);px(sx+2,sy+3,12,13,"#5a3a1a");px(sx+3,sy+4,10,12,"#7a5030");px(sx+7,sy+4,1,12,"#5a3a1a");ctx.fillStyle="#5a3a1a";ctx.beginPath();ctx.arc(sx+8,sy+4,6,Math.PI,0);ctx.fill();px(sx+10,sy+10,2,2,"#c8a040");return}
+  if(ch==="ȹ"){_dtH3("í",x,y,sx,sy,t,style);px(sx+5,sy+2,6,9,"#b8a888");px(sx+4,sy+1,8,2,"#9a8a6a");px(sx+6,sy+3,4,3,"#2a2a2a");return}}
+ return _dtH3(ch,x,y,sx,sy,t,style)};
+
+/*</B4HOYALES3>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

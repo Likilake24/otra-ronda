@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="86 · Ciudades: carteles grandes en todas las salidas, casas de verdad, desván de la abuela, cuarto del Chusta y hostal con piedra-papel-tijera";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="87 · Arreglos: salir del gimnasio de Izaskun, la mascota ya no tapa al personaje y el cadáver no se atraviesa";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8613,11 +8613,17 @@ function drawPetOld(x,k,cx,cy,s,t){const P=PETS.find(p=>p.k===k);if(!P)return;co
  else if(k==="unicornio"){el(cx,y-2*s,8*s,5*s,"#f4f0ff");el(cx+7*s,y-7*s,4*s,3.5*s,"#f4f0ff");x.fillStyle="#7a1a3a";x.fillRect(cx-9*s,y-6*s,4*s,8*s);x.fillStyle="#ffd14a";x.beginPath();x.moveTo(cx+7*s,y-10*s);x.lineTo(cx+9*s,y-17*s);x.lineTo(cx+10*s,y-10*s);x.fill()}
  else if(k==="escorpion"){el(cx,y,7*s,4*s,C);for(const d of[-1,1])el(cx+d*9*s,y-2*s,3*s,2.5*s,C);x.strokeStyle=C;x.lineWidth=2.5*s;x.beginPath();x.moveTo(cx-6*s,y);x.quadraticCurveTo(cx-12*s,y-12*s,cx-3*s,y-14*s);x.stroke();el(cx-2*s,y-14*s,2*s,2*s,"#ffd14a")}
  if(k!=="fantasmita"){x.fillStyle="#111";x.fillRect(cx+(k==="loro"?1:5)*s,y-(k==="loro"?11:7)*s,1.4*s,1.4*s)}}
-// la mascota te sigue por el mapa
-let PETTRAIL=[];
-const _rwPet=renderWorld;renderWorld=function(t){_rwPet(t);if(!S||!S.pet||mode!=="world")return;const m=MAP();if(!m)return;let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}
-  const last=PETTRAIL[PETTRAIL.length-1];if(!last||Math.hypot(last[0]-wx,last[1]-wy)>.05)PETTRAIL.push([wx,wy,S.map]);if(PETTRAIL.length>40)PETTRAIL.shift();
-  const tr=PETTRAIL.filter(p=>p[2]===S.map);const target=tr.length>9?tr[tr.length-9]:[wx-.8,wy+.3];const[ox,oy]=camOf(m);drawPet(ctx,S.pet,target[0]*T-ox+8,target[1]*T-oy+11,.7,t)};
+// la mascota te sigue: siempre en la casilla que acabas de dejar, y se pinta delante o detrás de ti según dónde esté
+let PETTRAIL=[];const PETPOS={map:null,tx:0,ty:0,x:0,y:0,cur:null};
+function petUpdate(wx,wy){const here=P.moving?[P.fx,P.fy]:[S.x,S.y];
+ if(PETPOS.map!==S.map||!PETPOS.cur||Math.abs(PETPOS.x-wx)>3||Math.abs(PETPOS.y-wy)>3){PETPOS.map=S.map;PETPOS.cur=here.slice();const d=DIRS[S.dir]||[0,1];let bx=S.x-d[0],by=S.y-d[1];if(!WALK.has(tileAt(bx,by))){bx=S.x;by=S.y}PETPOS.tx=PETPOS.x=bx;PETPOS.ty=PETPOS.y=by}
+ if(P.moving){PETPOS.tx=P.fx;PETPOS.ty=P.fy}
+ PETPOS.x+=(PETPOS.tx-PETPOS.x)*.22;PETPOS.y+=(PETPOS.ty-PETPOS.y)*.22}
+const _dcPet=drawChar;drawChar=function(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look){
+ if(!S||!S.pet||mode!=="world"||acc!==S.skin||!MAP())return _dcPet(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look);
+ let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}petUpdate(wx,wy);
+ const[ox,oy]=camOf(MAP()),X=PETPOS.x*T-ox+8,Y=PETPOS.y*T-oy+11;const same=Math.hypot(PETPOS.x-wx,PETPOS.y-wy)<.35,front=!same&&PETPOS.y>wy+.4;
+ if(!front&&!same)drawPet(ctx,S.pet,X,Y,.7,performance.now());_dcPet(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look);if(front)drawPet(ctx,S.pet,X,Y,.7,performance.now())};
 // ---------- las 4 máquinas ----------
 const ACCK=["ag","an","ah"],CLOK=["tp","pp","kk","ac","hs"];
 const RARC=[{n:"Normal",c:"#c8c8c8"},{n:"Rara",c:"#4ad8ff"},{n:"ÉPICA",c:"#ff4ad0"},{n:"LEGENDARIA",c:"#ffd14a"}];
@@ -9875,6 +9881,20 @@ TALK2.huesped=async()=>{const i=await choose("Huésped insomne: Llevo tres noche
 LOGROS.push({id:"gafasAbu",n:"Nieto del año",d:"Encuentra las gafas de la abuela en el desván.",ic:"👓",ok:()=>!!S.flags.gafasAbu,rw:{money:100}},{id:"ppt",n:"Tijeras afiladas",d:"Gana al huésped insomne a piedra, papel o tijera.",ic:"✌️",ok:()=>!!(S.stats&&S.stats.ppt),rw:{money:100}});
 
 /*</B4CIUDADES>*/
+/*<B4FIX8>*/
+/* ===================== ARREGLOS 8: salir del gimnasio de Izaskun, la mascota ya no se pone encima y el cadáver no se atraviesa ===================== */
+// ---------- gimnasio de Izaskun: la sala 2 no tenía salida ----------
+MAPS.tgym2.g[11][5]="e";MAPS.tgym2.exits["5,11"]=["terrazalia",17,5,"down"];
+const gymOut=async(txt)=>{await warp("terrazalia",17,5,"down");if(txt)await say(txt)};
+const _izF8=TALK2.izaskun;TALK2.izaskun=async(n)=>{const had=!!S.flags.terraza;await _izF8(n);if(!had&&S.flags.terraza)await gymOut("Izaskun te acompaña hasta la puerta por el atajo de servicio. «Y no vuelvas sin avisar».")};
+// partidas que se quedaron encerradas: al cargar, fuera
+const _stF8=start;start=function(){if(S&&S.flags&&S.flags.terraza&&/^tgym[23]$/.test(S.map)){S.map="terrazalia";S.x=17;S.y=5;S.dir="down"}return _stF8()};
+// ---------- el cadáver de la playa del faro es sólido ----------
+const BODY_FARO=new Set(["13,17","14,17","15,17","15,16","16,16"]);
+const _cwF8=canWalk;canWalk=function(x,y){if(S.map==="faro"&&BODY_FARO.has(x+","+y))return false;return _cwF8(x,y)};
+const _stepF8=onStep;onStep=async function(){if(S.map==="faro"&&BODY_FARO.has(S.x+","+S.y)){S.x=12;S.y=16;pushPresence()}return _stepF8()};
+
+/*</B4FIX8>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

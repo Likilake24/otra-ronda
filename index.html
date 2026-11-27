@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="96 · Escenas con retratos expresivos, saltitos, zoom y voces";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="97 · Gimnasio del Rif: infiltración nocturna, templo bajo el riad, escorpiones y Hassan 2 contra 2";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -10058,10 +10058,10 @@ const _oemG2=onEnterMap;onEnterMap=async function(){if(S.map==="tgym1")S.flags.t
 // ====================================================================================
 // COMBATE TRIPLE: 3 contra 3 a la vez
 // ====================================================================================
-function tripleBattle(foesSpec,title){return new Promise(res=>{
- let mine=S.team.filter(m=>m.hp>0).slice(0,3);const foes=foesSpec.map(([s,l,mv])=>monMoves(newMon(s,l),mv));S.team.forEach(resetV);foes.forEach(resetV);
+function tripleBattle(foesSpec,title,opt){opt=opt||{};const SIZE=opt.size||3;return new Promise(res=>{
+ let mine=S.team.filter(m=>m.hp>0).slice(0,SIZE);const foesAll=foesSpec.map(([s,l,mv])=>monMoves(newMon(s,l),mv));const foes=foesAll.slice(0,SIZE),reserve=foesAll.slice(SIZE);S.team.forEach(resetV);foesAll.forEach(resetV);
  const SPR=new Map(),spr=(m,v)=>{const k=m;if(!SPR.has(k)){try{SPR.set(k,PIXLIB.get(m.sp,v).toDataURL())}catch(e){SPR.set(k,"")}}return SPR.get(k)};
- let log=["¡La charanga saca a sus tres Pedomones a la vez!"],choices=[],turnI=0,pickMode=null,menu="moves",busyT=false,over=false,fxA=null;const parts=new Set(mine);
+ let log=[opt.intro||"¡La charanga saca a sus tres Pedomones a la vez!"],choices=[],turnI=0,pickMode=null,menu="moves",busyT=false,over=false,fxA=null;const parts=new Set(mine);
  if(!document.getElementById("tb-css")){const st=document.createElement("style");st.id="tb-css";st.textContent="@keyframes tbHit{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(11px)}60%{transform:translateX(-7px)}80%{transform:translateX(5px)}}@keyframes tbUp{0%,100%{transform:translateY(0)}45%{transform:translateY(-18px)}}@keyframes tbDn{0%,100%{transform:translateY(0)}45%{transform:translateY(18px)}}@keyframes tbNum{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-6px) scale(1.3)}100%{opacity:0;transform:translateY(-44px) scale(1)}}.tbc{position:relative}.tbn{position:absolute;left:0;right:0;top:28%;font:900 26px Rubik,Arial;text-shadow:0 0 6px #000,0 2px 0 #000;animation:tbNum .9s forwards;pointer-events:none}";document.head.appendChild(st)}
  const aliveMine=()=>mine.filter(m=>m.hp>0);
  const effTag=(mv,f)=>{if(!mv||!MV[mv].p)return"";const k=tmult(MV[mv].t,SP[f.sp]);return k>1?'<div style="color:#7aff6a;font-weight:900;font-size:12px">▲ Muy eficaz</div>':k<1?'<div style="color:#ff9a7a;font-weight:900;font-size:12px">▼ Poco eficaz</div>':'<div style="font-size:12px;opacity:.8">Normal</div>'};
@@ -10077,7 +10077,7 @@ function tripleBattle(foesSpec,title){return new Promise(res=>{
     else if(menu==="items")body=`<p style="text-align:center;margin:2px">Objetos (gasta el turno de ${esc(mName(actor))})</p><div class="btns wrap" style="justify-content:center">${heals.map(k=>`<button class="big alt" type="button" id="tb-i-${k}" style="font-size:14px">${ITEMS[k].n} ×${S.bag[k]}</button>`).join("")||"<p>No te quedan objetos de curar.</p>"}<button class="big alt" type="button" id="tb-back">↩ Volver</button></div>`;
     else if(menu==="swap")body=`<p style="text-align:center;margin:2px">¿Por quién cambias a ${esc(mName(actor))}?</p><div class="btns wrap" style="justify-content:center">${bench.map((m,i)=>`<button class="big alt" type="button" id="tb-s${i}" style="font-size:14px">${esc(mName(m))}<br><small>Nv ${m.lvl} · ${m.hp}/${maxhp(m)}</small></button>`).join("")||"<p>No te quedan Pedomones de reserva.</p>"}<button class="big alt" type="button" id="tb-back">↩ Volver</button></div>`;
     else body=`<p style="text-align:center;margin:2px">Turno de <b>${esc(mName(actor))}</b></p><div class="btns wrap" style="justify-content:center">${actor.moves.map((mv,i)=>`<button class="big alt" type="button" id="tb-m${i}" style="font-size:14px">${MV[mv].n}<br><small>${TYPES[MV[mv].t].n} · ${MV[mv].p||"estado"}</small></button>`).join("")}</div><div class="btns wrap" style="justify-content:center;margin-top:4px"><button class="big alt" type="button" id="tb-bag" style="font-size:14px">🎒 Objetos</button><button class="big alt" type="button" id="tb-swap" style="font-size:14px">🔁 Cambiar</button><button class="big alt" type="button" id="tb-flee" style="font-size:14px">🏳️ Abandonar</button></div>`}
-  overlay(`<div style="max-width:820px;margin:0 auto"><h2 style="text-align:center;margin:4px 0">🎺 ${esc(title)} · COMBATE TRIPLE</h2>
+  overlay(`<div style="max-width:820px;margin:0 auto"><h2 style="text-align:center;margin:4px 0">${opt.icon||"🎺"} ${esc(title)} · ${opt.label||"COMBATE TRIPLE"}</h2>
    <div style="display:flex;justify-content:space-around;background:linear-gradient(#5a2a6a,#2a1030);border-radius:12px;padding:8px">${foes.map((m,i)=>card(m,"f",i,targetFoe(m)?"#ffd14a":"",targetFoe(m))).join("")}</div>
    <div style="display:flex;justify-content:space-around;background:linear-gradient(#2a4a2a,#122012);border-radius:12px;padding:8px;margin-top:6px">${mine.map((m,i)=>card(m,"m",i,targetMine(m)?"#7aff6a":m===actor?"#4ad8ff":"",targetMine(m))).join("")}</div>
    <div style="background:#1a120a;border:2px solid #6a4a2a;border-radius:10px;padding:8px;margin:6px 0;min-height:56px;font-size:14px">${log.slice(-3).map(esc).join("<br>")}</div>${body}</div>`,{keepScroll:true,onB:()=>{if(pickMode||menu!=="moves"){pickMode=null;menu="moves";render()}}});
@@ -10108,9 +10108,9 @@ function tripleBattle(foesSpec,title){return new Promise(res=>{
   choices=[];turnI=0;busyT=false;
   // si cae alguno y queda reserva, entra el siguiente
   for(let i=0;i<mine.length;i++)if(mine[i].hp<=0){const sub=S.team.find(m=>m.hp>0&&!mine.includes(m));if(sub){mine[i]=sub;resetV(sub);parts.add(sub);log.push(`¡Sale ${mName(sub)} de la reserva!`)}}
-  const win=!foes.some(m=>m.hp>0),lose=!aliveMine().length;if(!win&&!lose){render();return}
-  over=true;log.push(win?"¡Los tres músicos se quedan sin fuelle! ¡HAS GANADO!":"Todo tu equipo ha caído…");render();await wait(1800);closeOverlay();
-  if(win){const total=foes.reduce((a,f)=>a+SP[f.sp].xp*f.lvl/7*1.5,0),alive=[...parts].filter(m=>m.hp>0);for(const m of alive){const g=Math.max(1,Math.floor(total/alive.length));m.xp+=g;await say(`${SP[m.sp].n} gana ${g} puntos de experiencia.`);while(m.xp>=toNext(m.lvl)){m.xp-=toNext(m.lvl);const o=maxhp(m);m.lvl++;m.hp+=maxhp(m)-o;sfx("lvl");await say(`¡${SP[m.sp].n} sube a ${lvlTxt(m,true)}!`);await learnAt(m)}}for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}}
+  for(let i=0;i<foes.length;i++)if(foes[i].hp<=0&&reserve.length){foes[i]=reserve.shift();log.push(`¡${opt.foe||"El rival"} saca a ${mName(foes[i])}!`)}const win=!foes.some(m=>m.hp>0),lose=!aliveMine().length;if(!win&&!lose){render();return}
+  over=true;log.push(win?(opt.winMsg||"¡Los tres músicos se quedan sin fuelle! ¡HAS GANADO!"):"Todo tu equipo ha caído…");render();await wait(1800);closeOverlay();
+  if(win){const total=foesAll.reduce((a,f)=>a+SP[f.sp].xp*f.lvl/7*1.5,0),alive=[...parts].filter(m=>m.hp>0);for(const m of alive){const g=Math.max(1,Math.floor(total/alive.length));m.xp+=g;await say(`${SP[m.sp].n} gana ${g} puntos de experiencia.`);while(m.xp>=toNext(m.lvl)){m.xp-=toNext(m.lvl);const o=maxhp(m);m.lvl++;m.hp+=maxhp(m)-o;sfx("lvl");await say(`¡${SP[m.sp].n} sube a ${lvlTxt(m,true)}!`);await learnAt(m)}}for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}}
   S.team.forEach(m=>delete m.v);save();res(win)};
  render()})}
 // ====================================================================================
@@ -10612,6 +10612,169 @@ const _dtGf=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){const id=S.map,M=MA
 for(const id of["terrazalia","hoyales","zoco","n340"])if(MAPS[id])MAPS[id].txt=Object.assign(MAPS[id].txt||{},{[PRP.mesa]:"Una mesa con sombrilla: cañas a medias, un cenicero y cáscaras de pipas.",[PRP.banco]:"Un banco. Tiene grabado «PACO ❤ MARIPILI» y debajo, tachado, otro nombre.",[PRP.puesto]:"Un puesto lleno de fruta, especias y cosas «de oferta».",[PRP.arbol]:"Un arbolito en su maceta.",[PRP.barril]:"Un barril. Suena a lleno.",[PRP.sacos]:"Sacos de especias. Si estornudas aquí, la lías.",[PRP.coche]:"Un coche aparcado. En la bandeja, un perro que mueve la cabeza.",[PRP.farola]:"Una farola con un cartel de «Se vende moto» de 2011.",[PRP.roca]:"Una roca al sol. Caliente como una plancha.",[PRP.maceta]:"Geranios. Alguien los riega con mucho cariño. O con cerveza.",[PRP.bici]:"Una bici sin sillín. Hay que tener valor."});
 
 /*</B4GRAFICOS>*/
+/*<B4TEMPLO>*/
+/* ===================== GIMNASIO DEL RIF: infiltración nocturna · el templo bajo el riad (3 salas) · escorpiones · Hassan 2 contra 2 ===================== */
+// casillas: Ϙ tinaja · Ϛ alfombra enrollada · Ϟ portal · Ϡ trampilla · Ƚ losa que se hunde · ƚ losa con escarabajo (firme) · Ψ pinchos · ȣ vacío · Ȥ espejismo · Ȧ antídoto · Ȱ trono
+["Ϙ","Ϛ","Ϟ","Ϡ","Ƚ","ƚ","Ψ","Ȥ","Ȧ"].forEach(ch=>WALK.add(ch));
+const HIDE=new Set(["Ϙ","Ϛ","Ϟ"]);
+const grid5=(w,h,fill)=>Array.from({length:h},()=>Array(w).fill(fill));
+const carve=(g,ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
+const mkMap=(id,g,name,music,entry,exits={},txt={})=>{MAPS[id]={w:g[0].length,h:g.length,style:"casa",signs:{},builds:[],lamps:[],music,g,exits,entry,txt};MAPNAME[id]=name};
+// ====================================================================================
+// 1 · LA MEDINA DE NOCHE (infiltración)
+// ====================================================================================
+(function(){const g=grid5(22,16,"w");
+ carve(g,"o",1,14,20,1);carve(g,"o",1,10,20,1);carve(g,"o",1,6,20,1);carve(g,"o",1,2,20,1);
+ carve(g,"o",3,10,1,5);carve(g,"o",17,10,1,5);carve(g,"o",10,6,1,5);carve(g,"o",3,2,1,5);carve(g,"o",18,2,1,5);
+ for(const[ch,x,y]of[["Ϙ",8,13],["Ϛ",14,13],["Ϟ",6,9],["Ϙ",14,9],["Ϛ",19,11],["Ϟ",5,5],["Ϙ",14,5],["Ϛ",8,7],["Ϙ",7,1],["Ϟ",13,1],["Ϛ",17,3]])g[y][x]=ch;
+ g[1][20]="o";g[2][20]="o";g[1][20]="Ϡ";g[15][1]="e";
+ mkMap("noche",g,"La medina, de noche","bar",[1,14,"right"],{"1,15":["zoco",30,24,"down"]},{"Ϙ":"Una tinaja enorme. Cabes dentro.","Ϛ":"Alfombras enrolladas. Perfectas para esconderse.","Ϟ":"Un portal oscuro.","Ϡ":"Una trampilla bajo una alfombra."})})();
+// patrullas: [x0,y0,x1,y1,velocidad]
+const PATROL=[[5,14,15,14,1.7],[5,10,16,10,2],[2,6,9,6,1.9],[11,6,20,6,2.2],[4,2,16,2,2.1]];
+let GUARDS5=PATROL.map(p=>({p,x:p[0],y:p[1],d:1})),ALARM=null,HIDDEN=false,nightLast=0;
+const nightReset=()=>{GUARDS5=PATROL.map((p,i)=>({p,x:p[0]+(i%2?p[2]-p[0]:0),y:p[1],d:i%2?-1:1}));ALARM=null;HIDDEN=false};
+function coneCells(gd){const out=[],dx=gd.d,gx=Math.round(gd.x),gy=gd.p[1];for(let i=1;i<=3;i++){const x=gx+dx*i;if(!WALK.has((MAPS.noche.g[gy]||[])[x]))break;out.push([x,gy])}out.push([gx,gy]);return out}
+async function caught(){busy=true;await say("Guardia: ¡AHÍ ESTÁ! ¡Cogedle!");await fadeOut();S.x=1;S.y=14;S.dir="right";P.moving=false;nightReset();pushPresence();await fadeIn();toast("Te han echado al principio del barrio");busy=false}
+function nightUpdate(t){const dt=Math.min(.05,(t-nightLast)/1000||0);nightLast=t;if(mode!=="world"||busy||!dlg.hidden||!ov.hidden)return;
+ for(const gd of GUARDS5){if(ALARM&&ALARM.stop)continue;gd.x+=gd.d*gd.p[4]*dt;if(gd.x>=gd.p[2]){gd.x=gd.p[2];gd.d=-1}if(gd.x<=gd.p[0]){gd.x=gd.p[0];gd.d=1}}
+ const here=tileAt(S.x,S.y);HIDDEN=HIDE.has(here)&&!P.moving;
+ if(!ALARM){if(!HIDDEN&&GUARDS5.some(gd=>coneCells(gd).some(([x,y])=>x===S.x&&y===S.y))){ALARM={left:4,safe:0};sfx("weak");MYEMO={k:"❗",at:now()};flash("#ff3a3a",250)}}
+ else{if(HIDDEN){ALARM.safe+=dt;if(ALARM.safe>1.6){ALARM=null;toast("😮‍💨 Pasan de largo… no te han visto")}}else{ALARM.safe=0;ALARM.left-=dt;if(ALARM.left<=0){ALARM=null;caught()}}}}
+const _dcN=drawChar;drawChar=function(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look){if(S&&S.map==="noche"&&HIDDEN&&acc===S.skin){ctx.save();ctx.globalAlpha=.25;_dcN(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look);ctx.restore();return}return _dcN(pal,dir,x,y,walk,bob,hs,ts,fat,acc,look)};
+// ====================================================================================
+// 2 · EL TEMPLO · SALA 1: TRAMPAS
+// ====================================================================================
+(function(){const g=grid5(15,22,"w");
+ carve(g,"o",1,18,13,3);g[21][7]="e";
+ carve(g,"Ƚ",1,13,13,5);for(const[x,y]of[[7,17],[7,16],[6,16],[5,16],[4,16],[4,15],[4,14],[5,14],[6,14],[7,14],[8,14],[9,14],[9,15],[10,15],[11,15],[11,14],[11,13]])g[y][x]="ƚ";
+ carve(g,"o",1,12,13,1);carve(g,"w",1,11,13,1);g[11][3]="o";
+ carve(g,"o",1,10,13,1);carve(g,"Ψ",1,9,13,1);carve(g,"Ψ",1,8,13,1);carve(g,"Ψ",1,7,13,1);carve(g,"o",1,6,13,1);carve(g,"w",1,5,13,1);g[5][12]="o";
+ carve(g,"o",1,2,13,3);carve(g,"w",1,1,13,1);g[1][7]="ʌ";
+ for(let x=1;x<14;x++)if(x!==7)g[2][x]="w";
+ mkMap("templo1",g,"El templo · Sala 1: las trampas","fumigon",[7,20,"up"],{"7,21":["zoco",30,24,"down"]},{})})();
+const ROCKS={templo1:[{y:4,spd:5.2,off:0,dir:1},{y:3,spd:4.4,off:6,dir:-1}],templo3:[{y:4,spd:5.6,off:3,dir:-1}]};
+const rockX=(r,t,w)=>{const L=w+5,k=((t/1000*r.spd+r.off)%L+L)%L;return r.dir>0?k-2:w+1-k};
+// ====================================================================================
+// SALA 2: ALFOMBRAS VOLADORAS, ESPEJISMOS Y ESCORPIONES
+// ====================================================================================
+(function(){const g=grid5(15,22,"w");
+ carve(g,"o",1,19,13,2);g[21][7]="o";g[21][7]="ʋ";
+ carve(g,"ȣ",1,16,13,3);carve(g,"o",1,15,13,1);carve(g,"ȣ",1,13,13,2);carve(g,"o",1,12,13,1);
+ // campo de espejismos: solo el camino marcado es suelo de verdad
+ carve(g,"Ȥ",1,8,13,4);for(const[x,y]of[[3,11],[3,10],[4,10],[5,10],[6,10],[6,9],[7,9],[8,9],[9,9],[9,10],[10,10],[11,10],[11,9],[11,8],[10,8]])g[y][x]="o";
+ carve(g,"o",1,3,13,5);g[5][4]="w";g[5][5]="w";g[5][9]="w";g[5][10]="w";g[4][7]="w";g[6][7]="w";g[7][1]="Ȧ";
+ carve(g,"w",1,2,13,1);g[2][7]="o";g[1][7]="ʌ";
+ mkMap("templo2",g,"El templo · Sala 2: alfombras y espejismos","fumigon",[7,20,"up"],{},{})})();
+// ====================================================================================
+// SALA 3: TODO JUNTO
+// ====================================================================================
+(function(){const g=grid5(15,22,"w");
+ carve(g,"o",1,19,13,2);g[21][7]="ʋ";carve(g,"ȣ",1,17,13,2);carve(g,"o",1,16,13,1);
+ carve(g,"Ȥ",1,13,13,3);for(const[x,y]of[[10,15],[10,14],[9,14],[8,14],[7,14],[6,14],[5,14],[5,13],[4,13],[3,13]])g[y][x]="o";
+ carve(g,"o",1,12,13,1);carve(g,"Ψ",1,11,13,1);carve(g,"o",1,10,13,1);carve(g,"Ψ",1,9,13,1);carve(g,"o",1,6,13,3);g[12][12]="Ȧ";
+ carve(g,"w",1,5,13,1);g[5][2]="o";carve(g,"o",1,3,13,2);g[4][13]="Ȧ";carve(g,"w",1,2,13,1);g[2][7]="o";g[1][7]="ʌ";
+ mkMap("templo3",g,"El templo · Sala 3: la cámara del escorpión","fumigon",[7,20,"up"],{},{})})();
+MAPS.templo4=room(["wwwwwwwwwwwww","wuooooooooouw","wooooooooooow","wooooooooooow","wuooooooooouw","wooooooooooow","wooooooooooow","wwwwwwʋwwwwww"],null,[6,6,"up"],{music:"kebab",txt:{u:"Un brasero de bronce que huele a incienso y a algo más."}});MAPNAME.templo4="La sala del trono de Hassan";
+Object.assign(STAIRS,{"templo1,7,1":["templo2",7,20,"up",""],"templo2,7,21":["templo1",7,2,"down",""],"templo2,7,1":["templo3",7,20,"up",""],"templo3,7,21":["templo2",7,2,"down",""],"templo3,7,1":["templo4",6,6,"up",""],"templo4,6,7":["templo3",7,2,"down",""]});
+for(const m of["templo1","templo2","templo3","templo4","noche"]){SCENES&&(SCENES["z_"+m]=SCENES.ztorre)}
+if(typeof ZENV!=="undefined")Object.assign(ZENV,{templo1:"ztorre",templo2:"ztorre",templo3:"ztorre",templo4:"zzoco",noche:"zzoco"});
+// alfombras: [fila, x mínima, x máxima, velocidad, desfase, ancho]
+const CARPETS={templo2:[[18,1,11,2.2,0,3],[17,1,11,2.6,4,3],[16,1,11,2.0,7,3],[14,1,11,2.8,2,3],[13,1,11,2.3,8,3]],templo3:[[18,1,11,3.0,1,3],[17,1,11,2.6,6,3]]};
+function carpetX(c,t){const[,a,b,v,off]=c,L=b-a,k=((t/1000*v+off)%(2*L));return a+(k<L?k:2*L-k)}
+const carpetAt=(m,x,y,t)=>(CARPETS[m]||[]).find(c=>{if(c[0]!==y)return false;const cx=Math.round(carpetX(c,t));return x>=cx&&x<cx+c[5]});
+const _cwT=canWalk;canWalk=function(x,y){if(/^templo/.test(S.map)&&tileAt(x,y)==="ȣ")return!!carpetAt(S.map,x,y,performance.now());return _cwT(x,y)};
+// pinchos a compás: cada fila va desfasada
+const spikesUp=(x,y,t)=>((t/1000+y*.62+(S.map==="templo3"?x%2*.35:0))%2.1)<.95;
+// escorpiones: recorren una línea de ida y vuelta
+const SCORP={templo2:[[1,3,13,3,2.2,0],[13,6,1,6,2.0,3],[2,4,2,7,1.6,1],[12,4,12,7,1.8,2],[6,7,8,7,1.4,0]],templo3:[[1,7,13,7,2.6,0],[13,10,1,10,2.2,4],[1,3,13,3,2.4,2],[6,6,6,8,1.8,0],[10,8,10,6,1.8,1]]};
+function scorpPos(s,t){const[x0,y0,x1,y1,v,off]=s,L=Math.hypot(x1-x0,y1-y0),k=((t/1000*v+off)%(2*L)),f=(k<L?k:2*L-k)/L;return[x0+(x1-x0)*f,y0+(y1-y0)*f,(k<L)===(x1>=x0)?1:-1]}
+// puntos de control y caídas
+const CP={templo1:[[7,20],[7,12],[3,6]],templo2:[[7,20],[7,15],[3,12],[10,7]],templo3:[[7,20],[7,16],[3,12],[2,8]]};
+function checkpoint(){const list=CP[S.map]||[MAPS[S.map].entry];const got=S.tcp&&S.tcp.m===S.map?S.tcp.i:0;return list[got]||list[0]}
+function saveCP(){const list=CP[S.map];if(!list)return;if(!S.tcp||S.tcp.m!==S.map)S.tcp={m:S.map,i:0};for(let i=S.tcp.i+1;i<list.length;i++)if(S.y===list[i][1]){S.tcp.i=i;toast("💾 Punto de control")}}
+let falling=false;async function trapHit(msg){if(falling)return;falling=true;const was=busy;busy=true;sfx("hit");FX.shake=now()+300;flash("#ff3a2a",220);toast(msg);await fadeOut();const[x,y]=checkpoint();S.x=x;S.y=y;S.dir="up";P.moving=false;pushPresence();await fadeIn();busy=was;falling=false}
+// ---------- veneno: solo hace daño en combate ----------
+let stingCD=0;function sting(){if(performance.now()<stingCD)return;stingCD=performance.now()+2600;const cand=S.team.filter(m=>m.hp>0&&!m.psn);sfx("weak");flash("#7aff3a",250);FX.shake=now()+250;if(cand.length){const m=pick(cand);m.psn=1;save();toast("🦂 ¡Picadura! "+SP[m.sp].n+" está ENVENENADO")}else toast("🦂 ¡Picadura!")}
+const _umP=useMove;useMove=async function(u,t,mv,isP,wf){await _umP(u,t,mv,isP,wf);if(u.psn&&u.hp>0){const d=Math.max(1,Math.floor(maxhp(u)/12));u.hp=Math.max(1,u.hp-d);updHud();sfx("weak");await say(`El veneno del escorpión le quita ${d} PV a ${SP[u.sp].n}.`)}};
+const curePsn=()=>{let n=0;for(const m of S.team)if(m.psn){delete m.psn;n++}return n};
+// ---------- bucle de la medina y del templo ----------
+let rideCD=0;
+setInterval(()=>{if(!S||mode!=="world")return;const t=performance.now();if(S.map==="noche"){nightUpdate(t);return}if(!/^templo[123]$/.test(S.map)||busy||!dlg.hidden||!ov.hidden||falling)return;
+ // montado en una alfombra: te lleva
+ if(tileAt(S.x,S.y)==="ȣ"&&!P.moving){const c=(CARPETS[S.map]||[]).find(k=>k[0]===S.y);if(!c){trapHit("¡Te caes al vacío!");return}const cx=Math.round(carpetX(c,t));if(c.last!==undefined&&cx!==c.last&&S.x>=c.last&&S.x<c.last+c[5]){S.x+=cx-c.last}else if(S.x<cx||S.x>=cx+c[5]){trapHit("¡Te caes al vacío!");return}}
+ for(const k of(CARPETS[S.map]||[]))k.last=Math.round(carpetX(k,t));
+ if(P.moving)return;const ch=tileAt(S.x,S.y);
+ if(ch==="Ψ"&&spikesUp(S.x,S.y,t)){trapHit("🔪 ¡Pinchos!");return}
+ for(const r of(ROCKS[S.map]||[]))if(r.y===S.y&&Math.abs(rockX(r,t,MAPS[S.map].w)-S.x)<.65){trapHit("🪨 ¡La roca te arrolla!");return}
+ for(const s of(SCORP[S.map]||[])){const[x,y]=scorpPos(s,t);if(Math.abs(x-S.x)<.55&&Math.abs(y-S.y)<.55)sting()}},45);
+const _osT=onStep;onStep=async function(){const m=S.map,ch=tileAt(S.x,S.y);
+ if(/^templo/.test(m)){if(ch==="Ƚ"){await trapHit("🕳️ ¡La losa se hunde! (Fíjate en las que tienen escarabajo)");return}if(ch==="Ȥ"){await trapHit("✨ ¡Era un espejismo! (El suelo de verdad tiene sombra)");return}
+  if(ch==="Ȧ"){MAPS[m].g[S.y][S.x]="o";const n=curePsn();sfx("heal");toast(n?"🧪 Antídoto: tu equipo se cura del veneno":"🧪 Antídoto (no tenías envenenados)");save()}saveCP()}
+ if(m==="noche"&&ch==="Ϡ"){nightReset();S.flags.temploIn=true;S.flags.noche=false;save();await warp("templo1",7,20,"up");return}
+ return _osT()};
+// ---------- entrada: primero hay que colarse de noche ----------
+const _doorTp=door;door=async function(b){if(b&&b.id==="riad"&&!S.flags.marruecos){
+  if(S.flags.temploIn){const c=await choose("La trampilla del riad sigue abierta. ¿Bajas al templo?",[{label:"⬇️ Bajar al templo"},{label:"Ahora no"}],{cols:1});if(c===0){S.tcp=null;await warp("templo1",7,20,"up")}return}
+  if(!(S.beaten&&S.beaten.cabo)){await say("El portón del riad está cerrado a cal y canto. Y el Cabo Navajas controla el barrio.");return}
+  cineOn();await sayAll(["Yasmina: ¡Chsss! Ni se te ocurra llamar a esa puerta.","Yasmina: Hassan se ha encerrado. Desde que cayó Lolo no se fía de nadie, y la patrulla de la Ley Seca vigila el riad día y noche.","Yasmina: Hay otra entrada: una trampilla al otro lado de la medina. Pero solo se puede cruzar de noche… y sin que te vean.","Yasmina: Si una linterna te pilla, tienes unos segundos. Métete en una tinaja, en unas alfombras o en un portal, y aguanta quieto hasta que pasen."]);
+  const c=await choose("¿Esperas a que anochezca?",[{label:"🌙 Sí, vamos"},{label:"Todavía no"}],{cols:1});cineOff();if(c!==0)return;S.flags.noche=true;nightReset();save();await warp("noche",1,14,"right");await say("Medianoche. Cinco patrullas con linternas. La trampilla está al fondo, arriba a la derecha.");return}
+ return _doorTp(b)};
+const _oemT2=onEnterMap;onEnterMap=async function(){if(S.map==="noche"){nightReset();nightLast=performance.now()}if(/^templo[123]$/.test(S.map)){S.tcp={m:S.map,i:0}}await _oemT2();
+ if(S.map==="zoco"&&curePsn()){save();toast("🍵 El aire fresco y un té: el veneno se va")}
+ const once=(k,lines)=>{if(S.map===k&&!S.flags["in_"+k]){S.flags["in_"+k]=true;save();return sayAll(lines)}return null};
+ await once("templo1",["EL TEMPLO BAJO EL RIAD. Antorchas, estatuas de camellos y oro cubierto de polvo. Huele a siglos y a «placa».","Una inscripción en la pared: «SOLO EL ESCARABAJO SOSTIENE TU PESO. LOS HIERROS RESPIRAN: ENTRA CUANDO SE ACUESTEN. LAS PIEDRAS NO PERDONAN»."]);
+ await once("templo2",["SALA 2. Un abismo sin fondo y alfombras que flotan de un lado a otro. Sube cuando la alfombra pase por delante de ti, y no te bajes hasta llegar a la otra orilla.","Otra inscripción: «LO FALSO NO TIENE SOMBRA». Y cuidado con lo que corretea por el suelo: su picadura envenena a tus bichos."]);
+ await once("templo3",["SALA 3: LA CÁMARA DEL ESCORPIÓN. Todo lo anterior… a la vez. Al fondo se oye a alguien sirviendo té."])};
+// ---------- los dos aspirantes y Hassan dentro del templo ----------
+(function(){const put=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};put("mercader1",{map:"templo1",x:7,y:3,dir:"down",sight:1});
+
+ MAPS.templo1.g[3][6]="w";MAPS.templo1.g[3][8]="w";put("mercader2",{map:"templo3",x:7,y:3,dir:"down",sight:1});MAPS.templo3.g[3][6]="w";MAPS.templo3.g[3][8]="w";
+ put("hassan",{map:"templo4",x:6,y:2,dir:"down"})})();
+const hassanHome=()=>{const h=npcById("hassan");if(h&&S&&S.flags&&S.flags.marruecos){h.map="riad";h.x=7;h.y=1}else if(h){h.map="templo4";h.x=6;h.y=2}};
+const _stT=start;start=function(){const r=_stT();hassanHome();if(S.map==="noche")nightReset();return r};
+const _talkHa=TALK2.hassan;TALK2.hassan=async(n)=>{if(S.flags.marruecos)return _talkHa(n);cineOn();
+ await sayAll(["[picaro]Hassan: Vaya, vaya… Alguien que cruza mi templo entero y todavía tiene las dos piernas.","Hassan: Siéntate. El té primero. En el Rif no se pelea con la garganta seca.","Hassan: *sirve el té desde muy alto sin derramar ni una gota* Mi abuelo decía que a un hombre se le conoce por cómo aguanta el humo.","[grito]Hassan: ¡Y ahora vamos a ver cómo aguantas el mío! ¡Dos contra dos! ¡YALLA!"]);cineOff();
+ const win=await tripleBattle([["polenprensado",42,["terronazo","mecherazo","calambrazo","polvopolen"]],["camello",43,["terronazo","mecherazo","navajazo","calambrazo"]],["cerocero",43,["terronazo","calambrazo","mecherazo","glaciar"]],["placa",46,["placatectonica","mecherazo","calambrazo","terronazo"]]],"Hassan el de las Placas",{size:2,label:"COMBATE DOBLE 2 CONTRA 2",icon:"🟫",foe:"Hassan",intro:"¡Hassan saca dos Pedomones a la vez! Tú también peleas con dos.",winMsg:"¡Los Pedomones de Hassan caen sobre los cojines! ¡HAS GANADO!"});
+ if(!win){S.team.forEach(m=>{m.hp=maxhp(m);delete m.psn});save();await say("Hassan: Hoy la montaña ha ganado. Bébete el té, que cura. Cuando quieras, vuelve a intentarlo.");return}
+ S.flags.marruecos=true;S.keys.marruecos=true;S.keys.martillo=true;S.money+=1600;S.bag.rinogucci=(S.bag.rinogucci||0)+1;curePsn();sfx("quest");save();cineOn();
+ await sayAll(["¡Has ganado la 🟫 Medalla Placa! (+1.600 pavos y 1 Riñonera Gucci)","Hassan: Tómala. Con sello de garantía del Rif.","Hassan: Y el MARTILLO BEREBER de mi abuelo. Parte rocas grandes, como las del desprendimiento de los Viñedos.","[pena]Hassan: … Y ahora te debo una verdad. Lo del señor de los guantes blancos.","Hassan: Hace un mes me encargó doce placas. Cada una con una copa de vino grabada. Doce. Ni once ni trece.","Hassan: Pagó con esto. *saca media foto quemada* Dijo que valía más que el dinero.","En la foto hay una verbena de hace muchos años. Un cartel: «FIESTAS DE VALDESECO». Al fondo, un estanco, un alambique y gente joven brindando. La otra mitad está quemada.","[susto]Hassan: Yo estuve allí, amigo. Tenía doce años y vendía hierbabuena. Aquella noche el pueblo ardió. Y por la mañana, sobre la barra, alguien había dejado dos porros apagados… cruzados en aspa.","Hassan: Doce placas. Doce personas que estuvieron en Valdeseco. Alguien está haciendo la lista. Y yo estoy en ella.","📓 Prueba nueva en tu libreta: «La media foto de Valdeseco».","📍 Siguiente: vuelve en ferry a Terrazalia y coge la Ruta 7 (los Viñedos) hacia Hoyales."]);
+ S.pruebas=S.pruebas||{};S.pruebas.foto=1;S.pruebas.doce=1;cineOff();hassanHome();await warp("riad",6,8,"up");save()};
+// al perder, el aspirante se aparta a un hueco y deja el paso libre
+function asideFix(){for(const[id,m]of[["mercader1","templo1"],["mercader2","templo3"]]){const n=npcById(id);if(!n)continue;const done=!!(S&&S.beaten&&S.beaten[id]);n.x=done?6:7;n.y=3;if(done){n.dir="right";MAPS[m].g[3][6]="o"}else MAPS[m].g[3][6]="w"}}
+setInterval(()=>{if(S&&mode==="world"&&/^templo[13]$/.test(S.map)&&!busy)asideFix()},200);
+// ---------- dibujo del templo y de la noche ----------
+const _dtT=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){const m=S.map;
+ if(m==="noche"||/^templo/.test(m)){const night=m==="noche",h=hash(x,y);
+  const floor=()=>{px(sx,sy,T,T,night?((x+y)%2?"#5a4a5a":"#52425a"):((x+y)%2?"#a8885a":"#9c7c50"));px(sx,sy+T-1,T,1,"rgba(0,0,0,.25)");if(h%6===0)px(sx+(h%11),sy+((h>>4)%11),3,1,"rgba(0,0,0,.2)")};
+  const shadow=()=>{px(sx,sy+13,T,3,"rgba(40,20,5,.45)");px(sx+13,sy,3,T,"rgba(40,20,5,.3)")};
+  if(ch==="w"){if(night){px(sx,sy,T,T,"#2a2038");px(sx,sy,T,2,"#4a3a5a");if(h%7===0){px(sx+5,sy+5,6,7,h%2?"#ffcf6a":"#141020")}return}px(sx,sy,T,T,"#4a3418");const o=y%2?8:0;for(let j=0;j<2;j++)for(let i=-8;i<16;i+=8){const X=Math.max(0,i+(j?o:8-o)),w=Math.min(7,16-X);if(w>1)px(sx+X,sy+j*8,w,7,(h+i+j)%3?"#8a6a3a":"#7a5a30")}
+   const below=(MAPS[m].g[y+1]||[])[x];if(below&&below!=="w"){if(x%5===2){px(sx+7,sy+5,2,8,"#3a2410");const f=Math.floor(t/110+x)%3;ctx.fillStyle=["#ff7a1a","#ffae2a","#ffd23a"][f];ctx.beginPath();ctx.ellipse(sx+8,sy+3,2.6,4+f*.6,0,0,7);ctx.fill()}else if(x%5===4){px(sx+4,sy+4,8,11,"#c8a040");px(sx+6,sy+1,4,4,"#d8b050");px(sx+9,sy+2,4,2,"#c8a040");px(sx+6,sy+7,1,1,"#1a1a1a")}}return}
+  if(ch==="o"){floor();if((MAPS[m].g[y]||[])[x]==="o"&&m!=="noche"&&((m==="templo2"&&y>=8&&y<=11)||(m==="templo3"&&y>=13&&y<=15)))shadow();return}
+  if(ch==="Ȥ"){px(sx,sy,T,T,(x+y)%2?"#a8885a":"#9c7c50");px(sx,sy+T-1,T,1,"rgba(0,0,0,.1)");if((Math.floor(t/260)+h)%23===0)px(sx+(h%12),sy+((h>>3)%12),2,2,"#fff6d0");return}
+  if(ch==="Ƚ"||ch==="ƚ"){px(sx,sy,T,T,"#3a2810");px(sx+1,sy+1,14,14,"#b89464");px(sx+2,sy+2,12,12,"#a8845a");if(ch==="ƚ"){ctx.fillStyle="#2a6a5a";ctx.beginPath();ctx.ellipse(sx+8,sy+8,3.4,4.2,0,0,7);ctx.fill();px(sx+8,sy+5,1,7,"#1a3a30");for(const d of[-1,1]){px(sx+8+d*4,sy+6,2,1,"#2a6a5a");px(sx+8+d*4,sy+10,2,1,"#2a6a5a")}}else if(h%3===0){px(sx+4,sy+6,6,1,"#6a4a28");px(sx+9,sy+7,1,4,"#6a4a28")}return}
+  if(ch==="Ψ"){floor();const up=spikesUp(x,y,performance.now()),soon=!up&&spikesUp(x,y,performance.now()+300);for(let i=0;i<3;i++)for(let j=0;j<2;j++){const X=sx+2+i*5,Y=sy+4+j*7;px(X,Y+3,3,2,"#2a1a0a");if(up){ctx.fillStyle="#d8d8e4";ctx.beginPath();ctx.moveTo(X-1,Y+4);ctx.lineTo(X+1.5,Y-4);ctx.lineTo(X+4,Y+4);ctx.fill()}else if(soon)px(X+1,Y+2,1,2,"#d8d8e4")}return}
+  if(ch==="ȣ"){px(sx,sy,T,T,"#0a0614");if(h%9===0)px(sx+(h%14),sy+((h>>5)%14),1,1,"#6a5a9a");if((MAPS[m].g[y-1]||[])[x]!=="ȣ")px(sx,sy,T,3,"#3a2810");return}
+  if(ch==="Ȧ"){floor();px(sx+6,sy+5,4,8,"#4ad8a0");px(sx+7,sy+2,2,3,"#8a6a3a");px(sx+7,sy+7,2,4,"#d0fff0");ctx.globalAlpha=.25+.15*Math.sin(t/200);ctx.fillStyle="#4ad8a0";ctx.beginPath();ctx.arc(sx+8,sy+9,9,0,7);ctx.fill();ctx.globalAlpha=1;return}
+  if(ch==="Ϙ"){floor();ctx.fillStyle="#b8643a";ctx.beginPath();ctx.ellipse(sx+8,sy+9,6.5,7,0,0,7);ctx.fill();px(sx+4,sy+1,8,3,"#8a4a2a");px(sx+5,sy+2,6,2,"#1a0e06");px(sx+3,sy+7,10,1,"#e8a060");return}
+  if(ch==="Ϛ"){floor();for(let i=0;i<3;i++){px(sx+1+i*5,sy+1,4,14,["#8a1a2a","#1a5a6a","#6a4a1a"][i]);px(sx+1+i*5,sy+4,4,1,"#f2c14e");px(sx+1+i*5,sy+11,4,1,"#f2c14e")}return}
+  if(ch==="Ϟ"){floor();px(sx+2,sy-3,12,19,"#6a4a5a");px(sx+4,sy+1,8,15,"#0e0814");ctx.fillStyle="#0e0814";ctx.beginPath();ctx.arc(sx+8,sy+1,4,Math.PI,0);ctx.fill();return}
+  if(ch==="Ϡ"){floor();px(sx+2,sy+3,12,11,"#6a4022");for(let i=0;i<4;i++)px(sx+2,sy+4+i*3,12,1,"#3a2010");px(sx+7,sy+8,2,2,"#f2c14e");ctx.globalAlpha=.3+.2*Math.sin(t/200);ctx.fillStyle="#ffd14a";ctx.beginPath();ctx.arc(sx+8,sy+8,10,0,7);ctx.fill();ctx.globalAlpha=1;return}}
+ return _dtT(ch,x,y,sx,sy,t,style)};
+const _rwT2=renderWorld;renderWorld=function(t){_rwT2(t);const m=S.map;if(m!=="noche"&&!/^templo/.test(m))return;const[ox,oy]=camOf(MAP());const tn=performance.now();
+ for(const c of(CARPETS[m]||[])){const X=carpetX(c,tn)*T-ox,Y=c[0]*T-oy,w=c[5]*T;ctx.fillStyle="rgba(0,0,0,.3)";ctx.beginPath();ctx.ellipse(X+w/2,Y+19,w*.45,3,0,0,7);ctx.fill();const wv=Math.sin(tn/180+c[0])*1;px(X,Y+1+wv,w,13,"#8a1a2a");px(X+2,Y+3+wv,w-4,9,"#b8303a");px(X+5,Y+6+wv,w-10,3,"#f2c14e");for(let i=4;i<w-4;i+=8)px(X+i,Y+4+wv,3,2,"#2a8a6a");for(let j=2;j<14;j+=3){px(X-3,Y+j+wv,3,1,"#f2c14e");px(X+w,Y+j+wv,3,1,"#f2c14e")}}
+ // el jugador se vuelve a pintar encima de la alfombra
+ if((CARPETS[m]||[]).length&&tileAt(S.x,S.y)==="ȣ")drawChar(skinPal(S.skin),S.dir,Math.round(S.x*T-ox),Math.round(S.y*T-oy),0,0,S.skin.hs,S.skin.ts,0,Object.assign({},S.skin));
+ for(const r of(ROCKS[m]||[])){const X=rockX(r,tn,MAPS[m].w)*T-ox+8,Y=r.y*T-oy+7;ctx.save();ctx.translate(X,Y);ctx.rotate(tn/130*r.dir);ctx.fillStyle="#7a6a58";ctx.beginPath();ctx.arc(0,0,9,0,7);ctx.fill();ctx.fillStyle="#9a8a74";ctx.beginPath();ctx.arc(-3,-3,3.4,0,7);ctx.fill();ctx.fillStyle="#5a4a3a";ctx.fillRect(1,1,4,3);ctx.restore()}
+ for(const s of(SCORP[m]||[])){const[x,y,f]=scorpPos(s,tn),X=x*T-ox+8,Y=y*T-oy+9;ctx.save();ctx.translate(X,Y);ctx.scale(f,1);const w=Math.sin(tn/70)*1.5;ctx.strokeStyle="#2a1406";ctx.lineWidth=1.2;for(const d of[-3,0,3]){ctx.beginPath();ctx.moveTo(d,0);ctx.lineTo(d-3,4+w);ctx.moveTo(d,0);ctx.lineTo(d+3,4-w);ctx.stroke()}ctx.fillStyle="#7a3a10";ctx.beginPath();ctx.ellipse(0,0,5,3,0,0,7);ctx.fill();for(const d of[-1,1]){ctx.beginPath();ctx.ellipse(7,d*3,2.6,1.8,0,0,7);ctx.fill()}ctx.strokeStyle="#7a3a10";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,0);ctx.quadraticCurveTo(-11,-3,-7,-9);ctx.stroke();ctx.fillStyle="#7aff3a";ctx.beginPath();ctx.arc(-6,-9,1.6,0,7);ctx.fill();ctx.restore()}
+ if(m==="noche"){
+  for(const gd of GUARDS5){ctx.fillStyle=ALARM?"rgba(255,70,50,.32)":"rgba(255,230,120,.28)";const cells=coneCells(gd);for(const[x,y]of cells){ctx.fillRect(x*T-ox,y*T-oy,T,T)}const X=gd.x*T-ox,Y=gd.p[1]*T-oy;NPC_LOOK._g={hs:2,ts:8,hat:"poli"};drawChar(NPC_PAL.poli,gd.d>0?"right":"left",Math.round(X),Math.round(Y),Math.floor(tn/180)%2?1:2,0,2,8,false,null,NPC_LOOK._g);px(X+(gd.d>0?13:0),Y+6,3,3,"#ffe890")}
+  const wx=P.moving?P.fx+(P.tx-P.fx)*P.prog:S.x,wy=P.moving?P.fy+(P.ty-P.fy)*P.prog:S.y,cx=wx*T-ox+8,cy=wy*T-oy+4;const gr=ctx.createRadialGradient(cx,cy,30,cx,cy,150);gr.addColorStop(0,"rgba(8,6,28,.22)");gr.addColorStop(1,"rgba(8,6,28,.72)");ctx.fillStyle=gr;ctx.fillRect(0,0,SW,SH);
+  TXTCAP=true;try{ctx.font="bold 8px Arial";ctx.textAlign="center";if(ALARM){ctx.fillStyle="#ff4a3a";ctx.fillRect(SW/2-60,6,120,13);ctx.fillStyle="#fff";ctx.fillText(HIDDEN?"🤫 Quieto… no respires":"❗ ¡ESCÓNDETE! "+ALARM.left.toFixed(1)+" s",SW/2,15)}else if(HIDDEN){ctx.fillStyle="#9fffb0";ctx.fillText("Escondido",SW/2,14)}}finally{TXTCAP=false}}};
+// el veneno se ve en la pantalla del equipo
+const _mnP=lvlTxt;lvlTxt=function(m,long){return _mnP(m,long)+(m&&m.psn?" ☠️":"")};
+LOGROS.push({id:"sombra",n:"La sombra de la medina",d:"Cruza la medina de noche y baja al templo.",ic:"🌙",ok:()=>!!S.flags.temploIn,rw:{money:300}},{id:"templo",n:"Saqueador de templos",d:"Supera el templo y gana a Hassan.",ic:"🏺",ok:()=>!!(S.flags.marruecos&&S.flags.temploIn),rw:{money:600}});
+
+/*</B4TEMPLO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

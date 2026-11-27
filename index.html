@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="93 · Música y efectos en los juegos, baile a compás, pausa en el Rif, textos saltables y arreglos";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="94 · Combate triple con objetos, cambios, abandonar, aviso de eficacia y animaciones";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -10016,36 +10016,57 @@ const _oemG2=onEnterMap;onEnterMap=async function(){if(S.map==="tgym1")S.flags.t
 // COMBATE TRIPLE: 3 contra 3 a la vez
 // ====================================================================================
 function tripleBattle(foesSpec,title){return new Promise(res=>{
- const mine=S.team.filter(m=>m.hp>0).slice(0,3);const foes=foesSpec.map(([s,l,mv])=>monMoves(newMon(s,l),mv));[...mine,...foes].forEach(resetV);
- const spr=(m,v)=>{try{return PIXLIB.get(m.sp,v).toDataURL()}catch(e){return""}};const SPR=new Map();mine.forEach(m=>SPR.set(m,spr(m,"back")));foes.forEach(m=>SPR.set(m,spr(m,"front")));
- let log=["¡La charanga saca a sus tres Pedomones a la vez!"],choices=[],turnI=0,pickMove=null,busyT=false,over=false;const parts=new Set(mine);
- const card=(m,side,mark)=>`<div style="width:30%;max-width:190px;text-align:center;opacity:${m.hp>0?1:.25};border-radius:12px;padding:4px;border:3px solid ${mark||"transparent"};background:#00000040" ${side==="f"&&pickMove&&m.hp>0?`id="tb-f${foes.indexOf(m)}" role="button" tabindex="0"`:""}>
-   <img src="${SPR.get(m)}" alt="" style="width:100%;max-width:130px;image-rendering:pixelated;aspect-ratio:1"><div style="font-weight:700;font-size:13px">${esc(mName(m))} <small>Nv ${m.lvl}</small></div>
-   <div style="height:8px;background:#0008;border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:${Math.max(0,m.hp/maxhp(m))*100}%;background:${m.hp/maxhp(m)>.5?"#6adf5a":m.hp/maxhp(m)>.2?"#f2c14e":"#e23b2a"}"></i></div><small>${Math.max(0,m.hp)}/${maxhp(m)}</small></div>`;
- const render=()=>{const actor=!busyT&&!over?mine.filter(m=>m.hp>0)[turnI]:null;
+ let mine=S.team.filter(m=>m.hp>0).slice(0,3);const foes=foesSpec.map(([s,l,mv])=>monMoves(newMon(s,l),mv));S.team.forEach(resetV);foes.forEach(resetV);
+ const SPR=new Map(),spr=(m,v)=>{const k=m;if(!SPR.has(k)){try{SPR.set(k,PIXLIB.get(m.sp,v).toDataURL())}catch(e){SPR.set(k,"")}}return SPR.get(k)};
+ let log=["¡La charanga saca a sus tres Pedomones a la vez!"],choices=[],turnI=0,pickMode=null,menu="moves",busyT=false,over=false,fxA=null;const parts=new Set(mine);
+ if(!document.getElementById("tb-css")){const st=document.createElement("style");st.id="tb-css";st.textContent="@keyframes tbHit{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(11px)}60%{transform:translateX(-7px)}80%{transform:translateX(5px)}}@keyframes tbUp{0%,100%{transform:translateY(0)}45%{transform:translateY(-18px)}}@keyframes tbDn{0%,100%{transform:translateY(0)}45%{transform:translateY(18px)}}@keyframes tbNum{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-6px) scale(1.3)}100%{opacity:0;transform:translateY(-44px) scale(1)}}.tbc{position:relative}.tbn{position:absolute;left:0;right:0;top:28%;font:900 26px Rubik,Arial;text-shadow:0 0 6px #000,0 2px 0 #000;animation:tbNum .9s forwards;pointer-events:none}";document.head.appendChild(st)}
+ const aliveMine=()=>mine.filter(m=>m.hp>0);
+ const effTag=(mv,f)=>{if(!mv||!MV[mv].p)return"";const k=tmult(MV[mv].t,SP[f.sp]);return k>1?'<div style="color:#7aff6a;font-weight:900;font-size:12px">▲ Muy eficaz</div>':k<1?'<div style="color:#ff9a7a;font-weight:900;font-size:12px">▼ Poco eficaz</div>':'<div style="font-size:12px;opacity:.8">Normal</div>'};
+ const card=(m,side,idx,mark,clickable)=>{let anim="",num="";if(fxA){if(fxA.t===m&&fxA.dmg){anim="animation:tbHit .45s";num=`<div class="tbn" style="color:${fxA.col}">${fxA.dmg}</div>`}else if(fxA.u===m)anim="animation:"+(side==="f"?"tbDn":"tbUp")+" .4s";else if(fxA.t===m&&fxA.heal)num=`<div class="tbn" style="color:#7aff6a">${fxA.heal}</div>`}
+  return`<div class="tbc" style="width:30%;max-width:190px;text-align:center;opacity:${m.hp>0?1:.25};border-radius:12px;padding:4px;border:3px solid ${mark||"transparent"};background:#00000040;${anim};${clickable?"cursor:pointer":""}" ${clickable?`id="tb-${side}${idx}" role="button" tabindex="0"`:""}>${num}
+   <img src="${spr(m,side==="f"?"front":"back")}" alt="" style="width:100%;max-width:120px;image-rendering:pixelated;aspect-ratio:1"><div style="font-weight:700;font-size:13px">${esc(mName(m))} <small>Nv ${m.lvl}</small></div>
+   <div style="height:8px;background:#0008;border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:${Math.max(0,m.hp/maxhp(m))*100}%;background:${m.hp/maxhp(m)>.5?"#6adf5a":m.hp/maxhp(m)>.2?"#f2c14e":"#e23b2a"}"></i></div><small>${Math.max(0,m.hp)}/${maxhp(m)}</small>${side==="f"&&pickMode&&pickMode.kind==="move"&&m.hp>0?effTag(pickMode.mv,m):""}</div>`};
+ const render=()=>{const actor=!busyT&&!over?aliveMine()[turnI]:null;
+  const targetFoe=m=>pickMode&&pickMode.kind==="move"&&m.hp>0;const targetMine=m=>pickMode&&pickMode.kind==="item"&&(pickMode.it.kind==="revive"?m.hp<=0:m.hp>0&&m.hp<maxhp(m));
+  const heals=Object.keys(ITEMS).filter(k=>(ITEMS[k].kind==="heal"||ITEMS[k].kind==="revive")&&(S.bag[k]||0)-choices.filter(ch=>ch.item===k).length>0);
+  const bench=S.team.filter(m=>m.hp>0&&!mine.includes(m)&&!choices.some(ch=>ch.swap===m));
+  let body="";if(actor){if(pickMode)body=`<p style="text-align:center">${pickMode.kind==="move"?`¿A quién le das con <b>${MV[pickMode.mv].n}</b>? Toca a un rival (arriba).`:`¿A quién le das <b>${pickMode.it.n}</b>? Toca uno de los tuyos.`}</p><div class="btns" style="justify-content:center"><button class="big alt" type="button" id="tb-back">↩ Volver</button></div>`;
+    else if(menu==="items")body=`<p style="text-align:center;margin:2px">Objetos (gasta el turno de ${esc(mName(actor))})</p><div class="btns wrap" style="justify-content:center">${heals.map(k=>`<button class="big alt" type="button" id="tb-i-${k}" style="font-size:14px">${ITEMS[k].n} ×${S.bag[k]}</button>`).join("")||"<p>No te quedan objetos de curar.</p>"}<button class="big alt" type="button" id="tb-back">↩ Volver</button></div>`;
+    else if(menu==="swap")body=`<p style="text-align:center;margin:2px">¿Por quién cambias a ${esc(mName(actor))}?</p><div class="btns wrap" style="justify-content:center">${bench.map((m,i)=>`<button class="big alt" type="button" id="tb-s${i}" style="font-size:14px">${esc(mName(m))}<br><small>Nv ${m.lvl} · ${m.hp}/${maxhp(m)}</small></button>`).join("")||"<p>No te quedan Pedomones de reserva.</p>"}<button class="big alt" type="button" id="tb-back">↩ Volver</button></div>`;
+    else body=`<p style="text-align:center;margin:2px">Turno de <b>${esc(mName(actor))}</b></p><div class="btns wrap" style="justify-content:center">${actor.moves.map((mv,i)=>`<button class="big alt" type="button" id="tb-m${i}" style="font-size:14px">${MV[mv].n}<br><small>${TYPES[MV[mv].t].n} · ${MV[mv].p||"estado"}</small></button>`).join("")}</div><div class="btns wrap" style="justify-content:center;margin-top:4px"><button class="big alt" type="button" id="tb-bag" style="font-size:14px">🎒 Objetos</button><button class="big alt" type="button" id="tb-swap" style="font-size:14px">🔁 Cambiar</button><button class="big alt" type="button" id="tb-flee" style="font-size:14px">🏳️ Abandonar</button></div>`}
   overlay(`<div style="max-width:820px;margin:0 auto"><h2 style="text-align:center;margin:4px 0">🎺 ${esc(title)} · COMBATE TRIPLE</h2>
-   <div style="display:flex;justify-content:space-around;background:linear-gradient(#5a2a6a,#2a1030);border-radius:12px;padding:8px">${foes.map(m=>card(m,"f",pickMove&&m.hp>0?"#ffd14a":"")).join("")}</div>
-   <div style="display:flex;justify-content:space-around;background:linear-gradient(#2a4a2a,#122012);border-radius:12px;padding:8px;margin-top:6px">${mine.map(m=>card(m,"m",m===actor?"#4ad8ff":"")).join("")}</div>
-   <div style="background:#1a120a;border:2px solid #6a4a2a;border-radius:10px;padding:8px;margin:6px 0;min-height:56px;font-size:14px">${log.slice(-3).map(esc).join("<br>")}</div>
-   ${actor?(pickMove?`<p style="text-align:center">¿A quién le das con <b>${MV[pickMove].n}</b>? Toca a un rival (arriba).</p><div class="btns" style="justify-content:center"><button class="big alt" type="button" id="tb-back">↩ Cambiar ataque</button></div>`:
-     `<p style="text-align:center;margin:2px">Turno de <b>${esc(mName(actor))}</b>: elige ataque</p><div class="btns wrap" style="justify-content:center">${actor.moves.map((mv,i)=>`<button class="big alt" type="button" id="tb-m${i}" style="font-size:14px">${MV[mv].n}<br><small>${TYPES[MV[mv].t].n} · ${MV[mv].p||"estado"}</small></button>`).join("")}</div>`):""}</div>`,{onB:()=>{if(pickMove){pickMove=null;render()}}});
-  if(actor&&!pickMove)actor.moves.forEach((mv,i)=>{const b=$("tb-m"+i);if(b)b.onclick=()=>{const M=MV[mv];if(!M.p&&(M.eff==="heal"||M.eff==="atkup")){choose1(actor,mv,actor)}else{pickMove=mv;sfx("sel");render()}}});
-  if(pickMove){foes.forEach((f,i)=>{const b=$("tb-f"+i);if(b)b.onclick=()=>{const mv=pickMove;pickMove=null;choose1(actor,mv,f)}});const bk=$("tb-back");if(bk)bk.onclick=()=>{pickMove=null;render()}}};
- const choose1=(u,mv,t)=>{choices.push({u,mv,t});turnI++;sfx("sel");if(turnI>=mine.filter(m=>m.hp>0).length)resolve();else render()};
+   <div style="display:flex;justify-content:space-around;background:linear-gradient(#5a2a6a,#2a1030);border-radius:12px;padding:8px">${foes.map((m,i)=>card(m,"f",i,targetFoe(m)?"#ffd14a":"",targetFoe(m))).join("")}</div>
+   <div style="display:flex;justify-content:space-around;background:linear-gradient(#2a4a2a,#122012);border-radius:12px;padding:8px;margin-top:6px">${mine.map((m,i)=>card(m,"m",i,targetMine(m)?"#7aff6a":m===actor?"#4ad8ff":"",targetMine(m))).join("")}</div>
+   <div style="background:#1a120a;border:2px solid #6a4a2a;border-radius:10px;padding:8px;margin:6px 0;min-height:56px;font-size:14px">${log.slice(-3).map(esc).join("<br>")}</div>${body}</div>`,{keepScroll:true,onB:()=>{if(pickMode||menu!=="moves"){pickMode=null;menu="moves";render()}}});
+  if(!actor)return;const on=(id,fn)=>{const b=$(id);if(b)b.onclick=fn};
+  on("tb-back",()=>{pickMode=null;menu="moves";render()});
+  actor.moves.forEach((mv,i)=>on("tb-m"+i,()=>{const M=MV[mv];if(!M.p&&(M.eff==="heal"||M.eff==="atkup"))choose1({u:actor,mv,t:actor});else{pickMode={kind:"move",mv};sfx("sel");render()}}));
+  on("tb-bag",()=>{menu="items";render()});on("tb-swap",()=>{menu="swap";render()});
+  let armed=false;on("tb-flee",()=>{const b=$("tb-flee");if(!armed){armed=true;b.textContent="⚠️ ¿Seguro? Pulsa otra vez";return}over=true;closeOverlay();S.team.forEach(m=>delete m.v);save();res(false)});
+  heals.forEach(k=>on("tb-i-"+k,()=>{const it=ITEMS[k],valid=mine.some(m=>it.kind==="revive"?m.hp<=0:m.hp>0&&m.hp<maxhp(m));if(!valid){toast("Ahora mismo no le hace falta a nadie");return}pickMode={kind:"item",k,it};render()}));
+  bench.forEach((m,i)=>on("tb-s"+i,()=>choose1({u:actor,swap:m})));
+  if(pickMode){if(pickMode.kind==="move")foes.forEach((f,i)=>on("tb-f"+i,()=>choose1({u:actor,mv:pickMode.mv,t:f})));else mine.forEach((m,i)=>on("tb-m"+i,()=>{}));if(pickMode.kind==="item")mine.forEach((m,i)=>{const b=document.querySelector("#ov #tb-m"+i+"[role=button]");if(b)b.onclick=()=>choose1({u:actor,item:pickMode.k,t:m})})}};
+ const choose1=ch=>{choices.push(ch);turnI++;pickMode=null;menu="moves";sfx("sel");if(turnI>=aliveMine().length)resolve();else render()};
  const wait=ms=>new Promise(r=>setTimeout(r,ms));
- const act=({u,mv,t})=>{const M=MV[mv],isP=mine.includes(u);if(u.hp<=0)return;if(u.v.skip){u.v.skip=false;log.push(`${mName(u)} sigue empanao y pierde el turno.`);return}
-  if(t.hp<=0){const alive=(isP?foes:mine).filter(m=>m.hp>0);if(!alive.length)return;t=pick(alive)}
-  if(rnd()*100>accOf(mv)*(1-.15*u.v.acc)){log.push(`${mName(u)} usa ${M.n}… ¡y falla!`);sfx("weak");return}
-  if(M.p>0){let d=((2*u.lvl/5+2)*M.p*eff(u,"atk")/eff(t,"def"))/50+2;if(isStab(M.t,SP[u.sp]))d*=1.5;const k=tmult(M.t,SP[t.sp]);d*=k*(.85+rnd()*.15);if(rnd()<1/16)d*=1.5;d=Math.max(1,Math.floor(d));t.hp=Math.max(0,t.hp-d);sfx(k>1?"super":k<1?"weak":"hit");
+ const act=ch=>{const{u,mv}=ch;let{t}=ch;if(u.hp<=0)return;const isP=mine.includes(u);
+  if(ch.swap){const i=mine.indexOf(u);if(i>=0&&ch.swap.hp>0){mine[i]=ch.swap;resetV(ch.swap);parts.add(ch.swap);sfx("throw");log.push(`¡Vuelve, ${mName(u)}! ¡Adelante, ${mName(ch.swap)}!`);fxA={u:ch.swap}}return}
+  if(ch.item){const it=ITEMS[ch.item];if(!(S.bag[ch.item]>0))return;const ok=it.kind==="revive"?t.hp<=0:t.hp>0;if(!ok)return;S.bag[ch.item]--;const before=Math.max(0,t.hp);t.hp=it.kind==="revive"?Math.floor(maxhp(t)/2):Math.min(maxhp(t),t.hp+it.amt);sfx("heal");log.push(`Usas ${it.n} con ${mName(t)}.`);fxA={t,heal:"+"+(t.hp-before)};return}
+  if(u.v.skip){u.v.skip=false;log.push(`${mName(u)} sigue empanao y pierde el turno.`);fxA=null;return}const M=MV[mv];
+  if(t.hp<=0||(isP&&!foes.includes(t)&&t!==u)||(!isP&&!mine.includes(t)&&t!==u)){const alive=(isP?foes:mine).filter(m=>m.hp>0);if(!alive.length)return;t=pick(alive)}
+  if(rnd()*100>accOf(mv)*(1-.15*u.v.acc)){log.push(`${mName(u)} usa ${M.n}… ¡y falla!`);sfx("weak");fxA={u,t,dmg:"¡Falla!",col:"#fff"};return}
+  if(M.p>0){let d=((2*u.lvl/5+2)*M.p*eff(u,"atk")/eff(t,"def"))/50+2;if(isStab(M.t,SP[u.sp]))d*=1.5;const k=tmult(M.t,SP[t.sp]);d*=k*(.85+rnd()*.15);if(rnd()<1/16)d*=1.5;d=Math.max(1,Math.floor(d));t.hp=Math.max(0,t.hp-d);sfx(k>1?"super":k<1?"weak":"hit");fxA={u,t,dmg:"−"+d,col:k>1?"#ffd14a":k<1?"#cfc4b4":"#fff"};
     log.push(`${mName(u)} usa ${M.n} contra ${mName(t)}: −${d}${k>1?" ¡Muy eficaz!":k<1?" Poco eficaz.":""}${t.hp<=0?" ¡KO!":""}`);if(M.eff==="drain")u.hp=Math.min(maxhp(u),u.hp+Math.floor(d/2))}
-  else if(M.eff==="heal"){u.hp=Math.min(maxhp(u),u.hp+Math.floor(maxhp(u)*.4));sfx("heal");log.push(`${mName(u)} usa ${M.n} y recupera fuerzas.`)}
-  else if(M.eff==="atkup"){u.v.atk=1;sfx("lvl");log.push(`${mName(u)} usa ${M.n}: ¡sube su ataque!`)}
-  else{if(M.eff==="acc")t.v.acc=Math.min(3,t.v.acc+1);if(M.eff==="spd")t.v.spd=Math.min(2,t.v.spd+1);if(M.eff==="skip"&&rnd()<.5)t.v.skip=true;sfx("status");log.push(`${mName(u)} usa ${M.n} contra ${mName(t)}.`)}};
- const resolve=async()=>{busyT=true;for(const f of foes.filter(m=>m.hp>0)){const alive=mine.filter(m=>m.hp>0);const scored=f.moves.map(mv=>{const t=pick(alive);return{u:f,mv,t,s:(MV[mv].p||20)*(MV[mv].p?tmult(MV[mv].t,SP[t.sp]):1)*(.6+rnd()*.8)}}).sort((a,b)=>b.s-a.s);choices.push(scored[0])}
-  choices.sort((a,b)=>eff(b.u,"spd")*(.9+rnd()*.2)-eff(a.u,"spd")*(.9+rnd()*.2));
-  for(const c of choices){if(!mine.some(m=>m.hp>0)||!foes.some(m=>m.hp>0))break;const before=log.length;act(c);if(log.length>before){render();await wait(950)}}
-  choices=[];turnI=0;busyT=false;const win=!foes.some(m=>m.hp>0),lose=!mine.some(m=>m.hp>0);if(!win&&!lose){render();return}
-  over=true;log.push(win?"¡Los tres músicos se quedan sin fuelle! ¡HAS GANADO!":"Tus tres Pedomones han caído…");render();await wait(1800);closeOverlay();
+  else if(M.eff==="heal"){const b=u.hp;u.hp=Math.min(maxhp(u),u.hp+Math.floor(maxhp(u)*.4));sfx("heal");fxA={t:u,heal:"+"+(u.hp-b)};log.push(`${mName(u)} usa ${M.n} y recupera fuerzas.`)}
+  else if(M.eff==="atkup"){u.v.atk=1;sfx("lvl");fxA={u};log.push(`${mName(u)} usa ${M.n}: ¡sube su ataque!`)}
+  else{if(M.eff==="acc")t.v.acc=Math.min(3,t.v.acc+1);if(M.eff==="spd")t.v.spd=Math.min(2,t.v.spd+1);if(M.eff==="skip"&&rnd()<.5)t.v.skip=true;sfx("status");fxA={u,t,dmg:"💫",col:"#fff"};log.push(`${mName(u)} usa ${M.n} contra ${mName(t)}.`)}};
+ const resolve=async()=>{busyT=true;for(const f of foes.filter(m=>m.hp>0)){const alive=aliveMine();const scored=f.moves.map(mv=>{const t=pick(alive);return{u:f,mv,t,s:(MV[mv].p||20)*(MV[mv].p?tmult(MV[mv].t,SP[t.sp]):1)*(.6+rnd()*.8)}}).sort((a,b)=>b.s-a.s);choices.push(scored[0])}
+  const prio=ch=>(ch.swap?2e6:ch.item?1e6:0)+eff(ch.u,"spd")*(.9+rnd()*.2);const order=choices.map(ch=>[prio(ch),ch]).sort((a,b)=>b[0]-a[0]).map(a=>a[1]);
+  for(const ch of order){if(!aliveMine().length||!foes.some(m=>m.hp>0))break;const before=log.length;fxA=null;act(ch);if(log.length>before){render();await wait(1000);fxA=null}}
+  choices=[];turnI=0;busyT=false;
+  // si cae alguno y queda reserva, entra el siguiente
+  for(let i=0;i<mine.length;i++)if(mine[i].hp<=0){const sub=S.team.find(m=>m.hp>0&&!mine.includes(m));if(sub){mine[i]=sub;resetV(sub);parts.add(sub);log.push(`¡Sale ${mName(sub)} de la reserva!`)}}
+  const win=!foes.some(m=>m.hp>0),lose=!aliveMine().length;if(!win&&!lose){render();return}
+  over=true;log.push(win?"¡Los tres músicos se quedan sin fuelle! ¡HAS GANADO!":"Todo tu equipo ha caído…");render();await wait(1800);closeOverlay();
   if(win){const total=foes.reduce((a,f)=>a+SP[f.sp].xp*f.lvl/7*1.5,0),alive=[...parts].filter(m=>m.hp>0);for(const m of alive){const g=Math.max(1,Math.floor(total/alive.length));m.xp+=g;await say(`${SP[m.sp].n} gana ${g} puntos de experiencia.`);while(m.xp>=toNext(m.lvl)){m.xp-=toNext(m.lvl);const o=maxhp(m);m.lvl++;m.hp+=maxhp(m)-o;sfx("lvl");await say(`¡${SP[m.sp].n} sube a ${lvlTxt(m,true)}!`);await learnAt(m)}}for(const m of S.team){const s=SP[m.sp];if(s.evo&&m.lvl>=s.evo[0])await evolve(m)}}
   S.team.forEach(m=>delete m.v);save();res(win)};
  render()})}

@@ -1547,7 +1547,7 @@ const MAP=()=>MAPS[S.map];
 /* ===================== ESTADO ===================== */
 let SAVE_KEY="barralibre_demo_v1";
 let S=null;
-function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{rino:6,abre:3,mechero:3,grinder:2,agua:3},money:60,tms:{},repel:0,keys:{},
+function freshState(){return{name:"",skin:defSkin(),map:"park",x:14,y:18,dir:"left",team:[],box:[],bag:{rino:0,abre:0,mechero:0,grinder:0,agua:3},money:60,tms:{},repel:0,keys:{},
   flags:{starter:false,chusta:false,poli:false,started:false,barIn:false,gym:false},q:{gorra:0,placa:0,walkie:0,michi:0,basura:0,cuerda:0},accU:{},beaten:{},seen:{},caught:{},rivalSp:null,respawn:["kebab",4,3]}}
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));return true}catch(e){return false}}
 function loadSave(){try{const t=localStorage.getItem(SAVE_KEY);return t?JSON.parse(t):null}catch(e){return null}}
@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="107 · Combates dobles como en Pokémon y la mazmorra del Rif";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="108 · Cartelitos de gimnasio, zona chill y tienda; sin letrero de SALIDA; 10 riñoneras al empezar";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -2103,9 +2103,9 @@ async function intro(){
   const sp=await starterPick();
   const m=newMon(sp,5,true);S.team.push(m);S.seen[sp]=1;S.caught[sp]=1;
   S.rivalSp={steinburguito:"kushito",westito:"steinburguito",kushito:"westito"}[sp];S.seen[S.rivalSp]=1;
-  S.flags.starter=true;sfx("catch");pushPresence();
+  S.flags.starter=true;S.bag.rino=10;S.bag.abre=0;S.bag.mechero=0;S.bag.grinder=0;sfx("catch");pushPresence();
   await sayAll([`¡Has conseguido a ${mName(m)}! 🎉`,
-   "El Porrosor: Y toma: 5 Abrebotellas para las bebidas, 5 Mecheros para el tabaco y 5 Grinders para lo verde. Cada cosa con lo suyo, ¿eh?",
+   "El Porrosor: Y toma: 10 Riñoneras. Valen para cazar cualquier bicho: bebidas, tabaco o verde. No las malgastes, que lo bueno hay que pagarlo.",
    "El Porrosor: Si te dejan KO, ve al Kebab: Abdul te cura el equipo y te deja usar La Nevera.",
    "El Porrosor: En el Bazar Chen, Chen te vende de todo y Richard te vende MTs. Y al lado, el Mercadillo de Saray y Raúl el Gitano, para que no vayas hecho un cuadro.",
    "El Porrosor: Ah, y tu colega El Chusta anda por el camino de arriba. Me debe pasta. Como a todo el barrio."]);
@@ -12077,7 +12077,7 @@ if(typeof BIGSIGNS!=="undefined"&&BIGSIGNS.hoyales){let ya=false;BIGSIGNS.hoyale
 
 /*</B4DIC1>*/
 /*<B4DIC2>*/
-﻿/* ===================== TANDA 2 (dic): la MAZMORRA del Rif y rótulos de gimnasio ===================== */
+/* ===================== TANDA 2 (dic): la MAZMORRA del Rif y rótulos de gimnasio ===================== */
 const LOSA="\uA747",FOSO="\uA749";WALK.add(LOSA);
 // suelo que se hunde: todas las losas son iguales; los fosos a la vista obligan a ir en zigzag
 (function(){const campo=(m,y0,filas)=>{const g=MAPS[m].g;filas.forEach((paso,i)=>{for(let x=1;x<=13;x++)g[y0+i][x]=!paso||paso.includes(x)?LOSA:FOSO})};
@@ -12104,9 +12104,22 @@ const _dtMz=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){const m=S.map;if(/^
   if(ch===LOSA){const e=losaEdad(m,x,y,performance.now());if(e>HUNDE.aviso){px(sx,sy,T,T,"#050308");px(sx,sy,T,2,"#2a2630");if(e<HUNDE.aviso+300){const k=(e-HUNDE.aviso)/300;px(sx+3+k*4,sy+3+k*8,10-k*7,10-k*7,"#4a4652")}return}
    const tiembla=e>=0?(Math.floor(t/40)%2?1:-1):0;px(sx,sy,T,T,"#16121c");px(sx+1+tiembla,sy+1,14,14,e>=0?"#8a6a5a":"#6a6470");px(sx+1+tiembla,sy+1,14,2,"#827c8a");px(sx+4+tiembla,sy+3,1,5,"#2a2630");px(sx+5+tiembla,sy+7,4,1,"#2a2630");px(sx+9+tiembla,sy+8,1,5,"#2a2630");if(e>=0){px(sx+2,sy+10,6,1,"#1a1620");px(sx+11,sy+3,1,6,"#1a1620")}return}}
  return _dtMz(ch,x,y,sx,sy,t,style)};
-// ---------- rótulo de GIMNASIO encima de cada puerta ----------
-const ROTULOS=[["comuna",30,19,"GIMNASIO"],["neon",19,8,"GIMNASIO"],["costa",20,12,"GIMNASIO"],["terrazalia",17,5,"GIMNASIO"],["zoco",30,24,"GIMNASIO · LA MAZMORRA"],["hoyales",18,14,"GIMNASIO"],["autovia",12,6,"GIMNASIO"]];
-const _rwGym=renderWorld;renderWorld=function(t){_rwGym(t);const R=ROTULOS.find(r=>r[0]===S.map);if(!R)return;const[ox,oy]=camOf(MAP()),X=R[1]*T-ox+8,Y=(R[2]-3)*T-oy+2;if(X<-90||X>SW+90||Y<-20||Y>SH)return;TXTCAP=true;try{ctx.font="900 7.5px Arial";ctx.textAlign="center";const w=ctx.measureText("⚔ "+R[3]+" ⚔").width+10;px(X-w/2-2,Y-2,w+4,15,"#f2c14e");px(X-w/2,Y,w,11,"#8a1a1a");ctx.fillStyle="#fff4d0";ctx.fillText("⚔ "+R[3]+" ⚔",X,Y+8.5)}finally{TXTCAP=false}};
+// ---------- cartelitos junto a las puertas, sin letras: NARANJA gimnasio · ROJO zona chill (curan) · AZUL tienda ----------
+const CARTEL="\uA755",CARTELES=new Map();
+const PUERTAS_G=[["park",14,4],["comuna",30,18],["neon",19,7],["costa",20,11],["terrazalia",17,4],["zoco",30,22],["hoyales",18,13],["autovia",12,5]];
+const PUERTAS_C=[["park",4,4],["comuna",13,5],["carretera",27,8],["neon",4,7],["costa",4,11],["terrazalia",5,4],["hoyales",28,16],["zoco",5,6],["valdeseco",14,5],["autovia",3,7]];
+const PUERTAS_T=[["park",24,4],["park",32,4],["comuna",24,5],["carretera",27,8],["neon",9,7],["costa",10,11],["costa",36,11],["terrazalia",10,4],["zoco",10,21],["autovia",21,7]];
+function ponCartel(m,dx,dy,tipo){const M=MAPS[m];if(!M)return false;const g=M.g;
+ const trozo=()=>{const sx=dx,sy=dy+1,seen=new Set([sx+","+sy]),q=[[sx,sy]];while(q.length){const[x,y]=q.pop();for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const u=x+a,v=y+b,k=u+","+v;if(!seen.has(k)&&g[v]&&WALK.has(g[v][u])){seen.add(k);q.push([u,v])}}}return seen.size};
+ for(const[ox,oy]of[[1,1],[-1,1],[2,1],[-2,1],[1,2],[-1,2],[3,1],[-3,1],[2,2],[-2,2]]){const x=dx+ox,y=dy+oy,k=x+","+y,ch=(g[y]||[])[x];if(!ch||ch===CARTEL||!WALK.has(ch)||ch===","||(M.exits||{})[k]||PICK_AT[m+","+k]||NPCS.some(n=>n.map===m&&Math.abs(n.x-x)+Math.abs(n.y-y)<2&&n.x===x)||VUELO_DEST.some(v=>(v.map===m&&v.x===x&&v.y===y)))continue;
+  const antes=trozo();g[y][x]=CARTEL;if(trozo()!==antes-1){g[y][x]=ch;continue}CARTELES.set(m+","+k,{tipo,base:ch});return true}return false}
+const CARTEL_SIN=[];for(const[lista,tipo]of[[PUERTAS_G,"g"],[PUERTAS_C,"c"],[PUERTAS_T,"t"]])for(const[m,x,y]of lista)if(!ponCartel(m,x,y,tipo))CARTEL_SIN.push(tipo+" "+m+" "+x+","+y);
+const CARTEL_TXT={g:"Cartel naranja: aquí hay un gimnasio.",c:"Cartel rojo: zona chill. Aquí se curan los Pedomones.",t:"Cartel azul: aquí hay una tienda."};
+const _intCt=interact;interact=async function(){const[fx,fy]=facing(),q=CARTELES.get(S.map+","+fx+","+fy);if(q&&!npcAt(fx,fy)){await say(CARTEL_TXT[q.tipo]);return}return _intCt()};
+const _dtCt=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(ch===CARTEL){const q=CARTELES.get(S.map+","+x+","+y);if(q){_dtCt(q.base,x,y,sx,sy,t,style);const col={g:["#f28a1a","#ffb85a","#a85208"],c:["#d8242a","#ff6a5a","#8a0e14"],t:["#2a6ae0","#6aa8ff","#123a8a"]}[q.tipo];
+   ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(sx+8,sy+14,5,1.8,0,0,7);ctx.fill();px(sx+7,sy+11,2,4,"#5a3a1a");px(sx+1,sy,14,12,col[2]);px(sx+2,sy+1,12,10,col[0]);px(sx+2,sy+1,12,1,col[1]);const W_="#fff";ctx.save();ctx.translate(0,3);
+   if(q.tipo==="g"){px(sx+5,sy-1,6,4,W_);px(sx+4,sy-1,1,2,W_);px(sx+11,sy-1,1,2,W_);px(sx+7,sy+3,2,2,W_);px(sx+5,sy+5,6,1,W_)}else if(q.tipo==="c"){px(sx+4,sy,3,3,W_);px(sx+9,sy,3,3,W_);px(sx+5,sy+1,6,3,W_);px(sx+6,sy+4,4,1,W_);px(sx+7,sy+5,2,1,W_)}else{px(sx+4,sy+1,8,6,W_);px(sx+6,sy-1,4,1,W_);px(sx+6,sy,1,1,W_);px(sx+9,sy,1,1,W_);px(sx+6,sy+3,4,1,col[0])}ctx.restore();return}}return _dtCt(ch,x,y,sx,sy,t,style)};
+const _stCt=start;start=function(){if(S&&CARTELES.has(S.map+","+S.x+","+S.y))S.y++;return _stCt()};
 
 /*</B4DIC2>*/
 /*B4END*/

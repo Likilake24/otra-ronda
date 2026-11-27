@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="87 · Arreglos: salir del gimnasio de Izaskun, la mascota ya no tapa al personaje y el cadáver no se atraviesa";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="88 · Gimnasio de Izaskun nuevo: laberinto a oscuras, preguntas variadas, puzle de tuberías y MT potente de premio";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -9895,6 +9895,115 @@ const _cwF8=canWalk;canWalk=function(x,y){if(S.map==="faro"&&BODY_FARO.has(x+","
 const _stepF8=onStep;onStep=async function(){if(S.map==="faro"&&BODY_FARO.has(S.x+","+S.y)){S.x=12;S.y=16;pushPresence()}return _stepF8()};
 
 /*</B4FIX8>*/
+/*<B4GYM2>*/
+/* ===================== GIMNASIO DE IZASKUN v2: laberinto a oscuras · concurso nuevo · puzle de tuberías de gas · premios ===================== */
+// ---------- premios: MT potente y regalos ----------
+MV.llamaterraza={n:"Llamarada Terracera",t:"fuego",p:105,acc:95,d:"La estufa de Izaskun a máxima potencia. Deja al rival bien tostado."};
+if(!MTS.find(m=>m.id==="mt19"))MTS.push({id:"mt19",mv:"llamaterraza",price:0,types:null,reward:true});
+function izaPrize(){if(S.flags.izaPrem)return false;S.flags.izaPrem=true;S.tms=S.tms||{};S.tms.mt19=(S.tms.mt19||0)+1;S.bag.rinogucci=(S.bag.rinogucci||0)+2;S.bag.ibu=(S.bag.ibu||0)+5;S.money+=1500;save();return true}
+const IZA_TXT=["Izaskun: Espera, que no te vas con las manos vacías. En mi terraza el que gana se lleva la ronda entera.","🔥 ¡Consigues la MT19 «Llamarada Terracera»! (Fuego, potencia 105. La puede aprender CUALQUIER Pedomón. Úsala desde Mochila → MTs.)","🎁 Además: 2 Riñoneras Gucci, 5 Ibuprofenos y 1.500 pavos."];
+const _izG2=TALK2.izaskun;TALK2.izaskun=async(n)=>{const had=!!S.flags.terraza;await _izG2(n);if(!had&&S.flags.terraza&&izaPrize()){sfx("quest");await sayAll(IZA_TXT)}};
+const _stG2=start;start=function(){const r=_stG2();if(S&&S.flags&&S.flags.terraza&&!S.flags.izaPrem){izaPrize();setTimeout(()=>run(()=>sayAll(["📦 Un paquete de Izaskun: el premio que te faltaba.",IZA_TXT[1],IZA_TXT[2]])),900)}return r};
+// ====================================================================================
+// SALA 1 · EL LABERINTO DE HUMO, A OSCURAS (9 habitaciones idénticas)
+// ====================================================================================
+const G1=(()=>{const W=19,H=16,g=[];for(let y=0;y<H;y++){g.push([]);for(let x=0;x<W;x++)g[y].push("w")}
+ const org=r=>[1+(r%3)*6,1+Math.floor(r/3)*5];
+ for(let r=0;r<9;r++){const[ox,oy]=org(r);for(let y=oy;y<oy+4;y++)for(let x=ox;x<ox+5;x++)g[y][x]="o";for(const[cx,cy]of[[0,0],[4,0],[4,3],[0,3]])g[oy+cy][ox+cx]="ȼ"}
+ g[15][9]="e";return{g,org}})();
+MAPS.tgym1={w:19,h:16,style:"casa",signs:{},builds:[],lamps:[],music:"lolo",g:G1.g,exits:{"9,15":["terrazalia",17,5,"down"]},entry:[9,14,"up"],txt:{}};
+(function(){for(const k of Object.keys(CHIM))delete CHIM[k];
+ // el camino bueno gira como el reloj: arriba-izq, arriba-der, abajo-der, abajo-izq, y vuelta a empezar
+ const CORN=[[0,0],[4,0],[4,3],[0,3]],PATH=[7,5,0,8,2,3,1];
+ const WRONG={7:[0,7,4,6],5:[7,0,6,4],0:[4,6,0,7],8:[6,7,4,0],2:[7,4,2,6],3:[6,0,7,4],1:[4,6,1,7],4:[7,6,7,7],6:[4,7,7,7]};
+ for(let r=0;r<9;r++){const[ox,oy]=G1.org(r),step=PATH.indexOf(r);
+  CORN.forEach(([cx,cy],c)=>{const key="tgym1,"+(ox+cx)+","+(oy+cy);
+   if(step>=0&&c===step%4){if(step===PATH.length-1){CHIM[key]=["tgym2",5,10,"up",""];return}const[nx,ny]=G1.org(PATH[step+1]);CHIM[key]=["tgym1",nx+2,ny+2,"up",""];return}
+   let dest=WRONG[r][c];if(step>=0&&dest===PATH[step+1])dest=7;const[nx,ny]=G1.org(dest);CHIM[key]=["tgym1",nx+2,ny+2,"up",""]})}
+ const put=(id,room)=>{const[ox,oy]=G1.org(room),n=npcById(id);if(n){n.map="tgym1";n.x=ox+2;n.y=oy;n.dir="down";n.sight=3}};put("tcam1",5);put("tcam2",2)})();
+MAPS.tgym1.g[11][8]="S";MAPS.tgym1.signs["8,11"]="REGLAS DE LA CASA: «Mi humo bueno da vueltas como las agujas de un reloj. Empieza donde da el sol por la mañana: ARRIBA a la IZQUIERDA. Si pierdes la cuenta… empieza de nuevo desde aquí.»";
+// ---------- oscuridad: solo ves a tu alrededor ----------
+const _rwG2=renderWorld;renderWorld=function(t){_rwG2(t);if(S.map!=="tgym1")return;const m=MAP();let wx=S.x,wy=S.y;if(P.moving){wx=P.fx+(P.tx-P.fx)*P.prog;wy=P.fy+(P.ty-P.fy)*P.prog}const[ox,oy]=camOf(m),X=wx*T-ox+8,Y=wy*T-oy+4;
+ const g=ctx.createRadialGradient(X,Y,18,X,Y,50);g.addColorStop(0,"rgba(8,4,2,0)");g.addColorStop(.6,"rgba(8,4,2,.78)");g.addColorStop(1,"rgba(8,4,2,1)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH)};
+const _doorG2=door;door=async function(b){if(b&&b.id==="gym5"&&S.flags.faroDone){await warp("tgym1",9,14,"up");return}return _doorG2(b)};
+// ====================================================================================
+// SALA 2 · EL CONCURSO: preguntas variadas, ni demasiado fáciles ni imposibles
+// ====================================================================================
+const QUIZ2=[
+ ["¿Cómo se llama la medalla que te da Paco?",["La Chapa del Bar de Paco","La Medalla Tapón","La Medalla Caña de Oro"],0],
+ ["¿Cómo se llama la medalla del gimnasio de Ganja Life?",["Medalla Cogollo Verde","Medalla Bob Marihuano","Medalla Hoja Mustia"],1],
+ ["¿Cómo se llama la medalla que da Lolo Gramos?",["Medalla Ficha de Oro","Medalla Neón","Medalla Calambrazo"],2],
+ ["¿Cómo se llama la medalla de Costa Cangrejo?",["Medalla Quemadura","Medalla Flotador","Medalla Gamba"],0],
+ ["¿Quién es el líder del gimnasio de Costa Cangrejo?",["Wilson","Chuchi «Mister Crab»","Bartolo"],1],
+ ["¿Quién es el líder del gimnasio de Ciudad Neón?",["Lolo Gramos","El Contable","El Comisario"],0],
+ ["¿De qué tipo son los Pedomones de Chuchi?",["Hielo","Agua","Tierra"],1],
+ ["¿Contra qué tipo es muy fuerte el tipo Agua?",["Planta","Fuego","Eléctrico"],1],
+ ["¿Qué tipo le hace mucho daño al tipo Agua?",["Eléctrico","Fuego","Normal"],0],
+ ["¿Contra qué tipo es muy fuerte el tipo Fuego?",["Agua","Tierra","Planta"],2],
+ ["¿Contra qué tipo es muy fuerte el tipo Tierra?",["Eléctrico","Volador","Planta"],0],
+ ["¿Contra qué tipo es muy fuerte el tipo Volador?",["Hielo","Lucha","Fuego"],1],
+ ["¿Cómo se llama el sitio donde se guardan los Pedomones que no caben en el equipo?",["La Nevera","La Despensa","El Trastero"],0],
+ ["¿Qué sirve para capturar a CUALQUIER tipo de Pedomón?",["El Abrebotellas","La Riñonera","El Mechero"],1],
+ ["¿Cómo se llama el colega que te acompaña desde el parque?",["El Chusta","El Mangas","El Guiri Kevin"],0],
+ ["¿Cómo se llama el libro donde apuntas los Pedomones?",["Pedopedia","Destiladex","Birrapedia"],1],
+ ["¿Dónde está el chiringuito Copacabana?",["En Costa Cangrejo","En Terrazalia","En Ciudad Neón"],0],
+ ["¿Qué deja el Sumiller encima de sus víctimas?",["Una copa rota","Un corcho","Dos porros cruzados"],2],
+ ["¿Qué necesitas para cruzar el mar con tus Pedomones?",["La MO Surf","Un flotador de pato","El billete del ferry"],0],
+ ["¿Cómo se llama el parque donde empieza tu aventura?",["Parque de Pichi","Parque del Porrón","Parque Cangrejo"],0],
+ ["¿Cuántos Pedomones puedes llevar en el equipo?",["Cuatro","Seis","Ocho"],1],
+ ["¿Qué ocurre cuando un Pedomón tiene colores distintos y brilla?",["Es un brillante, muy raro","Está enfermo","Está caducado"],0]];
+const _intG2=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
+ if(S.map==="tgym2"&&ch==="ɸ"){const G=GUARDS["tgym2,"+fy];if(!G)return;S.quizUsed=S.quizUsed||[];let free=QUIZ2.map((q,i)=>i).filter(i=>!S.quizUsed.includes(i));if(!free.length){S.quizUsed=[];free=QUIZ2.map((q,i)=>i)}
+  const qi=pick(free);S.quizUsed.push(qi);save();const q=QUIZ2[qi],opts=q[1].map((l,i)=>({l,ok:i===q[2]}));for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]]}
+  const i=await choose("🔥 "+q[0],opts.map(o=>({label:o.l})),{cols:1,cancel:false});
+  if(opts[i].ok){sfx("quest");await say("¡Correcto! La cortina de fuego se apaga con un «fssss».")}else{sfx("weak");await say(`¡Incorrecto! Era «${q[1][q[2]]}». El ${G.nm} sale de detrás de la cortina…`);
+   const win=await battle(G.team.map(([s,l])=>newMon(s,l)),{trainer:{name:G.nm,short:G.nm.split(" ")[0],pal:{h:"#1a1a1a",s:"#e0a878",e:"#222",c:"#f4f4f4",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:3,ts:11,money:300,challenge:`¡El ${G.nm} te corta el paso!`,lose:"Vale, vale. Pasa. Pero estudia más."}});if(!win)return}
+  S.flags["tg2r"+fy]=true;tg2Apply();save();return}
+ if(S.map==="tgym3"&&ch==="Ǧ"){if(S.flags.tg3done){await say("El gas llega a todos los quemadores. El muro de fuego está abierto.");return}await pipeGame();return}
+ if(S.map==="tgym3"&&ch==="ʉ"){await say(S.flags.tg3done?"La estufa arde a tope.":"La estufa está apagada: no le llega gas. Mira la llave de paso del centro de la sala.");return}
+ return _intG2()};
+// ====================================================================================
+// SALA 3 · LAS TUBERÍAS DE GAS (sin combates, para pensar)
+// ====================================================================================
+(function(){const g=MAPS.tgym3.g;for(let x=0;x<g[5].length;x++)if(g[5][x]==="ʙ")g[5][x]="o";g[5][6]="Ǧ";for(const id of["tasp1","tasp2"]){const n=npcById(id);if(n){n.cond=()=>false;n.x=-30}}
+ MAPS.tgym3.txt=Object.assign(MAPS.tgym3.txt||{},{"Ǧ":"La llave de paso del gas."})})();
+const PW=6,PH=5,PDIR=[[0,-1,1,4],[1,0,2,8],[0,1,4,1],[-1,0,8,2]];const prot=m=>((m<<1)|(m>>3))&15;
+function pipeMake(){const need=[];const SRC=[0,2],OUT=[5,2];
+ for(let tries=0;tries<400;tries++){const par={},seen=new Set(["0,2"]),st=[SRC];while(st.length){const[x,y]=st[st.length-1];const nb=PDIR.map(([dx,dy])=>[x+dx,y+dy]).filter(([a,b])=>a>=0&&b>=0&&a<PW&&b<PH&&!seen.has(a+","+b));if(!nb.length){st.pop();continue}const n=pick(nb);seen.add(n+"");par[n+""]=[x,y];st.push(n)}
+  const cells=[];while(cells.length<3){const c=[ri(1,4),ri(0,4)];if(!cells.some(q=>Math.abs(q[0]-c[0])+Math.abs(q[1]-c[1])<3))cells.push(c)}
+  const sol=Array.from({length:PH},()=>Array(PW).fill(0));const link=(a,b)=>{const d=PDIR.find(([dx,dy])=>a[0]+dx===b[0]&&a[1]+dy===b[1]);sol[a[1]][a[0]]|=d[2];sol[b[1]][b[0]]|=d[3]};
+  for(const t of[OUT,...cells]){let c=t;while(c+""!=="0,2"){const p=par[c+""];link(c,p);c=p}}sol[2][0]|=8;sol[2][5]|=2;
+  const used=sol.flat().filter(v=>v).length;if(used<12||used>22)continue;
+  const grid=sol.map(r=>r.map(v=>{let m=v||pick([5,10,3,6,12,9,3,6,7,11]);const k=ri(0,3);for(let i=0;i<k;i++)m=prot(m);return m}));return{sol,grid,burn:cells}}
+ return null}
+function pipeFlow(Q){const on=new Set(),leaks=[];if(!(Q.grid[2][0]&8))return{on,leaks,win:false};const q=[[0,2]];on.add("0,2");let out=false;
+ while(q.length){const[x,y]=q.shift(),m=Q.grid[y][x];for(const[dx,dy,bit,opp]of PDIR){if(!(m&bit))continue;const a=x+dx,b=y+dy;if(x===0&&y===2&&bit===8)continue;if(x===5&&y===2&&bit===2){out=true;continue}
+   if(a<0||b<0||a>=PW||b>=PH||!(Q.grid[b][a]&opp)){leaks.push([x,y,dx,dy]);continue}if(!on.has(a+","+b)){on.add(a+","+b);q.push([a,b])}}}
+ return{on,leaks,win:out&&!leaks.length&&Q.burn.every(c=>on.has(c+""))}}
+let PIPE=null;
+function pipeGame(){return new Promise(res=>{if(!PIPE)PIPE=pipeMake();const Q=PIPE,start0=Q.grid.map(r=>r.slice());let done=false,raf=0;const C=90,OX=90,OY=70;
+ const end=()=>{cancelAnimationFrame(raf);closeOverlay();res()};
+ overlay(`<div style="max-width:760px;margin:0 auto"><canvas id="pp-c" width="720" height="540" style="width:100%;border-radius:12px;background:#2a1a10;touch-action:none;cursor:pointer"></canvas>
+  <p style="text-align:center;margin:4px 0;font-size:14px">Toca un trozo de tubería para girarlo. Lleva el gas desde la <b>bombona</b> hasta la <b>salida</b>, pasando por los <b>3 quemadores</b> y <b>sin ninguna fuga</b>.</p>
+  <div class="btns" style="justify-content:center"><button class="big alt" type="button" id="pp-r">↺ Reiniciar</button><button class="big alt" type="button" id="pp-x">Salir</button></div></div>`,{onB:end});
+ const c=$("pp-c"),x=c.getContext("2d");$("pp-x").onclick=end;$("pp-r").onclick=()=>{if(done)return;for(let j=0;j<PH;j++)for(let i=0;i<PW;i++)Q.grid[j][i]=start0[j][i];sfx("sel")};
+ c.onpointerdown=async e=>{if(done)return;const r=c.getBoundingClientRect(),i=Math.floor(((e.clientX-r.left)*720/r.width-OX)/C),j=Math.floor(((e.clientY-r.top)*540/r.height-OY)/C);if(i<0||j<0||i>=PW||j>=PH)return;Q.grid[j][i]=prot(Q.grid[j][i]);sfx("sel");
+  if(pipeFlow(Q).win){done=true;sfx("quest");await new Promise(z=>setTimeout(z,1500));end();S.flags.tg3done=true;tg3Apply();FX.shake=now()+500;save();await say("¡FUUUUOOOSH! El gas llega a los tres quemadores sin una sola fuga. Las estufas rugen y el muro de fuego se aparta.")}};
+ const draw=t=>{if(!c.isConnected)return;const F=pipeFlow(Q);x.fillStyle="#2a1a10";x.fillRect(0,0,720,540);x.fillStyle="#ffd14a";x.font="900 24px Rubik,Arial";x.textAlign="center";x.fillText("LA LLAVE DE PASO DE IZASKUN",360,40);
+  for(let j=0;j<PH;j++)for(let i=0;i<PW;i++){const X=OX+i*C,Y=OY+j*C,lit=F.on.has(i+","+j),isB=Q.burn.some(b=>b[0]===i&&b[1]===j);x.fillStyle=(i+j)%2?"#4a3020":"#553826";x.fillRect(X+2,Y+2,C-4,C-4);
+   if(isB){x.strokeStyle=lit?"#ffd14a":"#8a6a4a";x.lineWidth=4;x.beginPath();x.arc(X+45,Y+45,34,0,7);x.stroke()}
+   const m=Q.grid[j][i];for(const[col,w]of[["#1a1a1a",24],[lit?"#ff8a2a":"#9a9aa8",16]]){x.strokeStyle=col;x.lineWidth=w;x.lineCap="butt";for(const[dx,dy,bit]of PDIR)if(m&bit){x.beginPath();x.moveTo(X+45,Y+45);x.lineTo(X+45+dx*45,Y+45+dy*45);x.stroke()}x.fillStyle=col;x.beginPath();x.arc(X+45,Y+45,w/2,0,7);x.fill()}
+   if(isB){if(lit){for(let k=0;k<3;k++){x.fillStyle=["#ff5a1a","#ff9a2a","#ffd23a"][(Math.floor(t/90)+k)%3];x.beginPath();x.moveTo(X+30+k*10,Y+36);x.quadraticCurveTo(X+35+k*10,Y+6-k%2*6,X+40+k*10,Y+36);x.fill()}}else{x.font="26px sans-serif";x.fillText("🔥",X+45,Y+30)}}}
+  x.fillStyle="#e86a1a";x.fillRect(22,OY+2*C+16,52,62);x.fillStyle="#5a5a5a";x.fillRect(38,OY+2*C+4,20,14);x.fillStyle="#fff";x.font="700 12px Rubik,Arial";x.fillText("GAS",48,OY+2*C+52);x.fillStyle="#9a9aa8";x.fillRect(74,OY+2*C+37,16,16);
+  x.fillStyle=F.win?"#7aff6a":"#9a9aa8";x.fillRect(OX+PW*C,OY+2*C+37,26,16);x.font="34px sans-serif";x.fillText("🚪",OX+PW*C+55,OY+2*C+57);x.font="700 12px Rubik,Arial";x.fillStyle="#fff";x.fillText("SALIDA",OX+PW*C+55,OY+2*C+78);
+  for(const[i,j,dx,dy]of F.leaks){const X=OX+i*C+45+dx*44,Y=OY+j*C+45+dy*44;x.globalAlpha=.6+.4*Math.sin(t/100+i);x.font="24px sans-serif";x.fillText("💨",X,Y+8);x.globalAlpha=1}
+  x.fillStyle="#f4e7d4";x.font="700 16px Rubik,Arial";x.fillText(`Quemadores encendidos: ${Q.burn.filter(b=>F.on.has(b+"")).length}/3 · Fugas: ${F.leaks.length}`,360,532);raf=requestAnimationFrame(draw)};raf=requestAnimationFrame(draw)})}
+const _dtG2=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(ch==="Ǧ"){_dtG2("o",x,y,sx,sy,t,style);px(sx+6,sy+2,4,13,"#8a8a9a");px(sx+1,sy+8,14,4,"#8a8a9a");ctx.strokeStyle=S.flags.tg3done?"#7aff6a":"#e23b2a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(sx+8,sy+1,5,0,7);ctx.stroke();px(sx+7,sy-4,2,10,S.flags.tg3done?"#7aff6a":"#e23b2a");return}return _dtG2(ch,x,y,sx,sy,t,style)};
+const _oemG2=onEnterMap;onEnterMap=async function(){if(S.map==="tgym1")S.flags.tg1In=true;if(S.map==="tgym3")S.flags.tg3In=true;await _oemG2();
+ if(S.map==="tgym1"&&!S.flags.tg1v2){S.flags.tg1v2=true;save();await say("SALA 1: EL LABERINTO DE HUMO. Se han ido todas las luces. Solo ves lo que tienes alrededor, y todas las habitaciones parecen iguales. Antes de moverte, LEE el cartel.")}
+ if(S.map==="tgym3"&&!S.flags.tg3v2&&!S.flags.tg3done){S.flags.tg3v2=true;save();await say("SALA 3: LA LLAVE DE PASO. Aquí no hay combates. En el centro está la llave del gas: hay que llevarlo a los quemadores para abrir el muro de fuego. Toca pensar.")}};
+
+/*</B4GYM2>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

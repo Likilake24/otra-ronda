@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="104 · El Club de Ajedrez de Terrazalia: rivales con IA, problemas reales y torneo";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="105 · Arreglado el atasco en el hielo de Hoyales y botón «Estoy atascado»";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -4785,7 +4785,7 @@ function drawWorldMap(c,dest,from,fly){const x=c.getContext("2d"),W=360,H=220;le
 mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallero",()=>medallero()],["🏆 Logros",()=>logrosScreen()]];
   if(typeof petMenu==="function"&&S.pets&&Object.keys(S.pets).length)L.push(["🐾 Mascota",()=>petMenu()]);if(typeof libreta==="function"&&S.pruebas&&Object.keys(S.pruebas).length)L.push(["📓 Libreta",()=>libreta()]);if(typeof mapaGeneral==="function")L.push(["🗺️ Mapa",()=>mapaGeneral()],["📒 Registro",()=>registro()]);if(typeof toggleVoz==="function")L.push([VOZ?"🗣️ Voces: sí":"🔇 Voces: no",()=>toggleVoz()]);
   if(S.flags.vuelo)L.push(["🕊️ Vuelo",async()=>{await vuelo();return"close"}]);
-  L.push(["📡 Radar",()=>radar()],["📜 Misiones",()=>say(questLines().join("\n"))],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["🎚️ Volumen"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],["✖️ Cerrar",null]);
+  L.push(["📡 Radar",()=>radar()],["📜 Misiones",()=>say(questLines().join("\n"))],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["🎚️ Volumen"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],["✖️ Cerrar",null]);if(typeof desatascar==="function")L.splice(L.length-1,0,["🆘 Estoy atascado",async()=>{await desatascar();return"close"}]);
   const i=await choose(`${S.name||"Menú"} · ${S.money} pavos${S.fichas?` · ${S.fichas} fichas`:""}`,L.map(([label])=>({label})));
   if(i<0||!L[i][1])return;const r=await L[i][1]();if(r==="close")return}};
 
@@ -10858,7 +10858,10 @@ mkMap("torre1",FLOOR1.g,"El castillo · Piso 1: la bodega del calimocho","verben
 const ICE0=["wwwwwwwwwwwww","wwwwwwʌwwwwww","woƁooooooooow","wȪȪȪȪȪȪȪȪȪȪȪw","wooƁoooooooow","wooooooooooow","woƗooooƁoooow","woƁoƁoƁooooow","wȪȪȪȪȪȪȪȪȪȪȪw","wooooooooooow","woƁoooooƗooow","woooƁooƁoooow","woƗoooooƁooow","wooooooooooow","wwwwwwʋwwwwww"];
 mkMap("torre2",rowsGrid(ICE0),"El castillo · Piso 2: la cámara del hielo","verbena",[6,13,"up"],{},{"Ɨ":"Un bloque de hielo. Empújalo: resbala hasta chocar.","Ȫ":"Un foso. Un bloque de hielo dentro serviría de puente.","Ɓ":"Un barril congelado. Sirve de tope."});
 const iceReset=()=>{MAPS.torre2.g=rowsGrid(ICE0);MAPS.torre2.g[13][1]="ʓ"};iceReset();
-function pushIce(bx,by,dx,dy){const g=MAPS.torre2.g;let x=bx,y=by,moved=0;while(true){const nx=x+dx,ny=y+dy,c=g[ny]&&g[ny][nx];if(c==="Ȫ"){g[by][bx]="o";g[ny][nx]="ʭ";return"puente"}if(c!=="o"&&c!=="ʭ"||NPCS.some(n=>n.map==="torre2"&&n.x===nx&&n.y===ny&&npcVisible(n)))break;x=nx;y=ny;moved++}if(!moved)return null;g[by][bx]="o";g[y][x]="Ɨ";return"mueve"}
+// los bloques y puentes se guardan con la partida; si ya cruzaste el piso, el paso del centro se queda puesto
+function iceLoad(){iceReset();if(!S)return;if(S.hielo&&S.hielo.length===MAPS.torre2.g.length)MAPS.torre2.g=rowsGrid(S.hielo);if(S.flags&&S.flags.hieloOk)for(const y of[3,8])MAPS.torre2.g[y][6]="ʭ"}
+const iceSave=()=>{if(S){S.hielo=MAPS.torre2.g.map(r=>r.join(""));save()}};
+function pushIce(bx,by,dx,dy){const g=MAPS.torre2.g;let x=bx,y=by,moved=0;while(true){const nx=x+dx,ny=y+dy,c=g[ny]&&g[ny][nx];if(c==="Ȫ"){g[by][bx]="o";g[ny][nx]="ʭ";iceSave();return"puente"}if(c!=="o"&&c!=="ʭ"||NPCS.some(n=>n.map==="torre2"&&n.x===nx&&n.y===ny&&npcVisible(n)))break;x=nx;y=ny;moved++}if(!moved)return null;g[by][bx]="o";g[y][x]="Ɨ";iceSave();return"mueve"}
 WALK.add("ʭ");
 // ---------- PISO 3: la guerra de los cubitos ----------
 mkMap("torre3",rowsGrid(["wwwwwwwwwwwww","wwwwwwʌwwwwww","wwwwwwowwwwww","wooooooooooow","woʄʄʄoooʄʄʄow","woʄʄʄoƁoʄʄʄow","wooooooooooow","wƁoʄʄʄʄʄʄʄoƁw","wooʄʄʄʄʄʄʄoow","wooooooooooow","woʄʄoƁoƁoʄʄow","woʄʄoooooʄʄow","wooooooooooow","wooooooooooow","wwwwwwʋwwwwww"]),"El castillo · Piso 3: la guerra de los cubitos","verbena",[6,13,"up"],{},{"Ɓ":"Un barril. Los peñistas te tiran hielo desde los balcones."});
@@ -10871,7 +10874,7 @@ Object.assign(STAIRS,{"torre1,6,1":["torre2",6,13,"up",""],"torre2,6,14":["torre
 function torreAside(){for(const[id,m]of[["torrea","torre2"],["torreb","torre3"]]){const n=npcById(id);if(!n)continue;const done=!!(S&&S.beaten&&S.beaten[id]);if(id==="torrea"){MAPS[m].g[2][6]="o";n.x=done?4:6;n.y=2}else{MAPS[m].g[2][5]=done?"o":"w";n.x=done?5:6;n.y=2}}}
 const doorT1=(()=>{const _i=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
  if(S.map==="torre2"&&ch==="Ɨ"){const r=pushIce(fx,fy,fx-S.x,fy-S.y);if(r==="puente"){sfx("super");FX.shake=now()+200;toast("🧊 El bloque cae al foso: ¡ahora es un puente!")}else if(r){sfx("plop")}else{sfx("weak");toast("No se mueve en esa dirección")}return}
- if(S.map==="torre2"&&ch==="ʓ"){iceReset();torreAside();sfx("door");await say("Tiras de la palanca y los bloques de hielo vuelven a su sitio.");return}
+ if(S.map==="torre2"&&ch==="ʓ"){delete S.hielo;iceLoad();torreAside();save();sfx("door");await say("Tiras de la palanca y los bloques de hielo vuelven a su sitio.");return}
  return _i()}})();
 // empujar andando contra el bloque
 const _cwIce=canWalk;canWalk=function(x,y){if(S&&S.map==="torre2"&&MAPS.torre2.g[y]&&MAPS.torre2.g[y][x]==="Ɨ"){if(performance.now()-(canWalk.t||0)>350&&Math.abs(x-S.x)+Math.abs(y-S.y)===1&&mode==="world"&&!busy&&held.length){canWalk.t=performance.now();const r=pushIce(x,y,x-S.x,y-S.y);if(r){sfx(r==="puente"?"super":"plop");if(r==="puente")toast("🧊 ¡Puente de hielo!")}}return false}return _cwIce(x,y)};
@@ -10883,7 +10886,7 @@ setInterval(()=>{if(!S||S.map!=="torre3"||mode!=="world"||busy||!dlg.hidden||!ov
  if(S.y>=3&&S.y<=12&&!esRefugio(S.x,S.y)&&t-cubeT>520){cubeT=t;const[dx,dy]=DIRS[S.dir];const aim=Math.random()<.4?[S.x,S.y]:Math.random()<.5?[S.x+dx*(P.moving?2:1),S.y+dy*(P.moving?2:1)]:[S.x+ri(-3,3),S.y+ri(-2,2)];const[x,y]=aim;const c=(MAPS.torre3.g[y]||[])[x];if(c&&c!=="w"&&c!=="Ɓ"&&c!=="ꝏ"&&c!=="ꝋ"&&y>=3&&y<=12)CUBES.push({x,y,t0:t,from:Math.random()<.5?-1:1})}
  for(const c of CUBES){if(!c.done&&t-c.t0>1050){c.done=true;sfx("puchero");const px_=P.moving&&P.prog>.5?P.tx:S.x,py=P.moving&&P.prog>.5?P.ty:S.y;if(c.x===px_&&c.y===py&&t>hitCD){hitCD=t+900;VIDAS--;flash("#9fe8ff",220);FX.shake=now()+260;if(VIDAS<=0){VIDAS=3;CUBES=[];run(async()=>{await fadeOut();S.x=CUBCP[0];S.y=CUBCP[1];S.dir="up";P.moving=false;pushPresence();await fadeIn();await say(CUBCP[1]<13?"[risa]Peñista: ¡Tres hielazos! ¡Al último refugio, a secarse!":"[risa]Peñista: ¡Tres hielazos! ¡Al principio, a secarse!")})}else toast("🧊 ¡Hielazo! Te quedan "+VIDAS+" vidas")}}}
  CUBES=CUBES.filter(c=>t-c.t0<1400)},40);
-const _oemCa=onEnterMap;onEnterMap=async function(){if(S.map==="torre2")iceReset();if(/^torre[23]$/.test(S.map))torreAside();if(S.map==="torre3"){VIDAS=3;CUBES=[];CUBCP=[6,13];cubeT=performance.now()+1500}await _oemCa();
+const _oemCa=onEnterMap;onEnterMap=async function(){if(S.map==="torre2")iceLoad();if(/^torre[23]$/.test(S.map))torreAside();if(S.map==="torre3"){VIDAS=3;CUBES=[];CUBCP=[6,13];cubeT=performance.now()+1500}await _oemCa();
  const once=async(m,l)=>{if(S.map===m&&!S.flags["in2_"+m]){S.flags["in2_"+m]=true;save();await sayAll(l)}};
  await once("torre1",["PISO 1 · LA BODEGA DEL CALIMOCHO. Han reventado tres cubas y el suelo está empapado.","En el calimocho resbalas hasta chocar con una pared o un barril. Piensa hacia dónde te lanzas antes de dar el paso."]);
  await once("torre2",["PISO 2 · LA CÁMARA DEL HIELO. Aquí la peña guarda el hielo de las fiestas.","Dos fosos cortan el paso. Anda contra un bloque de hielo para empujarlo: resbala hasta chocar. Si cae en un foso, hace de puente.","Si lo atascas, tira de la palanca roja de abajo a la izquierda."]);
@@ -12013,6 +12016,29 @@ const _rwClub=renderWorld;renderWorld=function(t){_rwClub(t);if(S.map!=="terraza
 for(let y=19;y<=20;y++)for(let x=6;x<=11;x++)if(MAPS.terrazalia.g[y][x]!=="S")MAPS.terrazalia.g[y][x]="ꞡ";
 
 /*</B4AJCLUB>*/
+/*<B4ATASCO>*/
+/* ===================== QUE NADIE SE QUEDE ATRAPADO: rescate de la cámara del hielo y botón «Estoy atascado» ===================== */
+function puedeIr(m,sx,sy,tx,ty){const M=MAPS[m],seen=new Set([sx+","+sy]),q=[[sx,sy]];while(q.length){const[x,y]=q.pop();if(x===tx&&y===ty)return true;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const a=x+dx,b=y+dy,k=a+","+b;if(!seen.has(k)&&M.g[b]&&WALK.has(M.g[b][a])&&!NPCS.some(n=>n.map===m&&n.x===a&&n.y===b&&npcVisible(n))){seen.add(k);q.push([a,b])}}}return false}
+function rescateTorre(){if(!S||!/^torre[1-4]$/.test(S.map))return false;S.flags=S.flags||{};
+ // quien ya ha pasado del piso 2 conserva el paso abierto
+ if(S.map==="torre3"||S.map==="torre4"||S.flags.hoyales||(S.beaten&&S.beaten.torrea)||(S.map==="torre2"&&S.y<=2))S.flags.hieloOk=true;
+ if(S.map==="torre2"){iceLoad();torreAside()}let movido=false;const g=MAPS[S.map].g;
+ if(!WALK.has((g[S.y]||[])[S.x])){const e=MAPS[S.map].entry;S.x=e[0];S.y=e[1];S.dir="up";movido=true}
+ // si desde donde estás no puedes llegar a la escalera de bajada, se abre el paso
+ if(S.map==="torre2"&&!puedeIr("torre2",S.x,S.y,6,13)){S.flags.hieloOk=true;iceLoad();torreAside();if(!puedeIr("torre2",S.x,S.y,6,13)){delete S.hielo;iceLoad();torreAside();S.x=6;S.y=13;S.dir="up"}movido=true}
+ return movido}
+const _stRes=start;start=function(){let r=false;try{r=rescateTorre()}catch(e){}const v=_stRes();if(r)setTimeout(()=>toast("🧊 He vuelto a abrirte el paso: ya no estás atrapado"),600);return v};
+const _oemRes=onEnterMap;onEnterMap=async function(){if(S.map==="torre3"||S.map==="torre4")S.flags.hieloOk=true;await _oemRes();if(S.map==="torre2"&&rescateTorre())save()};
+const _osRes=onStep;onStep=async function(){if(S.map==="torre2"&&S.y<=2&&!S.flags.hieloOk){S.flags.hieloOk=true;for(const y of[3,8])MAPS.torre2.g[y][6]="ʭ";save();toast("🧊 El paso del centro se queda helado para siempre: podrás bajar cuando quieras")}return _osRes()};
+// ---------- botón de emergencia del menú: te saca a un sitio seguro sin perder nada ----------
+function sitioSeguro(){const m=S.map,M=MAPS[m];if(m==="faro")return["terrazalia",5,7];const gym=/^torre/.test(m)?["hoyales",18,14]:/^templo/.test(m)?["zoco",30,24]:/^tgym/.test(m)?["terrazalia",17,5]:/^bz/.test(m)?["autovia",12,6]:SALIDA_GYM[m];if(gym)return gym;
+ if(/^bunker/.test(m))return[m,M.entry[0],M.entry[1]];
+ if(!M.outdoor){const ex=Object.values(M.exits||{})[0];if(ex)return[ex[0],ex[1],ex[2]]}
+ if(M.outdoor){const v=VUELO_DEST.find(d=>d.map===m);if(v&&!v.land)return[m,v.x,v.y];for(const O of Object.values(MAPS))for(const e of Object.values(O.exits||{}))if(e[0]===m&&WALK.has((M.g[e[2]]||[])[e[1]]))return[m,e[1],e[2]]}
+ if(M.entry)return[m,M.entry[0],M.entry[1]];return["park",4,5]}
+async function desatascar(){const i=await choose("🆘 ¿Estás atascado? Te saco a un sitio seguro (la puerta del gimnasio, la calle o la entrada). No pierdes medallas, dinero ni Pedomones.",[{label:"🚪 Sí, sácame de aquí"},{label:"↩ No"}],{cols:1});if(i!==0)return;const d=sitioSeguro();if(S.map==="torre2"){delete S.hielo}P.moving=false;await warp(d[0],d[1],d[2],"down");if(S.map==="bunker2"&&!S.flags.floodOk)floodStart();save();toast("🆘 Ya estás a salvo")}
+
+/*</B4ATASCO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

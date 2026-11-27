@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="84 · Pelea a navajazos en el Rif (estilo Stickman) y Saltos del Cabo con acrobacias y récords compartidos";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="85 · Ciudades: el Zoco del Rif como una medina de verdad · logros arreglados";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -8549,7 +8549,7 @@ const _rw7=renderWorld;renderWorld=function(t){_rw7(t);const m=MAP();if(!m)retur
  if(S.map==="terrazagym"||S.map==="bunker"){const g=ctx.createRadialGradient(X+8,Y+6,14,X+8,Y+6,S.map==="bunker"?52:64);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,S.map==="bunker"?"rgba(0,0,0,.92)":"rgba(90,80,80,.88)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH);
   if(S.map==="terrazagym")for(let i=0;i<6;i++){const p=((t/2600)+i/6)%1;ctx.fillStyle=`rgba(200,200,210,${.18*(1-p)})`;ctx.beginPath();ctx.arc((i*53+t/40)%SW,SH-p*SH,18+p*20,0,7);ctx.fill()}}};
 const _oem7=onEnterMap;onEnterMap=async function(){await _oem7();if(S.map==="terrazagym"&&!S.flags.humoIn){S.flags.humoIn=true;save();await say("¡Cuánto humo! La terraza de Izaskun está tan cargada de puro que solo ves lo que tienes al lado. Avanza con cuidado entre las mesas.")}
- if(S.map==="zoco"&&S.flags.marruecos&&!S.flags.profe)toast("🍷 Para ir (o volver) a la cena del Sumiller, habla con Hassan en el riad.")};
+ if(S.map==="hoyales"&&S.flags.hoyales&&!S.flags.profe)toast("🍷 Para ir (o volver) a la cena del Sumiller, habla con el Rey de la Peña.")};
 // aviso de conexión más discreto cuando no hay colegas
 const _upd7=updOnline;updOnline=function(){_upd7();const el=$("online");if(el)el.style.opacity=(typeof OTHERS!=="undefined"&&OTHERS.size)?"1":".35"};
 /*</B4FIX7>*/
@@ -9760,6 +9760,79 @@ TALK2.rafa=async()=>{while(true){const i=await choose("Rafa el Clavadista: ¡Eee
 LOGROS.push({id:"rif",n:"Navaja de oro",d:"Tumba al Cabo Navajas y a su banda en la pelea del zoco.",ic:"🔪",ok:()=>!!(S.beaten&&S.beaten.cabo),rw:{money:300}},{id:"clav",n:"Clavadista",d:"Haz más de 1.000 puntos en los Saltos del Cabo.",ic:"🤸",ok:()=>!!S.flags.clavPrem,rw:{money:300}});
 
 /*</B4TANDA5>*/
+/*<B4ZOCO2>*/
+/* ===================== CIUDADES · EL ZOCO DEL RIF rehecho como una medina (puerto, muralla, plaza, zocos, minarete, casas con azotea) ===================== */
+KIND_UP.casamora=10;WALK.add("Ʉ");
+KIND4.casamora=function(b,ox,oy,t){const x=b.x*T-ox,y=b.y*T-oy,w=b.w*T,h=b.h*T,wall=b.wall||"#e0b070",dk=hexShade(wall,.8);
+ ctx.fillStyle="rgba(0,0,0,.18)";ctx.fillRect(x+3,y+h-2,w,4);px(x,y-8,w,h+8,wall);for(let i=0;i<w;i+=7)px(x+i,y-11,4,3,wall);px(x,y-8,w,2,dk);for(let j=0;j<h;j+=6)px(x+(j%12),y+j,5,1,hexShade(wall,.9));
+ const dx=(b.door[0]-b.x)*T;ctx.fillStyle="#2a6a8a";ctx.beginPath();ctx.moveTo(x+dx+3,y+h);ctx.lineTo(x+dx+3,y+h-9);ctx.arc(x+dx+8,y+h-9,5,Math.PI,0);ctx.lineTo(x+dx+13,y+h);ctx.fill();px(x+dx+7,y+h-12,1,12,"#1a4a6a");px(x+dx+10,y+h-6,1,2,"#e8c060");
+ ctx.strokeStyle="#f4e8d0";ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+dx+8,y+h-9,6,Math.PI,0);ctx.stroke();
+ for(let i=0;i<b.w;i++){if(i===b.door[0]-b.x)continue;const wx=x+i*T+5,wy=y+h-13;px(wx,wy,6,7,"#2a3a4a");ctx.fillStyle="#2a8a6a";ctx.beginPath();ctx.arc(wx+3,wy,3,Math.PI,0);ctx.fill();px(wx-1,wy+7,8,1,dk)}
+ if(b.plants)for(let i=0;i<w;i+=12)px(x+i+2,y-14,4,4,"#3a9a3a")};
+(function(){const W=40,H=30;const[g,R]=mk(W,H,"Ø");
+ R("~",0,0,W,4);R("é",12,0,17,4);g[4][20]="Ʉ";
+ R("v",10,5,20,10);R("v",19,15,3,13);R("v",2,17,36,2);R("v",2,5,8,12);R("v",30,5,8,12);R("v",2,19,17,9);R("v",22,19,16,9);
+ // los zocos: puestos en fila con callejones
+ for(const y of[8,11,14])for(const x0 of[3,6])R("ü",x0,y,2,1);for(const y of[8,11,14])for(const x0 of[31,35])R("ü",x0,y,2,1);
+ // bloques de casas que hacen callejones en los barrios del sur
+ R("Ø",2,19,3,2);R("Ø",15,25,3,3);R("Ø",23,25,3,3);R("Ø",36,19,2,4);
+ g[8][14]="ƨ";R("Ɱ",33,5,2,2);R(",",29,24,8,4);
+ const builds=[{id:"teteria",kind:"casamora",x:3,y:5,w:4,h:2,door:[5,6],wall:"#e8c890",label:"TETERÍA",glow:"#2a8a6a",to:"teteria",plants:true},
+  {id:"tiendaLolo",kind:"kiosko",x:8,y:20,w:4,h:2,door:[10,21],wall:"#e8c890",roof:"#c8202a",label:"ALFOMBRAS",glow:"#c8202a",to:null},
+  {id:"riad",kind:"casamora",plants:true,x:26,y:20,w:8,h:3,door:[30,22],wall:"#f0d0a0",roof:"#c86a2a",label:"RIAD DE LAS PLACAS",glow:"#c86a2a",to:"riad"},
+  {id:"zcasa1",kind:"casamora",x:4,y:23,w:4,h:3,door:[5,25],wall:"#e0a868",to:"zcasa1",plants:true},
+  {id:"zcasa2",kind:"casamora",x:11,y:23,w:4,h:3,door:[12,25],wall:"#e8b878",to:"zcasa2"},
+  {id:"zcasa3",kind:"casamora",x:32,y:9,w:4,h:2,door:[33,10],wall:"#dca060",to:"zcasa3"}];
+ builds.forEach(b=>{R("H",b.x,b.y,b.w,b.h);g[b.door[1]][b.door[0]]="D"});
+ const signs={"18,6":"TÁNGER · EL ZOCO DEL RIF. «Si te pierdes, no preguntes: compra algo.»","22,16":"→ RIAD DE LAS PLACAS (gimnasio de Hassan) · ← Tetería Al-Kif (cura) · ↘ Palmeral"};Object.keys(signs).forEach(k=>{const[x,y]=k.split(",").map(Number);g[y][x]="S"});
+ MAPS.zoco={w:W,h:H,g,outdoor:true,signs,builds,lamps:[],music:"zoco",entry:[20,1,"down"],
+  exits:{"19,0":["ferry",5,26,"up"],"20,0":["ferry",5,26,"up"],"21,0":["ferry",5,26,"up"]},
+  txt:{"ü":"Un puesto del zoco: alfombras, cachimbas, especias y «placas» de dudosa procedencia.","Ø":"Las murallas y las casas encaladas de la medina. Por aquí no se pasa: aquí se vive.","~":"El puerto de Tánger. Huele a sal, a gasoil y a sardinas.","é":"El muelle del ferry.","ƨ":"Una fuente de azulejos verdes. Los gatos del zoco beben aquí.","Ɱ":"El minarete de la mezquita. Desde arriba se ve España. Y a la Pasma.","Ʉ":"Bab el Bahr, la puerta del mar. La entrada a la medina."}};
+ BIGSIGNS.zoco=[{x:22,y:2,txt:"↑ RUTA 6\nFERRY"}];
+ blockDrawn("zoco");
+ setExit("teteria",["4,7","5,7"],["zoco",5,7,"down"]);setExit("riad",["6,9","7,9"],["zoco",30,23,"down"])})();
+(function(){const set=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};set("cabo",{x:20,y:7,dir:"up",sight:2});set("karim",{x:17,y:12,dir:"down"});set("yasmina",{x:22,y:23,dir:"down"});set("lolozoco",{x:10,y:22,dir:"up"});
+ for(const d of VUELO_DEST)if(d.map==="zoco"){d.x=5;d.y=7}})();
+// casas del zoco: cada una sirve para algo (una con azotea)
+MAPS.zcasa1=room(["wwwwwwwwww","wgoooooʌgw","woooooooow","wthhoooopw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"zoco",txt:{t:"Una mesa baja con té, dátiles y pan de sémola.",h:"Cojines bordados con hilo de oro.",g:"Una palmera en maceta con un gato dormido encima.",p:"La Nevera: aceitunas, harira y unos Pedomones de la guardería."}});
+setExit("zcasa1",["4,7","5,7"],["zoco",5,26,"down"]);
+MAPS.zcasa1b=room(["wwwwwwwwww","wgoooooogw","woooooooow","woooooooow","whhooooooW".replace("W","w"),"wooooooʋow","woooooooow","wwwwwwwwww"],null,[7,4,"down"],{music:"zoco",txt:{h:"Las tumbonas de la azotea. Desde aquí se ve el estrecho, España y el ferry.",g:"Macetas con hierbabuena y menta."}});
+MAPS.zcasa2=room(["wwwwwwwwww","wgmoooootw","woooooooow","whhooooohw","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"zoco",txt:{m:"Un televisor con un partido del Raja de Casablanca a todo volumen.",t:"Un mostrador con una balanza antigua y bolsas de especias.",h:"Alfombras enrolladas, todas «únicas», todas iguales."}});
+setExit("zcasa2",["4,7","5,7"],["zoco",12,26,"down"]);
+MAPS.zcasa3=room(["wwwwwwwwww","wgooooootw","woooooooow","wthoooooow","woooooooow","woooooooow","woooooooow","wwwweewwww"],null,[4,6,"up"],{music:"zoco",txt:{t:"Un banco de trabajo con placas de latón grabadas a mano.",h:"Un sofá con un cartel: «NO SENTARSE. ES DEL ABUELO»."}});
+setExit("zcasa3",["4,7","5,7"],["zoco",33,11,"down"]);
+Object.assign(STAIRS,{"zcasa1,7,1":["zcasa1b",7,4,"down",""],"zcasa1b,7,5":["zcasa1",7,2,"down",""]});
+Object.assign(MAPNAME,{zcasa1:"Casa de Fátima",zcasa1b:"Azotea de Fátima",zcasa2:"Tienda de Ahmed",zcasa3:"Taller del grabador"});
+NPC_LOOK.fatima={hs:9,ts:7};NPC_LOOK.fatimab={hs:3,ts:10};NPC_LOOK.ahmed={hs:3,ts:5,beard:"stache"};NPC_LOOK.grabador={hs:10,ts:5,beard:"full"};NPC_LOOK.encantador={hs:3,ts:5,beard:"full"};NPC_LOOK.zumero={hs:0,ts:5};
+NPCS.push({id:"fatima",map:"zcasa1",x:3,y:2,dir:"down",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#2a8a6a",z:"#f4f4f4",p:"#2a8a6a",k:"#6a3a1a"},hs:9,ts:7},
+ {id:"fatimab",map:"zcasa1b",x:4,y:2,dir:"down",idle:true,pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#e86a1a",z:"#f4f4f4",p:"#1a1a1a",k:"#6a3a1a"},hs:3,ts:10},
+ {id:"ahmed",map:"zcasa2",x:6,y:2,dir:"down",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#c8202a",z:"#f4f4f4",p:"#f4e8c8",k:"#6a3a1a"},hs:3,ts:5},
+ {id:"grabador",map:"zcasa3",x:5,y:2,dir:"down",pal:{h:"#d8d8d8",s:"#b8784a",e:"#222",c:"#5a3a1a",z:"#f4f4f4",p:"#f4e8c8",k:"#6a3a1a"},hs:10,ts:5},
+ {id:"encantador",map:"zoco",x:24,y:9,dir:"down",idle:true,pal:{h:"#f4f4f4",s:"#a86a3a",e:"#222",c:"#f4e8c8",z:"#c8202a",p:"#f4e8c8",k:"#6a3a1a"},hs:3,ts:5},
+ {id:"zumero",map:"zoco",x:12,y:12,dir:"right",pal:{h:"#1a1a1a",s:"#b8784a",e:"#222",c:"#f2a03a",z:"#f4f4f4",p:"#1a1a1a",k:"#6a3a1a"},hs:0,ts:5});
+TALK2.fatima=async()=>{await say(pick(["Fátima: Sube a la azotea, que mi hijo Youness está arriba. Desde allí se ve hasta España.","Fátima: El Cabo Navajas lleva una semana amenazando a los tenderos. Si alguien lo tumba, le invito a cuscús un mes."]))};
+TALK2.fatimab=async()=>{if(!S.flags.younessInfo){S.flags.younessInfo=true;S.bag.rinomarca=(S.bag.rinomarca||0)+2;sfx("catch");save();await sayAll(["Youness: Desde aquí arriba lo veo todo. Anoche vi a un señor con sombrero de paja cargando cajas de «placas» en el ferry de vuelta. Y a Lolo Gramos discutiendo con él.","Youness: Toma, dos Riñoneras de marca. Me las dejó un turista a cambio de una foto «auténtica» en la azotea."]);return}
+ await say("Youness: Mira, ¿ves aquel barco? Es el ferry. Y aquella mancha de allí es España. Y aquella otra, una gaviota.")};
+TALK2.ahmed=async()=>{if(S.money<30){await say("Ahmed: Amigo, sin dinero no hay regateo. Vuelve con 30 pavos.");return}
+ const i=await choose("Ahmed: ¡Amigo! Riñonera de marca, original, original. Para ti… 120 pavos. ¿Regateamos?",[{label:"💸 «Te doy 30» (regatear)"},{label:"👋 No, gracias"}],{cols:1});if(i!==0)return;
+ let price=120,offer=30;for(let r=0;r<3;r++){const j=await choose(`Ahmed: ¿${offer}? ¡Me ofendes! Te la dejo en ${price-25*(r+1)}.`,[{label:`🤝 Acepto (${price-25*(r+1)} pavos)`,disabled:S.money<price-25*(r+1)},{label:"😤 Hago como que me voy"},{label:"👋 Me voy de verdad"}],{cols:1});
+  if(j===0){S.money-=price-25*(r+1);S.bag.rinomarca=(S.bag.rinomarca||0)+1;save();await say("Ahmed: ¡Trato hecho! Has hecho el negocio de tu vida. (Has comprado 1 Riñonera de marca.)");return}if(j===2)return;
+  if(Math.random()<.35+r*.15){const p=Math.max(30,price-25*(r+2)-10);if(S.money<p){await say("Ahmed: … ¡Espera! Bueno, otro día.");return}S.money-=p;S.bag.rinomarca=(S.bag.rinomarca||0)+1;save();await say(`Ahmed: ¡Espera, espera! Vale… ${p} y te la llevas. ¡Me arruinas! (Has comprado 1 Riñonera de marca.)`);return}}
+ await say("Ahmed: Bueno, amigo, ve con Dios. Ya volverás. Todos vuelven.")};
+TALK2.grabador=async()=>{await say(pick(["Grabador: Yo grabo las placas de Hassan a mano. Las buenas llevan un camello. Las malas, una cabra.","Grabador: Un señor con guantes blancos me encargó 40 placas con una copa de vino grabada. Me pagó con una botella del 82."]))};
+TALK2.encantador=async()=>{if(!S.flags.serpiente){S.flags.serpiente=true;S.money+=50;sfx("catch");save();await sayAll(["Encantador: *toca la flauta* La cobra baila… la cobra baila… *la cobra se duerme*","Encantador: Bah. Toma 50 pavos, que me has traído suerte: la última vez que se durmió fue en 2009."]);return}
+ await say(pick(["Encantador: La cobra se llama Pepa. Es de Almería.","Encantador: La Pasma de la Ley Seca quiso requisar la flauta. «Instrumento de fiesta», dijeron."]))};
+TALK2.zumero=async()=>{const i=await choose("Zumero: ¡Zumo de naranja recién exprimido! Para ti y para tus bichos.",[{label:"🍊 Un zumo (15 pavos · cura un poco al equipo)",disabled:S.money<15},{label:"👋 Nada"}],{cols:1});if(i!==0)return;S.money-=15;S.team.forEach(m=>{if(m.hp>0)m.hp=Math.min(maxhp(m),m.hp+Math.ceil(maxhp(m)*.3))});sfx("heal");save();await say("¡Qué rico! Tus Pedomones recuperan un 30 % de sus PV.")};
+const _doorZ2=door;door=async function(b){for(const[id,m]of[["zcasa1","zcasa1"],["zcasa2","zcasa2"],["zcasa3","zcasa3"]])if(b&&b.id===id){await warp(m,4,6,"up");return}return _doorZ2(b)};
+const _dtZ2=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="zoco"){
+ if(ch==="Ø"){px(sx,sy,T,T,"#e8c890");px(sx,sy,T,2,"#f4dcb0");px(sx,sy+T-3,T,3,"#c8a060");if(hash(x,y)%5===0)px(sx+4,sy+5,5,6,"#2a3a4a");return}
+ if(ch==="Ʉ"){_dtZ2("v",x,y,sx,sy,t,style);px(sx-2,sy-10,4,26,"#c8a060");px(sx+14,sy-10,4,26,"#c8a060");ctx.strokeStyle="#c8a060";ctx.lineWidth=4;ctx.beginPath();ctx.arc(sx+8,sy-8,9,Math.PI,0);ctx.stroke();ctx.strokeStyle="#2a8a6a";ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(sx+8,sy-8,11,Math.PI,0);ctx.stroke();return}
+ if(ch==="ƨ"){_dtZ2("v",x,y,sx,sy,t,style);px(sx+1,sy+3,14,12,"#2a8a6a");for(let i=0;i<14;i+=3)px(sx+1+i,sy+3,2,2,"#f4f4f4");px(sx+3,sy+6,10,7,"#4ab8d8");px(sx+7,sy-2,2,6,"#2a8a6a");if(Math.floor(t/300)%2)px(sx+5,sy+7,3,1,"#bfe6ff");return}
+ if(ch==="Ɱ"){_dtZ2("v",x,y,sx,sy,t,style);return}}return _dtZ2(ch,x,y,sx,sy,t,style)};
+const _rwZ2=renderWorld;renderWorld=function(t){_rwZ2(t);if(S.map!=="zoco")return;const[ox,oy]=camOf(MAP());const X=33*T-ox,Y=7*T-oy;px(X,Y-90,32,90,"#e8c890");px(X,Y-90,32,3,"#2a8a6a");for(let i=0;i<4;i++){px(X+4,Y-80+i*20,24,2,"#2a8a6a");px(X+12,Y-76+i*20,8,10,"#2a3a4a")}
+ px(X-3,Y-96,38,6,"#c8a060");px(X+6,Y-118,20,22,"#e8c890");ctx.fillStyle="#2a8a6a";ctx.beginPath();ctx.moveTo(X+4,Y-118);ctx.lineTo(X+16,Y-134);ctx.lineTo(X+28,Y-118);ctx.fill();px(X+15,Y-142,2,9,"#c8a030");ctx.fillStyle="#c8a030";ctx.beginPath();ctx.arc(X+16,Y-143,3,0,7);ctx.fill()};
+
+/*</B4ZOCO2>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

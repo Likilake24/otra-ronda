@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="97 · Gimnasio del Rif: infiltración nocturna, templo bajo el riad, escorpiones y Hassan 2 contra 2";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="98 · Hoyales: 4 testigos (uno miente), castillo de 4 pisos con calimocho, cámara de hielo y guerra de cubitos";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -10537,6 +10537,7 @@ function placeProps(id,list){const M=MAPS[id];if(!M)return 0;const g=M.g,paths=(
  const keep=new Set();for(const b of M.builds||[])for(let dx=-1;dx<=1;dx++)for(let dy=1;dy<=2;dy++)keep.add((b.door[0]+dx)+","+(b.door[1]+dy));
  for(const k of Object.keys(M.exits||{})){const[x,y]=k.split(",").map(Number);for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=2;dy++)keep.add((x+dx)+","+(y+dy))}
  for(const q of NPCS.filter(q=>q.map===id&&q.x>=0)){for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)keep.add((q.x+dx)+","+(q.y+dy));if(q.trainer&&DIRS[q.dir]){for(let i=1;i<=(q.sight||4);i++)keep.add((q.x+DIRS[q.dir][0]*i)+","+(q.y+DIRS[q.dir][1]*i))}}
+ for(const d of(typeof VUELO_DEST!=="undefined"?VUELO_DEST:[]))if((d.land||d.map)===id){const e=d.land?M.entry:[d.x,d.y];if(e)for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)keep.add((e[0]+dx)+","+(e[1]+dy))}
  for(const k of Object.keys(M.signs||{})){const[x,y]=k.split(",").map(Number);for(let dx=-1;dx<=1;dx++)keep.add((x+dx)+","+(y+1))}
  for(const[kind,x,y]of list){if(!g[y]||x<1||y<1||x>=M.w-1||y>=M.h-1)continue;const old=g[y][x];if(!["v",".","á","d","o"].includes(old)||keep.has(x+","+y)||paths.has(x+","+y))continue;
   const before=reachSet(id);g[y][x]=PRP[kind];const after=reachSet(id);let ok=after.size>=before.size-1;if(ok)g.base=g.base||{};if(!ok){g[y][x]=old;continue}(M.under=M.under||{})[x+","+y]=old;n++}
@@ -10775,6 +10776,131 @@ const _mnP=lvlTxt;lvlTxt=function(m,long){return _mnP(m,long)+(m&&m.psn?" ☠️
 LOGROS.push({id:"sombra",n:"La sombra de la medina",d:"Cruza la medina de noche y baja al templo.",ic:"🌙",ok:()=>!!S.flags.temploIn,rw:{money:300}},{id:"templo",n:"Saqueador de templos",d:"Supera el templo y gana a Hassan.",ic:"🏺",ok:()=>!!(S.flags.marruecos&&S.flags.temploIn),rw:{money:600}});
 
 /*</B4TEMPLO>*/
+/*<B4CASTILLO>*/
+/* ===================== HOYALES FINAL: 4 testimonios (uno miente) · castillo de 4 pisos: calimocho, cámara de hielo, guerra de cubitos y la azotea ===================== */
+// casillas: ʄ calimocho (resbala) · Ɓ barril/tope · Ȫ foso · Ɨ bloque de hielo · ȸȹ ya usadas
+WALK.add("ʄ");
+// ====================================================================================
+// LOS CUATRO TESTIGOS (personajes nuevos)
+// ====================================================================================
+NPC_LOOK.orejas={hs:10,ts:5,beard:"full"};NPC_LOOK.casimiro={hs:4,ts:2,beard:"stache"};NPC_LOOK.timmy={hs:12,ts:3};NPC_LOOK.roca={hs:11,ts:11};
+const PNEW={orejas:{h:"#8a4a2a",s:"#e09878",e:"#222",c:"#6a4a2a",z:"#8a2a1a",p:"#3a2a1a",k:"#2a1a0a"},casimiro:{h:"#6a4a2a",s:"#f1c27d",e:"#222",c:"#8a7a4a",z:"#1a1a1a",p:"#4a4a3a",k:"#2a1a0a"},timmy:{h:"#c8802a",s:"#f1c8a0",e:"#222",c:"#6a3a8a",z:"#f2c14e",p:"#2a2a2a",k:"#f4f4f4"},roca:{h:"#14101c",s:"#f4dcd0",e:"#222",c:"#1a141e",z:"#b81a5a",p:"#1a141e",k:"#000"}};
+NPCS.push({id:"orejas",map:"hoyales",x:12,y:13,dir:"right",pal:PNEW.orejas,hs:10,ts:5,fat:true,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
+ {id:"casimiro",map:"hoyales",x:24,y:10,dir:"left",pal:PNEW.casimiro,hs:4,ts:2,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
+ {id:"timmy",map:"hoyales",x:5,y:11,dir:"down",pal:PNEW.timmy,hs:12,ts:3,cond:()=>!!S.flags.marruecos&&!S.flags.profe},
+ {id:"roca",map:"hoyales",x:14,y:17,dir:"up",pal:PNEW.roca,hs:11,ts:11,cond:()=>!!S.flags.marruecos&&!S.flags.profe});
+// qué juego "pertenece" a cada testigo
+const TESTIGOS={soga:{id:"orejas",n:"Orejas el Orujero",
+  antes:["Orejas: ¿La llave de la torre? Yo sé cosas de esa noche. Pero mi boca se abre con una soga: gana a los quintos y hablamos. (Comisión de Fiestas, en la plaza.)","Orejas: Soy el Orejas. Hago el mejor orujo de la Ribera. Ilegal, claro. Si fuera legal, sería peor."],
+  test:["Orejas: *mira a los lados* Aquella noche yo estaba escondiendo mi alambique detrás de la fuente.","[duda]Orejas: Sonaron las campanadas de las doce. Con la última, vi una sombra con la llave. Iba HACIA LA ERMITA.","[pena]Orejas: Una vez compartí mi receta con alguien que sonreía mucho. Fue en un pueblo que ya no existe. Desde entonces no me fío de las sonrisas."]},
+ pucheros:{id:"casimiro",n:"Casimiro el Flashes",
+  antes:["[risa]Casimiro: ¡Foto! ¡Quieto! ¡Preciosa! Son cinco euros.","Casimiro: ¿Esa noche? La tengo en el carrete. Pero antes quiero verte romper pucheros, que salen unas fotos buenísimas. (Comisión de Fiestas.)"],
+  test:["Casimiro: A ver, a ver… *revuelve entre cien fotos* ¡Aquí! Las doce en punto, lo pone el reloj de la iglesia.","[susto]Casimiro: Una sombra subiendo la cuesta de LA ERMITA. Sale movida. Y huele a puro. Bueno, la foto no huele. Yo sí lo olí.","Casimiro: Llevo cuarenta años haciendo fotos en todas las fiestas. Hay un carrete que nunca he revelado. Ni lo pienso revelar."]},
+ boina:{id:"timmy",n:"Timmy el Timador",
+  antes:["[picaro]Timmy: ¡Chaval! Cien pavos a que no lanzas la boina más lejos que el abuelo Matías.","Timmy: Si la pasas, te cuento lo que vi la noche del derrumbe. Palabra de Timmy. Que vale… lo que vale. (Comisión de Fiestas.)"],
+  test:["[risa]Timmy: Vale, vale, has ganado. Qué brazo.","Timmy: Esa noche yo estaba en el merendero cobrando apuestas. Dieron las doce. Y vi a la sombra bajar corriendo HACIA LAS BODEGAS. Con la llave tintineando.","[picaro]Timmy: Te lo juro por mi madre. Y por la tuya, que me cae bien."]},
+ porron:{id:"roca",n:"Roca",
+  antes:["Roca: *no levanta la vista de una servilleta* En mi barra la gente confiesa a las seis de la mañana. Yo lo apunto.","Roca: Si quieres leer la servilleta de esa noche, bébete al Rey en el duelo del porrón. (Comisión de Fiestas.)"],
+  test:["Roca: *desdobla una servilleta con manchas de vino* La letra es mía. La hora, las doce y un minuto.","Roca: «Alguien pasa por delante de la barra con la llave de la torre. Va hacia LA ERMITA. No me saluda. Todo el mundo me saluda.»","[duda]Roca: No duermo desde hace años. ¿Sabes por qué? Porque la última vez que cerré los ojos, un pueblo ardió."]}};
+const testN=()=>Object.keys(TESTIGOS).filter(k=>S.test&&S.test[k]).length;
+async function testimonio(k){const T2=TESTIGOS[k];S.test=S.test||{};if(S.test[k])return;cineOn();await sayAll(T2.test);S.test[k]=1;S.pruebas=S.pruebas||{};S.pruebas["t_"+k]=1;sfx("quest");save();await say(`📓 Testimonio apuntado en tu libreta: ${T2.n}. (${testN()}/4)`);if(testN()===4)await sayAll(["Ya tienes los cuatro testimonios. Pero no cuadran: uno de ellos miente.","📍 Habla con la charanga en el escenario y di quién miente."]);cineOff()}
+for(const[k,T2]of Object.entries(TESTIGOS))TALK2[T2.id]=async()=>{if(hm()===10&&!S.flags.hLiar){if(S.test&&S.test[k]){await say(T2.test[1].replace(/^\[\w+\]/,""));return}if(S.fiestas&&S.fiestas[k]){await testimonio(k);return}cineOn();await sayAll(T2.antes);cineOff();return}
+ if(S.flags.hLiar&&k==="boina"){await say("[pena]Timmy: Vale, mentí. Esa noche no estaba cobrando apuestas: estaba pagándolas. Debo dinero a gente muy seria… y a alguna ya no se lo voy a tener que pagar. Eso me asusta.");return}
+ await say(pick(T2.antes.concat(T2.test.slice(-1))))};
+// la misión nueva: charanga → 4 testimonios → señalar al mentiroso → llave en la ermita
+function hoyalesFix(){if(S&&S.flags&&hm()>=1&&hm()<=5){S.flags.hMis=10;save()}}
+const _stCa=start;start=function(){const r=_stCa();hoyalesFix();return r};
+const charangaNueva=async()=>{hoyalesFix();if(S.flags.hoyales){await say(pick(["Charanga: ¡Campeón! ¡Ta-ta-chaaaán!","Charanga: Esta va por ti. Es la misma canción de siempre, pero va por ti."]));return}
+ if(hm()===6){await say("Fali: ¡Ya tienes la llave! La torre te espera.");return}
+ if(hm()===10){if(S.flags.hLiar){await say("Maite: ¡PUM! La llave tiene que estar en la ermita. Mira en las campanas.");return}
+  if(testN()<4){await say(`Charanga: Habla con los cuatro testigos y gana sus pruebas. Llevas ${testN()}/4 testimonios: Orejas (soga), Casimiro (pucheros), Timmy (boina) y Roca (porrón).`);return}
+  cineOn();await say("Txomin: ¡CHAS! A ver, detective. Los cuatro dicen que vieron a la sombra con la llave… ¿Quién MIENTE?");
+  const opts=Object.values(TESTIGOS).map(t=>({label:t.n}));const i=await choose("¿Quién miente?",opts.concat([{label:"Me lo tengo que pensar"}]),{cols:1,info:i=>{const t=Object.values(TESTIGOS)[i];return t?t.test[1].replace(/^\[\w+\][^:]*:\s*/,"").replace(/^[^:]{0,30}:\s*/,""):""}});
+  if(i<0||i>3){cineOff();return}
+  if(Object.keys(TESTIGOS)[i]!=="boina"){await say("[risa]Fali: ¡No, no! Esa historia cuadra con las otras. Piénsalo: ¿quién cuenta algo distinto a los demás?");cineOff();return}
+  S.flags.hLiar=true;save();sfx("quest");await sayAll(["[susto]Timmy: ¡¿Qué?! ¡Yo no…! … Bueno. Vale. Quizá no estaba exactamente donde he dicho.","Maite: ¡PUM! Tres vieron lo mismo: la sombra subió A LA ERMITA. Y allí tiene que estar la llave.","📍 Busca en las campanas de la ermita."]);cineOff();return}
+ if(!pena3()){const i=await choose("Charanga: ¿Quién sube a NUESTRO escenario? Aquí se compite los tres contra tres. A la vez. ¿Te atreves?",[{label:"🎺 ¡Combate triple!"},{label:"👋 Ahora no"}],{cols:1});if(i!==0)return;
+  const win=await tripleBattle([["cubokali",46,["navajazo","picado","calambrazo","congelador"]],["volllitro",46,["chorro","espumarajo","navajazo","calambrazo"]],["vollboxeo",47,["navajazo","calambrazo","chorro","picado"]]],"La charanga Los Desafinaos");
+  if(!win){S.team.forEach(m=>m.hp=maxhp(m));save();await say("Charanga: ¡Ja! Otra vez será. (La Peña te ha curado el equipo. Vuelve cuando quieras.)");return}
+  S.beaten=S.beaten||{};["charanga1","charanga2","charanga3"].forEach(k=>S.beaten[k]=true);S.money+=1600;save();await say("¡Has ganado 1.600 pavos!")}
+ cineOn();await sayAll(["Fali: Vale, vale. Te has ganado retar al Rey. El Rey está arriba del todo, en la torre del castillo.","[susto]Maite: Eso sí… la llave de la torre la guardábamos en el estuche del bombo. Y la noche del derrumbe, ALGUIEN NOS LA ROBÓ.","Txomin: La misma noche que las rocas aplastaron al Comisario. ¿Casualidad? ¡CHAS! No creo.","Fali: Cuatro personas vieron algo. No son de aquí… o sí. Orejas el Orujero, Casimiro el Flashes, Timmy el Timador y Roca, la del after.","Fali: Ninguno suelta prenda gratis. Cada uno quiere verte ganar una de las pruebas de las fiestas.","📍 Gana las 4 pruebas y reúne los 4 testimonios."]);cineOff();S.flags.hMis=10;save();for(const k of Object.keys(TESTIGOS))if(S.fiestas&&S.fiestas[k])toast("Ya ganaste alguna prueba: habla con su testigo")};
+for(const id of["charanga1","charanga2","charanga3"])TALK2[id]=charangaNueva;
+const _fgCa=fiestaGame;fiestaGame=async function(k){const w=await _fgCa(k);if(w&&hm()===10&&TESTIGOS[k]&&!(S.test&&S.test[k])){S.fiestas=S.fiestas||{};S.fiestas[k]=1;save();setTimeout(()=>toast("📍 "+TESTIGOS[k].n+" ya está dispuesto a hablar"),900)}return w};
+const _intCa=interact;interact=async function(){const[fx,fy]=facing();if(S.map==="hoyales"&&tileAt(fx,fy)==="ß"&&S.flags.hLiar&&hm()===10){S.keys.llaveTorre=true;S.flags.hMis=6;sfx("quest");save();cineOn();await sayAll(["Dentro de la campana de en medio, pegada con cinta aislante… ¡LA LLAVE DE LA TORRE!","Junto a la llave hay una ceniza larga y perfecta, de un puro liado a mano. Aquí no fuma nadie puros así.","📓 Prueba nueva en tu libreta: «La ceniza del puro».","📍 Sube a la torre del castillo y reta al Rey de la Peña."]);S.pruebas=S.pruebas||{};S.pruebas.ceniza=1;cineOff();save();return}return _intCa()};
+const _qlCa=questLines;questLines=function(){const L=_qlCa().filter(l=>!/^🎺 Hoyales/.test(l));if(S.flags.marruecos&&!S.flags.hoyales&&S.flags.vinRocas)L.push("🎺 Hoyales: "+(hm()===6?"sube a la torre y reta al Rey.":hm()===10?(S.flags.hLiar?"busca la llave en las campanas de la ermita.":testN()<4?`reúne los testimonios (${testN()}/4): Orejas, Casimiro, Timmy y Roca.`:"di a la charanga quién miente."):"habla con la charanga en el escenario."));return L};
+// ====================================================================================
+// EL CASTILLO · 4 PISOS
+// ====================================================================================
+const rng=seed=>{let s=seed;return()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff}};
+const DIR4=[[0,-1],[0,1],[-1,0],[1,0]];
+// ---------- PISO 1: el calimocho (resbalas hasta chocar); se busca el trazado más difícil, siempre igual ----------
+function slideSolve(g,sx,sy,tx,ty){const ok=(a,b)=>g[b]&&g[b][a]&&g[b][a]!=="w"&&g[b][a]!=="Ɓ";const prev=new Map([[sx+","+sy,0]]),q=[[sx,sy]];while(q.length){const[x,y]=q.shift(),d0=prev.get(x+","+y);if(x===tx&&y===ty)return d0;for(const[dx,dy]of DIR4){let a=x+dx,b=y+dy;if(!ok(a,b))continue;while(g[b][a]==="ʄ"&&ok(a+dx,b+dy)){a+=dx;b+=dy}const k=a+","+b;if(!prev.has(k)){prev.set(k,d0+1);q.push([a,b])}}}return -1}
+const FLOOR1=(()=>{const W=13,H=15,R=rng(777);let best=null;for(let it=0;it<2500;it++){const g=[];for(let y=0;y<H;y++){g.push([]);for(let x=0;x<W;x++)g[y].push(x===0||x===W-1||y===0||y===H-1||y===1?"w":y===2||y>=H-3?"o":"ʄ")}g[1][6]="ʌ";g[H-1][6]="e";
+  const n=14+Math.floor(R()*10);for(let i=0;i<n;i++)g[3+Math.floor(R()*(H-6))][1+Math.floor(R()*(W-2))]="Ɓ";const len=slideSolve(g,6,H-2,6,1);if(len>0&&(!best||len>best.len))best={g,len}}return best})();
+mkMap("torre1",FLOOR1.g,"El castillo · Piso 1: la bodega del calimocho","verbena",[6,13,"up"],{"6,14":["hoyales",18,14,"down"]},{"Ɓ":"Un barril de calimocho. Sirve de tope."});
+// ---------- PISO 2: la cámara del hielo (empujas bloques que resbalan; al caer en el foso hacen de puente) ----------
+const ICE0=["wwwwwwwwwwwww","wwwwwwʌwwwwww","woƁooooooooow","wȪȪȪȪȪȪȪȪȪȪȪw","wooƁoooooooow","wooooooooooow","woƗooooƁoooow","woƁoƁoƁooooow","wȪȪȪȪȪȪȪȪȪȪȪw","wooooooooooow","woƁoooooƗooow","woooƁooƁoooow","woƗoooooƁooow","wooooooooooow","wwwwwwʋwwwwww"];
+mkMap("torre2",rowsGrid(ICE0),"El castillo · Piso 2: la cámara del hielo","verbena",[6,13,"up"],{},{"Ɨ":"Un bloque de hielo. Empújalo: resbala hasta chocar.","Ȫ":"Un foso. Un bloque de hielo dentro serviría de puente.","Ɓ":"Un barril congelado. Sirve de tope."});
+const iceReset=()=>{MAPS.torre2.g=rowsGrid(ICE0);MAPS.torre2.g[13][1]="ʓ"};iceReset();
+function pushIce(bx,by,dx,dy){const g=MAPS.torre2.g;let x=bx,y=by,moved=0;while(true){const nx=x+dx,ny=y+dy,c=g[ny]&&g[ny][nx];if(c==="Ȫ"){g[by][bx]="o";g[ny][nx]="ʭ";return"puente"}if(c!=="o"&&c!=="ʭ"||NPCS.some(n=>n.map==="torre2"&&n.x===nx&&n.y===ny&&npcVisible(n)))break;x=nx;y=ny;moved++}if(!moved)return null;g[by][bx]="o";g[y][x]="Ɨ";return"mueve"}
+WALK.add("ʭ");
+// ---------- PISO 3: la guerra de los cubitos ----------
+mkMap("torre3",rowsGrid(["wwwwwwwwwwwww","wwwwwwʌwwwwww","wwwwwwowwwwww","wooooooooooow","woʄʄʄoooʄʄʄow","woʄʄʄoƁoʄʄʄow","wooooooooooow","wƁoʄʄʄʄʄʄʄoƁw","wooʄʄʄʄʄʄʄoow","wooooooooooow","woʄʄoƁoƁoʄʄow","woʄʄoooooʄʄow","wooooooooooow","wooooooooooow","wwwwwwʋwwwwww"]),"El castillo · Piso 3: la guerra de los cubitos","verbena",[6,13,"up"],{},{"Ɓ":"Un barril. Los peñistas te tiran hielo desde los balcones."});
+// ---------- PISO 4: la azotea del Rey ----------
+mkMap("torre4",rowsGrid(["wwwwwwwwwww","wtoooooootw","wooooooooow","wooooooooow","wtoooooootw","wooooooooow","wooooooooow","wooooooooow","wwwwwʋwwwww"]),"El castillo · La azotea del Rey","lolo",[5,7,"up"],{},{t:"Un barril con la bandera de la Peña. Desde aquí arriba se ve todo Hoyales… y las bodegas del cerro."});
+for(const k of Object.keys(STAIRS))if(k.startsWith("torre"))delete STAIRS[k];
+Object.assign(STAIRS,{"torre1,6,1":["torre2",6,13,"up",""],"torre2,6,14":["torre1",6,2,"down",""],"torre2,6,1":["torre3",6,13,"up",""],"torre3,6,14":["torre2",6,2,"down",""],"torre3,6,1":["torre4",5,7,"up",""],"torre4,5,8":["torre3",6,3,"down",""]});
+(function(){const put=(id,o)=>{const n=npcById(id);if(n)Object.assign(n,o)};put("torrea",{map:"torre2",x:6,y:2,dir:"down",sight:1});put("torreb",{map:"torre3",x:6,y:2,dir:"down",sight:1});put("reypena",{map:"torre4",x:5,y:2,dir:"down"})})();
+// los aspirantes se apartan al perder
+function torreAside(){for(const[id,m]of[["torrea","torre2"],["torreb","torre3"]]){const n=npcById(id);if(!n)continue;const done=!!(S&&S.beaten&&S.beaten[id]);if(id==="torrea"){MAPS[m].g[2][6]="o";n.x=done?4:6;n.y=2}else{MAPS[m].g[2][5]=done?"o":"w";n.x=done?5:6;n.y=2}}}
+const doorT1=(()=>{const _i=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);
+ if(S.map==="torre2"&&ch==="Ɨ"){const r=pushIce(fx,fy,fx-S.x,fy-S.y);if(r==="puente"){sfx("super");FX.shake=now()+200;toast("🧊 El bloque cae al foso: ¡ahora es un puente!")}else if(r){sfx("plop")}else{sfx("weak");toast("No se mueve en esa dirección")}return}
+ if(S.map==="torre2"&&ch==="ʓ"){iceReset();torreAside();sfx("door");await say("Tiras de la palanca y los bloques de hielo vuelven a su sitio.");return}
+ return _i()}})();
+// empujar andando contra el bloque
+const _cwIce=canWalk;canWalk=function(x,y){if(S&&S.map==="torre2"&&MAPS.torre2.g[y]&&MAPS.torre2.g[y][x]==="Ɨ"){if(performance.now()-(canWalk.t||0)>350&&Math.abs(x-S.x)+Math.abs(y-S.y)===1&&mode==="world"&&!busy&&held.length){canWalk.t=performance.now();const r=pushIce(x,y,x-S.x,y-S.y);if(r){sfx(r==="puente"?"super":"plop");if(r==="puente")toast("🧊 ¡Puente de hielo!")}}return false}return _cwIce(x,y)};
+// resbalar en el calimocho
+const _osCa=onStep;onStep=async function(){if(/^torre/.test(S.map)&&tileAt(S.x,S.y)==="ʄ"){const[dx,dy]=DIRS[S.dir];if(canWalk(S.x+dx,S.y+dy)){if(rnd()<.3)sfx("plop");startMove(S.x+dx,S.y+dy);return}}return _osCa()};
+// ---------- la guerra de cubitos: sombras de aviso, 3 vidas ----------
+let CUBES=[],VIDAS=3,cubeT=0,hitCD=0;
+setInterval(()=>{if(!S||S.map!=="torre3"||mode!=="world"||busy||!dlg.hidden||!ov.hidden){CUBES=[];return}const t=performance.now();
+ if(S.y>=3&&S.y<=12&&t-cubeT>520){cubeT=t;const[dx,dy]=DIRS[S.dir];const aim=Math.random()<.4?[S.x,S.y]:Math.random()<.5?[S.x+dx*(P.moving?2:1),S.y+dy*(P.moving?2:1)]:[S.x+ri(-3,3),S.y+ri(-2,2)];const[x,y]=aim;const c=(MAPS.torre3.g[y]||[])[x];if(c&&c!=="w"&&c!=="Ɓ"&&y>=3&&y<=12)CUBES.push({x,y,t0:t,from:Math.random()<.5?-1:1})}
+ for(const c of CUBES){if(!c.done&&t-c.t0>1050){c.done=true;sfx("puchero");const px_=P.moving&&P.prog>.5?P.tx:S.x,py=P.moving&&P.prog>.5?P.ty:S.y;if(c.x===px_&&c.y===py&&t>hitCD){hitCD=t+900;VIDAS--;flash("#9fe8ff",220);FX.shake=now()+260;if(VIDAS<=0){VIDAS=3;CUBES=[];run(async()=>{await fadeOut();S.x=6;S.y=13;S.dir="up";P.moving=false;pushPresence();await fadeIn();await say("[risa]Peñista: ¡Tres hielazos! ¡Al principio, a secarse!")})}else toast("🧊 ¡Hielazo! Te quedan "+VIDAS+" vidas")}}}
+ CUBES=CUBES.filter(c=>t-c.t0<1400)},40);
+const _oemCa=onEnterMap;onEnterMap=async function(){if(S.map==="torre2")iceReset();if(/^torre[23]$/.test(S.map))torreAside();if(S.map==="torre3"){VIDAS=3;CUBES=[];cubeT=performance.now()+1500}await _oemCa();
+ const once=async(m,l)=>{if(S.map===m&&!S.flags["in2_"+m]){S.flags["in2_"+m]=true;save();await sayAll(l)}};
+ await once("torre1",["PISO 1 · LA BODEGA DEL CALIMOCHO. Han reventado tres cubas y el suelo está empapado.","En el calimocho resbalas hasta chocar con una pared o un barril. Piensa hacia dónde te lanzas antes de dar el paso."]);
+ await once("torre2",["PISO 2 · LA CÁMARA DEL HIELO. Aquí la peña guarda el hielo de las fiestas.","Dos fosos cortan el paso. Anda contra un bloque de hielo para empujarlo: resbala hasta chocar. Si cae en un foso, hace de puente.","Si lo atascas, tira de la palanca roja de abajo a la izquierda."]);
+ await once("torre3",["[grito]Peñista: ¡GUERRA DE CUBITOS! ¡Al de la riñonera!","PISO 3. Te lanzan cubitos desde los balcones. La sombra avisa de dónde van a caer. Tienes 3 vidas… y el suelo sigue resbalando."])};
+const _asideLoop=setInterval(()=>{if(S&&mode==="world"&&!busy&&/^torre[23]$/.test(S.map))torreAside()},250);
+// la puerta de la torre lleva al piso 1
+const _intDo=interact;interact=async function(){const[fx,fy]=facing();if(S.map==="hoyales"&&tileAt(fx,fy)==="Ʈ"){if(S.keys&&S.keys.llaveTorre||S.flags.hoyales){await warp("torre1",6,13,"up");return}await say("La puerta de la torre está cerrada con llave. Arriba se oye al Rey de la Peña cantando.");return}return _intDo()};
+// escena del Rey en la azotea
+const _reyCa=TALK2.reypena;TALK2.reypena=async(n)=>{if(S.flags.hoyales)return _reyCa(n);cineOn();const r=npcById("reypena");
+ await sayAll(["La azotea del castillo. Abajo, todo Hoyales de fiesta: guirnaldas, cohetes y la charanga tocando.","[risa]Rey de la Peña: ¡Cuarenta fiestas sin dormir y por fin alguien sube hasta aquí sin romperse la crisma!"]);
+ FIREWORKS=performance.now();sfx("super");await sleep(900);
+ await sayAll(["[pena]Rey de la Peña: Antes de pegarnos… Yo de joven tocaba el bombo en las fiestas de un pueblo que se llamaba Valdeseco.","[susto]Rey de la Peña: La última noche que toqué allí, el pueblo ardió. Desde entonces no duermo. Y ahora alguien está matando a los que estuvimos.","[grito]Rey de la Peña: ¡Pero eso luego! ¡Ahora, QUE SUENE LA CHARANGA!"]);S.pruebas=S.pruebas||{};S.pruebas.bombo=1;cineOff();return _reyCa(n)};
+let FIREWORKS=0;
+const _rwCa=renderWorld;renderWorld=function(t){_rwCa(t);if(!/^torre/.test(S.map))return;const[ox,oy]=camOf(MAP()),tn=performance.now();
+ if(S.map==="torre2"){const wx=P.moving?P.fx+(P.tx-P.fx)*P.prog:S.x,wy=P.moving?P.fy+(P.ty-P.fy)*P.prog:S.y,cx=wx*T-ox+8,cy=wy*T-oy+4;const g=ctx.createRadialGradient(cx,cy,50,cx,cy,190);g.addColorStop(0,"rgba(20,50,90,.06)");g.addColorStop(1,"rgba(6,14,34,.62)");ctx.fillStyle=g;ctx.fillRect(0,0,SW,SH)}
+ if(S.map==="torre3"){for(const x of[0,12])for(const y of[4,7,10]){const X=x*T-ox,Y=y*T-oy,wave=Math.floor(tn/220+x+y)%2;px(X+2,Y+3,12,9,"#5a3a1a");px(X+5,Y-2+wave,6,7,"#f4f4f4");px(X+5,Y+2+wave,6,2,"#c8202a");ctx.fillStyle="#e0a878";ctx.beginPath();ctx.arc(X+8,Y-5+wave,3.4,0,7);ctx.fill();if(wave)px(x?X+1:X+12,Y-4,3,2,"#e0a878")}
+  for(const c of CUBES){const k=(tn-c.t0)/1050,X=c.x*T-ox+8,Y=c.y*T-oy+9;if(k<1){ctx.globalAlpha=.25+.5*k;ctx.fillStyle="#0a1a2a";ctx.beginPath();ctx.ellipse(X,Y+2,3+k*5,2+k*2.6,0,0,7);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle=k>.65?"#ff4a3a":"#9fe8ff";ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(X,Y+2,8,4.4,0,0,7);ctx.stroke();const sx=X+c.from*(1-k)*70,sy=Y-(1-k)*60-Math.sin(Math.PI*k)*18;ctx.save();ctx.translate(sx,sy);ctx.rotate(tn/90);ctx.fillStyle="#cfefff";ctx.fillRect(-4,-4,8,8);ctx.fillStyle="#fff";ctx.fillRect(-3,-3,3,3);ctx.restore()}else{for(let i=0;i<6;i++){const a=i/6*6.28,d=(k-1)*40;px(X+Math.cos(a)*d,Y+Math.sin(a)*d*.5,2,2,"#e8f8ff")}}}
+  TXTCAP=true;try{ctx.font="bold 9px Arial";ctx.textAlign="left";ctx.fillStyle="#fff";ctx.fillText("Vidas: "+"❤️".repeat(VIDAS),6,12)}finally{TXTCAP=false}}
+ if(S.map==="torre4"){const k=FIREWORKS?(tn-FIREWORKS)/1000:99;for(let f=0;f<4;f++){const ph=((tn/1600+f*.27)%1);if(k>6&&f>1)continue;const X=30+f*55,Y=22+(f%2)*16,col=["#ff4ad0","#ffd14a","#4ad8ff","#7aff6a"][f];ctx.globalAlpha=1-ph;for(let i=0;i<12;i++){const a=i/12*6.28;px(X+Math.cos(a)*ph*24,Y+Math.sin(a)*ph*24+ph*ph*8,2,2,col)}ctx.globalAlpha=1}}};
+// ---------- dibujo ----------
+const _dtCa=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(/^torre/.test(S.map)){const base=()=>_dtCa("o",x,y,sx,sy,t,style);
+  if(ch==="ʄ"){base();px(sx,sy,T,T,S.map==="torre3"?"rgba(170,220,255,.55)":"rgba(110,20,50,.72)");const o=Math.floor(t/300+x+y)%4;px(sx+2+o*3,sy+4,5,1,"rgba(255,255,255,.55)");px(sx+(o*4)%11,sy+11,4,1,"rgba(255,255,255,.35)");return}
+  if(ch==="Ɓ"){base();ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(sx+8,sy+14,7,2.4,0,0,7);ctx.fill();ctx.fillStyle="#8a5a2a";ctx.beginPath();ctx.ellipse(sx+8,sy+7,6.5,8,0,0,7);ctx.fill();px(sx+2,sy+3,12,2,"#3a2a1a");px(sx+2,sy+10,12,2,"#3a2a1a");px(sx+5,sy-1,6,2,"#a8743a");return}
+  if(ch==="Ɨ"){base();ctx.fillStyle="rgba(0,0,0,.3)";ctx.fillRect(sx+2,sy+13,14,3);px(sx+1,sy-2,14,16,"#9fd8f4");px(sx+2,sy-1,12,5,"#e0f6ff");px(sx+3,sy+5,3,8,"#cdeeff");px(sx+10,sy+7,2,5,"#7ab8e0");px(sx+1,sy+12,14,2,"#6aa8d0");return}
+  if(ch==="Ȫ"){px(sx,sy,T,T,"#05030a");px(sx,sy,T,3,"#3a3028");if((hash(x,y)+Math.floor(t/500))%11===0)px(sx+6,sy+9,2,1,"#4a6a8a");return}
+  if(ch==="ʭ"){px(sx,sy,T,T,"#05030a");px(sx,sy+1,T,14,"#8ac8e8");px(sx+1,sy+2,14,4,"#d8f2ff");px(sx+7,sy+2,1,12,"#6aa8d0");return}
+  if(ch==="ʓ"){base();px(sx+4,sy+10,8,4,"#5a5a5a");px(sx+7,sy+1,2,10,"#8a8a9a");ctx.fillStyle="#e23b2a";ctx.beginPath();ctx.arc(sx+8,sy+1,3.4,0,7);ctx.fill();return}}
+ return _dtCa(ch,x,y,sx,sy,t,style)};
+WALK.delete("ʓ");
+if(typeof ZENV!=="undefined")Object.assign(ZENV,{torre4:"ztorre"});Object.assign(MAPNAME,{torre1:"El castillo · Piso 1",torre2:"El castillo · Piso 2",torre3:"El castillo · Piso 3",torre4:"La azotea del Rey"});
+LOGROS.push({id:"testigos",n:"El detective de la verbena",d:"Reúne los cuatro testimonios y descubre quién miente.",ic:"🔎",ok:()=>!!S.flags.hLiar,rw:{money:300}});
+
+/*</B4CASTILLO>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

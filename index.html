@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="95 · Arreglado el muro de la torre de Hoyales · plazas y gráficos con más vida";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="96 · Escenas con retratos expresivos, saltitos, zoom y voces";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -4783,7 +4783,7 @@ function drawWorldMap(c,dest,from,fly){const x=c.getContext("2d"),W=360,H=220;le
   if(fly.spr){const s=fly.spr,h=40,w=s.width*h/s.height;x.save();x.translate(fly.x,fly.y+Math.sin(t/120)*3);if(dest.mx<from.mx)x.scale(-1,1);x.drawImage(s,-w/2,-h/2,w,h);x.restore()}}
 // ---- Menú principal con Medallero y Vuelo ----
 mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallero",()=>medallero()],["🏆 Logros",()=>logrosScreen()]];
-  if(typeof petMenu==="function"&&S.pets&&Object.keys(S.pets).length)L.push(["🐾 Mascota",()=>petMenu()]);
+  if(typeof petMenu==="function"&&S.pets&&Object.keys(S.pets).length)L.push(["🐾 Mascota",()=>petMenu()]);if(typeof toggleVoz==="function")L.push([VOZ?"🗣️ Voces: sí":"🔇 Voces: no",()=>toggleVoz()]);
   if(S.flags.vuelo)L.push(["🕊️ Vuelo",async()=>{await vuelo();return"close"}]);
   L.push(["📡 Radar",()=>radar()],["📜 Misiones",()=>say(questLines().join("\n"))],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["🎚️ Volumen"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],["✖️ Cerrar",null]);
   const i=await choose(`${S.name||"Menú"} · ${S.money} pavos${S.fichas?` · ${S.fichas} fichas`:""}`,L.map(([label])=>({label})));
@@ -5806,63 +5806,106 @@ battle=async function(team,opts){const tr=opts&&opts.trainer;if(tr&&tr.leader){c
 
 /*</B4FIX2>*/
 /*<B4CINE>*/
-/* ===================== HISTORIA · Cinemáticas «Mientras tanto…»: la sombra del Profe ===================== */
-// Escena a pantalla completa con franjas de cine, título, decorado animado y diálogo que se escribe solo.
-function cutaway(o){return new Promise(res=>{
-  overlay(`<div style="position:fixed;inset:0;background:#000;cursor:pointer" id="ct"><canvas id="ct-c" style="width:100%;height:100%;display:block"></canvas>
-    <div id="ct-t" style="position:absolute;left:6%;right:6%;bottom:13%;font:600 clamp(16px,2.6vw,24px) Rubik,Arial;color:#f4e7d4;text-shadow:0 2px 6px #000;min-height:3em"></div>
-    <div style="position:absolute;right:4%;bottom:4%;font:12px Rubik,Arial;color:#8a7560">Toca o pulsa para seguir</div></div>`,{onB:()=>{}});
-  const c=$("ct-c"),x=c.getContext("2d");let W=innerWidth,H=innerHeight;c.width=W;c.height=H;
-  const t0=performance.now();let li=-1,shown=0,lineT=0,done=false,raf=0;const L=o.lines;
-  const next=()=>{if(done)return;const full=L[li]||"";if(li>=0&&shown<full.length){shown=full.length;return}li++;shown=0;lineT=performance.now();if(li>=L.length){done=true;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);closeOverlay();res();return}sfx("blip")};
-  const kd=e=>{e.preventDefault();e.stopPropagation();next()};addEventListener("keydown",kd,true);$("ct").onclick=next;
-  const tick=nw=>{const el=(nw-t0)/1000;x.fillStyle="#000";x.fillRect(0,0,W,H);
-    (CUT_SCENES[o.scene]||CUT_SCENES.office)(x,W,H,el);
-    // franjas de cine y título
-    const bar=Math.min(H*.12,el*H*.4);x.fillStyle="#000";x.fillRect(0,0,W,bar);x.fillRect(0,H-bar,W,bar);
-    if(el<2.6){x.save();x.globalAlpha=Math.min(1,el*2)*(el>2?(2.6-el)/.6:1);x.fillStyle="#f2a93b";x.font=`700 ${Math.round(Math.min(W,H)*.045)}px "Pixelify Sans",Arial`;x.textAlign="center";x.fillText(o.title||"Mientras tanto…",W/2,H*.5);x.restore()}
-    else{if(li<0)next();const full=L[li]||"";shown=Math.min(full.length,Math.floor((nw-lineT)/28));$("ct-t").textContent=full.slice(0,shown)}
-    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
-// decorados
-const CUT_SCENES={
-  // despacho del Comisario, de noche, con el teléfono
-  phone(x,W,H,t){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0c1020");g.addColorStop(1,"#1a1a2a");x.fillStyle=g;x.fillRect(0,0,W,H);
-    for(let i=0;i<5;i++){x.fillStyle="#1e2436";x.fillRect(W*.62+i*W*.06,H*.18,W*.045,H*.3);x.fillStyle=Math.sin(t*3+i)>.2?"#3a6aff22":"#ff3a3a22";x.fillRect(W*.62+i*W*.06,H*.18,W*.045,H*.3)}
-    x.fillStyle="#3a2414";x.fillRect(W*.15,H*.62,W*.7,H*.06);x.fillStyle="#2a180c";x.fillRect(W*.18,H*.68,W*.04,H*.2);x.fillRect(W*.78,H*.68,W*.04,H*.2);
-    const cx=W*.42,cy=H*.72;try{const L=NPC_LOOK.comisario||{};x.imageSmoothingEnabled=false;drawCharBig(x,{h:"#8a8a8a",s:"#f1c27d",e:"#222",c:"#24346e",z:"#f2c14e",p:"#1a2a4a",k:"#111"},"down",cx,cy+Math.sin(t*2)*2,Math.max(4,H/90),L.hs||10,L.ts||8,true,L.acc,L)}catch(e){}
-    x.fillStyle="#c8202a";x.fillRect(cx+H*.07,cy-H*.22,H*.03,H*.08);x.fillStyle="#3a2414";x.fillRect(W*.15,H*.62,W*.7,H*.06);x.fillStyle="#5a3a1e";x.fillRect(W*.15,H*.62,W*.7,H*.012);if(Math.floor(t*4)%2){x.fillStyle="#fff";x.font=`${H*.03}px Arial`;x.fillText("📞",cx+H*.1,cy-H*.08)}
-    const lg=x.createRadialGradient(W*.3,H*.62,5,W*.3,H*.62,H*.4);lg.addColorStop(0,"rgba(255,220,150,.35)");lg.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=lg;x.fillRect(0,0,W,H)},
-  // la guarida del Profe: sillón de espaldas, brasa encendida, humo, pantallas con la Destiladex
-  office(x,W,H,t){x.fillStyle="#07060a";x.fillRect(0,0,W,H);
-    for(let i=0;i<6;i++){const sx=W*.08+i*W*.14,sy=H*.16;x.fillStyle="#10141a";x.fillRect(sx,sy,W*.12,H*.16);x.fillStyle=`rgba(80,220,140,${.25+.15*Math.sin(t*2+i)})`;x.fillRect(sx+4,sy+4,W*.12-8,H*.16-8);
-      x.fillStyle="rgba(200,255,220,.6)";for(let k=0;k<4;k++)x.fillRect(sx+10,sy+14+k*H*.03,(W*.12-20)*(.4+.5*Math.abs(Math.sin(i+k+t*.5))),2)}
-    x.fillStyle="#1a0e0a";x.beginPath();x.ellipse(W*.5,H*.95,W*.5,H*.08,0,0,7);x.fill();
-    x.fillStyle="#2a1410";x.beginPath();x.moveTo(W*.38,H*.9);x.lineTo(W*.36,H*.45);x.quadraticCurveTo(W*.5,H*.36,W*.64,H*.45);x.lineTo(W*.62,H*.9);x.closePath();x.fill();
-    x.fillStyle="#3a1c14";x.fillRect(W*.34,H*.62,W*.04,H*.2);x.fillRect(W*.62,H*.62,W*.04,H*.2);
-    const ex=W*.6,ey=H*.5+Math.sin(t*1.3)*4,br=.6+.4*Math.sin(t*5);x.fillStyle=`rgba(255,${120+80*br},40,1)`;x.beginPath();x.arc(ex,ey,5+br*2,0,7);x.fill();
-    const eg=x.createRadialGradient(ex,ey,1,ex,ey,40);eg.addColorStop(0,`rgba(255,140,40,${.4*br})`);eg.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=eg;x.fillRect(ex-40,ey-40,80,80);
-    for(let i=0;i<8;i++){const p=((t/4)+i/8)%1;x.fillStyle=`rgba(180,180,190,${.18*(1-p)})`;x.beginPath();x.arc(ex+Math.sin(t+i)*20*p,ey-p*H*.35,8+p*40,0,7);x.fill()}},
-  // Ganja Life de noche: una figura con una linterna y un bote de muestras
-  garden(x,W,H,t){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0a1418");g.addColorStop(1,"#10241a");x.fillStyle=g;x.fillRect(0,0,W,H);
-    for(let i=0;i<40;i++){x.fillStyle="#fff";if(Math.sin(t*2+i*7)>.3)x.fillRect((i*137)%W,(i*71)%(H*.4),2,2)}
-    for(let i=0;i<9;i++){const px=i*W/8,ph=H*.55+Math.sin(i)*20;x.fillStyle="#1a4a24";x.beginPath();x.moveTo(px,H);for(let k=0;k<7;k++){const a=-Math.PI/2+(k-3)*.42+Math.sin(t+i)*.03;x.lineTo(px+Math.cos(a)*H*.2,ph+H*.25+Math.sin(a)*H*.2);x.lineTo(px,H*.85)}x.fill()}
-    const fx=W*.55+Math.sin(t*.6)*W*.05;x.fillStyle="#0a0a0a";x.beginPath();x.ellipse(fx,H*.66,W*.035,H*.12,0,0,7);x.fill();x.beginPath();x.arc(fx,H*.5,H*.045,0,7);x.fill();
-    x.save();x.globalAlpha=.25;x.fillStyle="#fff8c0";x.beginPath();x.moveTo(fx+10,H*.6);x.lineTo(fx+W*.25,H*.85);x.lineTo(fx+W*.08,H*.95);x.fill();x.restore();
-    x.fillStyle="#8fd3f4";x.fillRect(fx-W*.04,H*.6,W*.015,H*.04);x.fillStyle="#3faa4a";x.fillRect(fx-W*.04,H*.62,W*.015,H*.02)}};
-
-// ---- Dónde salen ----
-const _pacoCut=pacoEvent;
-pacoEvent=async function(){const had=S.flags.gym;await _pacoCut();if(!had&&S.flags.gym&&!S.flags.cut1){S.flags.cut1=true;save();
-  await cutaway({scene:"phone",title:"Mientras tanto, en la Comisaría Central…",lines:["Comisario: ¿Sí? … Sí, señor. El chaval ha reabierto el Bar de Paco. Pérez y Gómez han salido corriendo.","Voz al teléfono: Tranquilo, Comisario. Que siga.","Comisario: ¿Que siga? ¡Pero si nos está destrozando el negocio!","Voz al teléfono: El chaval trabaja para nosotros. Solo que todavía no lo sabe.","Comisario: … Sí, Profe. Lo que usted diga, Profe."]})}};
-const _bobCut=TALK2.bobgym;
-TALK2.bobgym=async function(n){const had=S.flags.hoja;await _bobCut(n);if(!had&&S.flags.hoja&&!S.flags.cut2){S.flags.cut2=true;save();
-  await cutaway({scene:"garden",title:"Esa noche, en el Huerto de Bob…",lines:["Una figura con capucha se cuela entre las plantas de Bob con una linterna.","Figura: Kushecha, OG Kush, Pegamentín… Cuánta variedad. Cuánto potencial.","Figura: (guarda unas hojas en un bote) Para la colección del Profe.","Figura: El chaval ha hecho bien su trabajo. Sin Fumigón y sin La Pasma por aquí, nadie vigila el huerto.","La figura desaparece entre el humo. Solo queda un olor raro… a semillas y a tiza de pizarra."]})}};
-const _comCut=TALK2.comisario;
-TALK2.comisario=async n=>{const had=S.keys.expediente;await _comCut(n);if(!had&&S.keys.expediente)await sayAll(["Hojeas el expediente. En la última página hay una lista de transferencias mensuales.","Todas van al mismo sitio: «EL PROFE». Ni nombre, ni apellido. Solo «EL PROFE».","El Comisario (sudando): Eso… eso no lo has visto. Eso no existe. ¡Y el Profe tampoco!"])};
-const _loloCut=TALK2.lolo;
-TALK2.lolo=async n=>{const had=S.flags.neon;await _loloCut(n);if(!had&&S.flags.neon&&!S.flags.cut3){S.flags.cut3=true;save();
-  await sayAll(["Lolo Gramos: Una cosa más, chaval. El Comisario no es el jefe de nada. Él cobra, pero no manda.","Lolo Gramos: Manda un tal «Profe». Nadie le ha visto la cara. Dicen que siempre huele a tiza… y a otra cosa."]);
-  await cutaway({scene:"office",title:"Mientras tanto, en un sitio que nadie conoce…",lines:["Pantallas. Decenas de pantallas. En todas, la misma Destiladex: la tuya.","Voz: Tres medallas. Paco, Bob y Lolo… fuera de juego. Tres rivales menos.","Voz: Cada Pedomón que ve el chaval, lo veo yo. Cada uno que captura… lo apunto yo.","Voz: (da una calada larga) Sigue, chaval. Sigue limpiándome el camino.","Voz: Cuando acabes, el país entero será mío. Todo lo que se bebe, se fuma y se lía… pasará por mí."]})}};
+/* ===================== CINE 2: retratos expresivos, saltitos, zoom de cámara y VOZ en todos los diálogos ===================== */
+// ---------- fichas de los personajes que hablan: aspecto del retrato y voz ----------
+// g: "f"/"m" · p: tono · r: velocidad · look: {s piel, h pelo, c ropa, st peinado, ex:[extras], eye}
+const CAST={
+ justa:{n:["Doña Justa"],g:"f",p:.85,r:.92,look:{s:"#e8b890",h:"#b8b8b8",c:"#3a2a3a",st:"mono",ex:["cigarro","pendientes","arrugas"]}},
+ orejas:{n:["Orejas","Orejas el Orujero"],g:"m",p:.65,r:.95,look:{s:"#e09878",h:"#8a4a2a",c:"#6a4a2a",st:"calvo",ex:["orejas","barba","narizroja","tirantes"]}},
+ evaristo:{n:["Evaristo","Evaristo el Injertador"],g:"m",p:1.15,r:1.12,look:{s:"#f1c27d",h:"#d8d8d8",c:"#e8e8e0",st:"loco",ex:["gafasgordas","hoja","manchas"]}},
+ manolin:{n:["Manolín","Manolín el Tráiler"],g:"m",p:1.25,r:1.18,look:{s:"#d8a070",h:"#1a1a1a",c:"#f4f4f4",st:"cortinilla",ex:["palillo","bigote","tirantes"]}},
+ roca:{n:["Roca"],g:"f",p:1.05,r:.9,look:{s:"#f4dcd0",h:"#14101c",c:"#1a141e",st:"melena",ex:["ojeras","sombra","labios","gargantilla","mechon"]}},
+ casimiro:{n:["Casimiro","Casimiro el Flashes"],g:"m",p:.98,r:1.08,look:{s:"#f1c27d",h:"#6a4a2a",c:"#8a7a4a",st:"corto",ex:["gorra","camara","bigotillo"]}},
+ leandro:{n:["Don Leandro","Leandro","Don Leandro el Duty"],g:"m",p:.72,r:.88,look:{s:"#e8b488",h:"#2a2a30",c:"#1a1a2a",st:"engominado",ex:["traje","sonrisa","anillo","canas"]}},
+ candela:{n:["Candela","Candela la Torcedora"],g:"f",p:1.12,r:1,look:{s:"#a86a42",h:"#1a0e0a",c:"#c8402a",st:"panuelo",ex:["puro","aros","labios"]}},
+ timmy:{n:["Timmy","Timmy el Timador"],g:"m",p:1.18,r:1.2,look:{s:"#f1c8a0",h:"#c8802a",c:"#6a3a8a",st:"tupe",ex:["cuadros","guino","naipe"]}},
+ cogollo:{n:["Profesor Cogollo","El Profesor Cogollo","Cogollo"],g:"m",p:.9,r:.95,look:{s:"#f1c27d",h:"#d8d8d8",c:"#f4f4f4",st:"calvo",ex:["gafas","pajarita","barbita"]}},
+ paco:{n:["Paco"],g:"m",p:.75,r:1,npc:"paco",look:{s:"#e0a878",h:"#3a2a1a",c:"#f4f4f4",st:"corto",ex:["bigote","palillo"]}},
+ hassan:{n:["Hassan","Hassan el de las Placas"],g:"m",p:.8,r:.92,npc:"hassan",look:{s:"#b8784a",h:"#1a1a1a",c:"#f4e8c8",st:"fez",ex:["barba"]}},
+ chusta:{n:["El Chusta","Chusta"],g:"m",p:1.12,r:1.12,npc:"chusta",look:{s:"#e8b488",h:"#2a1a10",c:"#2a8a3a",st:"gorra",ex:["cigarro","pendientes"]}},
+ narrador:{n:[],g:"m",p:.95,r:1.04}};
+const SPEAKER={};for(const[k,v]of Object.entries(CAST))for(const n of v.n)SPEAKER[n.toLowerCase()]=k;
+// voz y género aproximados para el resto
+const FEMN=/^(abuela|se[ñn]ora|tía|t[ií]a|do[ñn]a|izaskun|yasmina|f[aá]tima|la |rosi|yoli|saray|jessi|vera|vane|loli|nerea|puri|mari|lola|lucia|luc[ií]a|monitora|camarera|encargada|influencer|guiri bailona|bailarina|maripili|rec?epcionista)/i;
+let LASTTALK=null;const _intCn=interact;interact=async function(){try{const[fx,fy]=facing();const n=npcAt(fx,fy);if(n)LASTTALK=n}catch(e){}return _intCn()};
+function parseSpeaker(txt){let ex=null;const m0=txt.match(/^\[(\w+)\]\s*/);if(m0){ex=m0[1];txt=txt.slice(m0[0].length)}
+ const m=txt.match(/^([A-ZÁÉÍÓÚÑ¡][^:\n«»"]{0,34}?)(?: \([^)]*\))?:\s/);if(!m)return{name:null,body:txt,ex,txt};
+ const name=m[1].trim();if(/^(sala|premios|puntuaci|misi|siguiente|l[ií]der|regla|reglas|ojo|nota|marcador|turno|llevas|recepci[oó]n|cartel|puede salir)/i.test(name))return{name:null,body:txt,ex,txt};return{name,body:txt.slice(m[0].length),ex,txt}}
+function guessMood(s){const t=s.toLowerCase();if(/jaja|jeje|je, je|ja, ja|😂|¡viva|¡bien|me encanta|olé/.test(t))return"risa";if(/muert|socorro|hostia|sangre|no puede ser|¡no+!|grito|asesin|cad[aá]ver/.test(t))return"susto";if(/¡[^!]*(fuera|me cago|c[oó]mo te atreves|se acab[oó]|mentira|quieto|alto|no te)|joder|co[ñn]o/.test(t))return"enfado";if(/…$|ay\b|lo siento|perd[ií]|pena|llor|difunt|nunca volv/.test(t))return"pena";if(/¿[^?]*\?\s*$|\?\!|¿qu[eé]\?|¿c[oó]mo\?/.test(t))return"duda";if(/chsss|secreto|entre t[uú] y yo|no se lo digas|je…|casualidad|ya veremos|digamos/.test(t))return"picaro";if((t.match(/¡/g)||[]).length>=2)return"grito";return"normal"}
+// busca al personaje que habla por su nombre, esté o no en la ficha
+const ALIAS={"rey de la peña":["reypena"],"el rey":["reypena"],"izaskun":["izaout","izaskun"],"mamá":["madre"],"el comisario":["hcomi","comisario"],"hostelero":["hostelero"],"dj burbuja":["djespuma"],"camarera yeni":["barespuma"],"lola influencer":["influ"],"abuela":["abuela"],"abuela luna":["luna"],"toni":["toni"],"toni del flotante":["toni"],"quinto":["quinto1"],"el mangas":["quinto2"],"tía petra":["petra"],"don anselmo":["cura"],"abuelo pérez":["perez"],"sacristán":["sacristan"],"charanga":["charanga1"],"fali":["charanga1"],"maite":["charanga2"],"txomin":["charanga3"],"don bombona":["capo"],"el sumiller":["cogollo","sumiller"]};
+function findByName(name){const nm=name.toLowerCase().trim(),base=nm.replace(/^(el|la|los|las) /,""),flat=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");const ids=(ALIAS[nm]||ALIAS[base]||[]).concat([flat(base),flat(base.split(" ")[0]),flat(base.split(" ").pop())]);
+ const all=NPCS.filter(n=>n.pal);for(const id of ids){const here=all.find(n=>n.id===id&&n.map===S.map&&n.x>=0);if(here)return here}for(const id of ids){const any=all.find(n=>n.id===id);if(any)return any}
+ return all.find(n=>n.trainer&&n.trainer.name&&flat(n.trainer.name+" "+(n.trainer.short||"")).includes(flat(base)))||null}
+// ---------- el retrato: busto grande con cara que cambia ----------
+function bustLook(key,name){if(key&&CAST[key].look)return CAST[key].look;const n=findByName(name)||(LASTTALK&&LASTTALK.map===S.map?LASTTALK:null);const pl=n&&n.pal;if(!pl)return null;const L=NPC_LOOK[n.id]||{},hs=L.hs!==undefined?L.hs:n.hs;
+ return{s:pl.s,h:pl.h,c:pl.c,st:hs===10?"calvo":[3,6,7,8].includes(hs)?"melena":hs===9?"mono":hs===5?"loco":hs===4?"gorra":"corto",ex:(L.beard==="full"?["barba"]:L.beard==="stache"?["bigote"]:[]).concat(L.hat==="poli"?["poli"]:[])}}
+function drawBust(g,L,mood,talk,t){const W=96,H=96;g.clearRect(0,0,W,H);const has=e=>L.ex&&L.ex.includes(e);const E=(x,y,rx,ry,c,rot)=>{g.fillStyle=c;g.beginPath();g.ellipse(x,y,rx,ry,rot||0,0,7);g.fill()};const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};const line=(pts,c,w)=>{g.strokeStyle=c;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(pts[0],pts[1]);for(let i=2;i<pts.length;i+=2)g.lineTo(pts[i],pts[i+1]);g.stroke()};
+ const bg={enfado:["#8a2018","#3a0a08"],susto:["#2a3a6a","#0a1028"],grito:["#9a5a10","#4a2a08"],risa:["#2a7a4a","#0e3a22"],pena:["#3a4a5a","#161e28"],duda:["#5a3a7a","#241438"],picaro:["#6a2a5a","#2a0e24"],normal:["#6a4a2a","#2a1a0e"]}[mood];const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,bg[0]);gr.addColorStop(1,bg[1]);g.fillStyle=gr;g.fillRect(0,0,W,H);
+ if(mood==="enfado"||mood==="grito"||mood==="susto"){for(let i=0;i<14;i++){const a=i/14*7+t/2000;line([48+Math.cos(a)*42,48+Math.sin(a)*42,48+Math.cos(a)*66,48+Math.sin(a)*66],"rgba(255,255,255,.18)",3)}}
+ const s=L.s,sd=shd(s,.82),h=L.h,c=L.c;const sy=mood==="susto"?-2:mood==="risa"?Math.sin(t/70)*1.5:0;g.save();g.translate(mood==="enfado"?Math.sin(t/35)*1.2:0,sy);
+ if(L.st==="melena"){E(48,48,31,36,h);R(18,48,60,40,h)}if(L.st==="mono")E(48,14,13,10,h);
+ // hombros
+ E(48,98,40,26,c);R(40,66,16,14,sd);if(has("traje")){g.fillStyle="#f4f4f4";g.beginPath();g.moveTo(38,76);g.lineTo(48,96);g.lineTo(58,76);g.fill();R(46,78,4,18,"#8a1a2a")}if(has("pajarita")){g.fillStyle="#7a1a2a";g.beginPath();g.moveTo(40,76);g.lineTo(56,84);g.lineTo(56,76);g.lineTo(40,84);g.fill()}if(has("tirantes")){R(24,78,6,18,"#8a2a1a");R(66,78,6,18,"#8a2a1a")}if(has("cuadros")){for(let i=12;i<86;i+=10){R(i,80,2,18,"rgba(255,220,80,.55)")}R(10,86,76,2,"rgba(255,220,80,.55)")}if(has("manchas")){E(30,88,4,3,"#5a8a2a");E(66,92,3,2,"#8a6a2a")}if(has("gargantilla"))R(39,70,18,3,"#0a0a0a");if(has("camara")){R(36,82,24,14,"#1a1a1a");E(48,89,5,5,"#6ab0e0");R(40,80,8,3,"#3a3a3a")}
+ // cabeza
+ E(48,44,23,27,s);E(25,46,5,7,s);E(71,46,5,7,s);if(has("orejas")){E(21,44,10,14,s);E(75,44,10,14,s);E(21,44,4,7,sd);E(75,44,4,7,sd)}
+ // pelo
+ if(L.st==="corto"){E(48,24,24,12,h);R(25,24,5,16,h);R(66,24,5,16,h)}else if(L.st==="melena"){g.fillStyle=h;g.beginPath();g.moveTo(24,46);g.quadraticCurveTo(20,14,48,15);g.quadraticCurveTo(76,14,72,46);g.quadraticCurveTo(66,26,52,24);g.quadraticCurveTo(36,30,30,32);g.fill()}else if(L.st==="mono"){E(48,24,25,11,h);R(24,24,5,20,h);R(67,24,5,20,h)}else if(L.st==="calvo"){E(27,36,4,9,h);E(69,36,4,9,h);E(40,22,6,3,"rgba(255,255,255,.35)")}else if(L.st==="loco"){for(let i=0;i<11;i++){const a=Math.PI+i/10*Math.PI;E(48+Math.cos(a)*24,36+Math.sin(a)*20,8,8,h)}}else if(L.st==="cortinilla"){E(27,34,5,10,h);E(69,34,5,10,h);for(let i=0;i<5;i++)line([28,26-i,50,18+i*1.6,68,26+i],h,1.6)}else if(L.st==="engominado"){g.fillStyle=h;g.beginPath();g.moveTo(25,36);g.quadraticCurveTo(26,12,56,15);g.quadraticCurveTo(74,18,71,36);g.quadraticCurveTo(62,24,44,27);g.quadraticCurveTo(32,28,25,36);g.fill();line([34,22,60,19],"rgba(255,255,255,.3)",1.5);if(has("canas")){R(26,32,3,10,"#c8c8c8");R(67,32,3,10,"#c8c8c8")}}else if(L.st==="tupe"){E(48,24,24,10,h);E(56,16,18,10,h,-.35);E(62,13,6,3,shd(h,1.4))}else if(L.st==="panuelo"){const pc="#e8b820";g.fillStyle=pc;g.beginPath();g.moveTo(24,36);g.quadraticCurveTo(28,10,48,11);g.quadraticCurveTo(70,10,72,36);g.quadraticCurveTo(48,22,24,36);g.fill();E(70,20,7,5,pc,.6);E(76,28,4,7,pc,.3);for(let i=0;i<6;i++)E(32+i*7,22+(i%2)*4,1.4,1.4,"#c8202a");R(24,34,3,22,h);R(69,34,3,22,h)}else if(L.st==="fez"){E(48,26,22,8,h);R(34,8,28,17,"#b81a1a");R(60,8,3,18,"#111")}else if(L.st==="gorra"){E(48,25,24,11,"#c8202a");R(44,27,34,5,"#a01a1a");E(30,38,4,9,h)}
+ if(has("mechon")){g.fillStyle="#b81a5a";g.beginPath();g.moveTo(52,22);g.lineTo(70,48);g.lineTo(60,26);g.fill()}
+ if(has("gorra")){E(48,24,24,10,"#4a5a3a");R(46,26,32,5,"#3a4a2a")}if(has("poli")){R(28,12,40,14,"#1a2450");R(24,24,48,5,"#0e1430");R(44,15,8,7,"#f2c14e")}
+ // cara: cejas, ojos, boca según el ánimo
+ const blink=(t%3200)<120&&mood!=="susto";const EY=44;
+ const brow={enfado:[[31,34,43,39],[65,34,53,39]],susto:[[31,34,43,30],[65,34,53,30]],pena:[[31,39,43,34],[65,39,53,34]],duda:[[31,36,43,36],[53,31,65,33]],picaro:[[31,38,43,36],[53,33,65,35]],grito:[[31,33,43,35],[65,33,53,35]],risa:[[31,35,43,34],[65,35,53,34]],normal:[[31,36,43,36],[53,36,65,36]]}[mood];for(const b of brow)line(b,L.st==="calvo"||has("canas")?"#6a5a4a":shd(h,.7),3);
+ if(has("sombra")){E(38,EY-1,8,6,"rgba(90,20,110,.6)");E(58,EY-1,8,6,"rgba(90,20,110,.6)")}if(has("ojeras")){line([32,50,38,52,44,50],"rgba(90,50,110,.8)",2);line([52,50,58,52,64,50],"rgba(90,50,110,.8)",2)}
+ for(const[ix,ex]of[[0,38],[1,58]]){const closed=blink||mood==="risa"||(has("guino")&&ix===1&&mood!=="susto");if(closed){line([ex-5,EY+1,ex,EY-(mood==="risa"?3:-1),ex+5,EY+1],"#1a0e08",2.4)}else{const r=mood==="susto"?6.5:mood==="enfado"?4:5;E(ex,EY,r,mood==="picaro"?2.6:r*.85,"#fff");const lx=mood==="picaro"?2:mood==="duda"?1.5:0;E(ex+lx,EY+(mood==="pena"?1:0),mood==="susto"?1.5:2.5,mood==="susto"?1.5:2.5,"#1a0e08");E(ex+lx-1,EY-1,.9,.9,"#fff")}}
+ line([48,48,45,56,49,57],sd,2);if(has("narizroja"))E(48,55,6,5,"#c84a3a");if(has("arrugas")){line([28,42,32,44],sd,1.3);line([68,42,64,44],sd,1.3);line([34,62,31,68],sd,1.3);line([62,62,65,68],sd,1.3)}
+ if(has("barba")){g.fillStyle=shd(h,.9);g.beginPath();g.moveTo(27,50);g.quadraticCurveTo(28,76,48,78);g.quadraticCurveTo(68,76,69,50);g.quadraticCurveTo(60,64,48,62);g.quadraticCurveTo(36,64,27,50);g.fill()}if(has("barbita"))E(48,72,8,5,"#d8d8d8");
+ // boca (se mueve cuando habla)
+ const MY=64,op=talk?(Math.floor(t/110)%3)*2.4:0;const lip=has("labios")?"#a81238":"#6a1a14";
+ if(mood==="susto"||mood==="grito"){E(48,MY+1,7,5+op,"#3a0a06");E(48,MY+4+op*.6,4,2,"#c85a5a")}else if(mood==="risa"){g.fillStyle="#3a0a06";g.beginPath();g.moveTo(37,MY-3);g.quadraticCurveTo(48,MY+15+op,59,MY-3);g.fill();R(40,MY-3,16,3,"#fff")}else if(mood==="enfado"){if(op){E(48,MY,8,2+op*.7,"#3a0a06");R(41,MY-2,14,2,"#fff")}else line([39,MY+3,48,MY-2,57,MY+3],lip,3)}else if(mood==="pena"){if(op)E(48,MY+1,5,1+op*.6,"#3a0a06");else line([40,MY+3,48,MY-1,56,MY+3],lip,2.6)}else if(mood==="picaro"||has("sonrisa")){if(op)E(49,MY,8,1+op*.7,"#3a0a06");else{line([39,MY-1,49,MY+3,60,MY-4],lip,2.8)}if(has("sonrisa")&&!op){R(43,MY,12,2.4,"#fff")}}else if(mood==="duda"){if(op)E(48,MY,4.5,1+op*.7,"#3a0a06");else line([42,MY+1,54,MY-1],lip,2.6)}else{if(op)E(48,MY,6,1+op*.8,"#3a0a06");else line([40,MY,48,MY+2,56,MY],lip,2.6)}
+ // extras delante
+ if(has("bigote")){E(42,59,9,3.4,shd(h,.8),.25);E(54,59,9,3.4,shd(h,.8),-.25)}if(has("bigotillo"))line([40,60,48,58,56,60],shd(h,.7),2.4);
+ if(has("gafas")||has("gafasgordas")){const w=has("gafasgordas")?11:9;g.strokeStyle="#1a1a1a";g.lineWidth=has("gafasgordas")?3.4:2;g.fillStyle="rgba(190,230,255,.22)";for(const ex of[38,58]){g.beginPath();g.ellipse(ex,EY,w,w*.85,0,0,7);g.fill();g.stroke()}line([38+w,EY,58-w,EY],"#1a1a1a",2)}
+ if(has("palillo"))line([55,MY+1,70,MY+6],"#d8b878",2);if(has("cigarro")){line([56,MY+1,72,MY+5],"#f4f0e0",3.4);R(71,MY+3,4,4,"#ff7a2a");for(let i=0;i<3;i++){const k=((t/900+i/3)%1);g.globalAlpha=.5*(1-k);E(75+Math.sin(k*5)*4,MY-k*26,2+k*3,2+k*3,"#d8d8d8");g.globalAlpha=1}}
+ if(has("puro")){line([56,MY+2,76,MY+7],"#7a4a22",6);R(75,MY+4,4,6,"#ff7a2a")}if(has("pendientes")){E(25,55,2.4,2.4,"#f2c14e");E(71,55,2.4,2.4,"#f2c14e")}if(has("aros")){g.strokeStyle="#f2c14e";g.lineWidth=2;for(const ex of[24,72]){g.beginPath();g.arc(ex,58,6,0,7);g.stroke()}}
+ if(has("anillo")){E(78,90,7,6,s);R(74,86,8,3,"#f2c14e")}if(has("hoja")){g.fillStyle="#3a9a3a";for(const a of[-1.9,-1.57,-1.2,-2.4,-.75]){g.beginPath();g.ellipse(76+Math.cos(a)*7,24+Math.sin(a)*7,7,2.2,a,0,7);g.fill()}}if(has("naipe")){g.save();g.translate(78,78);g.rotate(.25);R(-8,-12,16,24,"#fff");g.fillStyle="#c8202a";g.font="bold 13px Arial";g.textAlign="center";g.fillText("♥",0,5);g.restore()}
+ g.restore();
+ if(mood==="susto"){E(74,30+((t/40)%14),2.4,4,"#9fe0ff")}if(mood==="enfado"){line([72,14,80,22],"#ff4a3a",3);line([80,14,72,22],"#ff4a3a",3)}if(mood==="duda"){g.fillStyle="#ffd14a";g.font="900 24px Rubik,Arial";g.fillText("?",74,24+Math.sin(t/200)*3)}if(mood==="grito"){g.fillStyle="#ffd14a";g.font="900 26px Rubik,Arial";g.fillText("!",78,26+Math.sin(t/90)*3)}}
+// ---------- la voz (la pone el navegador) ----------
+let VOZ=(()=>{try{return localStorage.getItem("or_voz")!=="0"}catch(e){return true}})();
+const TTS=typeof window!=="undefined"&&window.speechSynthesis?window.speechSynthesis:null;let TTSV=[];
+const loadVoices=()=>{try{TTSV=TTS.getVoices().filter(v=>/^es/i.test(v.lang))}catch(e){TTSV=[]}};if(TTS){loadVoices();try{TTS.addEventListener("voiceschanged",loadVoices)}catch(e){}}
+const hashStr=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
+function voiceFor(key,name){const C=key?CAST[key]:null;if(C&&key!=="narrador")return{g:C.g,p:C.p,r:C.r};if(!name)return{g:"m",p:CAST.narrador.p,r:CAST.narrador.r};const h=hashStr(name),f=FEMN.test(name);return{g:f?"f":"m",p:(f?1.02:.68)+(h%38)/100,r:.94+(h%24)/100}}
+function ttsClean(s){return s.replace(/\*[^*]*\*/g," ").replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}]/gu," ").replace(/\(.*?\)/g," ").replace(/[«»"_]/g," ").replace(/(\w)-(\w)/g,"$1 $2").replace(/\s+/g," ").trim()}
+function ttsStop(){try{TTS&&TTS.cancel()}catch(e){}}
+function ttsSay(body,v){if(!TTS||!VOZ||muted)return;const text=ttsClean(body);if(!text||!/[a-záéíóúñ]/i.test(text))return;try{TTS.cancel();const u=new SpeechSynthesisUtterance(text.slice(0,420));u.lang="es-ES";if(TTSV.length){const fem=/helena|laura|m[oó]nica|paulina|elvira|female|mujer|sabina|dalia|paloma|marisol/i,mal=/pablo|jorge|diego|carlos|alvaro|álvaro|male|hombre|enrique|raul|raúl/i;const es=TTSV.filter(q=>/es-ES/i.test(q.lang)),pool=es.length?es:TTSV;u.voice=pool.find(q=>v.g==="f"?fem.test(q.name):(mal.test(q.name)&&!/female/i.test(q.name)))||pool[0]}
+ u.pitch=Math.max(.1,Math.min(2,v.p));u.rate=Math.max(.6,Math.min(1.6,v.r));u.volume=1;TTS.speak(u)}catch(e){}}
+function toggleVoz(){VOZ=!VOZ;try{localStorage.setItem("or_voz",VOZ?"1":"0")}catch(e){}if(!VOZ)ttsStop();toast(VOZ?"🗣️ Voces activadas":"🔇 Voces desactivadas")}
+// ---------- unir retrato, voz, saltito y cámara con cada diálogo ----------
+const PORT=document.createElement("canvas");PORT.width=96;PORT.height=96;PORT.id="portrait";
+const NTAG=document.createElement("div");NTAG.id="ntag";
+(function(){const st=document.createElement("style");st.textContent="#portrait{position:absolute;left:6px;bottom:calc(100% - 2px);width:clamp(84px,15vw,168px);height:clamp(84px,15vw,168px);image-rendering:pixelated;border:3px solid var(--amber,#f2a93b);border-radius:12px 12px 0 0;border-bottom:0;box-shadow:0 -4px 18px #0009;display:none}#portrait.pop{animation:portPop .28s ease-out}@keyframes portPop{0%{transform:translateY(24px) scale(.8);opacity:0}70%{transform:translateY(-6px) scale(1.05);opacity:1}100%{transform:none}}#ntag{position:absolute;left:calc(clamp(84px,15vw,168px) + 14px);bottom:calc(100% - 1px);background:var(--amber,#f2a93b);color:#1a0e04;font-weight:900;padding:3px 12px;border-radius:9px 9px 0 0;display:none;font-size:clamp(12px,1.8vw,16px);white-space:nowrap}#dlg.shake{animation:dlgShake .35s}@keyframes dlgShake{0%,100%{margin-left:0}20%{margin-left:-7px}40%{margin-left:6px}60%{margin-left:-4px}80%{margin-left:3px}}#cv,#whd{transition:transform .45s ease,transform-origin .45s ease}";document.head.appendChild(st);const d=$("dlg");d.appendChild(PORT);d.appendChild(NTAG)})();
+const pg=PORT.getContext("2d");let SPK=null;
+(function loop(){requestAnimationFrame(loop);if(!SPK||dlg.hidden||!SPK.look)return;const t=performance.now();try{drawBust(pg,SPK.look,SPK.mood,dlg.classList.contains("wait")?(t-SPK.t0<Math.min(4000,SPK.len*55)):true,t)}catch(e){}})();
+function speakerNpc(key,name){const here=NPCS.filter(n=>n.map===S.map&&n.x>=0&&npcVisible(n));if(key){const C=CAST[key];const n=here.find(q=>q.id===(C.npc||key));if(n)return n}if(name){const f=findByName(name);if(f&&f.map===S.map&&f.x>=0&&npcVisible(f))return f;if(LASTTALK&&LASTTALK.map===S.map&&LASTTALK.x>=0)return LASTTALK}return null}
+let ZOOMED=false;function camZoom(n){const cv=$("cv"),w=$("whd");if(!n){if(ZOOMED){ZOOMED=false;for(const e of[cv,w])if(e)e.style.transform=""}return}try{const[ox,oy]=camOf(MAP());const px_=Math.max(12,Math.min(88,((n.x*T-ox+8)/SW)*100)),py=Math.max(18,Math.min(72,((n.y*T-oy)/SH)*100));for(const e of[cv,w])if(e){e.style.transformOrigin=px_+"% "+py+"%";e.style.transform="scale(1.32)"}ZOOMED=true}catch(e){}}
+$("screen").style.overflow="hidden";
+function speakBegin(text){const P2=parseSpeaker(text);const key=P2.name?(SPEAKER[P2.name.toLowerCase()]||SPEAKER[P2.name.toLowerCase().replace(/^(el|la) /,"")]||null):null;
+ if(!P2.name){SPK=null;PORT.style.display="none";NTAG.style.display="none";ttsSay(P2.body,voiceFor(null,null));return P2}
+ const mood=P2.ex||guessMood(P2.body),npc=mode==="world"?speakerNpc(key,P2.name):null;const look=bustLook(key,P2.name);
+ const changed=!SPK||SPK.name!==P2.name||SPK.mood!==mood;SPK={name:P2.name,look,mood,t0:performance.now(),len:P2.body.length,npc};
+ if(look){PORT.style.display="block";if(changed){PORT.classList.remove("pop");void PORT.offsetWidth;PORT.classList.add("pop")}NTAG.textContent=P2.name;NTAG.style.display="block"}else{PORT.style.display="none";NTAG.style.display="none"}
+ if(mood==="grito"||mood==="enfado"||mood==="susto"){dlg.classList.remove("shake");void dlg.offsetWidth;dlg.classList.add("shake")}
+ if(npc){npc.hopAt=performance.now();npc.hops=mood==="grito"||mood==="enfado"||mood==="susto"?2:1;emote(npc,{enfado:"💢",susto:"😱",grito:"❗",risa:"😂",pena:"😔",duda:"❓",picaro:"😏",normal:"💬"}[mood],1300);if(CINE.on)camZoom(npc)}
+ ttsSay(P2.body,voiceFor(key,P2.name));if(look)P2.txt=P2.body;return P2}
+const _sayCine=say;say=function(text){if(CINE.on&&CINE.skip)return _sayCine(text);let shown=text;try{shown=speakBegin(String(text)).txt}catch(e){}return _sayCine(shown).then(v=>{ttsStop();return v})};
+const _chooseCine=choose;choose=function(q,opts,o){try{if(typeof q==="string"&&parseSpeaker(q).name)q=speakBegin(q).txt;else{SPK=null;PORT.style.display="none";NTAG.style.display="none"}}catch(e){}return _chooseCine(q,opts,o).then(v=>{ttsStop();return v})};
+const _closeDlgCine=closeDlg;closeDlg=function(){ttsStop();SPK=null;PORT.style.display="none";NTAG.style.display="none";return _closeDlgCine()};
+const _cineOffC=cineOff;cineOff=function(){camZoom(null);return _cineOffC()};
+setInterval(()=>{if(ZOOMED&&(!CINE.on||mode!=="world"))camZoom(null);if(!dlg.hidden)return;if(SPK){SPK=null;PORT.style.display="none";NTAG.style.display="none";ttsStop()}},350);
+// el personaje que habla da un saltito en el mapa
+const _rwHop=renderWorld;renderWorld=function(t){const moved=[];const n0=performance.now();for(const n of NPCS){if(n.map!==S.map||!n.hopAt)continue;const k=(n0-n.hopAt)/260;if(k>(n.hops||1)){n.hopAt=0;continue}moved.push([n,n.y]);n.y-=Math.abs(Math.sin(Math.PI*k))*.42}try{_rwHop(t)}finally{for(const[n,y]of moved)n.y=y}};
 
 /*</B4CINE>*/
 /*<B4FIX3>*/

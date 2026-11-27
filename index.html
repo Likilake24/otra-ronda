@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="79 · Nueva pantalla de inicio: 3 partidas guardadas, resumen de cada una y frases aleatorias";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="80 · Espuma Party en la playa, 5 máquinas, mascotas con habilidad, peinados locos, experiencia repartida, equipo 3+3";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -4783,6 +4783,7 @@ function drawWorldMap(c,dest,from,fly){const x=c.getContext("2d"),W=360,H=220;le
   if(fly.spr){const s=fly.spr,h=40,w=s.width*h/s.height;x.save();x.translate(fly.x,fly.y+Math.sin(t/120)*3);if(dest.mx<from.mx)x.scale(-1,1);x.drawImage(s,-w/2,-h/2,w,h);x.restore()}}
 // ---- Menú principal con Medallero y Vuelo ----
 mainMenu=async function(){while(true){const L=[["🍺 Equipo",()=>teamMenu(false)],["🎒 Mochila",()=>bagMenu(false)],["📖 Destiladex",()=>dexScreen()],["🏅 Medallero",()=>medallero()],["🏆 Logros",()=>logrosScreen()]];
+  if(typeof petMenu==="function"&&S.pets&&Object.keys(S.pets).length)L.push(["🐾 Mascota",()=>petMenu()]);
   if(S.flags.vuelo)L.push(["🕊️ Vuelo",async()=>{await vuelo();return"close"}]);
   L.push(["📡 Radar",()=>radar()],["📜 Misiones",()=>say(questLines().join("\n"))],["👥 Colegas",()=>colegasMenu()],["💾 Partida",()=>partidaMenu()],["🎚️ Volumen"+(muted?" (silencio)":" "+Math.round(MUSV*100)+"%"),()=>volumeMenu()],["✖️ Cerrar",null]);
   const i=await choose(`${S.name||"Menú"} · ${S.money} pavos${S.fichas?` · ${S.fichas} fichas`:""}`,L.map(([label])=>({label})));
@@ -8075,7 +8076,7 @@ MAPS.solresaca0={w:12,h:9,style:"casa",signs:{},builds:[],lamps:[],music:"neon2"
   txt:{h:"Un sofá con quemaduras de cigarro con forma de récord.",t:"Una mesa con fichas, una Coca-Cola caliente y un mando roto.",g:"Una planta de plástico a la que han hecho un récord: 3 años sin regar."}};
 const STAIRS={"pension,8,5":["pension2",7,5,"left","Subes a las habitaciones de la pensión."],"pension2,8,5":["pension",7,5,"left","Bajas a la recepción."],"torrecan,10,5":["torrecan2",9,6,"left","Subes a la azotea de la Torre Cangrejo."],"torrecan2,10,6":["torrecan",10,6,"down","Bajas al hall."],
   "solresaca,10,7":["solresaca0",9,6,"left","Bajas al sótano del Sol y Resaca. Huele a palomitas y a récord."],"solresaca0,10,6":["solresaca",9,7,"left","Subes al salón."]};
-const _stepSt=onStep;onStep=async function(){const k=S.map+","+S.x+","+S.y;if(STAIRS[k]){const[m,x,y,d,tx]=STAIRS[k];sfx("door");await warp(m,x,y,d);toast(tx);return}return _stepSt()};
+const _stepSt=onStep;onStep=async function(){const k=S.map+","+S.x+","+S.y;if(STAIRS[k]){const[m,x,y,d,tx]=STAIRS[k];sfx("door");await warp(m,x,y,d);return}return _stepSt()};
 Object.assign(PICKUPS,{pension2:{k:"rinomarca",n:3,t:"Debajo de una cama hay una bolsa de un guiri: 3 Riñoneras de marca y una chancla. Te quedas las riñoneras."},torrecan2:{k:"ibu",n:3,t:"En una tumbona de la azotea hay un neceser olvidado con 3 Ibuprofenos. Aquí arriba hace falta."}});
 Object.assign(PICK_AT,{"pension2,8,4":"pension2","torrecan2,6,6":"torrecan2"});
 NPC_LOOK.dave={hs:0,ts:2};NPC_LOOK.lucia={hs:6,ts:10};NPC_LOOK.jonathan={hs:4,ts:3,acc:{ag:2}};
@@ -8555,10 +8556,49 @@ const _upd7=updOnline;updOnline=function(){_upd7();const el=$("online");if(el)el
 /*<B4GACHA2>*/
 /* ===================== EL SALÓN DE LA SUERTE: 4 máquinas, mascotas que te siguen y 30 trofeos nuevos ===================== */
 // ---------- mascotas ----------
-const PETS=[{k:"michi",n:"Michi el gato",r:0,c:"#f2a93b"},{k:"canelo",n:"Canelo el perro",r:0,c:"#a8743a"},{k:"cangrejito",n:"Cangrejito",r:0,c:"#e23b2a"},{k:"ratilla",n:"Ratilla del garrafón",r:0,c:"#8a9a7a"},{k:"patito",n:"Pato de goma",r:0,c:"#f2d14e"},
- {k:"gaviotin",n:"Gaviotín",r:1,c:"#f4f4f4"},{k:"loro",n:"Loro pirata",r:1,c:"#2a9a48"},{k:"camellito",n:"Camellito",r:1,c:"#d8a85a"},{k:"chapita",n:"Tortuga Chapita",r:1,c:"#8cc860"},
- {k:"fantasmita",n:"Fantasmita",r:2,c:"#d8d0f8"},{k:"dragon",n:"Dragón de Mechero",r:2,c:"#c8202a"},{k:"unicornio",n:"Unicornio Kalimotxo",r:3,c:"#ff9ad0"},{k:"escorpion",n:"Escorpioncito",r:3,c:"#3a2a1a",special:true}];
-function drawPet(x,k,cx,cy,s,t){const P=PETS.find(p=>p.k===k);if(!P)return;const b=Math.abs(Math.sin((t||0)/180))*2*s,y=cy-b;const C=P.c;const el=(a,b2,rx,ry,col)=>{x.fillStyle=col;x.beginPath();x.ellipse(a,b2,rx,ry,0,0,7);x.fill()};
+// Mascotas de verdad, en pixel art, y cada una con una habilidad
+const PETS=[
+ {k:"salchicha",n:"Perro salchicha",r:0,hab:"Olfato",hd:"Cada 120 pasos olisquea un objeto pequeño.",
+  px:[".........bbb..",".........bkbbb",".b......ddbbbk","..bbbbbbddbb..","..bbbbbbbbbb..","..nnnnnnnnnn..","..d.d....d.d.."],pal:{b:"#9a5a2a",d:"#5a3216",n:"#d8a06a",k:"#111"}},
+ {k:"paloma",n:"Paloma de ciudad",r:0,hab:"Callejera",hd:"+10 % de captura.",
+  px:["........gg..",".......gkgd.",".......vvg..",".gg...vvvg..","..gggggggg..","..gllllggg..","...gggggg...",".....r.r...."],pal:{g:"#8a8a9a",k:"#111",d:"#3a3a3a",v:"#4a9a8a",l:"#c8c8d4",r:"#e88a9a"}},
+ {k:"gallina",n:"Gallina ponedora",r:0,hab:"Ponedora",hd:"Cada 150 pasos pone un huevo: +1 Ibuprofeno.",
+  px:["......rr..",".....rwr..",".....wkwy.","w....wwr..","ww...www..","wwwwwwww..",".wwgggww..","..wwwww...","...y.y....","..yy.yy..."],pal:{w:"#f4f0e8",r:"#d8202a",k:"#111",y:"#f2a02a",g:"#d8d0c0"}},
+ {k:"gatonaranja",n:"Gato naranja gordito",r:0,hab:"Glotón",hd:"Tras cada combate ganado, cura un 15 % a tu equipo.",
+  px:["........o..o","........oooo","........yooy","........oono",".o.....oooo.","..o.oooooo..","..oosososoo.","..oooooooooo","...oo.oo.oo."],pal:{o:"#f2a03a",s:"#c8742a",y:"#3a8a2a",n:"#e88a9a"}},
+ {k:"cabra",n:"Cabra montesa",r:0,hab:"Tozuda",hd:"+10 % de experiencia.",
+  px:[".........h.h.","........hh.h.","........bbbb.","........bkbbk",".b.......bbw.","..bbbbbbbbbw.","..bbbbbbbbb..","..bbbbbbbbb..","..b.b....b.b.","..b.b....b.b.","..k.k....k.k."],pal:{h:"#6a5a4a",b:"#c8a070",k:"#2a2a2a",w:"#f4f0e8"}},
+ {k:"chihuahua",n:"Chihuahua con jersey",r:1,hab:"Ladrador",hd:"Un 40 % menos de Pedomones salvajes por el camino.",
+  px:[".....tt.tt.",".....ttttt.",".....tktkt.","......tttk.",".t...rrrr..","..trrwwrr..","..rrrrrrr..","..t.t.t.t..","..t.t.t.t.."],pal:{t:"#d8b07a",k:"#111",r:"#c8202a",w:"#f4f4f4"}},
+ {k:"cerdito",n:"Cerdito vietnamita",r:1,hab:"Trufero",hd:"Cada 100 pasos encuentra entre 5 y 30 pavos.",
+  px:["........kk...",".......pppp..",".......pkppnn",".p....pppppnn","..pppppppppp.",".ppppppppppp.","..ppppppppp..","...p.p...p.p."],pal:{p:"#4a4a54",k:"#1a1a1a",n:"#e8a0a8"}},
+ {k:"tortuga",n:"Tortuga mora",r:1,hab:"Sabia",hd:"+25 % de experiencia a los Pedomones de menos de nivel 30.",
+  px:["...sssss......","..ssdssdss....",".ssssssssss.kk",".sdsssssssdkek",".ssssssssss.kk","..kk.....kk..."],pal:{s:"#6a8a3a",d:"#4a6a2a",k:"#9aba6a",e:"#111"}},
+ {k:"burro",n:"Burro zamorano",r:1,hab:"Currante",hd:"+25 % de pavos al ganar a entrenadores.",
+  px:[".........g..g",".........g..g",".........gggg","........ggkgg","........gggmm",".g.....gggmmk","..g....ggg...","..ggggggggg..","..ggggggggg..","..gmmmmmmgg..","..g.g...g.g..","..k.k...k.k.."],pal:{g:"#7a7a82",m:"#d8d8d0",k:"#2a2a2a"}},
+ {k:"galgo",n:"Galgo",r:2,hab:"Cazador",hd:"+20 % de captura.",
+  px:["..........gg..",".........gkgggk",".........gg....",".g......ggg....","..gggggggggg...","..ggggggggg....","...gg....gg....","...g.g...g.g...","...g.g...g.g...","..gg.gg.gg.gg.."],pal:{g:"#a8a8b2",k:"#111"}},
+ {k:"gatonegro",n:"Gato negro",r:2,hab:"Gafe al revés",hd:"Más suerte en las máquinas: el doble de premios épicos.",
+  px:["........o..o","........oooo","........yooy","........oono",".o.....oooo.","..o.oooooo..","..oosososoo.","..oooooooooo","...oo.oo.oo."],pal:{o:"#26262e",s:"#34343e",y:"#f2d14e",n:"#5a4a5a"}},
+ {k:"huron",n:"Hurón",r:2,hab:"Ladronzuelo",hd:"Al ganar a un entrenador, un 35 % de que le birle una Riñonera de marca.",
+  px:["...........cc.","..........cmkc","..........ccck",".mm......ccc..","..mcccccccc...","...ccccccc....","...m.m..m.m..."],pal:{c:"#e8d8b8",m:"#5a4a3a",k:"#111"}},
+ {k:"loro",n:"Loro que dice tacos",r:2,hab:"Chivato",hd:"Hace que salgan más Pedomones que aún no tienes, y te avisa.",
+  px:["...rr...","..rrrr..","..rwkry.","..rrryy.",".gggg...","ggbbg...","gbbbg...","gbbbg...",".ggg....","..yy....",".bb.....","bb......"],pal:{r:"#d8202a",w:"#f4f4f4",k:"#111",y:"#f2c14e",g:"#2a9a48",b:"#2a6ad0"}},
+ {k:"pitbull",n:"Pitbull bonachón",r:2,hab:"Entrenador",hd:"+20 % de experiencia.",
+  px:["..........pp..",".........wwppw.",".........wkwww",".w.......wwwwk","..w.....cccw..","..wwwwwwwwww..","..wwwwpppwww..","..wwwwwwwwww..","..ww.ww.ww.ww."],pal:{w:"#e8e0d8",p:"#8a7a6a",k:"#111",c:"#2a6ad0"}},
+ {k:"esfinge",n:"Gato esfinge",r:3,hab:"Místico",hd:"Los Pedomones brillantes salen 3 veces más.",
+  px:[".......oo.oo","........oooo","........yooy","........oono",".o.....oooo.","..o.oooooo..","..oosososoo.","..oooooooooo","...oo.oo.oo."],pal:{o:"#d8b0a8",s:"#c09088",y:"#4ad8ff",n:"#c87a8a"}},
+ {k:"escorpion",n:"Escorpioncito",r:3,special:true,hab:"Veneno",hd:"+15 % de captura y +15 % de experiencia.",
+  px:["..yb.........",".b..b........",".b...b.......","......b......","......bbbb.bb",".....bbbbbbb.","....b.b.b..b."],pal:{b:"#4a3218",y:"#f2c14e"}}];
+// las mascotas antiguas se cambian por las nuevas
+const PET_OLD={michi:"gatonaranja",canelo:"salchicha",cangrejito:"tortuga",ratilla:"huron",patito:"gallina",gaviotin:"paloma",camellito:"burro",chapita:"tortuga",fantasmita:"gatonegro",dragon:"esfinge",unicornio:"galgo"};
+function petFix(){if(!S||!S.pets)return;for(const[o,n]of Object.entries(PET_OLD))if(S.pets[o]){delete S.pets[o];S.pets[n]=1;if(S.pet===o)S.pet=n}if(S.pet&&!PETS.some(p=>p.k===S.pet))S.pet=null}
+setInterval(()=>{try{petFix()}catch(e){}},2000);
+const petHas=k=>!!(S&&S.pet===k);
+function drawPet(x,k,cx,cy,s,t){const P=PETS.find(p=>p.k===k);if(!P)return;const u=Math.max(1,s/.7),rows=P.px,h=rows.length,w=Math.max(...rows.map(r=>r.length));const b=Math.round(Math.abs(Math.sin((t||0)/180))*1.4)*u/1.5;
+ x.fillStyle="rgba(0,0,0,.22)";x.beginPath();x.ellipse(cx,cy+6*s,w*u*.4,2*s,0,0,7);x.fill();
+ const X0=Math.round(cx-w*u/2),Y0=Math.round(cy+6*s-h*u-b);for(let j=0;j<h;j++)for(let i=0;i<rows[j].length;i++){const c=P.pal[rows[j][i]];if(c){x.fillStyle=c;x.fillRect(X0+i*u,Y0+j*u,Math.ceil(u),Math.ceil(u))}}}
+function drawPetOld(x,k,cx,cy,s,t){const P=PETS.find(p=>p.k===k);if(!P)return;const b=Math.abs(Math.sin((t||0)/180))*2*s,y=cy-b;const C=P.c;const el=(a,b2,rx,ry,col)=>{x.fillStyle=col;x.beginPath();x.ellipse(a,b2,rx,ry,0,0,7);x.fill()};
  x.fillStyle="rgba(0,0,0,.22)";x.beginPath();x.ellipse(cx,cy+6*s,6*s,2*s,0,0,7);x.fill();
  if(k==="michi"||k==="canelo"){el(cx,y,7*s,5*s,C);el(cx+5*s,y-4*s,4.5*s,4*s,C);x.fillStyle=k==="michi"?C:"#6a3a1a";x.beginPath();x.moveTo(cx+2*s,y-7*s);x.lineTo(cx+3*s,y-11*s);x.lineTo(cx+5*s,y-7*s);x.moveTo(cx+6*s,y-7*s);x.lineTo(cx+8*s,y-11*s);x.lineTo(cx+9*s,y-7*s);x.fill();x.strokeStyle=C;x.lineWidth=2*s;x.beginPath();x.moveTo(cx-6*s,y);x.quadraticCurveTo(cx-11*s,y-6*s,cx-8*s,y-9*s);x.stroke()}
  else if(k==="cangrejito"){el(cx,y,7*s,5*s,C);for(const d of[-1,1]){el(cx+d*9*s,y-3*s,3*s,3*s,C);x.strokeStyle=C;x.lineWidth=1.5*s;x.beginPath();x.moveTo(cx+d*4*s,y+3*s);x.lineTo(cx+d*8*s,y+6*s);x.stroke()}}
@@ -8587,17 +8627,41 @@ const TOMBOLA=[{k:"t_rino",n:"3 Riñoneras",r:0,ic:"🎒",give:()=>{S.bag.rino=(
  {k:"t_gucci",n:"Riñonera Gucci",r:2,ic:"👛",give:()=>{S.bag.rinogucci=(S.bag.rinogucci||0)+1}},{k:"t_500",n:"¡500 pavos!",r:2,ic:"💰",give:()=>{S.money+=500}},{k:"t_bote",n:"¡EL BOTE! 2000 pavos",r:3,ic:"🏆",give:()=>{S.money+=2000}}];
 const MACHINES=[
  {id:"cabezona",n:"LA CABEZONA",sub:"Gafas, gorros y collares",col:"#c8202a",price:30,pool:()=>GACHA.filter(g=>ACCK.includes(g.k.slice(0,2))).map(g=>({k:g.k,n:ropaName(g.k),r:g.r,ic:ICON[g.k.slice(0,2)]}))},
- {id:"ropero",n:"EL ROPERO",sub:"Ropa, capas y peinados",col:"#2a6ad0",price:30,pool:()=>GACHA.filter(g=>CLOK.includes(g.k.slice(0,2))).map(g=>({k:g.k,n:ropaName(g.k),r:g.r,ic:ICON[g.k.slice(0,2)]}))},
- {id:"mascotas",n:"MASCOTABOLA",sub:"Mascotas que te siguen",col:"#2a9a48",price:40,pool:()=>PETS.filter(p=>!p.special).map(p=>({k:"pet_"+p.k,n:p.n,r:p.r,pet:p.k}))},
+ {id:"ropero",n:"EL ROPERO",sub:"Camisetas, pantalones, capas y calzado",col:"#2a6ad0",price:30,pool:()=>GACHA.filter(g=>CLOK.includes(g.k.slice(0,2))&&g.k.slice(0,2)!=="hs").map(g=>({k:g.k,n:ropaName(g.k),r:g.r,ic:ICON[g.k.slice(0,2)]}))},
+ {id:"pelucona",n:"LA PELUCONA",sub:"Peinados de lo más raro",col:"#b84ad8",price:35,pool:()=>GACHA.filter(g=>g.k.slice(0,2)==="hs").map(g=>({k:g.k,n:ropaName(g.k),r:g.r,hair:+g.k.slice(2)}))},
+ {id:"mascotas",n:"MASCOTABOLA",sub:"Mascotas con habilidades",col:"#2a9a48",price:40,pool:()=>PETS.filter(p=>!p.special).map(p=>({k:"pet_"+p.k,n:p.n,r:p.r,pet:p.k}))},
  {id:"tombola",n:"LA TÓMBOLA",sub:"Objetos, pavos y el BOTE",col:"#e6bc3a",price:20,pool:()=>TOMBOLA}];
-const GACHA_W=[[62,30,8,0],[62,30,8,0],[55,30,12,3],[60,26,11,3]];// pesos por rareza en cada máquina
+const GACHA_W=[[62,30,8,0],[62,30,8,0],[50,32,14,4],[55,30,12,3],[60,26,11,3]];// pesos por rareza en cada máquina
+// peinados de humor nuevos (se ganan en LA PELUCONA)
+HAIRS.push("Superguerrero rubio","Superguerrero moreno","Cresta mohicana","Flequillo cani con rayas","Afro gigante","Tupé de Elvis","Rastas hasta el suelo","Moño samurái","Calvo con un pelo","Cortinilla","Peluca torcida","Pelo de anime azul");SKIN_FIELDS[0][2]=HAIRS.length;
+GACHA.push({k:"hs15",r:3},{k:"hs16",r:2},{k:"hs17",r:1},{k:"hs18",r:0},{k:"hs19",r:1},{k:"hs20",r:2},{k:"hs21",r:2},{k:"hs22",r:1},{k:"hs23",r:0},{k:"hs24",r:0},{k:"hs25",r:1},{k:"hs26",r:3});
+const _heroHS=drawHero;drawHero=function(c2,X,Y,sc,pal0,dir,walk,bob,hs,ts,fat,acc,look){_heroHS(c2,X,Y,sc,pal0,dir,walk,bob,hs,ts,fat,acc,look);if(!(hs>=15))return;
+ const mir=dir==="right",D=mir?"left":dir;const F=(i,j,w,h,c)=>{if(!c||w<=0||h<=0)return;c2.fillStyle=c;const x=mir?16-i-w:i;c2.fillRect(X+x*sc,Y+(j<19?j-bob:j)*sc,w*sc,h*sc)};
+ const pal=look&&look.pal?Object.assign({},pal0,look.pal):pal0;let H=pal.h;if(hs===15)H="#f8d838";if(hs===16)H="#1a1a1a";if(hs===26)H="#3a8aff";const Hd=shd(H,.62),Hl=shd(H,1.45);
+ if(hs===15||hs===16){if(D==="up"){F(3,1,10,8,H);F(4,-1,2,2,H);F(7,-2,2,3,H);F(10,-1,2,2,H)}else if(D==="left"){F(4,1,8,3,H);F(9,-1,3,3,H);F(11,1,2,3,H);F(6,-2,3,3,H);F(4,0,2,2,H);F(3,3,1,2,H)}
+  else{F(4,2,8,2,H);F(3,0,2,3,H);F(5,-2,2,4,H);F(7,-3,2,5,H);F(9,-2,2,4,H);F(11,0,2,3,H);F(3,3,1,3,H);F(12,3,1,3,H);F(5,4,1,1,H);F(8,4,2,1,H);F(7,-2,1,2,Hl)}}
+ if(hs===17){if(D==="left")F(5,-3,7,4,H);else F(7,-3,2,D==="up"?11:6,H);F(7,-3,1,2,Hl)}
+ if(hs===18){if(D==="up")F(4,2,8,4,H);else if(D==="left"){F(4,2,7,2,H);F(4,4,3,1,H);F(9,4,1,1,Hd);F(9,6,1,1,Hd)}else{F(4,2,8,2,H);F(4,4,5,1,H);F(3,4,1,1,Hd);F(3,6,1,1,Hd);F(12,4,1,1,Hd);F(12,6,1,1,Hd)}}
+ if(hs===19){if(D==="up")F(1,-3,14,12,H);else{F(1,-3,14,7,H);F(0,0,2,6,H);F(14,0,2,6,H);if(D!=="left"){F(2,4,2,4,H);F(12,4,2,4,H)}else F(10,4,4,5,H);F(3,-2,3,1,Hl)}}
+ if(hs===20){if(D==="up")F(4,0,8,8,H);else if(D==="left"){F(3,-1,9,4,H);F(2,-2,4,2,H);F(9,3,2,4,H);F(4,-1,3,1,Hl)}else{F(4,2,8,2,H);F(3,-1,9,3,H);F(10,-2,3,2,H);F(3,3,1,4,H);F(12,3,1,4,H);F(5,-1,4,1,Hl)}}
+ if(hs===21){if(D==="up"){F(3,2,10,4,H);for(let i=3;i<13;i+=2)F(i,6,1,16,i%4?H:Hd)}else if(D==="left"){F(5,2,6,2,H);F(9,3,1,19,H);F(10,3,1,18,Hd);F(11,4,1,16,H)}else{F(4,2,8,2,H);F(3,3,1,18,H);F(12,3,1,18,H);F(2,4,1,16,Hd);F(13,4,1,16,Hd)}}
+ if(hs===22){if(D==="left"){F(5,2,6,2,H);F(8,-1,2,3,H);F(9,-2,3,2,H)}else{F(5,2,6,1,H);F(7,-1,2,3,H);F(6,-3,4,2,H);F(6,-3,2,1,Hl)}}
+ if(hs===23){F(8,0,1,2,H);F(9,-1,1,1,H)}
+ if(hs===24){if(D==="left"){F(4,3,7,1,H);F(9,4,2,2,H)}else{F(4,3,8,1,H);F(5,2,5,1,H);F(3,4,1,3,H);F(12,4,1,3,H)}}
+ if(hs===25){if(D==="left")F(3,0,8,3,H);else{F(6,0,9,4,H);F(13,3,2,4,H);F(5,1,2,1,H);F(7,0,3,1,Hl)}}
+ if(hs===26){if(D==="up"){F(2,1,12,10,H);F(3,-1,2,2,H);F(9,-1,2,2,H)}else if(D==="left"){F(4,1,8,3,H);F(9,3,4,7,H);F(11,9,3,3,H);F(5,-1,2,2,H);F(8,-1,2,2,H)}
+  else{F(3,1,10,3,H);F(2,3,2,6,H);F(12,3,2,6,H);F(4,4,2,2,H);F(7,4,2,3,H);F(10,4,2,2,H);F(4,-1,2,2,H);F(9,-1,2,2,H);F(1,6,2,4,H);F(13,6,2,4,H);F(5,1,3,1,Hl)}}};
 const owns=it=>it.pet?!!(S.pets&&S.pets[it.pet]):it.give?false:!!(S.accU&&S.accU[it.k]);
-function gachaPrize(mi){const M=MACHINES[mi],pool=M.pool(),w=GACHA_W[mi];let r=Math.random()*w.reduce((a,b)=>a+b,0),ri=0;for(;ri<4;ri++){if(r<w[ri])break;r-=w[ri]}
+function gachaPrize(mi){const M=MACHINES[mi],pool=M.pool(),w=GACHA_W[mi].slice();if(petHas("gatonegro")){w[2]*=2;w[3]*=2}let r=Math.random()*w.reduce((a,b)=>a+b,0),ri=0;for(;ri<4;ri++){if(r<w[ri])break;r-=w[ri]}
   let cand=pool.filter(p=>p.r===ri);while(!cand.length&&ri>0){ri--;cand=pool.filter(p=>p.r===ri)}return cand[Math.floor(Math.random()*cand.length)]}
+// dibujos de premios guardados (se pintan una vez; la silueta negra se saca del propio dibujo)
+const ART_CACHE={};function artC(key,w,h,fn,dark){if(ART_CACHE[key])return ART_CACHE[key];const c=document.createElement("canvas");c.width=w;c.height=h;const g=c.getContext("2d");try{fn(g)}catch(e){}if(dark){g.globalCompositeOperation="source-in";g.fillStyle="#0a0610";g.fillRect(0,0,w,h)}return ART_CACHE[key]=c}
+// muñeco de tu personaje con el peinado puesto (para ver los peinados dibujados)
+function hairDoll(x,hs,cx,top,sc){try{const sk=Object.assign({},(S&&S.skin)||defSkin());const pal=skinPal(sk);drawHero(x,Math.round(cx-8*sc),Math.round(top+4*sc),sc,pal,"down",0,0,hs,sk.ts||0,false,{},{})}catch(e){}}
 async function gachaMenu(){await gachaHall(0)}
-function gachaHall(start){return new Promise(res=>{let mi=start||0,spinning=false,anim=null,raf=0;const close=()=>{cancelAnimationFrame(raf);closeOverlay();res()};
+function gachaHall(start){return new Promise(res=>{let mi=start||0,spinning=false,anim=null,raf=0;const close=()=>{if(spinning&&anim&&anim.apply){anim.apply();anim.apply=null;save()}cancelAnimationFrame(raf);closeOverlay();res()};
  overlay(`<div style="display:flex;flex-direction:column;gap:8px;max-width:1100px;margin:0 auto"><canvas id="gh-c" width="960" height="560" style="width:100%;border-radius:14px;background:#140a1e;touch-action:none"></canvas>
-  <div class="btns wrap" style="justify-content:center"><button class="big alt" type="button" id="gh-p">◀ Máquina</button><button class="big" type="button" id="gh-s">🎰 ¡TIRAR!</button><button class="big alt" type="button" id="gh-n">Máquina ▶</button><button class="big alt" type="button" id="gh-pet">🐾 Mis mascotas</button><button class="big alt" type="button" id="gh-x">Salir</button></div></div>`,{onB:close});
+  <div class="btns wrap" style="justify-content:center"><button class="big" type="button" id="gh-s">🎰 ¡TIRAR! (${MACHINES[mi].price} pavos)</button>${MACHINES[mi].id==="mascotas"?`<button class="big alt" type="button" id="gh-pet">🐾 Mis mascotas</button>`:""}<button class="big alt" type="button" id="gh-x">Salir</button></div></div>`,{onB:close,focusId:"gh-s"});
  const c=$("gh-c"),x=c.getContext("2d");const balls=[...Array(26)].map((_,i)=>({a:Math.random()*7,d:Math.random()*.8,c:["#ff4ad0","#4ad8ff","#f2d14e","#7aff6a","#ff8a3a","#c87aff","#ffffff"][i%7]}));let crank=0;
  const machine=(t)=>{const M=MACHINES[mi],cx=230,cy=250;x.fillStyle="rgba(0,0,0,.35)";x.beginPath();x.ellipse(cx,520,170,22,0,0,7);x.fill();
    x.fillStyle=M.col;x.beginPath();x.roundRect(cx-150,300,300,215,22);x.fill();x.fillStyle="rgba(255,255,255,.15)";x.fillRect(cx-140,310,40,195);x.fillStyle="#1a0e1a";x.beginPath();x.roundRect(cx-60,420,120,70,14);x.fill();x.fillStyle="#2a1a2a";x.fillRect(cx-46,430,92,46);
@@ -8609,14 +8673,15 @@ function gachaHall(start){return new Promise(res=>{let mi=start||0,spinning=fals
    x.fillStyle=M.col;x.beginPath();x.roundRect(cx-40,cy-195,80,24,8);x.fill()};
  const card=(it,X,Y,w,h,t)=>{const rc=RARC[it.r].c,have=owns(it);x.fillStyle=have||it.give?"#2a1a3a":"#1a1020";x.beginPath();x.roundRect(X,Y,w,h,10);x.fill();x.strokeStyle=rc;x.lineWidth=it.r>=2?3:2;x.stroke();
    if(it.r>=2){x.save();x.globalAlpha=.25+.15*Math.sin(t/200+X);x.fillStyle=rc;x.beginPath();x.roundRect(X,Y,w,h,10);x.fill();x.restore()}
-   if(it.pet){if(have)drawPet(x,it.pet,X+w/2,Y+h*.6,2.2,t);else{x.save();x.filter="brightness(0)";drawPet(x,it.pet,X+w/2,Y+h*.6,2.2,0);x.restore()}}
+   if(it.pet)x.drawImage(artC("p"+it.pet+(have?"":"_d")+w,w,h,c=>drawPet(c,it.pet,w/2,h*.58,3.2,0),!have),X,Y);
+   else if(it.hair!==undefined)x.drawImage(artC("h"+it.hair+(have?"":"_d")+w,w,h,c=>hairDoll(c,it.hair,w/2,12,2.6),!have),X,Y);
    else{x.font=`${h*.45}px sans-serif`;x.textAlign="center";x.textBaseline="middle";if(!have&&!it.give){x.save();x.globalAlpha=.25;x.fillText(it.ic,X+w/2,Y+h*.45);x.restore()}else x.fillText(it.ic,X+w/2,Y+h*.45)}
    if(!have&&!it.give&&!it.pet){x.fillStyle="#ffffff";x.font="900 18px Rubik,Arial";x.textBaseline="middle";x.fillText("?",X+w-14,Y+14)}
    x.textBaseline="alphabetic";x.fillStyle=have||it.give?"#f4e7d4":"#8a7a9a";x.font="600 10px Rubik,Arial";x.textAlign="center";const nm=(have||it.give?it.n:"???");x.fillText(nm.length>18?nm.slice(0,17)+"…":nm,X+w/2,Y+h-7);if(have&&!it.give){x.fillStyle="#7aff6a";x.font="900 13px Arial";x.fillText("✔",X+12,Y+16)}};
  const board=(t)=>{const pool=MACHINES[mi].pool();const cols=4,w=118,h=92,X0=460,Y0=70;x.fillStyle="#ffd14a";x.font="900 22px Rubik,Arial";x.textAlign="left";
    const got=pool.filter(owns).length;x.fillText(MACHINES[mi].give?"PREMIOS":"PREMIOS · "+(pool[0]&&pool[0].give?"lo que puede tocar":got+" / "+pool.length+" conseguidos"),X0,46);
    pool.slice(0,16).forEach((it,i)=>card(it,X0+(i%cols)*(w+8),Y0+Math.floor(i/cols)*(h+8),w,h,t));
-   x.font="600 12px Rubik,Arial";RARC.forEach((r,i)=>{x.fillStyle=r.c;x.fillRect(X0+i*120,Y0+4*(h+8)+4,12,12);x.fillStyle="#f4e7d4";x.fillText(r.n+" "+["62%","30%","8%","raro"][i],X0+16+i*120,Y0+4*(h+8)+15)})};
+   x.font="600 12px Rubik,Arial";x.textAlign="left";RARC.forEach((r,i)=>{x.fillStyle=r.c;x.fillRect(X0+i*120,Y0+4*(h+8)+4,12,12);x.fillStyle="#f4e7d4";x.fillText(r.n+" "+["62%","30%","8%","raro"][i],X0+16+i*120,Y0+4*(h+8)+15)})};
  const tick=t=>{if(!c.isConnected)return;x.clearRect(0,0,960,560);const g=x.createLinearGradient(0,0,0,560);g.addColorStop(0,"#2a1040");g.addColorStop(1,"#0e0614");x.fillStyle=g;x.fillRect(0,0,960,560);
    for(let i=0;i<30;i++){x.fillStyle=["#ff4ad0","#4ad8ff","#f2d14e"][i%3];x.globalAlpha=.25+.25*Math.sin(t/300+i);x.beginPath();x.arc((i*97)%960,(i*53)%60+6,3,0,7);x.fill()}x.globalAlpha=1;
    x.fillStyle="#f4e7d4";x.font="600 16px Rubik,Arial";x.textAlign="left";x.fillText("💶 "+S.money+" pavos",16,28);
@@ -8624,22 +8689,26 @@ function gachaHall(start){return new Promise(res=>{let mi=start||0,spinning=fals
    if(anim){anim.ph=Math.min(3,anim.ph+(t-anim.t0)/1000*1.1);anim.t0=t;const it=anim.it,rc=RARC[it.r].c;
      if(anim.ph<1){crank=anim.ph*Math.PI*4}
      else if(anim.ph<2){const p=anim.ph-1,by=460+Math.abs(Math.sin(p*9))*(1-p)*-50;x.fillStyle=rc;x.beginPath();x.arc(230,by,26,0,7);x.fill();x.fillStyle="rgba(255,255,255,.7)";x.beginPath();x.arc(222,by-9,8,0,7);x.fill();if(it.r>=2){x.strokeStyle=rc;x.lineWidth=4;x.globalAlpha=.6;x.beginPath();x.arc(230,by,38+Math.sin(t/60)*6,0,7);x.stroke();x.globalAlpha=1}}
-     else{const p=Math.min(1,anim.ph-2);x.fillStyle="rgba(0,0,0,"+(.75*p)+")";x.fillRect(0,0,960,560);x.save();x.translate(480,260);x.rotate((1-p)*.5);x.scale(.3+.7*p,.3+.7*p);
+     else{if(anim.apply){anim.apply();anim.apply=null}const p=Math.min(1,anim.ph-2);x.fillStyle="rgba(0,0,0,"+(.75*p)+")";x.fillRect(0,0,960,560);x.save();x.translate(480,260);x.rotate((1-p)*.5);x.scale(.3+.7*p,.3+.7*p);
        for(let i=0;i<16;i++){x.save();x.rotate(i*Math.PI/8+t/900);x.fillStyle=rc;x.globalAlpha=.25;x.fillRect(-6,40,12,220);x.restore()}x.globalAlpha=1;x.fillStyle="#1a1020";x.beginPath();x.roundRect(-150,-130,300,260,24);x.fill();x.strokeStyle=rc;x.lineWidth=6;x.stroke();
-       if(it.pet)drawPet(x,it.pet,0,10,6,t);else{x.font="120px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(it.ic,0,-10)}x.textBaseline="alphabetic";
+       if(it.pet)drawPet(x,it.pet,0,10,6,t);else if(it.hair!==undefined)hairDoll(x,it.hair,0,-120,8);else{x.font="120px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(it.ic,0,-10)}x.textBaseline="alphabetic";
        x.fillStyle=rc;x.font="900 30px Rubik,Arial";x.textAlign="center";x.fillText(RARC[it.r].n.toUpperCase()+"!",0,-150);x.fillStyle="#ffffff";x.font="900 22px Rubik,Arial";x.fillText(it.n,0,112);if(anim.dup){x.fillStyle="#ffd14a";x.font="700 15px Rubik,Arial";x.fillText("Repetido: te devuelven "+anim.dup+" pavos",0,160)}x.restore();
        if(!anim.conf){anim.conf=true;try{confetti(it.r>=2?140:60,[rc,"#ffffff","#ffd14a"])}catch(e){}sfx(it.r>=2?"quest":"lvl")}if(anim.ph>=3){anim=null;spinning=false}}}
    raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);
  const spin=()=>{if(spinning)return;const M=MACHINES[mi];if(S.money<M.price){sfx("weak");toast("No te llega: "+M.price+" pavos");return}S.money-=M.price;spinning=true;const it=gachaPrize(mi);let dup=0;
-   if(it.give)it.give();else if(it.pet){S.pets=S.pets||{};if(S.pets[it.pet]){dup=Math.round(M.price*.5);S.money+=dup}else{S.pets[it.pet]=1;if(!S.pet)S.pet=it.pet}}else{S.accU=S.accU||{};if(S.accU[it.k]){dup=Math.round(M.price*.5);S.money+=dup}else S.accU[it.k]=1}
-   S.stats=S.stats||{};S.stats.gacha=(S.stats.gacha||0)+1;if(it.r>=2)S.stats.gachaEpic=(S.stats.gachaEpic||0)+1;if(it.k==="t_bote")S.stats.bote=1;save();sfx("throw");anim={it,ph:0,t0:performance.now(),dup}};
- $("gh-s").onclick=spin;$("gh-p").onclick=()=>{if(!spinning){mi=(mi+3)%4;sfx("sel")}};$("gh-n").onclick=()=>{if(!spinning){mi=(mi+1)%4;sfx("sel")}};$("gh-x").onclick=close;
- $("gh-pet").onclick=async()=>{if(spinning)return;cancelAnimationFrame(raf);await petMenu();gachaHall(mi).then(res)};
+   // ¿repetido? se sabe ya, pero el premio NO se apunta hasta que se abre la bola
+   if(it.pet)dup=S.pets&&S.pets[it.pet]?Math.round(M.price*.5):0;else if(!it.give)dup=S.accU&&S.accU[it.k]?Math.round(M.price*.5):0;
+   const apply=()=>{if(it.give)it.give();else if(it.pet){S.pets=S.pets||{};if(dup)S.money+=dup;else{S.pets[it.pet]=1;if(!S.pet)S.pet=it.pet}}else{S.accU=S.accU||{};if(dup)S.money+=dup;else S.accU[it.k]=1}
+    S.stats=S.stats||{};S.stats.gacha=(S.stats.gacha||0)+1;if(it.r>=2)S.stats.gachaEpic=(S.stats.gachaEpic||0)+1;if(it.k==="t_bote")S.stats.bote=1;save()};
+   save();sfx("throw");anim={it,ph:0,t0:performance.now(),dup,apply}};
+ $("gh-s").onclick=spin;$("gh-x").onclick=close;
+ if($("gh-pet"))$("gh-pet").onclick=async()=>{if(spinning)return;cancelAnimationFrame(raf);await petMenu();gachaHall(mi).then(res)};
  c.onpointerdown=e=>{const r=c.getBoundingClientRect(),px=(e.clientX-r.left)*960/r.width;if(px<460)spin()}})}
 async function petMenu(){S.pets=S.pets||{};const own=PETS.filter(p=>S.pets[p.k]);if(!own.length){await say("Todavía no tienes mascotas. Prueba suerte en la MASCOTABOLA.");return}
- const i=await choose("🐾 ¿Qué mascota te acompaña?",[{label:"🚫 Ninguna"},...own.map(p=>({label:p.n,sub:RARC[p.r].n+(S.pet===p.k?" · contigo":"")}))],{cols:1});if(i<0)return;S.pet=i===0?null:own[i-1].k;PETTRAIL=[];save();if(S.pet)await say(`¡${own[i-1].n} te sigue a todas partes!`)}
-// todas las máquinas de bolas del juego abren el Salón de la Suerte
-const _intGH=interact;interact=async function(){const[fx,fy]=facing();if(tileAt(fx,fy)==="%"&&!npcAt(fx,fy)){await gachaHall(0);return}return _intGH()};
+ const i=await choose("🐾 ¿Qué mascota te acompaña?",[{label:"🚫 Ninguna"},...own.map(p=>({label:p.n,sub:"✨ "+p.hab+(S.pet===p.k?" · contigo":"")}))],{cols:1,info:i=>i===0?"Vas solo. Sin habilidades de mascota.":own[i-1].hd});if(i<0)return;S.pet=i===0?null:own[i-1].k;PETTRAIL=[];save();if(S.pet)await say(`¡${own[i-1].n} te sigue a todas partes! Habilidad: ${own[i-1].hab}. ${own[i-1].hd}`)}
+// las máquinas de bolas SOLO están en la Espuma Party de la playa: cada máquina, una cosa
+const MACHINE_AT={};
+const _intGH=interact;interact=async function(){const[fx,fy]=facing();if(tileAt(fx,fy)==="%"&&!npcAt(fx,fy)){const mi=MACHINE_AT[S.map+","+fx+","+fy];if(mi!==undefined){await gachaHall(mi);return}}return _intGH()};
 // ---------- 30 trofeos nuevos ----------
 const nPets=()=>Object.keys(S.pets||{}).length,nU=ks=>GACHA.filter(g=>ks.includes(g.k.slice(0,2))&&S.accU&&S.accU[g.k]).length,tU=ks=>GACHA.filter(g=>ks.includes(g.k.slice(0,2))).length,med=()=>MEDALS.filter(m=>m.has()).length,cap=()=>Object.keys(S.caught||{}).length;
 LOGROS.push(
@@ -8673,8 +8742,6 @@ LOGROS.push(
  {id:"lvl70",n:"Leyenda del barrio",d:"Sube un Pedomón a nivel 70.",ic:"🌟",ok:()=>S.team&&S.team.some(m=>m.lvl>=70),rw:{money:1500}},
  {id:"machete",n:"Machetero",d:"Sobrevive a la Banda del Escorpión en el desierto.",ic:"🗡️",ok:()=>!!S.flags.escorpiones,rw:{money:1000}},
  {id:"escorpion",n:"Domador de escorpiones",d:"Consigue la mascota Escorpioncito.",ic:"🦂",ok:()=>!!(S.pets&&S.pets.escorpion),rw:{money:500}});
-// la máquina de bolas también en la Espuma Party y en Terrazalia
-(function(){const e=MAPS.espuma;if(e&&e.g[1][12]==="o")e.g[1][12]="%";const b=MAPS.brasa;if(b&&b.g[2][8]==="o")b.g[2][8]="%"})();
 
 /*</B4GACHA2>*/
 /*<B4MACHETE>*/
@@ -8899,6 +8966,125 @@ function titleMain(){mode="title";updOnline();
  bindVol("t-vol")}
 
 /*</B4INICIO>*/
+/*<B4TANDA1>*/
+/* ===================== TANDA 1: experiencia repartida, mascotas con habilidad, equipo 3+3, Espuma Party al aire libre, Bazar Chon ===================== */
+// ---------- EXPERIENCIA: se reparte entre los que han salido al combate, y capturar también da experiencia ----------
+const _swT1=switchTo;switchTo=async function(i,forced){if(B&&!B.part)B.part=new Set([B.p]);const r=await _swT1(i,forced);if(B&&B.part)B.part.add(B.p);return r};
+giveXp=async function(enemy){const parts=[...(B.part||new Set([B.p]))].filter(m=>m&&m.hp>0&&S.team.includes(m));if(!parts.length){B.part=new Set([B.p]);return}
+ let bonus=1;if(petHas("cabra"))bonus+=.1;if(petHas("pitbull"))bonus+=.2;if(petHas("escorpion"))bonus+=.15;
+ for(const p of parts){const f=xpFactor(p.lvl,enemy.lvl);let g=SP[enemy.sp].xp*enemy.lvl/7*(B.trainer?1.5:1)*f*bonus/parts.length;if(petHas("tortuga")&&p.lvl<30)g*=1.25;g=Math.max(1,Math.floor(g));p.xp+=g;updHud();
+  await say(`${SP[p.sp].n} gana ${g} puntos de experiencia.${parts.length>1?" (Repartida entre los "+parts.length+" que han peleado.)":""}${f>=1.6?" ¡Ha aprendido mucho de alguien más fuerte! (×"+f.toFixed(1)+")":""}`);
+  while(p.xp>=toNext(p.lvl)){p.xp-=toNext(p.lvl);const oldMax=maxhp(p);p.lvl++;p.hp+=maxhp(p)-oldMax;updHud();sfx("lvl");if(p===B.p)burst("star",PPOS.x,PPOS.y-24,20);await say(`¡${SP[p.sp].n} sube a ${lvlTxt(p,true)}!`);await learnAt(p)}}
+ B.part=new Set([B.p])};
+const _tbT1=throwBall;throwBall=async function(k){const it=ITEMS[k];let b=0;if(petHas("paloma"))b+=.1;if(petHas("galgo"))b+=.2;if(petHas("escorpion"))b+=.15;const old=it&&it.mult;if(it&&b)it.mult=old*(1+b);let r;
+ try{r=await _tbT1(k)}finally{if(it&&b)it.mult=old}
+ if(r==="caught"){try{await giveXp(B.e)}catch(e){}}return r};
+// ---------- HABILIDADES DE LAS MASCOTAS ----------
+const _nmT1=newMon;newMon=function(sp,lvl,canShiny){const m=_nmT1(sp,lvl,canShiny);if(canShiny&&!m.shiny&&petHas("esfinge")&&rnd()<SHINY_RATE*2)m.shiny=true;return m};
+const _weT1=wildEncounter;wildEncounter=async function(){if(petHas("chihuahua")&&rnd()<.4)return;return _weT1()};
+const _btT1=battle;battle=async function(team,opts){opts=opts||{};
+ if(!opts.trainer&&!opts.special&&petHas("loro")&&team&&team.length===1&&S.caught&&S.caught[team[0].sp]&&rnd()<.4){const z=Object.values(ZONES).find(z=>z.pool&&z.pool.includes(team[0].sp));const cand=z?z.pool.filter(s=>SP[s]&&!S.caught[s]):[];
+  if(cand.length){team=[newMon(pick(cand),team[0].lvl,true)];toast("🦜 El loro chilla: «¡ESE NO LO TIENES, COÑO!»")}}
+ const r=await _btT1(team,opts);
+ if(r&&opts.trainer){const base=opts.trainer.money||0;if(petHas("burro")&&base){const ex=Math.round(base*.25);S.money+=ex;toast(`🫏 El burro carga ${ex} pavos más`)}if(petHas("huron")&&rnd()<.35){S.bag.rinomarca=(S.bag.rinomarca||0)+1;toast("🦦 ¡El hurón le ha birlado una Riñonera de marca!")}}
+ if(r&&petHas("gatonaranja")){S.team.forEach(m=>{if(m.hp>0)m.hp=Math.min(maxhp(m),m.hp+Math.ceil(maxhp(m)*.15))});toast("🐈 El gato se zampa las sobras: +15 % de PV")}
+ if(r)save();return r};
+let petSteps=0;const _osT1=onStep;onStep=async function(){const r=await _osT1.apply(this,arguments);if(S&&S.pet&&mode==="world"){petSteps++;
+ if(petHas("salchicha")&&petSteps%120===0){const it=pick(["rino","abre","mechero","ibu","agua"].filter(k=>ITEMS[k]));S.bag[it]=(S.bag[it]||0)+1;sfx("catch");toast("🐕 ¡El salchicha ha olido algo: "+ITEMS[it].n+"!")}
+ if(petHas("gallina")&&petSteps%150===0&&ITEMS.ibu){S.bag.ibu=(S.bag.ibu||0)+1;sfx("catch");toast("🐔 ¡La gallina ha puesto un huevo! +1 "+ITEMS.ibu.n)}
+ if(petHas("cerdito")&&petSteps%100===0){const n=ri(5,30);S.money+=n;sfx("catch");toast("🐖 ¡El cerdito ha desenterrado "+n+" pavos!")}}return r};
+// ---------- EQUIPO SIMÉTRICO: 3 y 3 (2 y 2 y 2 en el móvil) ----------
+(function(){const st=document.createElement("style");st.textContent=".pty{grid-template-columns:repeat(3,1fr)!important}@media (max-width:620px){.pty{grid-template-columns:repeat(2,1fr)!important}}";document.head.appendChild(st)})();
+// ---------- las máquinas de bolas solo en la Espuma Party ----------
+(function(){for(const[id,M]of Object.entries(MAPS)){if(id==="espumaplaya"||!M.g)continue;for(const row of M.g)for(let i=0;i<row.length;i++)if(row[i]==="%")row[i]=M.outdoor?".":"o"}})();
+// ---------- ESPUMA PARTY al aire libre, en la playa ----------
+["ǎ","ǒ","ǡ"].forEach(c=>WALK.add(c));
+(function(){const W=28,H=18,g=[];for(let y=0;y<H;y++){g.push([]);for(let x=0;x<W;x++)g[y].push(x===0||x===W-1||y===0||y>=16?"ǔ":"ǎ")}
+ const R=(ch,x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
+ R("ǐ",10,1,8,2);R("ǖ",8,1,2,2);R("ǖ",18,1,2,2);R("ǒ",8,5,12,5);g[5][7]="ǚ";g[5][20]="ǚ";g[9][7]="ǚ";g[9][20]="ǚ";R("ǘ",22,4,5,1);
+ [4,6,8,10,12].forEach(y=>g[y][1]="%");g[12][25]="Ň";g[12][26]="Ň";g[14][26]="Ǐ";g[0][1]="ǜ";g[0][26]="ǜ";g[14][1]="ǜ";g[15][24]="ǜ";g[13][4]="ǜ";
+ g[16][13]="ǎ";g[16][14]="ǎ";g[17][13]="ǡ";g[17][14]="ǡ";
+ MAPS.espumaplaya={w:W,h:H,g,outdoor:true,signs:{},builds:[],lamps:[],music:"neon2",entry:[13,15,"up"],exits:{"13,17":["costa",41,12,"down"],"14,17":["costa",41,12,"down"]},
+  txt:{"ǐ":"El escenario del DJ. Más luces que un árbol de Navidad y suena igual de alto.","ǖ":"Un altavoz más grande que tu nevera. Te vibran hasta las muelas.","ǚ":"Un cañón de espuma. Cada rato escupe una nube de jabón con olor a chicle.","ǘ":"La barra de la fiesta. Huele a ron barato y a crema solar.","ǔ":"La valla de la fiesta. Al otro lado, el mar y gente que no ha pagado la entrada.","ǜ":"Una palmera con una pulsera fosforito atada al tronco."}};
+ Object.assign(MACHINE_AT,{"espumaplaya,1,4":0,"espumaplaya,1,6":1,"espumaplaya,1,8":2,"espumaplaya,1,10":3,"espumaplaya,1,12":4});
+ MAPNAME.espumaplaya="Espuma Party";
+ // en la Costa: fuera el edificio; ahora es la valla de la fiesta con su arco de entrada
+ const c=MAPS.costa;c.builds=c.builds.filter(b=>b.id!=="espuma");for(let y=9;y<=10;y++)for(let x=39;x<=44;x++)c.g[y][x]="ǟ";for(let x=39;x<=44;x++)c.g[11][x]="ǔ";c.g[11][41]="ǡ";
+ c.exits["41,11"]=["espumaplaya",13,15,"up"];c.txt=Object.assign(c.txt||{},{"ǟ":"La ESPUMA PARTY. Se oye el bum-bum desde aquí. Se entra por el arco de abajo.","ǔ":"La valla de la Espuma Party."})})();
+(function(){const d=NPCS.find(n=>n.id==="djespuma");if(d){d.map="espumaplaya";d.x=13;d.y=3;d.dir="down"}})();
+NPC_LOOK.barespuma={hs:1,ts:11};NPC_LOOK.bail1={hs:7,ts:2};NPC_LOOK.bail2={hs:5,ts:10};NPC_LOOK.bail3={hs:3,ts:3};NPC_LOOK.influ={hs:8,ts:10,acc:{ag:1}};NPC_LOOK.guiriesp={hs:0,ts:2};NPC_LOOK.maquinero={hs:6,ts:5};
+NPCS.push({id:"barespuma",map:"espumaplaya",x:24,y:5,dir:"down",pal:{h:"#1a1a1a",s:"#c8955a",e:"#222",c:"#f4f4f4",z:"#ff4ad0",p:"#1a1a1a",k:"#111"},hs:1,ts:11},
+ {id:"bail1",map:"espumaplaya",x:10,y:7,dir:"right",idle:true,pal:{h:"#1a1a1a",s:"#d8a070",e:"#222",c:"#ff4ad0",z:"#f4f4f4",p:"#2a6ad0",k:"#f4f4f4"},hs:7,ts:2},
+ {id:"bail2",map:"espumaplaya",x:17,y:8,dir:"left",idle:true,pal:{h:"#f2d14e",s:"#f8c8a8",e:"#222",c:"#4ad8ff",z:"#f4f4f4",p:"#1a1a1a",k:"#f4f4f4"},hs:5,ts:10},
+ {id:"bail3",map:"espumaplaya",x:13,y:6,dir:"down",idle:true,pal:{h:"#6a2a1a",s:"#f1c27d",e:"#222",c:"#7aff6a",z:"#1a1a1a",p:"#e23b2a",k:"#111"},hs:3,ts:3},
+ {id:"influ",map:"espumaplaya",x:23,y:13,dir:"left",pal:{h:"#f4d0e0",s:"#f8c8a8",e:"#222",c:"#ff9ad0",z:"#f4f4f4",p:"#f4f4f4",k:"#ff4ad0"},hs:8,ts:10},
+ {id:"guiriesp",map:"espumaplaya",x:6,y:11,dir:"down",pal:{h:"#f2d14e",s:"#f8a8a0",e:"#222",c:"#2a6ad0",z:"#f4f4f4",p:"#e23b2a",k:"#f8a8a0"},hs:0,ts:2},
+ {id:"maquinero",map:"espumaplaya",x:3,y:3,dir:"down",pal:{h:"#3a2a1a",s:"#e0a878",e:"#222",c:"#e6bc3a",z:"#1a1a1a",p:"#1a1a1a",k:"#111"},hs:6,ts:5});
+TALK2.barespuma=async()=>{const i=await choose("Camarera Yeni: ¡Bienvenido a la fiesta, cari! ¿Qué te pongo?",[{label:"🍹 Un mojito (10 pavos · +1 Agua para el equipo)",disabled:S.money<10},{label:"💬 ¿Qué se cuece aquí?"},{label:"👋 Nada"}],{cols:1});
+ if(i===0){S.money-=10;S.bag.agua=(S.bag.agua||0)+1;sfx("catch");save();await say("Te pone un mojito con más hielo que ron y te da una botella de agua «para luego». +1 "+(ITEMS.agua?ITEMS.agua.n:"Agua"));return}
+ if(i===1)await say(pick(["Camarera Yeni: Las máquinas de bolas de la izquierda: cada una da una cosa. La de las mascotas es la que más vicia.","Camarera Yeni: Si bailas bien en la máquina de baile del fondo, la Lola te hace famosa en sus redes. Y te regala algo.","Camarera Yeni: Un señor con guantes blancos pidió aquí un «vino con cuerpo». Le puse un calimocho. Se fue ofendido."]))};
+TALK2.bail1=async()=>{await say(pick(["Bailarín: ¡No pares, no pares! ¡Que la espuma no se baila sola!","Bailarín: Llevo aquí desde el jueves. ¿Qué día es hoy?"]))};
+TALK2.bail2=async()=>{await say(pick(["Guiri bailona: Oh my God, this foam is amazing! ¡Olé!","Guiri bailona: I lost my shoe. And my friend. And my hotel."]))};
+TALK2.bail3=async()=>{await say(pick(["Bailarina: Dicen que el DJ es el sobrino de Chuchi. Por eso pincha tan mal.","Bailarina: Cuidado al salir de la espuma: resbala más que un político."]))};
+TALK2.guiriesp=async()=>{await say(pick(["Guiri Kevin: I spent 300 euros in the ball machines. I have 14 hats. I am happy.","Guiri Kevin: The mascot machine gave me a chicken. She follows me everywhere. Every. Where."]))};
+TALK2.maquinero=async()=>{await sayAll(["Paco el Maquinero: Aquí tienes las 5 máquinas, chaval. Cada una da una cosa, sin trampas. Bueno, casi sin trampas.","Paco el Maquinero: LA CABEZONA: gafas, gorros y collares. EL ROPERO: ropa y capas. LA PELUCONA: peinados de locos. MASCOTABOLA: mascotas con habilidades. LA TÓMBOLA: objetos y el BOTE.","Paco el Maquinero: Y las mascotas no son de adorno: cada una tiene un poder. Míralo en el Menú, en 🐾 Mascota."])};
+TALK2.influ=async()=>{if(!S.flags.bailePrem){await sayAll(["Lola Influencer: ¡Holi! Estoy grabando un reel para mis 2 millones de seguidores.","Lola Influencer: Si me sacas una puntuación de 70 en la máquina de baile del fondo, te hago un shout-out. Y te regalo algo, ¿vale?"]);return}
+ await say(pick(["Lola Influencer: ¡Tu baile tiene ya 40.000 visitas! Bueno, 39.000 son bots. Pero cuentan.","Lola Influencer: Te he etiquetado. Tus Pedomones están en tendencias."]))};
+// ---------- minijuego: LA MÁQUINA DE BAILE ----------
+function danceGame(){return new Promise(res=>{overlay(`<div style="max-width:720px;margin:0 auto"><canvas id="dg-c" width="640" height="420" style="width:100%;border-radius:12px;background:#140a1e;touch-action:none"></canvas>
+  <div class="btns" style="justify-content:center"><button class="big alt" type="button" id="dg-0">◀</button><button class="big alt" type="button" id="dg-1">▼</button><button class="big alt" type="button" id="dg-2">▲</button><button class="big alt" type="button" id="dg-3">▶</button></div></div>`,{onB:()=>{}});
+ const c=$("dg-c"),x=c.getContext("2d"),W=640,H=420,LX=[200,280,360,440],LINE=340,AR=["◀","▼","▲","▶"],COL=["#ff4ad0","#4ad8ff","#7aff6a","#ffd14a"];let notes=[],t0=performance.now(),last=t0,score=0,combo=0,hits=0,total=0,fx=[],done=false,raf=0;
+ const DUR=32;for(let s=2;s<DUR-1;s+=.5+(Math.random()<.3?.5:0)){notes.push({t:s,l:Math.floor(Math.random()*4),hit:false,miss:false});if(s>10&&Math.random()<.25)notes.push({t:s,l:Math.floor(Math.random()*4),hit:false,miss:false})}total=notes.length;
+ const press=l=>{const now=(performance.now()-t0)/1000;let best=null,bd=1;for(const n of notes)if(!n.hit&&!n.miss&&n.l===l){const d=Math.abs(n.t-now);if(d<bd){bd=d;best=n}}
+  if(best&&bd<.18){best.hit=true;hits++;combo++;const pts=bd<.07?100:60;score+=pts+combo*2;fx.push({l,txt:bd<.07?"¡PERFECTO!":"¡BIEN!",a:1});sfx("sel")}else{combo=0;fx.push({l,txt:"✗",a:1})}};
+ const km={arrowleft:0,a:0,arrowdown:1,s:1,arrowup:2,w:2,arrowright:3,d:3};const kd=e=>{const k=km[e.key.toLowerCase()];if(k!==undefined){e.preventDefault();e.stopPropagation();if(!e.repeat)press(k)}else if(["x","escape"].includes(e.key.toLowerCase())){e.stopPropagation()}};addEventListener("keydown",kd,true);
+ for(let i=0;i<4;i++)$("dg-"+i).onpointerdown=()=>press(i);
+ const fin=async()=>{if(done)return;done=true;cancelAnimationFrame(raf);removeEventListener("keydown",kd,true);const pct=Math.round(hits/total*100);await new Promise(r=>setTimeout(r,900));closeOverlay();
+  S.stats=S.stats||{};S.stats.baile=Math.max(S.stats.baile||0,pct);
+  if(pct>=70&&!S.flags.bailePrem){S.flags.bailePrem=true;S.money+=300;S.bag.rinogucci=(S.bag.rinogucci||0)+1;save();sfx("quest");await sayAll([`¡${pct} % de pasos clavados! La pista entera te hace un corro.`,"Lola Influencer: ¡OMG! ¡Esto es viral! Toma, mi regalo de patrocinador: 300 pavos y una Riñonera Gucci."]);res(true);return}
+  save();await say(pct>=70?`¡${pct} %! Sigues siendo el rey de la pista.`:`Has clavado el ${pct} % de los pasos. Necesitas un 70 % para que Lola te suba a sus redes.`);res(pct>=70)};
+ const tick=nw=>{if(!c.isConnected){removeEventListener("keydown",kd,true);res(false);return}const now=(nw-t0)/1000;
+  x.fillStyle="#140a1e";x.fillRect(0,0,W,H);for(let i=0;i<20;i++){x.fillStyle=COL[i%4];x.globalAlpha=.15+.15*Math.sin(now*4+i);x.beginPath();x.arc((i*131)%W,(i*71)%H,30,0,7);x.fill()}x.globalAlpha=1;
+  x.fillStyle="#ffffff";x.font="900 22px Rubik,Arial";x.textAlign="center";x.fillText("💃 LA MÁQUINA DE BAILE",W/2,32);x.font="600 14px Rubik,Arial";x.fillText(`Puntos: ${score} · Combo: ${combo} · Quedan ${Math.max(0,Math.ceil(DUR-now))} s`,W/2,56);
+  for(let i=0;i<4;i++){x.fillStyle="rgba(255,255,255,.06)";x.fillRect(LX[i]-30,70,60,330);x.strokeStyle=COL[i];x.lineWidth=3;x.strokeRect(LX[i]-28,LINE-24,56,48);x.fillStyle=COL[i];x.globalAlpha=.35;x.font="900 34px Arial";x.fillText(AR[i],LX[i],LINE+12);x.globalAlpha=1}
+  for(const n of notes){if(n.hit)continue;const y=LINE-(n.t-now)*260;if(!n.miss&&now-n.t>.2){n.miss=true;combo=0}if(y<60||y>H+30||n.miss)continue;x.fillStyle=COL[n.l];x.beginPath();x.roundRect(LX[n.l]-26,y-22,52,44,10);x.fill();x.fillStyle="#140a1e";x.font="900 30px Arial";x.fillText(AR[n.l],LX[n.l],y+11)}
+  for(const f of fx){f.a-=.03;x.globalAlpha=Math.max(0,f.a);x.fillStyle="#ffffff";x.font="900 16px Rubik,Arial";x.fillText(f.txt,LX[f.l],LINE-40-(1-f.a)*30)}x.globalAlpha=1;fx=fx.filter(f=>f.a>0);
+  if(now>DUR)fin();else raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick)})}
+const _intT1=interact;interact=async function(){const[fx,fy]=facing(),ch=tileAt(fx,fy);if(ch==="Ǐ"){const i=await choose("💃 LA MÁQUINA DE BAILE · 5 pavos la partida",[{label:"🎵 ¡A bailar!",disabled:S.money<5},{label:"👋 Ahora no"}],{cols:1,info:()=>"Pulsa la flecha justo cuando la nota pase por su cuadro. Con un 70 % de pasos, Lola te sube a sus redes."});if(i===0){S.money-=5;await danceGame()}return}return _intT1()};
+LOGROS.push({id:"baile",n:"Rey de la pista",d:"Clava el 70 % de los pasos en la máquina de baile.",ic:"💃",ok:()=>!!S.flags.bailePrem,rw:{money:200}});
+// ---------- BAZAR CHON: ahora se puede entrar ----------
+MAPS.chonin={w:10,h:8,style:"casa",signs:{},builds:[],lamps:[],music:"costa",g:rowsGrid(["wwwwwwwwww","wcccccccgw","woooooooow","wtooooooow","woooooohhw","woooooooow","woooooooow","wwwweewwww"]),exits:{"4,7":["costa",36,12,"down"],"5,7":["costa",36,12,"down"]},entry:[4,6,"up"],
+ txt:{c:"Estanterías hasta el techo: chanclas, flotadores de unicornio, mecheros con luces y un gato de la suerte que saluda sin parar.",t:"Una mesa con cajas de pipas, abanicos y pulseras «de oro». Oro de 1 euro.",h:"Un montón de flotadores sin inflar. Parecen pieles de pato.",g:"Un bambú de la suerte. Lleva 15 años sin regar y está más vivo que tú."}};
+MAPNAME.chonin="Bazar Chon";
+NPC_LOOK.chonnpc={hs:0,ts:5};NPC_LOOK.chonabu={hs:9,ts:7};
+NPCS.push({id:"chonnpc",map:"chonin",x:4,y:2,dir:"down",pal:{h:"#1a1a1a",s:"#e8c090",e:"#222",c:"#e23b2a",z:"#f2c14e",p:"#1a1a1a",k:"#111"},hs:0,ts:5},
+ {id:"chonabu",map:"chonin",x:7,y:3,dir:"left",idle:true,pal:{h:"#d8d8d8",s:"#e8c090",e:"#222",c:"#2a9a48",z:"#f4f4f4",p:"#1a1a1a",k:"#111"},hs:9,ts:7});
+TALK2.chonnpc=async()=>{await TALK2.chon()};
+TALK2.chonabu=async()=>{if(!S.flags.chonAbu){S.flags.chonAbu=true;S.bag.mechero=(S.bag.mechero||0)+2;sfx("catch");save();await sayAll(["Abuela Chon: Tú tienes cara de buena persona. Y de no haber comido.","Abuela Chon: Toma, dos mecheros con lucecitas. Para tus bichos de fuego. Regalo de la casa, no se lo digas a mi nieto.","¡Consigues 2 Mecheros!"]);return}
+ await say(pick(["Abuela Chon: Mi nieto vende de todo. Lo que no tiene, lo tiene mañana.","Abuela Chon: El gato de la suerte saluda a los clientes. A los de La Pasma, no."]))};
+(function(){const b=MAPS.costa.builds.find(q=>q.id==="chon");if(b)b.to="chonin"})();
+const _doorT1=door;door=async function(b){if(b&&b.id==="chon"){await warp("chonin",4,6,"up");return}return _doorT1(b)};
+// ---------- dibujo de las casillas nuevas ----------
+const _dtT1=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){
+ const sand=()=>{px(sx,sy,T,T,"#f2dca0");const h=hash(x,y);if(h%3===0)px(sx+(h%11),sy+(h>>4)%13,1,1,"#e2c888");if(h%5===0)px(sx+(h>>3)%13,sy+(h>>6)%12,2,1,"#fff0c8")};
+ if(ch==="ǎ"){sand();return}
+ if(ch==="ǒ"){px(sx,sy,T,T,"#e8f4ff");for(let i=0;i<4;i++){const h=hash(x*7+i,y*3+i),r=2+h%3,bx=sx+(h%13)+1,by=sy+((h>>4)%13)+1+Math.sin(t/400+i+x)*1;ctx.fillStyle=i%2?"#ffffff":"#cfe8ff";ctx.beginPath();ctx.arc(bx,by,r,0,7);ctx.fill()}return}
+ if(ch==="ǔ"){if(S.map==="costa")_dtT1("v",x,y,sx,sy,t,style);else sand();px(sx,sy+4,T,2,"#a8784a");px(sx,sy+10,T,2,"#a8784a");px(sx+2,sy+1,2,14,"#7a5030");px(sx+12,sy+1,2,14,"#7a5030");px(sx+3,sy,1,1,["#ff4ad0","#4ad8ff","#f2d14e"][(x+Math.floor(t/400))%3]);return}
+ if(ch==="ǜ"){sand();px(sx+7,sy+4,2,12,"#8a5a2a");ctx.fillStyle="#2a9a48";for(const a of[-2.4,-1.6,-.8,-.1])ctx.fillRect(sx+8+Math.cos(a)*6-2,sy+4+Math.sin(a)*4,5,2);px(sx+3,sy+3,10,2,"#3ab858");return}
+ if(ch==="ǐ"){px(sx,sy,T,T,"#2a1a3a");px(sx,sy+12,T,4,"#1a0e24");const c=["#ff4ad0","#4ad8ff","#7aff6a","#ffd14a"][(x+Math.floor(t/250))%4];px(sx+2,sy+13,3,2,c);px(sx+9,sy+13,3,2,c);if(y===1){px(sx,sy,T,2,"#5a3a7a")}return}
+ if(ch==="ǖ"){px(sx,sy,T,T,"#2a1a3a");px(sx+1,sy-4,14,20,"#111");const p=1+Math.abs(Math.sin(t/120))*1.5;ctx.fillStyle="#3a3a3a";ctx.beginPath();ctx.arc(sx+8,sy+1,4+p*.5,0,7);ctx.fill();ctx.beginPath();ctx.arc(sx+8,sy+10,3,0,7);ctx.fill();return}
+ if(ch==="ǚ"){sand();px(sx+4,sy+8,8,7,"#5a5a6a");px(sx+6,sy+2,4,8,"#8a8a9a");const k=(Math.floor(t/600)+x)%5===0;if(k){ctx.fillStyle="#ffffff";for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(sx+8+(i-2)*3,sy-2-i%2*3,3,0,7);ctx.fill()}}return}
+ if(ch==="ǘ"){sand();px(sx,sy+3,T,13,"#8a5a2a");px(sx,sy+3,T,3,"#c8945a");if(x%2)px(sx+5,sy-1,3,4,"#bfe6ff");else px(sx+9,sy,2,3,"#7aff6a");return}
+ if(ch==="%"&&S.map==="espumaplaya"){sand();const mi=MACHINE_AT["espumaplaya,"+x+","+y],M=MACHINES[mi]||MACHINES[0];px(sx+1,sy-8,14,24,M.col);px(sx+2,sy-7,12,10,"#d8f0ff");const cols=["#ff4ad0","#4ad8ff","#f2d14e","#7aff6a"];for(let i=0;i<5;i++)px(sx+3+(i*5)%9,sy-5+((i*3)%6),3,3,cols[(i+mi)%4]);px(sx+5,sy+6,6,4,"#1a0e1a");px(sx+14,sy+2,2,4,"#d8d8d8");
+  ctx.fillStyle="#ffffff";ctx.font="bold 5px Arial";ctx.textAlign="center";ctx.fillText(M.n.replace(/^(LA|EL) /,"").slice(0,10),sx+8,sy+15);return}
+ if(ch==="Ǐ"){sand();px(sx+1,sy-8,14,24,"#ff4ad0");px(sx+3,sy-6,10,8,"#140a1e");const f=Math.floor(t/300)%4;ctx.fillStyle=["#ff4ad0","#4ad8ff","#7aff6a","#ffd14a"][f];ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText(["◀","▼","▲","▶"][f],sx+8,sy);px(sx+1,sy+10,14,6,"#c8c8d8");return}
+ if(ch==="Ň"&&S.map==="espumaplaya"){sand();return _dtT1(ch,x,y,sx,sy,t,style)}
+ if(ch==="ǟ"){_dtT1("v",x,y,sx,sy,t,style);px(sx,sy+(y===9?2:0),T,y===9?14:12,"#3a1a5a");for(let i=0;i<3;i++){const h=hash(x+i,y);ctx.fillStyle=i%2?"#ffffff":"#cfe8ff";ctx.beginPath();ctx.arc(sx+3+(h%10),sy+4+((h>>3)%8),2,0,7);ctx.fill()}
+  if(y===9&&x===41){ctx.fillStyle=Math.floor(t/400)%2?"#ff4ad0":"#ff8ae0";ctx.font="bold 8px Arial";ctx.textAlign="center";ctx.fillText("ESPUMA PARTY",sx+8,sy+13)}return}
+ if(ch==="ǡ"){if(S.map==="costa"){_dtT1("v",x,y,sx,sy,t,style);px(sx,sy,2,T,"#7a5030");px(sx+14,sy,2,T,"#7a5030");px(sx,sy,T,2,"#ff4ad0");ctx.fillStyle="#ffd14a";ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText("▲",sx+8,sy+11)}else{sand();ctx.fillStyle="#c8a060";ctx.font="bold 7px Arial";ctx.textAlign="center";ctx.fillText("▼",sx+8,sy+11)}return}
+ return _dtT1(ch,x,y,sx,sy,t,style)};
+
+/*</B4TANDA1>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

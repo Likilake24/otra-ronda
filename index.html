@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="85 · Ciudades: el Zoco del Rif como una medina de verdad · logros arreglados";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="86 · Ciudades: carteles grandes en todas las salidas, casas de verdad, desván de la abuela, cuarto del Chusta y hostal con piedra-papel-tijera";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"La Okupa"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -9833,6 +9833,48 @@ const _rwZ2=renderWorld;renderWorld=function(t){_rwZ2(t);if(S.map!=="zoco")retur
  px(X-3,Y-96,38,6,"#c8a060");px(X+6,Y-118,20,22,"#e8c890");ctx.fillStyle="#2a8a6a";ctx.beginPath();ctx.moveTo(X+4,Y-118);ctx.lineTo(X+16,Y-134);ctx.lineTo(X+28,Y-118);ctx.fill();px(X+15,Y-142,2,9,"#c8a030");ctx.fillStyle="#c8a030";ctx.beginPath();ctx.arc(X+16,Y-143,3,0,7);ctx.fill()};
 
 /*</B4ZOCO2>*/
+/*<B4CIUDADES>*/
+/* ===================== CIUDADES: carteles grandes en TODAS las salidas, casas de verdad y pisos con utilidad ===================== */
+// ---------- carteles grandes automáticos en cada salida de cada mapa exterior ----------
+(function(){for(const[id,M]of Object.entries(MAPS)){if(!M.outdoor||!M.exits)continue;const groups={};
+  for(const[k,to]of Object.entries(M.exits)){const[x,y]=k.split(",").map(Number);const edge=x===0?"L":x===M.w-1?"R":y===0?"U":y===M.h-1?"D":null;if(!edge)continue;const key=to[0]+edge;(groups[key]=groups[key]||{to:to[0],edge,cells:[]}).cells.push([x,y])}
+  const have=(BIGSIGNS[id]||[]).map(s=>s.txt).join("|");
+  for(const g of Object.values(groups)){const nm=(MAPNAME[g.to]||g.to).replace(/^Ruta \d+ · /,"").toUpperCase();if(have.toUpperCase().includes(nm.slice(0,6)))continue;
+   const cx=Math.round(g.cells.reduce((a,c)=>a+c[0],0)/g.cells.length),cy=Math.round(g.cells.reduce((a,c)=>a+c[1],0)/g.cells.length);
+   const arrow={L:"←",R:"→",U:"↑",D:"↓"}[g.edge];let sx=cx,sy=cy;if(g.edge==="L"){sx=1;sy=cy-3}if(g.edge==="R"){sx=M.w-3;sy=cy-3}if(g.edge==="U"){sx=cx+2;sy=2}if(g.edge==="D"){sx=cx+2;sy=M.h-2}
+   sy=Math.max(1,Math.min(M.h-2,sy));sx=Math.max(0,Math.min(M.w-2,sx));const words=nm.split(" ");let l1="",l2="";for(const w of words){if((l1+" "+w).trim().length<=11&&!l2)l1=(l1+" "+w).trim();else l2=(l2+" "+w).trim()}
+   (BIGSIGNS[id]=BIGSIGNS[id]||[]).push({x:sx,y:sy,txt:arrow+" "+l1+(l2?"\n"+l2.slice(0,14):"")})}}})();
+// ---------- casas de verdad donde vive gente ----------
+(function(){const p=MAPS.park;for(const b of p.builds){if(b.id==="abuela"){b.kind="casapueblo";b.wall="#e8c8a0";b.roof="#8a3a2a"}if(b.id==="chustahouse"){b.kind="casapueblo";b.wall="#c8a890";b.roof="#5a5a6a"}}
+ const c=MAPS.costa;for(const b of c.builds){if(b.id==="pension"){b.kind="casapueblo";b.wall="#f8f4ec";b.roof="#2a6ad0"}if(b.id==="rosi"){b.kind="casapueblo";b.wall="#ffe0ec";b.roof="#e04a9a"}}})();
+// ---------- EL DESVÁN DE LA ABUELA (con misión: las gafas perdidas) ----------
+MAPS.abuela.g[4][6]="ʌ";
+MAPS.abuela2=room(["wwwwwwww","wttoohgw","woooooow","whooooʋw","woooooow","wwwwwwww"],null,[5,3,"left"],{music:"park",txt:{t:"Baúles llenos de fotos en blanco y negro. En una sale la abuela de joven… bailando en una discoteca.",h:"Una mecedora que se mueve sola. Será el viento. Será.",g:"Una planta seca que la abuela no se atreve a tirar."}});
+Object.assign(STAIRS,{"abuela,6,4":["abuela2",5,3,"left",""],"abuela2,6,3":["abuela",5,4,"left",""]});MAPNAME.abuela2="Desván de la abuela";
+MAPS.abuela2.g[2][2]="i";Object.assign(PICKUPS,{gafasAbu:{k:"rino",n:0,t:"Entre dos cajas de fotos… ¡las gafas de la abuela! Con cinta aislante en una patilla."}});PICK_AT["abuela2,2,2"]="gafasAbu";
+const _intCiu=interact;interact=async function(){const[fx,fy]=facing();if(S.map==="abuela2"&&fx===2&&fy===2&&!(S.picked&&S.picked.gafasAbu)){S.picked=S.picked||{};S.picked.gafasAbu=1;S.keys.gafasAbu=true;sfx("quest");save();await say("Entre dos cajas de fotos… ¡las gafas de la abuela! Con cinta aislante en una patilla. (Llévaselas.)");return}return _intCiu()};
+Object.assign(KEYS_IT,{gafasAbu:{n:"👓 Gafas de la abuela",d:"Culo de botella, con cinta aislante. La abuela no ve sin ellas ni la tele."}});
+const _intAbu=interact;interact=async function(){const[fx,fy]=facing();const n=npcAt(fx,fy);if(S.map==="abuela"&&n&&n.id==="abuela"){if(S.keys&&S.keys.gafasAbu&&!S.flags.gafasAbu){S.flags.gafasAbu=true;delete S.keys.gafasAbu;S.money+=150;S.bag.ibu=(S.bag.ibu||0)+2;sfx("quest");save();await sayAll(["Abuela: ¡MIS GAFAS! ¡Ay, hijo, que ya te veo! Estás más delgado. Come algo.","Abuela: Toma, 150 pavos y dos Ibuprofenos. Y no le digas a nadie que bajé a la discoteca en el 78."]);return}
+ if(!S.flags.gafasPista&&S.flags.starter&&!S.flags.gafasAbu){S.flags.gafasPista=true;save();const r=await _intAbu();await say("Abuela: Por cierto, hijo… ¿has visto mis gafas? Creo que las dejé arriba, en el desván, mirando fotos de cuando era joven. Sube por la escalera, anda.");return r}}return _intAbu()};
+// ---------- EL CUARTO DEL CHUSTA (arriba, en su casa) ----------
+MAPS.chustahouse.g[4][6]="ʌ";
+MAPS.chusta2=room(["wwwwwwww","wmhhotgw","woooooow","wtooooʋw","woooooow","wwwwwwww"],null,[5,3,"left"],{music:"park",txt:{m:"Una consola de hace tres generaciones con un mando pegado con celo. Récord de la máquina: «CHUSTA 9999». Falso.",h:"La cama del Chusta: sábanas del Betis y un olor indescriptible.",t:"El diario del Chusta. Página 1: «hoy e conocido a alguien q va a ser mi rival. o mi colega. o las dos». Página 2: un dibujo de un porro.",g:"Una planta que el Chusta jura que es «decorativa»."}});
+Object.assign(STAIRS,{"chustahouse,6,4":["chusta2",5,3,"left",""],"chusta2,6,3":["chustahouse",5,4,"left",""]});MAPNAME.chusta2="Cuarto del Chusta";
+MAPS.chusta2.g[4][2]="i";Object.assign(PICKUPS,{chustaCajon:{k:"abre",n:3,t:"En el cajón del Chusta: 3 Abrebotellas, un mechero sin gas y una foto tuya de pequeño. ¿Por qué tiene una foto tuya?"}});PICK_AT["chusta2,2,4"]="chustaCajon";
+// ---------- HOSTAL DE NEÓN: las habitaciones de arriba (piedra, papel o tijera) ----------
+MAPS.hostal.g[3][8]="ʌ";
+MAPS.hostal2=room(["wwwwwwwwww","whhoohhoow","woooooooow","woooooooʋw","whhoooooow","wwwwwwwwww"],null,[7,3,"left"],{music:"neon",txt:{h:"Camas del hostal con colchones que crujen como patatas fritas."}});
+Object.assign(STAIRS,{"hostal,8,3":["hostal2",7,3,"left",""],"hostal2,8,3":["hostal",8,4,"down",""]});MAPNAME.hostal2="Hostal · habitaciones";
+NPC_LOOK.huesped={hs:4,ts:3,acc:{ag:1}};
+NPCS.push({id:"huesped",map:"hostal2",x:4,y:2,dir:"down",pal:{h:"#3a2a1a",s:"#e0a878",e:"#222",c:"#6a3a8a",z:"#f4f4f4",p:"#2a2a2a",k:"#111"},hs:4,ts:3});
+TALK2.huesped=async()=>{const i=await choose("Huésped insomne: Llevo tres noches sin dormir por el casino de abajo. ¿Echamos un piedra, papel o tijera? Al mejor de 3. Apuesta: 30 pavos.",[{label:"✊ ¡Venga! (30 pavos)",disabled:S.money<30},{label:"💬 ¿Qué sabes?"},{label:"👋 Paso"}],{cols:1});
+ if(i===1){await say(pick(["Huésped: El Contable del casino sube aquí a esconderse cuando pierde. Pierde mucho.","Huésped: Desde la ventana veo la comisaría. Entran más cajas de vino que policías."]));return}if(i!==0)return;S.money-=30;
+ const O=["✊ Piedra","✋ Papel","✌️ Tijera"];let me=0,him=0;while(me<2&&him<2){const j=await choose(`Marcador: tú ${me} · él ${him}. ¿Qué sacas?`,O.map(l=>({label:l})),{cols:3,cancel:false});const k=Math.floor(Math.random()*3);
+  if(j===k)await say(`Los dos sacáis ${O[j]}. ¡Empate!`);else if((j+3-k)%3===1){me++;await say(`Tú: ${O[j]} · Él: ${O[k]}. ¡Punto para ti!`)}else{him++;await say(`Tú: ${O[j]} · Él: ${O[k]}. Punto para él.`)}}
+ if(me>him){S.money+=60;S.stats=S.stats||{};S.stats.ppt=(S.stats.ppt||0)+1;sfx("quest");await say("Huésped: ¡Me cago en…! Toma tus 60 pavos. Ahora sí que no duermo.")}else await say("Huésped: ¡Ja! Con esto pago otra noche de no dormir.");save()};
+LOGROS.push({id:"gafasAbu",n:"Nieto del año",d:"Encuentra las gafas de la abuela en el desván.",ic:"👓",ok:()=>!!S.flags.gafasAbu,rw:{money:100}},{id:"ppt",n:"Tijeras afiladas",d:"Gana al huésped insomne a piedra, papel o tijera.",ic:"✌️",ok:()=>!!(S.stats&&S.stats.ppt),rw:{money:100}});
+
+/*</B4CIUDADES>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}

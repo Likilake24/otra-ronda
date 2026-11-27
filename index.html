@@ -1735,7 +1735,7 @@ function setMP(o){Object.keys(o).forEach(k=>{if(o[k]===null)delete MP[k];else MP
 function peerInfo(p){const pr=p.presence||{};return{nm:cleanName(pr.nm)||"Colega",sk:cleanSkin(pr.sk),map:MAPS[pr.map]?pr.map:null,x:Number.isInteger(pr.x)?pr.x:0,y:Number.isInteger(pr.y)?pr.y:0,dir:DIRS[pr.dir]?pr.dir:"down",pr}}
 function getPeer(id){return ROOM?ROOM.peers().find(p=>p.peer===id):null}
 /* ---- Online fuera de claude.ai: PeerJS (un jugador hace de anfitrión y reparte la presencia de todos) ---- */
-const NET_PREFIX="otraronda-v1-";const GAME_VER="102 · Refugios en la guerra de cubitos y la casa de Iñaki";
+const NET_PREFIX="otraronda-v1-";const GAME_VER="103 · El Parque de Pichi, rehecho como un pueblo de Pokémon";
 const MAPNAME={huertoin:"Huerto de Bob",yurta:"Yurta de la Abuela Luna",park:"Parque de Pichi",descampado:"El Descampado",kebab:"Kebab 24h",gas:"Bazar Chen",yoli:"Mercadillo",bar:"Bar de Paco",abuela:"Casa de la Abuela",chustahouse:"Casa del Chusta",senda:"La Senda",comuna:"Ganja Life",tarot:"Tarot de Salva",cabana:"Cabaña del Humo",casarasta:"Casa del Abuelo Rasta",furgo:"La Furgo",vegana:"Casa de los veganos",okupa:"Casa de Iñaki"};
 function salaCode(){let c="BARRIO";try{c=localStorage.getItem("otraronda_sala")||c}catch(e){}return String(c).replace(/[^A-Za-z0-9]/g,"").toUpperCase().slice(0,16)||"BARRIO"}
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -11628,6 +11628,51 @@ const _dtRef=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="torre3
  return _dtRef(ch,x,y,sx,sy,t,style)};
 
 /*</B4FALLOS>*/
+/*<B4PARQUE>*/
+/* ===================== PARQUE DE PICHI, rehecho con la estructura de un pueblo de Pokémon (mismas casas, puertas y salidas) ===================== */
+(function(){const M=MAPS.park,W=M.w,g=M.g;
+ const put=(ch,x,y,w=1,h=1)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)g[j][i]=ch};
+ // césped limpio y borde de árboles de dos filas, como en los pueblos
+ put(".",1,8,34,13);put("#",0,8,2,13);put("#",34,8,2,13);put("#",0,20,W,2);
+ // plaza peatonal delante de las casas (sin carretera ni coches); la salida este sigue en la fila 7
+ put("v",1,5,34,3);put("v",35,7);for(const x of[3,18,27])g[7][x]="L";g[7][13]="S";
+ // valla blanca entre la plaza y el parque, con tres entradas claras
+ put("ꝑ",2,8,32,1);put(".",6,8,2,1);put("=",14,8,2,1);put("=",31,8,2,1);
+ // avenida central (del bar hasta abajo), camino de oeste a este y paseo de la derecha
+ put("=",14,8,2,12);put("=",0,17,33,1);put("=",31,8,2,10);put(".",6,9,2,1);
+ // hierba alta en dos parcelas valladas y ordenadas: la fácil a la izquierda…
+ put(",",3,10,8,4);put("ꝑ",3,15,4,1);put("ꝑ",9,15,3,1);
+ // …y la chunga abajo a la derecha
+ put(",",25,18,8,2);put(",",26,14,4,2);
+ // estanque con las esquinas redondeadas y flores alrededor
+ put("~",20,10,6,4);for(const[x,y]of[[20,10],[25,10],[20,13],[25,13]])g[y][x]="F";put("F",21,9,4,1);put("F",21,14,4,1);
+ // parterres en rectángulos
+ for(const[x,y]of[[12,11],[12,12],[17,11],[17,12],[3,19],[4,19],[5,19],[9,19],[10,19],[11,19],[17,19],[18,19]])g[y][x]="F";
+ // árboles sueltos (el de [18,13] es el del gato Michi)
+ for(const[x,y]of[[2,9],[11,9],[18,9],[29,9],[18,13],[12,14],[2,14],[2,19],[23,19]])g[y][x]="#";
+ // bancos y farolas
+ for(const[x,y]of[[11,18],[12,18],[27,12],[29,12],[18,16],[19,16]])g[y][x]="B";
+ for(const[x,y]of[[13,12],[16,12],[2,16],[10,18],[30,16],[17,15]])g[y][x]="L";
+ // carteles en su sitio de siempre
+ for(const k of Object.keys(M.signs)){const[x,y]=k.split(",").map(Number);g[y][x]="S"}
+ // los personajes, cada uno en un hueco con sentido
+ const mover=(id,x,y,dir)=>{const n=npcById(id);if(n){n.x=x;n.y=y;if(dir)n.dir=dir}};mover("dardista",12,16,"down");mover("ajedrecista",28,12,"down");mover("futbolista",21,16,"down");
+ const libre=(x,y)=>g[y]&&WALK.has(g[y][x])&&y>=5&&!M.exits[x+","+y]&&!NPCS.some(n=>n.map==="park"&&n.x===x&&n.y===y);
+ for(const n of NPCS.filter(n=>n.map==="park"&&n.x>=0)){if(g[n.y]&&WALK.has(g[n.y][n.x]))continue;let best=null;for(let r=1;r<8&&!best;r++)for(let dy=-r;dy<=r&&!best;dy++)for(let dx=-r;dx<=r&&!best;dx++)if(libre(n.x+dx,n.y+dy)&&g[n.y+dy][n.x+dx]!==",")best=[n.x+dx,n.y+dy];if(best){n.x=best[0];n.y=best[1]}}
+ if(typeof BIGSIGNS!=="undefined")delete BIGSIGNS.park;M.txt=Object.assign(M.txt||{},{"ꝑ":"Una valla blanca recién pintada. Alguien ya ha escrito «PACO» con un dedo."})})();
+// si tu partida estaba guardada donde ahora hay una valla, un árbol o agua, apareces al lado
+const _stPk=start;start=function(){if(S&&S.map==="park"&&!WALK.has((MAPS.park.g[S.y]||[])[S.x])){let b=[4,5],d=1e9;MAPS.park.g.forEach((row,y)=>row.forEach((c,x)=>{const q=Math.abs(x-S.x)+Math.abs(y-S.y);if(y>=5&&WALK.has(c)&&q<d&&!MAPS.park.exits[x+","+y]){d=q;b=[x,y]}}));S.x=b[0];S.y=b[1]}return _stPk()};
+const _dtPk=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="park"&&ch==="ꝑ"){_dtPk(".",x,y,sx,sy,t,style);const r=MAPS.park.g[y],izq=r[x-1]==="ꝑ",der=r[x+1]==="ꝑ";px(sx+(izq?0:4),sy+13,(izq?4:0)+8+(der?4:0),2,"rgba(0,0,0,.18)");
+  for(const yy of[6,10]){px(sx+(izq?0:4),sy+yy,(izq?4:0)+8+(der?4:0),2,"#e8e4d8");px(sx+(izq?0:4),sy+yy+2,(izq?4:0)+8+(der?4:0),1,"#a8a498")}
+  for(const xx of[3,10]){px(sx+xx,sy+3,3,11,"#fbf8ee");px(sx+xx+2,sy+3,1,11,"#b8b4a8");px(sx+xx+1,sy+2,1,1,"#fbf8ee")}return}return _dtPk(ch,x,y,sx,sy,t,style)};
+// fuera la capa de "caminos marcados" del parque: era la arena suelta encima de la acera
+if(typeof PATHS!=="undefined")delete PATHS.park;
+// hierba alta toda igual, como en Pokémon (sin arbustos que parecen obstáculos)
+const _dtHb=drawTile;drawTile=function(ch,x,y,sx,sy,t,style){if(S.map==="park"&&ch===","){_dtHb(".",x,y,sx,sy,t,style);px(sx,sy+1,T,15,"#4f9e3c");for(const[ox,oy]of[[0,3],[8,3],[4,9],[12,9]]){const X=sx+(ox%16),Y=sy+oy,w=Math.floor(t/450+x*2+y+ox)%6===0?1:0;px(X+1+w,Y-1,1,6,"#86d060");px(X+3,Y-2,1,7,"#a4e47c");px(X+5-w,Y-1,1,6,"#86d060");px(X,Y+4,7,2,"#2f7a28")}return}return _dtHb(ch,x,y,sx,sy,t,style)};
+// el hueco donde se sienta el Chusta después del combate, sin parterre debajo
+MAPS.park.g[11][17]=".";MAPS.park.g[12][17]=".";
+
+/*</B4PARQUE>*/
 /*B4END*/
 function boot(data){fit();if(data&&data.state){S=data.state;start()}else titleScreen();requestAnimationFrame(frame);initRoom()}
 if(window.claude&&window.claude.hot&&window.claude.hot.snapshot){try{window.claude.hot.snapshot(()=>({state:mode==="title"?null:S}))}catch(e){}}
